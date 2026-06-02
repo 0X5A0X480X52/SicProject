@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>核心业务模块首页 Demo</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+    .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar {
+      height: 56px;
+      background: linear-gradient(90deg, #1456b8, #2675e8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      box-shadow: 0 2px 10px rgba(20, 86, 184, .22);
+    }
+    .brand { font-size: 18px; font-weight: 700; letter-spacing: .5px; }
+    .topbar .spacer { flex: 1; }
+    .topbar .user { font-size: 13px; opacity: .95; }
+    .layout { flex: 1; display: flex; min-height: 0; }
+    .sidebar {
+      width: 232px;
+      background: #0f2f63;
+      color: #dbeafe;
+      padding: 16px 10px;
+    }
+    .menu-title { font-size: 12px; color: #9fc1f6; padding: 8px 12px; }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 3px 0;
+      transition: all .15s ease;
+    }
+    .menu-item:hover { background: rgba(255,255,255,.08); }
+    .menu-item.active { background: #1d64d8; color: #fff; }
+    .menu-icon { width: 22px; height: 22px; border-radius: 7px; background: rgba(255,255,255,.15); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+    .main { flex: 1; padding: 20px 24px 30px; overflow: auto; }
+    .page-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .page-title { margin: 0; font-size: 22px; font-weight: 750; color: #111827; }
+    .page-subtitle { margin-top: 6px; color: #6b7280; font-size: 13px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    button, .btn-link {
+      border: 1px solid #d1d5db;
+      background: #fff;
+      color: #374151;
+      padding: 8px 13px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: .15s;
+    }
+    button:hover, .btn-link:hover { border-color: #3b82f6; color: #1d4ed8; box-shadow: 0 2px 8px rgba(59,130,246,.12); }
+    .btn-primary { background: #1d64d8; color: #fff; border-color: #1d64d8; }
+    .btn-primary:hover { background: #1456b8; color: #fff; }
+    .btn-danger { border-color: #fecaca; color: #b91c1c; background: #fff7f7; }
+    .btn-warning { border-color: #fed7aa; color: #c2410c; background: #fff7ed; }
+    .module-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .tab {
+      border: 1px solid #dbe3f0;
+      background: #fff;
+      padding: 9px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #4b5563;
+    }
+    .tab.active { background: #e8f1ff; border-color: #85b7ff; color: #1456b8; font-weight: 650; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .stat-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px 16px;
+      cursor: pointer;
+      box-shadow: 0 5px 18px rgba(15,23,42,.04);
+      transition: .15s;
+      min-height: 86px;
+    }
+    .stat-card:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(15,23,42,.08); }
+    .stat-card.active { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,.12); }
+    .stat-label { color: #6b7280; font-size: 13px; }
+    .stat-number { margin-top: 8px; font-size: 26px; font-weight: 780; color: #111827; }
+    .stat-note { margin-top: 2px; color: #9ca3af; font-size: 12px; }
+    .quickbar, .filter-panel, .table-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      box-shadow: 0 5px 18px rgba(15,23,42,.04);
+      margin-bottom: 14px;
+    }
+    .quickbar { padding: 12px 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .quick-label { color: #6b7280; font-size: 13px; margin-right: 4px; }
+    .chip {
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      border-radius: 999px;
+      padding: 7px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #4b5563;
+    }
+    .chip.active { background: #e8f1ff; color: #1456b8; border-color: #85b7ff; }
+    .filter-panel { padding: 14px; }
+    .filters { display: grid; grid-template-columns: repeat(5, minmax(140px, 1fr)); gap: 12px; }
+    .field label { display: block; font-size: 12px; color: #6b7280; margin-bottom: 5px; }
+    .field input, .field select {
+      width: 100%;
+      height: 36px;
+      border: 1px solid #d1d5db;
+      border-radius: 9px;
+      padding: 0 10px;
+      background: #fff;
+      color: #111827;
+    }
+    .table-card { overflow: hidden; }
+    .table-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #eef2f7; }
+    .table-title { font-weight: 700; }
+    .table-summary { font-size: 13px; color: #6b7280; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 13px 12px; text-align: left; border-bottom: 1px solid #eef2f7; font-size: 13px; vertical-align: middle; }
+    th { background: #f9fafb; color: #6b7280; font-weight: 650; }
+    tr:hover td { background: #fbfdff; }
+    .item-name { font-weight: 650; color: #111827; }
+    .item-desc { color: #6b7280; margin-top: 3px; font-size: 12px; }
+    .tag { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; font-size: 12px; border: 1px solid transparent; white-space: nowrap; }
+    .tag.blue { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .tag.orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .tag.green { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .tag.gray { background: #f3f4f6; color: #4b5563; border-color: #e5e7eb; }
+    .tag.red { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .tag.purple { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+    .material-status { display: flex; flex-direction: column; gap: 4px; }
+    .progress-line { width: 92px; height: 6px; border-radius: 999px; background: #e5e7eb; overflow: hidden; }
+    .progress-line span { display:block; height:100%; background:#1d64d8; border-radius:999px; }
+    .ops { display: flex; gap: 6px; flex-wrap: wrap; }
+    .modal-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.38);
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .modal-mask.show { display: flex; }
+    .modal {
+      width: 520px;
+      max-width: calc(100vw - 40px);
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 20px 70px rgba(15,23,42,.28);
+      padding: 20px;
+    }
+    .modal h3 { margin: 0 0 10px; }
+    .modal p { color: #6b7280; line-height: 1.7; }
+    .toast {
+      position: fixed;
+      right: 24px;
+      top: 72px;
+      background: #111827;
+      color: #fff;
+      padding: 11px 14px;
+      border-radius: 10px;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: .2s;
+      z-index: 60;
+      font-size: 13px;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    @media (max-width: 1280px) {
+      .stats { grid-template-columns: repeat(3, 1fr); }
+      .filters { grid-template-columns: repeat(3, 1fr); }
+      .sidebar { width: 206px; }
+    }
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; }
+      .sidebar { width: 100%; display: flex; overflow: auto; padding: 8px; }
+      .menu-title { display:none; }
+      .menu-item { white-space: nowrap; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .filters { grid-template-columns: 1fr; }
+      .page-head { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">高校科研项目管理系统 · 核心业务模块首页 Demo</div>
+    <div class="spacer"></div>
+    <div class="user">当前用户：科技处管理员 · zhang henry</div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="menu-title">核心业务模块</div>
+      <div class="menu-item active" data-module="all"><span class="menu-icon">总</span>业务总览</div>
+      <div class="menu-item" data-module="apply"><span class="menu-icon">申</span>项目申报管理</div>
+      <div class="menu-item" data-module="contract"><span class="menu-icon">合</span>项目合同管理</div>
+      <div class="menu-item" data-module="process"><span class="menu-icon">费</span>过程与经费管理</div>
+      <div class="menu-item" data-module="acceptance"><span class="menu-icon">结</span>结题验收管理</div>
+      <div class="menu-item" data-module="cooperation"><span class="menu-icon">采</span>科研合作与购买服务审批</div>
+      <div class="menu-title">横切支撑</div>
+      <div class="menu-item" onclick="showToast('演示：进入通知待办中心')"><span class="menu-icon">待</span>通知待办</div>
+      <div class="menu-item" onclick="showToast('演示：进入统计分析中心')"><span class="menu-icon">统</span>统计分析</div>
+    </aside>
+
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title" id="pageTitle">核心业务模块首页</h1>
+          <div class="page-subtitle" id="pageSubtitle">用于展示业务事项列表、状态统计、快捷筛选，并跳转至 BPMN 三栏式详情办理页。</div>
+        </div>
+        <div class="actions">
+          <button class="btn-primary" onclick="openCreateModal()">＋ 新建业务事项</button>
+          <button onclick="showToast('演示：下载材料模板')">材料模板</button>
+          <button onclick="showToast('演示：导出当前列表')">导出列表</button>
+          <button onclick="showToast('演示：打开流程说明')">流程说明</button>
+        </div>
+      </div>
+
+      <div class="module-tabs" id="moduleTabs">
+        <div class="tab active" data-module="all">全部业务</div>
+        <div class="tab" data-module="apply">项目申报</div>
+        <div class="tab" data-module="contract">项目合同</div>
+        <div class="tab" data-module="process">过程与经费</div>
+        <div class="tab" data-module="acceptance">结题验收</div>
+        <div class="tab" data-module="cooperation">合作与购买服务</div>
+      </div>
+
+      <section class="stats" id="stats"></section>
+
+      <section class="quickbar">
+        <span class="quick-label">快捷筛选：</span>
+        <span class="chip active" data-quick="all">全部</span>
+        <span class="chip" data-quick="mine">我的申请</span>
+        <span class="chip" data-quick="todo">待我处理</span>
+        <span class="chip" data-quick="doneByMe">我已处理</span>
+        <span class="chip" data-quick="returned">已退回</span>
+        <span class="chip" data-quick="overdue">超期预警</span>
+      </section>
+
+      <section class="filter-panel">
+        <div class="filters">
+          <div class="field">
+            <label>关键词</label>
+            <input id="keyword" placeholder="项目/合同/负责人/单位" />
+          </div>
+          <div class="field">
+            <label>年度</label>
+            <select id="year"><option value="all">全部</option><option>2026</option><option>2025</option><option>2024</option></select>
+          </div>
+          <div class="field">
+            <label>当前状态</label>
+            <select id="status"><option value="all">全部</option><option value="draft">草稿</option><option value="running">审批中</option><option value="returned">已退回</option><option value="completed">已完成</option><option value="archived">已归档</option></select>
+          </div>
+          <div class="field">
+            <label>所属单位</label>
+            <select id="department"><option value="all">全部</option><option>计算机与信息学院</option><option>管理学院</option><option>机械工程学院</option><option>材料科学与工程学院</option></select>
+          </div>
+          <div class="field">
+            <label>当前节点</label>
+            <select id="node"><option value="all">全部</option><option>填报申请书</option><option>二级单位审核</option><option>科技处初审</option><option>专家评审</option><option>合同审核</option><option>结题验收</option><option>归档完成</option></select>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-card">
+        <div class="table-head">
+          <div class="table-title">业务事项列表</div>
+          <div class="table-summary" id="tableSummary">共 0 条</div>
+        </div>
+        <div style="overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th style="min-width:260px;">业务事项</th>
+                <th>模块</th>
+                <th>负责人/申请人</th>
+                <th>所属单位</th>
+                <th>状态</th>
+                <th>当前节点</th>
+                <th>材料</th>
+                <th>轮次/退回</th>
+                <th>更新时间</th>
+                <th style="min-width:150px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="modal-mask" id="modalMask" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="modalTitle">新建业务事项</h3>
+    <p id="modalText">这里用于模拟新建业务事项入口。正式系统中可以根据当前模块进入不同的新建表单，如项目申报、合同起草、经费申请、结题申请或购买服务审批。</p>
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+      <button onclick="closeModal()">取消</button>
+      <button class="btn-primary" onclick="showToast('演示：进入新建表单'); closeModal();">进入新建表单</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const detailUrl = 'detail.html';
+
+const modules = {
+  all: { title: '核心业务模块首页', subtitle: '用于展示业务事项列表、状态统计、快捷筛选，并跳转至 BPMN 三栏式详情办理页。' },
+  apply: { title: '项目申报管理', subtitle: '管理科研项目申报、材料提交、二级单位审核、科技处审核、专家评审与申报归档。' },
+  contract: { title: '项目合同管理', subtitle: '管理合同起草、合同审核、用章审批、合同签订与合同归档。' },
+  process: { title: '项目过程与经费管理', subtitle: '管理项目中期检查、变更申请、经费预算调整、经费执行与过程材料。' },
+  acceptance: { title: '项目结题验收管理', subtitle: '管理结题申请、结题材料、专家验收、结果确认与档案归档。' },
+  cooperation: { title: '科研合作与购买服务审批', subtitle: '管理科研合作、购买服务、合作单位审核、合同协议与审批归档。' }
+};
+
+const moduleLabel = {
+  apply: '项目申报', contract: '项目合同', process: '过程与经费', acceptance: '结题验收', cooperation: '合作服务'
+};
+const statusMap = {
+  draft: ['草稿', 'gray'], running: ['审批中', 'blue'], returned: ['已退回', 'orange'], completed: ['已完成', 'green'], archived: ['已归档', 'purple'], rejected: ['已驳回', 'red']
+};
+
+const data = [
+  {id:'PJ-2026-001', module:'apply', name:'基于知识图谱的科研项目智能管理系统', desc:'校级科研项目申报', owner:'张三', dept:'计算机与信息学院', year:'2026', status:'running', node:'科技处初审', material:92, materialText:'5/5 已上传', round:3, returns:2, update:'2026-05-29 10:42', mine:true, todo:true, doneByMe:false, overdue:false},
+  {id:'PJ-2026-002', module:'apply', name:'面向高校科研管理的流程智能化平台', desc:'省级项目预申报', owner:'李四', dept:'管理学院', year:'2026', status:'returned', node:'填报申请书', material:72, materialText:'4/5 缺预算说明', round:2, returns:1, update:'2026-05-28 16:20', mine:true, todo:false, doneByMe:false, overdue:false},
+  {id:'CT-2026-011', module:'contract', name:'智能科研管理系统技术开发合同', desc:'关联项目：PJ-2026-001', owner:'王老师', dept:'计算机与信息学院', year:'2026', status:'running', node:'合同审核', material:80, materialText:'3/4 已上传', round:1, returns:0, update:'2026-05-29 09:15', mine:false, todo:true, doneByMe:false, overdue:false},
+  {id:'KF-2026-008', module:'process', name:'项目经费预算调整申请', desc:'设备费与测试费预算调整', owner:'赵六', dept:'机械工程学院', year:'2026', status:'running', node:'二级单位审核', material:68, materialText:'2/3 已上传', round:1, returns:0, update:'2026-05-27 14:04', mine:false, todo:true, doneByMe:false, overdue:true},
+  {id:'JC-2026-003', module:'acceptance', name:'复杂系统建模研究项目结题验收', desc:'结题报告与成果材料验收', owner:'陈七', dept:'管理学院', year:'2026', status:'completed', node:'归档完成', material:100, materialText:'6/6 完整', round:1, returns:0, update:'2026-05-25 17:30', mine:false, todo:false, doneByMe:true, overdue:false},
+  {id:'HZ-2026-015', module:'cooperation', name:'实验数据标注购买服务审批', desc:'购买第三方数据标注服务', owner:'孙八', dept:'材料科学与工程学院', year:'2026', status:'running', node:'科技处初审', material:75, materialText:'3/4 已上传', round:1, returns:0, update:'2026-05-29 11:10', mine:false, todo:true, doneByMe:false, overdue:false},
+  {id:'PJ-2025-032', module:'apply', name:'绿色企业识别与评级方法研究', desc:'历史项目申报归档', owner:'张恒睿', dept:'管理学院', year:'2025', status:'archived', node:'归档完成', material:100, materialText:'已归档', round:2, returns:1, update:'2025-12-18 09:00', mine:true, todo:false, doneByMe:true, overdue:false},
+  {id:'GC-2026-019', module:'process', name:'项目中期检查材料提交', desc:'中期进展报告与经费执行说明', owner:'周九', dept:'计算机与信息学院', year:'2026', status:'draft', node:'填报申请书', material:35, materialText:'1/4 待补充', round:1, returns:0, update:'2026-05-24 18:30', mine:true, todo:false, doneByMe:false, overdue:false},
+  {id:'CT-2026-006', module:'contract', name:'产学研合作协议补充合同', desc:'合作单位：安徽某科技公司', owner:'钱十', dept:'材料科学与工程学院', year:'2026', status:'returned', node:'合同修改', material:60, materialText:'2/4 缺盖章页', round:2, returns:1, update:'2026-05-26 12:15', mine:false, todo:false, doneByMe:true, overdue:false}
+];
+
+let currentModule = 'all';
+let currentQuick = 'all';
+let statFilter = 'all';
+
+function $(id) { return document.getElementById(id); }
+function tag(text, cls) { return `<span class="tag ${cls}">${text}</span>`; }
+function moduleTag(m) { return tag(moduleLabel[m], 'gray'); }
+function statusTag(s) { const [t,c] = statusMap[s]; return tag(t,c); }
+
+function setModule(module) {
+  currentModule = module;
+  document.querySelectorAll('[data-module]').forEach(el => {
+    if (el.classList.contains('menu-item') || el.classList.contains('tab')) {
+      el.classList.toggle('active', el.dataset.module === module);
+    }
+  });
+  $('pageTitle').textContent = modules[module].title;
+  $('pageSubtitle').textContent = modules[module].subtitle;
+  render();
+}
+
+function filteredData() {
+  const keyword = $('keyword').value.trim().toLowerCase();
+  const year = $('year').value;
+  const status = $('status').value;
+  const dept = $('department').value;
+  const node = $('node').value;
+
+  return data.filter(item => {
+    if (currentModule !== 'all' && item.module !== currentModule) return false;
+    if (currentQuick === 'mine' && !item.mine) return false;
+    if (currentQuick === 'todo' && !item.todo) return false;
+    if (currentQuick === 'doneByMe' && !item.doneByMe) return false;
+    if (currentQuick === 'returned' && item.status !== 'returned') return false;
+    if (currentQuick === 'overdue' && !item.overdue) return false;
+    if (statFilter !== 'all') {
+      if (statFilter === 'todo' && !item.todo) return false;
+      else if (statFilter === 'overdue' && !item.overdue) return false;
+      else if (!['todo','overdue'].includes(statFilter) && item.status !== statFilter) return false;
+    }
+    if (keyword && !(item.name + item.owner + item.dept + item.id).toLowerCase().includes(keyword)) return false;
+    if (year !== 'all' && item.year !== year) return false;
+    if (status !== 'all' && item.status !== status) return false;
+    if (dept !== 'all' && item.dept !== dept) return false;
+    if (node !== 'all' && item.node !== node) return false;
+    return true;
+  });
+}
+
+function renderStats() {
+  const base = data.filter(item => currentModule === 'all' || item.module === currentModule);
+  const stats = [
+    ['all','全部事项', base.length, '当前模块事项总数'],
+    ['todo','待我处理', base.filter(x=>x.todo).length, '需要当前用户办理'],
+    ['running','审批中', base.filter(x=>x.status==='running').length, '流程正在流转'],
+    ['returned','已退回', base.filter(x=>x.status==='returned').length, '等待修改或重提'],
+    ['completed','已完成', base.filter(x=>x.status==='completed').length, '审批已完成'],
+    ['overdue','超期预警', base.filter(x=>x.overdue).length, '超过办理时限']
+  ];
+  $('stats').innerHTML = stats.map(([key,label,num,note]) => `
+    <div class="stat-card ${statFilter===key?'active':''}" onclick="setStatFilter('${key}')">
+      <div class="stat-label">${label}</div>
+      <div class="stat-number">${num}</div>
+      <div class="stat-note">${note}</div>
+    </div>
+  `).join('');
+}
+
+function setStatFilter(key) { statFilter = key; render(); }
+
+function renderTable() {
+  const list = filteredData();
+  $('tableSummary').textContent = `共 ${list.length} 条，当前模块：${modules[currentModule].title}`;
+  $('tbody').innerHTML = list.map(item => {
+    const quickAction = item.todo ? '<a class="btn-link btn-primary" href="'+detailUrl+'#task='+item.id+'">办理</a>' : '<a class="btn-link" href="'+detailUrl+'#view='+item.id+'">查看</a>';
+    const editBtn = item.status === 'returned' || item.status === 'draft' ? '<a class="btn-link btn-warning" href="'+detailUrl+'#edit='+item.id+'">修改</a>' : '';
+    return `
+      <tr>
+        <td>
+          <div class="item-name">${item.name}</div>
+          <div class="item-desc">${item.id} · ${item.desc}</div>
+        </td>
+        <td>${moduleTag(item.module)}</td>
+        <td>${item.owner}</td>
+        <td>${item.dept}</td>
+        <td>${statusTag(item.status)} ${item.overdue ? tag('超期','red') : ''}</td>
+        <td>${item.node}</td>
+        <td>
+          <div class="material-status">
+            <div>${item.materialText}</div>
+            <div class="progress-line"><span style="width:${item.material}%"></span></div>
+          </div>
+        </td>
+        <td>第 ${item.round} 轮<br><span style="color:#6b7280;font-size:12px;">退回 ${item.returns} 次</span></td>
+        <td>${item.update}</td>
+        <td><div class="ops">${quickAction}${editBtn}<button onclick="showToast('演示：打开操作日志 ${item.id}')">日志</button></div></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function render() { renderStats(); renderTable(); }
+
+function openCreateModal() {
+  $('modalTitle').textContent = currentModule === 'all' ? '新建业务事项' : `新建${modules[currentModule].title}`;
+  $('modalMask').classList.add('show');
+}
+function closeModal(e) {
+  if (e && e.target !== $('modalMask')) return;
+  $('modalMask').classList.remove('show');
+}
+function showToast(text) {
+  const t = $('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+// Bind events
+[...document.querySelectorAll('.menu-item[data-module], .tab[data-module]')].forEach(el => {
+  el.addEventListener('click', () => setModule(el.dataset.module));
+});
+[...document.querySelectorAll('.chip')].forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+    currentQuick = el.dataset.quick;
+    statFilter = 'all';
+    render();
+  });
+});
+['keyword','year','status','department','node'].forEach(id => $(id).addEventListener('input', render));
+
+render();
+</script>
+</body>
+</html>

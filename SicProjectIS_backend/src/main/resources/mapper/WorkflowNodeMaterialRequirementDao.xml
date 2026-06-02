@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.WorkflowNodeMaterialRequirementDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.WorkflowNodeMaterialRequirement">
+        <id column="requirement_id" property="requirementId" jdbcType="BIGINT" />
+        <result column="workflow_node_id" property="workflowNodeId" jdbcType="BIGINT" />
+        <result column="material_type_id" property="materialTypeId" jdbcType="BIGINT" />
+        <result column="requirement_timing" property="requirementTiming" jdbcType="VARCHAR" />
+        <result column="required" property="required" jdbcType="TINYINT" />
+        <result column="min_count" property="minCount" jdbcType="INTEGER" />
+        <result column="max_count" property="maxCount" jdbcType="INTEGER" />
+        <result column="usage_type" property="usageType" jdbcType="VARCHAR" />
+        <result column="validator_key" property="validatorKey" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="LONGVARCHAR" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`requirement_id`, `workflow_node_id`, `material_type_id`, `requirement_timing`, `required`, `min_count`, `max_count`, `usage_type`, `validator_key`, `description`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `workflow_node_material_requirement` WHERE `requirement_id` = #{requirementId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `workflow_node_material_requirement`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.WorkflowNodeMaterialRequirement" useGeneratedKeys="true" keyProperty="requirementId" keyColumn="requirement_id">
+        INSERT INTO `workflow_node_material_requirement`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="workflowNodeId != null">`workflow_node_id`,</if>
+            <if test="materialTypeId != null">`material_type_id`,</if>
+            <if test="requirementTiming != null">`requirement_timing`,</if>
+            <if test="required != null">`required`,</if>
+            <if test="minCount != null">`min_count`,</if>
+            <if test="maxCount != null">`max_count`,</if>
+            <if test="usageType != null">`usage_type`,</if>
+            <if test="validatorKey != null">`validator_key`,</if>
+            <if test="description != null">`description`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="workflowNodeId != null">#{workflowNodeId, jdbcType=BIGINT},</if>
+            <if test="materialTypeId != null">#{materialTypeId, jdbcType=BIGINT},</if>
+            <if test="requirementTiming != null">#{requirementTiming, jdbcType=VARCHAR},</if>
+            <if test="required != null">#{required, jdbcType=TINYINT},</if>
+            <if test="minCount != null">#{minCount, jdbcType=INTEGER},</if>
+            <if test="maxCount != null">#{maxCount, jdbcType=INTEGER},</if>
+            <if test="usageType != null">#{usageType, jdbcType=VARCHAR},</if>
+            <if test="validatorKey != null">#{validatorKey, jdbcType=VARCHAR},</if>
+            <if test="description != null">#{description, jdbcType=LONGVARCHAR},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.WorkflowNodeMaterialRequirement">
+        UPDATE `workflow_node_material_requirement`
+        <set>
+            <if test="workflowNodeId != null">`workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT},</if>
+            <if test="materialTypeId != null">`material_type_id` = #{materialTypeId, jdbcType=BIGINT},</if>
+            <if test="requirementTiming != null">`requirement_timing` = #{requirementTiming, jdbcType=VARCHAR},</if>
+            <if test="required != null">`required` = #{required, jdbcType=TINYINT},</if>
+            <if test="minCount != null">`min_count` = #{minCount, jdbcType=INTEGER},</if>
+            <if test="maxCount != null">`max_count` = #{maxCount, jdbcType=INTEGER},</if>
+            <if test="usageType != null">`usage_type` = #{usageType, jdbcType=VARCHAR},</if>
+            <if test="validatorKey != null">`validator_key` = #{validatorKey, jdbcType=VARCHAR},</if>
+            <if test="description != null">`description` = #{description, jdbcType=LONGVARCHAR},</if>
+        </set>
+        WHERE `requirement_id` = #{requirementId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `workflow_node_material_requirement` WHERE `requirement_id` = #{requirementId, jdbcType=BIGINT}
+    </delete>
+</mapper>

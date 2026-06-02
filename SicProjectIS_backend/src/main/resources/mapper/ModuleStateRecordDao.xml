@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.ModuleStateRecordDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.ModuleStateRecord">
+        <id column="state_record_id" property="stateRecordId" jdbcType="BIGINT" />
+        <result column="module_instance_id" property="moduleInstanceId" jdbcType="BIGINT" />
+        <result column="seq" property="seq" jdbcType="INTEGER" />
+        <result column="round_no" property="roundNo" jdbcType="INTEGER" />
+        <result column="event_type" property="eventType" jdbcType="VARCHAR" />
+        <result column="from_state" property="fromState" jdbcType="VARCHAR" />
+        <result column="to_state" property="toState" jdbcType="VARCHAR" />
+        <result column="from_node_id" property="fromNodeId" jdbcType="VARCHAR" />
+        <result column="to_node_id" property="toNodeId" jdbcType="VARCHAR" />
+        <result column="result" property="result" jdbcType="VARCHAR" />
+        <result column="summary" property="summary" jdbcType="VARCHAR" />
+        <result column="payload_json" property="payloadJson" jdbcType="LONGVARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`state_record_id`, `module_instance_id`, `seq`, `round_no`, `event_type`, `from_state`, `to_state`, `from_node_id`, `to_node_id`, `result`, `summary`, `payload_json`, `created_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `module_state_record` WHERE `state_record_id` = #{stateRecordId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `module_state_record`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.ModuleStateRecord" useGeneratedKeys="true" keyProperty="stateRecordId" keyColumn="state_record_id">
+        INSERT INTO `module_state_record`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="moduleInstanceId != null">`module_instance_id`,</if>
+            <if test="seq != null">`seq`,</if>
+            <if test="roundNo != null">`round_no`,</if>
+            <if test="eventType != null">`event_type`,</if>
+            <if test="fromState != null">`from_state`,</if>
+            <if test="toState != null">`to_state`,</if>
+            <if test="fromNodeId != null">`from_node_id`,</if>
+            <if test="toNodeId != null">`to_node_id`,</if>
+            <if test="result != null">`result`,</if>
+            <if test="summary != null">`summary`,</if>
+            <if test="payloadJson != null">`payload_json`,</if>
+            <if test="createdAt != null">`created_at`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="moduleInstanceId != null">#{moduleInstanceId, jdbcType=BIGINT},</if>
+            <if test="seq != null">#{seq, jdbcType=INTEGER},</if>
+            <if test="roundNo != null">#{roundNo, jdbcType=INTEGER},</if>
+            <if test="eventType != null">#{eventType, jdbcType=VARCHAR},</if>
+            <if test="fromState != null">#{fromState, jdbcType=VARCHAR},</if>
+            <if test="toState != null">#{toState, jdbcType=VARCHAR},</if>
+            <if test="fromNodeId != null">#{fromNodeId, jdbcType=VARCHAR},</if>
+            <if test="toNodeId != null">#{toNodeId, jdbcType=VARCHAR},</if>
+            <if test="result != null">#{result, jdbcType=VARCHAR},</if>
+            <if test="summary != null">#{summary, jdbcType=VARCHAR},</if>
+            <if test="payloadJson != null">#{payloadJson, jdbcType=LONGVARCHAR},</if>
+            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.ModuleStateRecord">
+        UPDATE `module_state_record`
+        <set>
+            <if test="moduleInstanceId != null">`module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT},</if>
+            <if test="seq != null">`seq` = #{seq, jdbcType=INTEGER},</if>
+            <if test="roundNo != null">`round_no` = #{roundNo, jdbcType=INTEGER},</if>
+            <if test="eventType != null">`event_type` = #{eventType, jdbcType=VARCHAR},</if>
+            <if test="fromState != null">`from_state` = #{fromState, jdbcType=VARCHAR},</if>
+            <if test="toState != null">`to_state` = #{toState, jdbcType=VARCHAR},</if>
+            <if test="fromNodeId != null">`from_node_id` = #{fromNodeId, jdbcType=VARCHAR},</if>
+            <if test="toNodeId != null">`to_node_id` = #{toNodeId, jdbcType=VARCHAR},</if>
+            <if test="result != null">`result` = #{result, jdbcType=VARCHAR},</if>
+            <if test="summary != null">`summary` = #{summary, jdbcType=VARCHAR},</if>
+            <if test="payloadJson != null">`payload_json` = #{payloadJson, jdbcType=LONGVARCHAR},</if>
+            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE `state_record_id` = #{stateRecordId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `module_state_record` WHERE `state_record_id` = #{stateRecordId, jdbcType=BIGINT}
+    </delete>
+</mapper>

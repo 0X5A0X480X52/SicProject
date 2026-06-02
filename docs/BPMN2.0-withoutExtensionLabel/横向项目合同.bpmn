@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:flowable="http://flowable.org/bpmn" id="Definitions_horizontalResearchProjectContractProcess" targetNamespace="http://www.example.com/research-project" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <process id="horizontalResearchProjectContractProcess" name="横向科研项目合同书填写流程" isExecutable="true">
+    <laneSet id="LaneSet_horizontalResearchProjectContractProcess">
+      <lane id="Lane_ProjectLeader" name="项目负责人">
+        <flowNodeRef>StartEvent</flowNodeRef>
+        <flowNodeRef>DraftEntrustContractTask</flowNodeRef>
+        <flowNodeRef>UploadOaApprovalTask</flowNodeRef>
+        <flowNodeRef>RegisterAndUploadPdfTask</flowNodeRef>
+        <flowNodeRef>ApplyFundingAllocationTask</flowNodeRef>
+        <flowNodeRef>SubmitCompletionProofTask</flowNodeRef>
+        <flowNodeRef>ApprovedEndEvent</flowNodeRef>
+      </lane>
+      <lane id="Lane_Client" name="委托方">
+        <flowNodeRef>SealBySchoolAndClientTask</flowNodeRef>
+      </lane>
+      <lane id="Lane_Department" name="二级单位">
+        <flowNodeRef>DeptPrincipalReviewTask</flowNodeRef>
+        <flowNodeRef>DeptReviewGateway</flowNodeRef>
+      </lane>
+      <lane id="Lane_ScienceOffice" name="科技处">
+        <flowNodeRef>ScienceOfficeInitialReviewTask</flowNodeRef>
+        <flowNodeRef>ScienceInitialGateway</flowNodeRef>
+        <flowNodeRef>ScienceOfficeChiefReviewTask</flowNodeRef>
+        <flowNodeRef>ScienceChiefGateway</flowNodeRef>
+        <flowNodeRef>ScienceSystemConfirmTask</flowNodeRef>
+      </lane>
+      <lane id="Lane_SchoolLeader" name="校领导/OA">
+        <flowNodeRef>SchoolLeaderApprovalTask</flowNodeRef>
+        <flowNodeRef>SchoolLeaderGateway</flowNodeRef>
+      </lane>
+      <lane id="Lane_Finance" name="财务处">
+        <flowNodeRef>FinanceAllocationTask</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="StartEvent" name="开始" />
+    <userTask id="DraftEntrustContractTask" name="与委托方协商并起草项目委托合同" flowable:assignee="${projectLeader}" />
+    <userTask id="UploadOaApprovalTask" name="签字并上传OA系统走审批程序" flowable:assignee="${projectLeader}" />
+    <userTask id="DeptPrincipalReviewTask" name="二级单位主要负责人审核同意" flowable:candidateGroups="DEPT_PRINCIPAL" />
+    <exclusiveGateway id="DeptReviewGateway" name="二级单位审核结果" />
+    <userTask id="ScienceOfficeInitialReviewTask" name="科技处科研项目管理科初审" flowable:candidateGroups="SCIENCE_OFFICE_PROJECT_ADMIN" />
+    <exclusiveGateway id="ScienceInitialGateway" name="科技处初审结果" />
+    <userTask id="ScienceOfficeChiefReviewTask" name="科技处处长审核" flowable:candidateGroups="SCIENCE_OFFICE_DIRECTOR" />
+    <exclusiveGateway id="ScienceChiefGateway" name="处长审核结果" />
+    <userTask id="SchoolLeaderApprovalTask" name="校领导审批" flowable:candidateGroups="SCHOOL_LEADER" />
+    <exclusiveGateway id="SchoolLeaderGateway" name="校领导审批结果" />
+    <userTask id="SealBySchoolAndClientTask" name="学校盖章、委托方盖章" flowable:candidateGroups="SEAL_ADMIN" />
+    <userTask id="RegisterAndUploadPdfTask" name="科研管理系统登记并上传签章PDF合同" flowable:assignee="${projectLeader}" />
+    <userTask id="ScienceSystemConfirmTask" name="科技处科研管理系统确认" flowable:candidateGroups="SCIENCE_OFFICE_ADMIN" />
+    <userTask id="ApplyFundingAllocationTask" name="经费到校后OA申请经费划拨" flowable:assignee="${projectLeader}" />
+    <userTask id="FinanceAllocationTask" name="财务处办理经费下拨" flowable:candidateGroups="FINANCE_ADMIN" />
+    <userTask id="SubmitCompletionProofTask" name="提供委托方结题证明/结题报告/研究报告" flowable:assignee="${projectLeader}" />
+    <endEvent id="ApprovedEndEvent" name="横向合同流程完成" />
+    <sequenceFlow id="Flow_Start_Draft" sourceRef="StartEvent" targetRef="DraftEntrustContractTask" />
+    <sequenceFlow id="Flow_Draft_UploadOA" sourceRef="DraftEntrustContractTask" targetRef="UploadOaApprovalTask" />
+    <sequenceFlow id="Flow_UploadOA_DeptReview" sourceRef="UploadOaApprovalTask" targetRef="DeptPrincipalReviewTask" />
+    <sequenceFlow id="Flow_DeptReview_Gateway" sourceRef="DeptPrincipalReviewTask" targetRef="DeptReviewGateway" />
+    <sequenceFlow id="Flow_DeptReject_Return" name="不通过，返回申请人修改" sourceRef="DeptReviewGateway" targetRef="DraftEntrustContractTask">
+      <conditionExpression xsi:type="tFormalExpression">${deptApproved == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_DeptPass_ScienceInitial" name="通过" sourceRef="DeptReviewGateway" targetRef="ScienceOfficeInitialReviewTask">
+      <conditionExpression xsi:type="tFormalExpression">${deptApproved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_ScienceInitial_Gateway" sourceRef="ScienceOfficeInitialReviewTask" targetRef="ScienceInitialGateway" />
+    <sequenceFlow id="Flow_ScienceInitialReject_Return" name="不通过，返回申请人修改" sourceRef="ScienceInitialGateway" targetRef="DraftEntrustContractTask">
+      <conditionExpression xsi:type="tFormalExpression">${scienceInitialApproved == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_ScienceInitialPass_Chief" name="通过" sourceRef="ScienceInitialGateway" targetRef="ScienceOfficeChiefReviewTask">
+      <conditionExpression xsi:type="tFormalExpression">${scienceInitialApproved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_ScienceChief_Gateway" sourceRef="ScienceOfficeChiefReviewTask" targetRef="ScienceChiefGateway" />
+    <sequenceFlow id="Flow_ScienceChiefReject_Return" name="不通过，返回申请人修改" sourceRef="ScienceChiefGateway" targetRef="DraftEntrustContractTask">
+      <conditionExpression xsi:type="tFormalExpression">${scienceChiefApproved == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_ScienceChiefPass_School" name="通过" sourceRef="ScienceChiefGateway" targetRef="SchoolLeaderApprovalTask">
+      <conditionExpression xsi:type="tFormalExpression">${scienceChiefApproved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_SchoolApproval_Gateway" sourceRef="SchoolLeaderApprovalTask" targetRef="SchoolLeaderGateway" />
+    <sequenceFlow id="Flow_SchoolReject_Return" name="不通过，返回申请人修改" sourceRef="SchoolLeaderGateway" targetRef="DraftEntrustContractTask">
+      <conditionExpression xsi:type="tFormalExpression">${schoolLeaderApproved == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_SchoolPass_Seal" name="通过" sourceRef="SchoolLeaderGateway" targetRef="SealBySchoolAndClientTask">
+      <conditionExpression xsi:type="tFormalExpression">${schoolLeaderApproved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_Seal_Register" sourceRef="SealBySchoolAndClientTask" targetRef="RegisterAndUploadPdfTask" />
+    <sequenceFlow id="Flow_Register_Confirm" sourceRef="RegisterAndUploadPdfTask" targetRef="ScienceSystemConfirmTask" />
+    <sequenceFlow id="Flow_Confirm_ApplyFunding" sourceRef="ScienceSystemConfirmTask" targetRef="ApplyFundingAllocationTask" />
+    <sequenceFlow id="Flow_ApplyFunding_Finance" sourceRef="ApplyFundingAllocationTask" targetRef="FinanceAllocationTask" />
+    <sequenceFlow id="Flow_Finance_SubmitProof" sourceRef="FinanceAllocationTask" targetRef="SubmitCompletionProofTask" />
+    <sequenceFlow id="Flow_SubmitProof_End" sourceRef="SubmitCompletionProofTask" targetRef="ApprovedEndEvent" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_horizontalResearchProjectContractProcess">
+    <bpmndi:BPMNPlane id="BPMNPlane_horizontalResearchProjectContractProcess" bpmnElement="horizontalResearchProjectContractProcess">
+      <bpmndi:BPMNShape id="Lane_Finance_di" bpmnElement="Lane_Finance" isHorizontal="true">
+        <omgdc:Bounds x="160" y="640" width="3980" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_SchoolLeader_di" bpmnElement="Lane_SchoolLeader" isHorizontal="true">
+        <omgdc:Bounds x="160" y="520" width="3980" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_ScienceOffice_di" bpmnElement="Lane_ScienceOffice" isHorizontal="true">
+        <omgdc:Bounds x="160" y="400" width="3980" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Department_di" bpmnElement="Lane_Department" isHorizontal="true">
+        <omgdc:Bounds x="160" y="280" width="3980" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Client_di" bpmnElement="Lane_Client" isHorizontal="true">
+        <omgdc:Bounds x="160" y="160" width="3980" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_ProjectLeader_di" bpmnElement="Lane_ProjectLeader" isHorizontal="true">
+        <omgdc:Bounds x="160" y="40" width="3980" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_di" bpmnElement="StartEvent">
+        <omgdc:Bounds x="210" y="82" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="200" y="123" width="100" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DraftEntrustContractTask_di" bpmnElement="DraftEntrustContractTask">
+        <omgdc:Bounds x="280" y="65" width="250" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UploadOaApprovalTask_di" bpmnElement="UploadOaApprovalTask">
+        <omgdc:Bounds x="580" y="65" width="230" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DeptPrincipalReviewTask_di" bpmnElement="DeptPrincipalReviewTask">
+        <omgdc:Bounds x="860" y="305" width="230" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DeptReviewGateway_di" bpmnElement="DeptReviewGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="1140" y="315" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1120" y="370" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceOfficeInitialReviewTask_di" bpmnElement="ScienceOfficeInitialReviewTask">
+        <omgdc:Bounds x="1260" y="425" width="230" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceInitialGateway_di" bpmnElement="ScienceInitialGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="1540" y="435" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1526" y="490" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceOfficeChiefReviewTask_di" bpmnElement="ScienceOfficeChiefReviewTask">
+        <omgdc:Bounds x="1660" y="425" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceChiefGateway_di" bpmnElement="ScienceChiefGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="1880" y="435" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1871" y="490" width="67" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SchoolLeaderApprovalTask_di" bpmnElement="SchoolLeaderApprovalTask">
+        <omgdc:Bounds x="2000" y="545" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SchoolLeaderGateway_di" bpmnElement="SchoolLeaderGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="2200" y="555" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2186" y="610" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SealBySchoolAndClientTask_di" bpmnElement="SealBySchoolAndClientTask">
+        <omgdc:Bounds x="2320" y="185" width="210" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="RegisterAndUploadPdfTask_di" bpmnElement="RegisterAndUploadPdfTask">
+        <omgdc:Bounds x="2580" y="65" width="260" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceSystemConfirmTask_di" bpmnElement="ScienceSystemConfirmTask">
+        <omgdc:Bounds x="2890" y="425" width="220" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ApplyFundingAllocationTask_di" bpmnElement="ApplyFundingAllocationTask">
+        <omgdc:Bounds x="3160" y="65" width="220" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="FinanceAllocationTask_di" bpmnElement="FinanceAllocationTask">
+        <omgdc:Bounds x="3420" y="665" width="190" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SubmitCompletionProofTask_di" bpmnElement="SubmitCompletionProofTask">
+        <omgdc:Bounds x="3650" y="65" width="300" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ApprovedEndEvent_di" bpmnElement="ApprovedEndEvent">
+        <omgdc:Bounds x="4000" y="82" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="3990" y="123" width="100" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_Draft_di" bpmnElement="Flow_Start_Draft">
+        <omgdi:waypoint x="246" y="100" />
+        <omgdi:waypoint x="280" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Draft_UploadOA_di" bpmnElement="Flow_Draft_UploadOA">
+        <omgdi:waypoint x="530" y="100" />
+        <omgdi:waypoint x="580" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UploadOA_DeptReview_di" bpmnElement="Flow_UploadOA_DeptReview">
+        <omgdi:waypoint x="810" y="100" />
+        <omgdi:waypoint x="835" y="100" />
+        <omgdi:waypoint x="835" y="340" />
+        <omgdi:waypoint x="860" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DeptReview_Gateway_di" bpmnElement="Flow_DeptReview_Gateway">
+        <omgdi:waypoint x="1090" y="340" />
+        <omgdi:waypoint x="1140" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DeptReject_Return_di" bpmnElement="Flow_DeptReject_Return">
+        <omgdi:waypoint x="1165" y="315" />
+        <omgdi:waypoint x="1165" y="50" />
+        <omgdi:waypoint x="405" y="50" />
+        <omgdi:waypoint x="405" y="65" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1052" y="60" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DeptPass_ScienceInitial_di" bpmnElement="Flow_DeptPass_ScienceInitial">
+        <omgdi:waypoint x="1190" y="340" />
+        <omgdi:waypoint x="1225" y="340" />
+        <omgdi:waypoint x="1225" y="460" />
+        <omgdi:waypoint x="1260" y="460" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1188" y="323" width="23" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceInitial_Gateway_di" bpmnElement="Flow_ScienceInitial_Gateway">
+        <omgdi:waypoint x="1490" y="460" />
+        <omgdi:waypoint x="1540" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceInitialReject_Return_di" bpmnElement="Flow_ScienceInitialReject_Return">
+        <omgdi:waypoint x="1565" y="435" />
+        <omgdi:waypoint x="1565" y="50" />
+        <omgdi:waypoint x="405" y="50" />
+        <omgdi:waypoint x="405" y="65" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1452" y="60" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceInitialPass_Chief_di" bpmnElement="Flow_ScienceInitialPass_Chief">
+        <omgdi:waypoint x="1590" y="460" />
+        <omgdi:waypoint x="1660" y="460" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1598" y="443" width="23" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceChief_Gateway_di" bpmnElement="Flow_ScienceChief_Gateway">
+        <omgdi:waypoint x="1830" y="460" />
+        <omgdi:waypoint x="1880" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceChiefReject_Return_di" bpmnElement="Flow_ScienceChiefReject_Return">
+        <omgdi:waypoint x="1905" y="435" />
+        <omgdi:waypoint x="1905" y="50" />
+        <omgdi:waypoint x="405" y="50" />
+        <omgdi:waypoint x="405" y="65" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1797" y="60" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceChiefPass_School_di" bpmnElement="Flow_ScienceChiefPass_School">
+        <omgdi:waypoint x="1930" y="460" />
+        <omgdi:waypoint x="1965" y="460" />
+        <omgdi:waypoint x="1965" y="580" />
+        <omgdi:waypoint x="2000" y="580" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1953" y="443" width="23" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SchoolApproval_Gateway_di" bpmnElement="Flow_SchoolApproval_Gateway">
+        <omgdi:waypoint x="2150" y="580" />
+        <omgdi:waypoint x="2200" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SchoolReject_Return_di" bpmnElement="Flow_SchoolReject_Return">
+        <omgdi:waypoint x="2225" y="555" />
+        <omgdi:waypoint x="2225" y="50" />
+        <omgdi:waypoint x="405" y="50" />
+        <omgdi:waypoint x="405" y="65" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2112" y="60" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SchoolPass_Seal_di" bpmnElement="Flow_SchoolPass_Seal">
+        <omgdi:waypoint x="2250" y="580" />
+        <omgdi:waypoint x="2285" y="580" />
+        <omgdi:waypoint x="2285" y="220" />
+        <omgdi:waypoint x="2320" y="220" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2273" y="583" width="23" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Seal_Register_di" bpmnElement="Flow_Seal_Register">
+        <omgdi:waypoint x="2530" y="220" />
+        <omgdi:waypoint x="2555" y="220" />
+        <omgdi:waypoint x="2555" y="100" />
+        <omgdi:waypoint x="2580" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Register_Confirm_di" bpmnElement="Flow_Register_Confirm">
+        <omgdi:waypoint x="2840" y="100" />
+        <omgdi:waypoint x="2865" y="100" />
+        <omgdi:waypoint x="2865" y="460" />
+        <omgdi:waypoint x="2890" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Confirm_ApplyFunding_di" bpmnElement="Flow_Confirm_ApplyFunding">
+        <omgdi:waypoint x="3110" y="460" />
+        <omgdi:waypoint x="3135" y="460" />
+        <omgdi:waypoint x="3135" y="100" />
+        <omgdi:waypoint x="3160" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ApplyFunding_Finance_di" bpmnElement="Flow_ApplyFunding_Finance">
+        <omgdi:waypoint x="3380" y="100" />
+        <omgdi:waypoint x="3400" y="100" />
+        <omgdi:waypoint x="3400" y="700" />
+        <omgdi:waypoint x="3420" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Finance_SubmitProof_di" bpmnElement="Flow_Finance_SubmitProof">
+        <omgdi:waypoint x="3610" y="700" />
+        <omgdi:waypoint x="3630" y="700" />
+        <omgdi:waypoint x="3630" y="100" />
+        <omgdi:waypoint x="3650" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SubmitProof_End_di" bpmnElement="Flow_SubmitProof_End">
+        <omgdi:waypoint x="3950" y="100" />
+        <omgdi:waypoint x="4000" y="100" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

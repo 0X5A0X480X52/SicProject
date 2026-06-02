@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.UserRoleDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.UserRole">
+        <id column="user_role_id" property="userRoleId" jdbcType="BIGINT" />
+        <result column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="role_id" property="roleId" jdbcType="BIGINT" />
+        <result column="assigned_at" property="assignedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`user_role_id`, `user_id`, `role_id`, `assigned_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `user_role` WHERE `user_role_id` = #{userRoleId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `user_role`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.UserRole" useGeneratedKeys="true" keyProperty="userRoleId" keyColumn="user_role_id">
+        INSERT INTO `user_role`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">`user_id`,</if>
+            <if test="roleId != null">`role_id`,</if>
+            <if test="assignedAt != null">`assigned_at`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId, jdbcType=BIGINT},</if>
+            <if test="roleId != null">#{roleId, jdbcType=BIGINT},</if>
+            <if test="assignedAt != null">#{assignedAt, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.UserRole">
+        UPDATE `user_role`
+        <set>
+            <if test="userId != null">`user_id` = #{userId, jdbcType=BIGINT},</if>
+            <if test="roleId != null">`role_id` = #{roleId, jdbcType=BIGINT},</if>
+            <if test="assignedAt != null">`assigned_at` = #{assignedAt, jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE `user_role_id` = #{userRoleId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `user_role` WHERE `user_role_id` = #{userRoleId, jdbcType=BIGINT}
+    </delete>
+</mapper>

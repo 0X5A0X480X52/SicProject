@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.StateRecordMaterialDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.StateRecordMaterial">
+        <id column="record_material_id" property="recordMaterialId" jdbcType="BIGINT" />
+        <result column="state_record_id" property="stateRecordId" jdbcType="BIGINT" />
+        <result column="remark_id" property="remarkId" jdbcType="BIGINT" />
+        <result column="material_version_id" property="materialVersionId" jdbcType="BIGINT" />
+        <result column="material_usage" property="materialUsage" jdbcType="VARCHAR" />
+        <result column="is_required" property="isRequired" jdbcType="TINYINT" />
+        <result column="linked_at" property="linkedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`record_material_id`, `state_record_id`, `remark_id`, `material_version_id`, `material_usage`, `is_required`, `linked_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `state_record_material` WHERE `record_material_id` = #{recordMaterialId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `state_record_material`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.StateRecordMaterial" useGeneratedKeys="true" keyProperty="recordMaterialId" keyColumn="record_material_id">
+        INSERT INTO `state_record_material`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="stateRecordId != null">`state_record_id`,</if>
+            <if test="remarkId != null">`remark_id`,</if>
+            <if test="materialVersionId != null">`material_version_id`,</if>
+            <if test="materialUsage != null">`material_usage`,</if>
+            <if test="isRequired != null">`is_required`,</if>
+            <if test="linkedAt != null">`linked_at`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="stateRecordId != null">#{stateRecordId, jdbcType=BIGINT},</if>
+            <if test="remarkId != null">#{remarkId, jdbcType=BIGINT},</if>
+            <if test="materialVersionId != null">#{materialVersionId, jdbcType=BIGINT},</if>
+            <if test="materialUsage != null">#{materialUsage, jdbcType=VARCHAR},</if>
+            <if test="isRequired != null">#{isRequired, jdbcType=TINYINT},</if>
+            <if test="linkedAt != null">#{linkedAt, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.StateRecordMaterial">
+        UPDATE `state_record_material`
+        <set>
+            <if test="stateRecordId != null">`state_record_id` = #{stateRecordId, jdbcType=BIGINT},</if>
+            <if test="remarkId != null">`remark_id` = #{remarkId, jdbcType=BIGINT},</if>
+            <if test="materialVersionId != null">`material_version_id` = #{materialVersionId, jdbcType=BIGINT},</if>
+            <if test="materialUsage != null">`material_usage` = #{materialUsage, jdbcType=VARCHAR},</if>
+            <if test="isRequired != null">`is_required` = #{isRequired, jdbcType=TINYINT},</if>
+            <if test="linkedAt != null">`linked_at` = #{linkedAt, jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE `record_material_id` = #{recordMaterialId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `state_record_material` WHERE `record_material_id` = #{recordMaterialId, jdbcType=BIGINT}
+    </delete>
+</mapper>

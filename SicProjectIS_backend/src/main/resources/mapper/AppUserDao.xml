@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.AppUserDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.AppUser">
+        <id column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="username" property="username" jdbcType="VARCHAR" />
+        <result column="password_hash" property="passwordHash" jdbcType="VARCHAR" />
+        <result column="real_name" property="realName" jdbcType="VARCHAR" />
+        <result column="dept_id" property="deptId" jdbcType="BIGINT" />
+        <result column="phone" property="phone" jdbcType="VARCHAR" />
+        <result column="email" property="email" jdbcType="VARCHAR" />
+        <result column="enabled" property="enabled" jdbcType="TINYINT" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`user_id`, `username`, `password_hash`, `real_name`, `dept_id`, `phone`, `email`, `enabled`, `created_at`, `updated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `app_user` WHERE `user_id` = #{userId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `app_user`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.AppUser" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
+        INSERT INTO `app_user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="username != null">`username`,</if>
+            <if test="passwordHash != null">`password_hash`,</if>
+            <if test="realName != null">`real_name`,</if>
+            <if test="deptId != null">`dept_id`,</if>
+            <if test="phone != null">`phone`,</if>
+            <if test="email != null">`email`,</if>
+            <if test="enabled != null">`enabled`,</if>
+            <if test="createdAt != null">`created_at`,</if>
+            <if test="updatedAt != null">`updated_at`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="username != null">#{username, jdbcType=VARCHAR},</if>
+            <if test="passwordHash != null">#{passwordHash, jdbcType=VARCHAR},</if>
+            <if test="realName != null">#{realName, jdbcType=VARCHAR},</if>
+            <if test="deptId != null">#{deptId, jdbcType=BIGINT},</if>
+            <if test="phone != null">#{phone, jdbcType=VARCHAR},</if>
+            <if test="email != null">#{email, jdbcType=VARCHAR},</if>
+            <if test="enabled != null">#{enabled, jdbcType=TINYINT},</if>
+            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
+            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.AppUser">
+        UPDATE `app_user`
+        <set>
+            <if test="username != null">`username` = #{username, jdbcType=VARCHAR},</if>
+            <if test="passwordHash != null">`password_hash` = #{passwordHash, jdbcType=VARCHAR},</if>
+            <if test="realName != null">`real_name` = #{realName, jdbcType=VARCHAR},</if>
+            <if test="deptId != null">`dept_id` = #{deptId, jdbcType=BIGINT},</if>
+            <if test="phone != null">`phone` = #{phone, jdbcType=VARCHAR},</if>
+            <if test="email != null">`email` = #{email, jdbcType=VARCHAR},</if>
+            <if test="enabled != null">`enabled` = #{enabled, jdbcType=TINYINT},</if>
+            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
+            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE `user_id` = #{userId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `app_user` WHERE `user_id` = #{userId, jdbcType=BIGINT}
+    </delete>
+</mapper>

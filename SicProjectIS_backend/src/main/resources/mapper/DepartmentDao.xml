@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.DepartmentDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.Department">
+        <id column="dept_id" property="deptId" jdbcType="BIGINT" />
+        <result column="dept_code" property="deptCode" jdbcType="VARCHAR" />
+        <result column="dept_name" property="deptName" jdbcType="VARCHAR" />
+        <result column="parent_dept_id" property="parentDeptId" jdbcType="BIGINT" />
+        <result column="enabled" property="enabled" jdbcType="TINYINT" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`dept_id`, `dept_code`, `dept_name`, `parent_dept_id`, `enabled`, `created_at`, `updated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `department` WHERE `dept_id` = #{deptId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `department`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.Department" useGeneratedKeys="true" keyProperty="deptId" keyColumn="dept_id">
+        INSERT INTO `department`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deptCode != null">`dept_code`,</if>
+            <if test="deptName != null">`dept_name`,</if>
+            <if test="parentDeptId != null">`parent_dept_id`,</if>
+            <if test="enabled != null">`enabled`,</if>
+            <if test="createdAt != null">`created_at`,</if>
+            <if test="updatedAt != null">`updated_at`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="deptCode != null">#{deptCode, jdbcType=VARCHAR},</if>
+            <if test="deptName != null">#{deptName, jdbcType=VARCHAR},</if>
+            <if test="parentDeptId != null">#{parentDeptId, jdbcType=BIGINT},</if>
+            <if test="enabled != null">#{enabled, jdbcType=TINYINT},</if>
+            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
+            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.Department">
+        UPDATE `department`
+        <set>
+            <if test="deptCode != null">`dept_code` = #{deptCode, jdbcType=VARCHAR},</if>
+            <if test="deptName != null">`dept_name` = #{deptName, jdbcType=VARCHAR},</if>
+            <if test="parentDeptId != null">`parent_dept_id` = #{parentDeptId, jdbcType=BIGINT},</if>
+            <if test="enabled != null">`enabled` = #{enabled, jdbcType=TINYINT},</if>
+            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
+            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE `dept_id` = #{deptId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `department` WHERE `dept_id` = #{deptId, jdbcType=BIGINT}
+    </delete>
+</mapper>

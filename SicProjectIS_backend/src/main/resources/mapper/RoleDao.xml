@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.RoleDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.Role">
+        <id column="role_id" property="roleId" jdbcType="BIGINT" />
+        <result column="role_code" property="roleCode" jdbcType="VARCHAR" />
+        <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+        <result column="role_desc" property="roleDesc" jdbcType="LONGVARCHAR" />
+        <result column="enabled" property="enabled" jdbcType="TINYINT" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`role_id`, `role_code`, `role_name`, `role_desc`, `enabled`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `role` WHERE `role_id` = #{roleId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `role`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.Role" useGeneratedKeys="true" keyProperty="roleId" keyColumn="role_id">
+        INSERT INTO `role`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="roleCode != null">`role_code`,</if>
+            <if test="roleName != null">`role_name`,</if>
+            <if test="roleDesc != null">`role_desc`,</if>
+            <if test="enabled != null">`enabled`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="roleCode != null">#{roleCode, jdbcType=VARCHAR},</if>
+            <if test="roleName != null">#{roleName, jdbcType=VARCHAR},</if>
+            <if test="roleDesc != null">#{roleDesc, jdbcType=LONGVARCHAR},</if>
+            <if test="enabled != null">#{enabled, jdbcType=TINYINT},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.Role">
+        UPDATE `role`
+        <set>
+            <if test="roleCode != null">`role_code` = #{roleCode, jdbcType=VARCHAR},</if>
+            <if test="roleName != null">`role_name` = #{roleName, jdbcType=VARCHAR},</if>
+            <if test="roleDesc != null">`role_desc` = #{roleDesc, jdbcType=LONGVARCHAR},</if>
+            <if test="enabled != null">`enabled` = #{enabled, jdbcType=TINYINT},</if>
+        </set>
+        WHERE `role_id` = #{roleId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `role` WHERE `role_id` = #{roleId, jdbcType=BIGINT}
+    </delete>
+</mapper>

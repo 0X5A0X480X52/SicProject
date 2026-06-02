@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.ProjectModuleInstanceDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.ProjectModuleInstance">
+        <id column="module_instance_id" property="moduleInstanceId" jdbcType="BIGINT" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <result column="module_type" property="moduleType" jdbcType="VARCHAR" />
+        <result column="workflow_definition_id" property="workflowDefinitionId" jdbcType="BIGINT" />
+        <result column="started_at" property="startedAt" jdbcType="TIMESTAMP" />
+        <result column="finished_at" property="finishedAt" jdbcType="TIMESTAMP" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`module_instance_id`, `project_id`, `module_type`, `workflow_definition_id`, `started_at`, `finished_at`, `created_at`, `updated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_module_instance` WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_module_instance`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectModuleInstance" useGeneratedKeys="true" keyProperty="moduleInstanceId" keyColumn="module_instance_id">
+        INSERT INTO `project_module_instance`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="projectId != null">`project_id`,</if>
+            <if test="moduleType != null">`module_type`,</if>
+            <if test="workflowDefinitionId != null">`workflow_definition_id`,</if>
+            <if test="startedAt != null">`started_at`,</if>
+            <if test="finishedAt != null">`finished_at`,</if>
+            <if test="createdAt != null">`created_at`,</if>
+            <if test="updatedAt != null">`updated_at`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="projectId != null">#{projectId, jdbcType=BIGINT},</if>
+            <if test="moduleType != null">#{moduleType, jdbcType=VARCHAR},</if>
+            <if test="workflowDefinitionId != null">#{workflowDefinitionId, jdbcType=BIGINT},</if>
+            <if test="startedAt != null">#{startedAt, jdbcType=TIMESTAMP},</if>
+            <if test="finishedAt != null">#{finishedAt, jdbcType=TIMESTAMP},</if>
+            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
+            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectModuleInstance">
+        UPDATE `project_module_instance`
+        <set>
+            <if test="projectId != null">`project_id` = #{projectId, jdbcType=BIGINT},</if>
+            <if test="moduleType != null">`module_type` = #{moduleType, jdbcType=VARCHAR},</if>
+            <if test="workflowDefinitionId != null">`workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT},</if>
+            <if test="startedAt != null">`started_at` = #{startedAt, jdbcType=TIMESTAMP},</if>
+            <if test="finishedAt != null">`finished_at` = #{finishedAt, jdbcType=TIMESTAMP},</if>
+            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
+            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `project_module_instance` WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
+    </delete>
+</mapper>

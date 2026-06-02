@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>时间线主导型流程详情 Demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/bpmn-js@17.11.1/dist/assets/bpmn-js.css" />
+  <link rel="stylesheet" href="https://unpkg.com/bpmn-js@17.11.1/dist/assets/diagram-js.css" />
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --line: #e5e9f2;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-soft: #eaf1ff;
+      --success: #16a34a;
+      --success-soft: #eaf8ef;
+      --warning: #f59e0b;
+      --warning-soft: #fff7e6;
+      --danger: #dc2626;
+      --danger-soft: #fff1f2;
+      --gray-soft: #f3f4f6;
+      --shadow: 0 12px 30px rgba(15, 23, 42, .08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    button, input, select, textarea { font-family: inherit; }
+    button { cursor: pointer; }
+
+    #app { height: 100vh; display: flex; flex-direction: column; }
+
+    .topbar {
+      height: 72px;
+      background: linear-gradient(135deg, #0f3d8e 0%, #2468d8 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, .22);
+      z-index: 5;
+    }
+    .topbar h1 { font-size: 20px; margin: 0 0 4px; font-weight: 800; }
+    .topbar .sub { font-size: 12px; opacity: .88; display: flex; gap: 12px; flex-wrap: wrap; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .top-btn {
+      border: 1px solid rgba(255,255,255,.3);
+      background: rgba(255,255,255,.16);
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .page {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 290px minmax(560px, 1fr) 340px;
+      gap: 14px;
+      padding: 14px;
+      min-height: 0;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-height: 0;
+      overflow: hidden;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 800;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .hint { color: var(--muted); font-size: 12px; }
+    .left { overflow: auto; padding: 16px; }
+    .right { overflow: auto; padding: 16px; }
+    .center { display: flex; flex-direction: column; gap: 12px; min-width: 0; overflow: hidden; }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .kv { display: grid; grid-template-columns: 82px 1fr; gap: 7px 10px; font-size: 13px; margin-top: 12px; }
+    .kv .k { color: var(--muted); }
+    .kv .v { font-weight: 650; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 999px; padding: 4px 8px; font-size: 12px; font-weight: 700;
+      background: var(--gray-soft); color: #4b5563;
+    }
+    .tag.blue { background: var(--primary-soft); color: var(--primary); }
+    .tag.green { background: var(--success-soft); color: var(--success); }
+    .tag.orange { background: var(--warning-soft); color: #b45309; }
+    .tag.red { background: var(--danger-soft); color: var(--danger); }
+
+    .material {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 10px 0; border-bottom: 1px dashed var(--line);
+      font-size: 13px;
+    }
+    .material:last-child { border-bottom: none; }
+    .material a { color: var(--primary); text-decoration: none; font-weight: 650; }
+    .material a:hover { text-decoration: underline; }
+
+    .mini-bpmn-card {
+      height: 205px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .mini-bpmn-head {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mini-bpmn-title { display: flex; align-items: center; gap: 10px; }
+    .legend { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .dot.green { background: var(--success); }
+    .dot.blue { background: var(--primary); }
+    .dot.orange { background: var(--warning); }
+    .dot.gray { background: #cbd5e1; }
+    .bpmn-thumb { flex: 1; min-height: 0; background: #fbfcff; }
+    .bpmn-thumb .djs-container { cursor: pointer; }
+    .ghost-btn {
+      border: 1px solid var(--line); background: #fff; color: #374151;
+      padding: 7px 10px; border-radius: 10px; font-size: 12px; font-weight: 700;
+    }
+    .ghost-btn:hover { border-color: #bfdbfe; background: #eff6ff; color: var(--primary); }
+
+    .timeline-card { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .timeline-head {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 7px 12px; font-size: 12px; font-weight: 800; color: #4b5563; }
+    .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 6px 15px rgba(37, 99, 235, .22); }
+    .timeline-body { padding: 16px 18px 22px; overflow: auto; }
+
+    .timeline-wrap { position: relative; padding: 4px 0 0; }
+    .round-title {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 10px 0 12px;
+      gap: 12px;
+    }
+    .round-title h3 { font-size: 15px; margin: 0; }
+    .round-note { font-size: 12px; color: var(--muted); }
+
+    .main-line {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(8, minmax(116px, 1fr));
+      gap: 0;
+      min-width: 930px;
+      padding: 18px 4px 8px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff, #fbfcff);
+      border: 1px solid #edf1f7;
+    }
+    .main-line::before {
+      content: "";
+      position: absolute;
+      left: 62px; right: 62px; top: 43px;
+      height: 3px; background: #dbe3ef;
+    }
+    .step { position: relative; z-index: 2; text-align: center; padding: 0 8px; }
+    .step-node {
+      width: 28px; height: 28px; border-radius: 50%; margin: 7px auto 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900;
+      background: #e5e7eb; color: #64748b; border: 3px solid #fff;
+      box-shadow: 0 0 0 1px #cbd5e1;
+    }
+    .step.completed .step-node { background: var(--success); color: #fff; box-shadow: 0 0 0 2px #bbf7d0; }
+    .step.current .step-node { background: var(--primary); color: #fff; box-shadow: 0 0 0 4px #dbeafe; animation: pulse 1.4s infinite; }
+    .step.returned .step-node { background: var(--warning); color: #fff; box-shadow: 0 0 0 3px #fde68a; }
+    .step.invalid .step-node { background: #a7f3d0; color: #065f46; opacity: .72; box-shadow: 0 0 0 2px #d1fae5; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 3px #dbeafe; } 70% { box-shadow: 0 0 0 9px rgba(219,234,254,0); } 100% { box-shadow: 0 0 0 3px #dbeafe; } }
+    .step-title { font-size: 12px; font-weight: 800; line-height: 1.35; min-height: 34px; }
+    .step-meta { color: var(--muted); font-size: 11px; line-height: 1.35; margin-top: 4px; }
+    .step-card {
+      margin-top: 8px;
+      border: 1px solid #edf1f7;
+      border-radius: 12px;
+      padding: 8px;
+      background: #fff;
+      text-align: left;
+      min-height: 76px;
+      transition: .18s;
+    }
+    .step-card:hover { border-color: #bfdbfe; box-shadow: 0 6px 14px rgba(15,23,42,.06); transform: translateY(-1px); }
+    .step-summary { font-size: 12px; line-height: 1.42; color: #334155; }
+    .step-user { font-size: 11px; color: var(--muted); margin-top: 6px; }
+    .step.clickable .step-card, .step.clickable .step-node { cursor: pointer; }
+
+    .branch-area { min-width: 930px; padding: 16px 4px 0; }
+    .branch {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      width: 52%;
+      margin-left: var(--branch-left, 34%);
+      padding: 20px 12px 12px;
+      border: 1px solid #fed7aa;
+      background: var(--warning-soft);
+      border-radius: 14px;
+      margin-bottom: 10px;
+    }
+    .branch::before {
+      content: "";
+      position: absolute;
+      width: 2px;
+      height: 24px;
+      left: 18px;
+      top: -24px;
+      background: var(--warning);
+    }
+    .branch-label {
+      position: absolute;
+      top: -12px; left: 34px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: #9a3412;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .branch-item {
+      background: #fff;
+      border: 1px solid #fde2bd;
+      border-radius: 12px;
+      padding: 10px;
+      min-height: 82px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .branch-item:hover { border-color: var(--warning); }
+    .branch-item strong { display: block; color: #9a3412; margin-bottom: 6px; font-size: 12px; }
+    .branch-item p { margin: 0; color: #6b7280; line-height: 1.45; }
+
+    .future-list {
+      min-width: 930px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .future-item {
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 10px;
+      color: #64748b;
+      font-size: 12px;
+      min-height: 64px;
+    }
+    .future-item strong { display: block; color: #475569; margin-bottom: 5px; }
+
+    .approval-mode { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 8px; font-size: 13px; background: #fff; margin-top: 10px; }
+    .task-box { border-radius: 14px; padding: 12px; margin-top: 12px; background: #f8fbff; border: 1px solid #dbeafe; }
+    .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    .action-btn { border-radius: 10px; border: 1px solid var(--line); padding: 8px 6px; font-size: 12px; font-weight: 800; background: #fff; }
+    .action-btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .action-btn.warning { background: var(--warning-soft); color: #92400e; border-color: #fcd34d; }
+    .action-btn.danger { background: var(--danger-soft); color: var(--danger); border-color: #fecdd3; }
+    .action-btn.active { outline: 3px solid #dbeafe; }
+    textarea { width: 100%; min-height: 78px; margin-top: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; resize: vertical; font-size: 13px; }
+    .submit-btn { width: 100%; border: none; border-radius: 12px; padding: 11px; margin-top: 10px; background: var(--primary); color: #fff; font-weight: 900; }
+    .full-btn { width: 100%; border: 1px solid #bfdbfe; border-radius: 12px; padding: 10px; margin-top: 10px; background: #eff6ff; color: var(--primary); font-weight: 900; }
+    .readonly { padding: 12px; border-radius: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; color: #64748b; font-size: 13px; line-height: 1.6; }
+
+    .node-detail { margin-top: 10px; font-size: 13px; line-height: 1.65; }
+    .record { border-left: 3px solid #dbeafe; padding: 8px 0 8px 10px; margin-top: 10px; font-size: 12px; line-height: 1.55; color: #475569; }
+    .record.warn { border-left-color: var(--warning); }
+
+    .modal-mask {
+      position: fixed; inset: 0; background: rgba(15,23,42,.55);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 50;
+      padding: 24px;
+    }
+    .modal {
+      width: min(1180px, 96vw);
+      max-height: 90vh;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 25px 80px rgba(0,0,0,.25);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-head { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-weight: 900; }
+    .close { border: none; background: #f3f4f6; border-radius: 10px; padding: 8px 10px; }
+    .bpmn-modal { width: min(1380px, 98vw); max-height: 94vh; }
+    .modal-bpmn { height: 72vh; background: #fbfcff; }
+    .bpmn-modal-toolbar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #f8fafc;
+      flex-wrap: wrap;
+    }
+    .bpmn-view-tabs { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .bpmn-tool-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .tool-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #475569;
+    }
+    .tool-btn:hover { border-color: #bfdbfe; color: var(--primary); background: #eff6ff; }
+    .modal-bpmn-layout {
+      display: grid;
+      grid-template-columns: minmax(640px, 1fr) 310px;
+      min-height: 0;
+    }
+    .large-bpmn-wrap { position: relative; min-width: 0; border-right: 1px solid var(--line); }
+    .large-bpmn-wrap.dragging { cursor: grabbing; }
+    .modal-bpmn-side {
+      padding: 16px;
+      overflow: auto;
+      background: #ffffff;
+      max-height: 72vh;
+    }
+    .side-title { font-size: 14px; font-weight: 900; margin: 0 0 10px; }
+    .side-block { border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-top: 10px; background: #fbfcff; }
+    .side-block p { margin: 6px 0 0; color: #475569; font-size: 12px; line-height: 1.55; }
+    .history-chip {
+      display: inline-flex;
+      margin: 6px 6px 0 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #dbeafe;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .bpmn-tooltip {
+      position: fixed;
+      z-index: 80;
+      max-width: 310px;
+      pointer-events: none;
+      background: rgba(15,23,42,.94);
+      color: #fff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      box-shadow: 0 14px 35px rgba(15,23,42,.28);
+    }
+    .bpmn-tooltip strong { display: block; font-size: 13px; margin-bottom: 3px; }
+    .bpmn-tooltip .muted { color: #cbd5e1; }
+    .material-modal-body { padding: 18px; overflow: auto; }
+    .preview-box { border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: #fbfcff; min-height: 280px; }
+
+    /* bpmn marker styles */
+    .djs-element.node-completed .djs-visual > :nth-child(1) { stroke: var(--success) !important; fill: #ecfdf3 !important; stroke-width: 3px !important; }
+    .djs-element.node-current .djs-visual > :nth-child(1) { stroke: var(--primary) !important; fill: #eff6ff !important; stroke-width: 4px !important; }
+    .djs-element.node-returned .djs-visual > :nth-child(1) { stroke: var(--warning) !important; fill: #fff7ed !important; stroke-width: 4px !important; }
+    .djs-element.node-invalid .djs-visual > :nth-child(1) { stroke: #86efac !important; fill: #f0fdf4 !important; stroke-dasharray: 6 4 !important; }
+    .djs-element.node-dim { opacity: .34; }
+    .djs-element.flow-completed .djs-visual path { stroke: var(--success) !important; stroke-width: 3px !important; }
+    .djs-element.flow-returned .djs-visual path { stroke: var(--warning) !important; stroke-width: 4px !important; stroke-dasharray: 8 4 !important; }
+    .djs-element.node-selected .djs-visual > :nth-child(1) { filter: drop-shadow(0 0 8px rgba(37,99,235,.45)); }
+
+    .overlay-note {
+      max-width: 130px;
+      background: rgba(255,255,255,.96);
+      border: 1px solid #dbeafe;
+      color: #1e3a8a;
+      border-radius: 8px;
+      padding: 4px 6px;
+      font-size: 11px;
+      line-height: 1.25;
+      box-shadow: 0 4px 12px rgba(15,23,42,.12);
+      pointer-events: none;
+      white-space: normal;
+    }
+    .overlay-note.warn { border-color: #fed7aa; color: #9a3412; }
+    .overlay-note.green { border-color: #bbf7d0; color: #166534; }
+
+    @media (max-width: 980px) {
+      .modal-bpmn-layout { grid-template-columns: 1fr; }
+      .large-bpmn-wrap { border-right: none; border-bottom: 1px solid var(--line); }
+      .modal-bpmn-side { max-height: 32vh; }
+    }
+
+    @media (max-width: 1180px) {
+      body { overflow: auto; }
+      #app { min-height: 100vh; height: auto; }
+      .page { grid-template-columns: 1fr; overflow: visible; }
+      .center { min-height: 840px; }
+      .left, .right { max-height: none; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div>
+      <h1>业务事项详情 · 时间线主导视图</h1>
+      <div class="sub">
+        <span>高校科研项目申报审批流程</span>
+        <span>当前轮次：第 { currentRoundNo } 轮</span>
+        <span>当前节点：{ currentTask.taskName }</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="status-pill">● 审批中</span>
+      <button class="top-btn" @click="openLargeBpmn">展开 BPMN 大图</button>
+      <button class="top-btn" @click="showToast('已模拟导出当前流程记录')">导出记录</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <aside class="panel left">
+      <div class="card">
+        <h2 class="section-title">项目概览 <span class="tag blue">审批中</span></h2>
+        <div class="kv">
+          <div class="k">项目名称</div><div class="v">智能科研项目管理系统</div>
+          <div class="k">负责人</div><div class="v">张三</div>
+          <div class="k">所属单位</div><div class="v">计算机与信息学院</div>
+          <div class="k">项目类别</div><div class="v">校级重点项目</div>
+          <div class="k">申报年度</div><div class="v">2026</div>
+          <div class="k">当前节点</div><div class="v">{ currentTask.taskName }</div>
+          <div class="k">退回次数</div><div class="v"><span class="tag orange">2 次</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">申报材料 <span class="hint">可点击查看</span></h2>
+        <div class="material" v-for="m in materials" :key="m.name">
+          <div>
+            <a href="#" @click.prevent="openMaterial(m)">{ m.name }</a>
+            <div class="hint">{ m.desc }</div>
+          </div>
+          <span class="tag" :class="m.tagClass">{ m.status }</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">历史评审状态</h2>
+        <div class="record warn">第 1 轮：科技处初审退回。原因：预算说明附件缺失。</div>
+        <div class="record warn">第 2 轮：专家评审退回。原因：研究内容论证不足。</div>
+        <div class="record">第 3 轮：当前有效进度，等待科技处初审办理。</div>
+      </div>
+    </aside>
+
+    <section class="center">
+      <div class="panel mini-bpmn-card">
+        <div class="mini-bpmn-head">
+          <div class="mini-bpmn-title">
+            <h2 class="section-title">BPMN 流程缩略图</h2>
+            <div class="legend">
+              <span><i class="dot green"></i> 已完成</span>
+              <span><i class="dot blue"></i> 当前</span>
+              <span><i class="dot orange"></i> 退回</span>
+              <span><i class="dot gray"></i> 未到达</span>
+            </div>
+          </div>
+          <button class="ghost-btn" @click="openLargeBpmn">展开大图</button>
+        </div>
+        <div ref="thumbRef" class="bpmn-thumb"></div>
+      </div>
+
+      <div class="panel timeline-card">
+        <div class="timeline-head">
+          <div>
+            <h2 class="section-title">流程办理时间线</h2>
+            <div class="hint">以时间树为主，BPMN 作为流程地图；点击节点可同步定位缩略图和右侧详情。</div>
+          </div>
+          <div class="tabs">
+            <button class="tab" :class="{ active: activeView === 'latest' }" @click="switchView('latest')">最新进度</button>
+            <button class="tab" :class="{ active: activeView === 'r1' }" @click="switchView('r1')">第1轮</button>
+            <button class="tab" :class="{ active: activeView === 'r2' }" @click="switchView('r2')">第2轮</button>
+            <button class="tab" :class="{ active: activeView === 'r3' }" @click="switchView('r3')">第3轮</button>
+            <button class="tab" :class="{ active: activeView === 'all' }" @click="switchView('all')">完整轨迹</button>
+          </div>
+        </div>
+
+        <div class="timeline-body">
+          <template v-if="activeView !== 'all'">
+            <div class="round-title">
+              <h3>{ currentRound.title }</h3>
+              <span class="round-note">{ currentRound.note }</span>
+            </div>
+
+            <div class="timeline-wrap">
+              <div class="main-line">
+                <div v-for="step in currentRound.steps" :key="step.id" class="step clickable" :class="step.status" @click="selectActivity(step.id)">
+                  <div class="step-node">{ statusSymbol(step.status) }</div>
+                  <div class="step-title">{ step.name }</div>
+                  <div class="step-meta">{ step.time || '待执行' }</div>
+                  <div class="step-card">
+                    <div class="step-summary">{ step.summary }</div>
+                    <div class="step-user">{ step.assignee || '暂未分配' }</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="branch-area" v-if="currentRound.returns.length">
+                <div class="branch" v-for="ret in currentRound.returns" :key="ret.no" :style="{ '--branch-left': ret.left }">
+                  <div class="branch-label">第 { ret.no } 次退回修正</div>
+                  <div class="branch-item" @click="selectActivity(ret.from)">
+                    <strong>退回来源</strong>
+                    <p>{ ret.fromName }</p>
+                    <p>{ ret.time }</p>
+                  </div>
+                  <div class="branch-item" @click="showToast(ret.reason)">
+                    <strong>退回原因</strong>
+                    <p>{ ret.reason }</p>
+                  </div>
+                  <div class="branch-item" @click="selectActivity(ret.to)">
+                    <strong>重新提交</strong>
+                    <p>{ ret.toName }</p>
+                    <p>{ ret.resubmitTime }</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="future-list" v-if="currentRound.future.length">
+                <div class="future-item" v-for="f in currentRound.future" :key="f.id" @click="selectActivity(f.id)">
+                  <strong>{ f.name }</strong>
+                  <span>{ f.summary }</span>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <template v-else>
+            <div v-for="round in rounds" :key="round.key" style="margin-bottom: 20px;">
+              <div class="round-title"><h3>{ round.title }</h3><span class="round-note">{ round.note }</span></div>
+              <div class="main-line">
+                <div v-for="step in round.steps" :key="round.key + step.id" class="step clickable" :class="step.status" @click="selectActivity(step.id)">
+                  <div class="step-node">{ statusSymbol(step.status) }</div>
+                  <div class="step-title">{ step.name }</div>
+                  <div class="step-meta">{ step.time || '待执行' }</div>
+                  <div class="step-card"><div class="step-summary">{ step.summary }</div><div class="step-user">{ step.assignee || '暂未分配' }</div></div>
+                </div>
+              </div>
+              <div class="branch-area" v-if="round.returns.length">
+                <div class="branch" v-for="ret in round.returns" :key="round.key + ret.no" :style="{ '--branch-left': ret.left }">
+                  <div class="branch-label">第 { ret.no } 次退回修正</div>
+                  <div class="branch-item" @click="selectActivity(ret.from)"><strong>退回来源</strong><p>{ ret.fromName }</p><p>{ ret.time }</p></div>
+                  <div class="branch-item" @click="showToast(ret.reason)"><strong>退回原因</strong><p>{ ret.reason }</p></div>
+                  <div class="branch-item" @click="selectActivity(ret.to)"><strong>重新提交</strong><p>{ ret.toName }</p><p>{ ret.resubmitTime }</p></div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel right">
+      <div class="card">
+        <h2 class="section-title">当前审批任务</h2>
+        <select class="approval-mode" v-model="approvalScenario" @change="setApprovalScenario">
+          <option value="quick">科技处初审 · 快速审批</option>
+          <option value="detail">专家评审 · 详细表单</option>
+          <option value="readonly">项目负责人 · 只读查看</option>
+        </select>
+
+        <div class="task-box">
+          <div class="kv" style="margin-top:0;">
+            <div class="k">任务</div><div class="v">{ currentTask.taskName }</div>
+            <div class="k">处理角色</div><div class="v">{ currentTask.role }</div>
+            <div class="k">权限</div><div class="v"><span class="tag" :class="currentTask.canOperate ? 'green' : ''">{ currentTask.canOperate ? '可办理' : '只读' }</span></div>
+            <div class="k">模式</div><div class="v">{ modeLabel(currentTask.operateMode) }</div>
+          </div>
+        </div>
+
+        <template v-if="currentTask.operateMode === 'QUICK_APPROVAL'">
+          <div class="action-grid">
+            <button v-for="a in currentTask.availableActions" :key="a.code" class="action-btn" :class="[a.type, { active: selectedAction === a.code }]" @click="selectedAction = a.code">{ a.label }</button>
+          </div>
+          <textarea v-model="approvalComment" placeholder="请输入审批意见。退回/转交时建议填写具体原因。"></textarea>
+          <button class="submit-btn" @click="submitApproval">提交审批</button>
+          <button class="full-btn" @click="showToast('打开完整初审表单：可查看材料完整性、预算说明、单位推荐信息')">进入完整初审表单</button>
+        </template>
+
+        <template v-else-if="currentTask.operateMode === 'DETAIL_FORM'">
+          <div class="readonly" style="margin-top:12px;">
+            该任务需要填写完整评审表，不建议在右侧小栏直接提交。
+          </div>
+          <button class="full-btn" @click="showToast('打开专家评分表：创新性、可行性、研究基础、经费合理性、综合意见')">进入专家评分表</button>
+        </template>
+
+        <template v-else>
+          <div class="readonly" style="margin-top:12px;">
+            当前用户暂无该节点办理权限。可查看项目材料、流程进度与审批记录。
+          </div>
+          <button class="full-btn" @click="openMaterial(materials[0])">查看申报材料</button>
+        </template>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">节点详情</h2>
+        <div class="node-detail">
+          <div><strong>节点：</strong>{ selectedDetail.name }</div>
+          <div><strong>状态：</strong>{ selectedDetail.statusText }</div>
+          <div><strong>办理人：</strong>{ selectedDetail.assignee || '暂无' }</div>
+          <div><strong>时间：</strong>{ selectedDetail.time || '暂无' }</div>
+          <div><strong>摘要：</strong>{ selectedDetail.summary }</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">最近审批记录</h2>
+        <div class="record warn">05-22 科技处初审退回：预算附件缺失，请补充说明。</div>
+        <div class="record warn">05-26 专家评审退回：研究内容论证不足。</div>
+        <div class="record">05-29 项目负责人重新提交：已补充研究内容和预算说明。</div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="modal-mask" v-if="showBpmnModal" @click.self="closeBpmnModal">
+    <div class="modal bpmn-modal">
+      <div class="modal-head">
+        <div class="modal-title">完整 BPMN 流程图 · 当前视图：{ bpmnViewLabel }</div>
+        <button class="close" @click.stop="closeBpmnModal">关闭</button>
+      </div>
+      <div class="bpmn-modal-toolbar">
+        <div class="bpmn-view-tabs">
+          <button class="tab" :class="{ active: activeBpmnView === 'latest' }" @click="switchBpmnView('latest')">最新进度</button>
+          <button class="tab" :class="{ active: activeBpmnView === 'r1' }" @click="switchBpmnView('r1')">第1轮</button>
+          <button class="tab" :class="{ active: activeBpmnView === 'r2' }" @click="switchBpmnView('r2')">第2轮</button>
+          <button class="tab" :class="{ active: activeBpmnView === 'r3' }" @click="switchBpmnView('r3')">第3轮</button>
+          <button class="tab" :class="{ active: activeBpmnView === 'all' }" @click="switchBpmnView('all')">完整轨迹</button>
+        </div>
+        <div class="bpmn-tool-group">
+          <button class="tool-btn" @click="zoomLarge(0.16)">放大</button>
+          <button class="tool-btn" @click="zoomLarge(-0.16)">缩小</button>
+          <button class="tool-btn" @click="fitLarge">适应屏幕</button>
+          <button class="tool-btn" @click="focusSelectedInLarge">定位选中节点</button>
+        </div>
+      </div>
+      <div class="modal-bpmn-layout">
+        <div ref="largeWrapRef" class="large-bpmn-wrap">
+          <div ref="largeRef" class="modal-bpmn"></div>
+        </div>
+        <aside class="modal-bpmn-side">
+          <h3 class="side-title">节点详细介绍</h3>
+          <div class="hint">悬停节点查看摘要，点击节点固定到此详情面板；画布支持拖动和滚轮缩放。</div>
+          <div class="side-block">
+            <div><strong>{ modalSelectedDetail.name }</strong></div>
+            <p>状态：{ modalSelectedDetail.statusText }</p>
+            <p>节点类型：{ modalSelectedDetail.nodeType }</p>
+            <p>处理角色：{ modalSelectedDetail.role }</p>
+            <p>办理人：{ modalSelectedDetail.assignee || '暂无' }</p>
+            <p>时间：{ modalSelectedDetail.time || '暂无' }</p>
+          </div>
+          <div class="side-block">
+            <div><strong>完成情况简述</strong></div>
+            <p>{ modalSelectedDetail.summary }</p>
+          </div>
+          <div class="side-block">
+            <div><strong>业务说明</strong></div>
+            <p>{ modalSelectedDetail.description }</p>
+          </div>
+          <div class="side-block" v-if="modalSelectedDetail.roundHistory.length">
+            <div><strong>本节点历史轮次</strong></div>
+            <span class="history-chip" v-for="h in modalSelectedDetail.roundHistory" :key="h.round">{ h.round }：{ h.statusText }</span>
+          </div>
+        </aside>
+      </div>
+      <div class="bpmn-tooltip" v-if="bpmnTooltip.visible" :style="{ left: bpmnTooltip.x + 'px', top: bpmnTooltip.y + 'px' }">
+        <strong>{ bpmnTooltip.title }</strong>
+        <div>{ bpmnTooltip.status }</div>
+        <div class="muted">{ bpmnTooltip.summary }</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" v-if="showMaterialModal" @click.self="showMaterialModal=false">
+    <div class="modal" style="width:min(780px, 94vw);">
+      <div class="modal-head"><div class="modal-title">材料预览 · { activeMaterial.name }</div><button class="close" @click.stop="showMaterialModal=false">关闭</button></div>
+      <div class="material-modal-body">
+        <div class="preview-box">
+          <p><strong>材料名称：</strong>{ activeMaterial.name }</p>
+          <p><strong>状态：</strong>{ activeMaterial.status }</p>
+          <p><strong>说明：</strong>{ activeMaterial.desc }</p>
+          <p style="color:#64748b; line-height:1.7;">这里是模拟材料预览区域。正式系统中可接入 PDF 在线预览、Office 预览、附件版本记录、下载权限控制和材料完整性校验。</p>
+          <button class="ghost-btn" @click="showToast('模拟下载材料')">下载材料</button>
+          <button class="ghost-btn" style="margin-left:8px;" @click="showToast('打开版本记录')">查看版本记录</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/bpmn-js@17.11.1/dist/bpmn-viewer.development.js"></script>
+<script>
+const BPMN_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:omgdc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:omgdi=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:flowable=\"http://flowable.org/bpmn\" id=\"Definitions_ResearchProjectApply_Lanes\" targetNamespace=\"http://www.example.com/research-project\" exporter=\"bpmn-js (https://demo.bpmn.io)\" exporterVersion=\"18.13.2\">\n  <process id=\"researchProjectApplyProcess\" name=\"高校科研项目申报审批流程\" isExecutable=\"true\">\n    <laneSet id=\"LaneSet_ResearchProjectApply\">\n      <lane id=\"Lane_Authority\" name=\"科技主管部门/第三方机构\">\n        <flowNodeRef>AuthorityReviewTask</flowNodeRef>\n        <flowNodeRef>AuthorityReviewGateway</flowNodeRef>\n      </lane>\n      <lane id=\"Lane_Expert\" name=\"评审专家\">\n        <flowNodeRef>ScienceExpertReviewTask</flowNodeRef>\n        <flowNodeRef>ScienceExpertReviewGateway</flowNodeRef>\n      </lane>\n      <lane id=\"Lane_Department\" name=\"二级单位\">\n        <flowNodeRef>DeptReviewTask</flowNodeRef>\n        <flowNodeRef>DeptExpertReviewTask</flowNodeRef>\n        <flowNodeRef>DeptReviewGateway</flowNodeRef>\n        <flowNodeRef>LimitProjectGateway</flowNodeRef>\n        <flowNodeRef>DeptExpertReviewGateway</flowNodeRef>\n      </lane>\n      <lane id=\"Lane_ProjectLeader\" name=\"项目负责人\">\n        <flowNodeRef>SubmitApplicationTask</flowNodeRef>\n        <flowNodeRef>SignAndSealTask</flowNodeRef>\n      </lane>\n      <lane id=\"Lane_ScienceOffice\" name=\"科技处\">\n        <flowNodeRef>PublishNoticeTask</flowNodeRef>\n        <flowNodeRef>ScienceOfficeInitialReviewTask</flowNodeRef>\n        <flowNodeRef>ScienceOfficePublicityTask</flowNodeRef>\n        <flowNodeRef>ScienceOfficeSubmitTask</flowNodeRef>\n        <flowNodeRef>SubmitFinalMaterialsTask</flowNodeRef>\n        <flowNodeRef>ScienceOfficeInitialGateway</flowNodeRef>\n        <flowNodeRef>ApprovedEndEvent</flowNodeRef>\n        <flowNodeRef>StartEvent</flowNodeRef>\n        <flowNodeRef>ScienceOfficePublicityGateway</flowNodeRef>\n      </lane>\n    </laneSet>\n    <startEvent id=\"StartEvent\" name=\"开始\" />\n    <userTask id=\"PublishNoticeTask\" name=\"发布申报通知\" flowable:candidateGroups=\"SCIENCE_OFFICE_ADMIN\" />\n    <userTask id=\"SubmitApplicationTask\" name=\"填报并提交项目申请书\" flowable:assignee=\"${projectLeader}\" />\n    <userTask id=\"DeptReviewTask\" name=\"二级单位形式审核\" flowable:candidateGroups=\"DEPT_REVIEWER\" />\n    <exclusiveGateway id=\"DeptReviewGateway\" name=\"二级单位审核结果\" />\n    <exclusiveGateway id=\"LimitProjectGateway\" name=\"是否限项项目\" />\n    <userTask id=\"DeptExpertReviewTask\" name=\"二级单位专家评审并择优推荐\" flowable:candidateGroups=\"DEPT_EXPERT\" />\n    <exclusiveGateway id=\"DeptExpertReviewGateway\" name=\"院级专家评审结果\" />\n    <userTask id=\"ScienceOfficeInitialReviewTask\" name=\"科技处初审\" flowable:candidateGroups=\"SCIENCE_OFFICE_ADMIN\" />\n    <exclusiveGateway id=\"ScienceOfficeInitialGateway\" name=\"科技处初审结果\" />\n    <userTask id=\"ScienceExpertReviewTask\" name=\"科技处组织专家评审\" flowable:candidateGroups=\"PROJECT_EXPERT\" />\n    <exclusiveGateway id=\"ScienceExpertReviewGateway\" name=\"专家评审结果\" />\n    <userTask id=\"ScienceOfficePublicityTask\" name=\"科技处择优推荐并公示\" flowable:candidateGroups=\"SCIENCE_OFFICE_ADMIN\" />\n    <exclusiveGateway id=\"ScienceOfficePublicityGateway\" name=\"公示结果\" />\n    <userTask id=\"ScienceOfficeSubmitTask\" name=\"科技处审核上报\" flowable:candidateGroups=\"SCIENCE_OFFICE_ADMIN\" />\n    <userTask id=\"AuthorityReviewTask\" name=\"主管部门或第三方机构审核结果登记\" flowable:candidateGroups=\"SCIENCE_OFFICE_ADMIN\" />\n    <exclusiveGateway id=\"AuthorityReviewGateway\" name=\"主管部门审核结果\" />\n    <userTask id=\"SignAndSealTask\" name=\"打印申请书、签字并申请用章\" flowable:assignee=\"${projectLeader}\" />\n    <userTask id=\"SubmitFinalMaterialsTask\" name=\"报送主管部门或第三方机构\" flowable:candidateGroups=\"SCIENCE_OFFICE_ADMIN\" />\n    <endEvent id=\"ApprovedEndEvent\" name=\"申报流程完成\" />\n    <sequenceFlow id=\"Flow_Start_Publish\" sourceRef=\"StartEvent\" targetRef=\"PublishNoticeTask\" />\n    <sequenceFlow id=\"Flow_Publish_Submit\" sourceRef=\"PublishNoticeTask\" targetRef=\"SubmitApplicationTask\" />\n    <sequenceFlow id=\"Flow_DeptReject_Return\" name=\"不通过，退回修改\" sourceRef=\"DeptReviewGateway\" targetRef=\"SubmitApplicationTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${deptApproved == false}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_DeptExpertReject_Return\" name=\"不通过，退回修改\" sourceRef=\"DeptExpertReviewGateway\" targetRef=\"SubmitApplicationTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${deptExpertApproved == false}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_ScienceInitialReject_Return\" name=\"不通过，退回修改\" sourceRef=\"ScienceOfficeInitialGateway\" targetRef=\"SubmitApplicationTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${scienceInitialApproved == false}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_ScienceExpertReject_Return\" name=\"不通过，退回修改\" sourceRef=\"ScienceExpertReviewGateway\" targetRef=\"SubmitApplicationTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${scienceExpertApproved == false}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_PublicityReject_Return\" name=\"不通过，退回修改\" sourceRef=\"ScienceOfficePublicityGateway\" targetRef=\"SubmitApplicationTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${publicityApproved == false}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_AuthorityReject_Return\" name=\"不通过，退回修改\" sourceRef=\"AuthorityReviewGateway\" targetRef=\"SubmitApplicationTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${authorityApproved == false}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_Submit_DeptReview\" sourceRef=\"SubmitApplicationTask\" targetRef=\"DeptReviewTask\" />\n    <sequenceFlow id=\"Flow_DeptReview_Gateway\" sourceRef=\"DeptReviewTask\" targetRef=\"DeptReviewGateway\" />\n    <sequenceFlow id=\"Flow_DeptPass_LimitGateway\" name=\"通过\" sourceRef=\"DeptReviewGateway\" targetRef=\"LimitProjectGateway\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${deptApproved == true}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_Limited_DeptExpert\" name=\"限项项目\" sourceRef=\"LimitProjectGateway\" targetRef=\"DeptExpertReviewTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${isLimitedProject == true}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_NonLimited_ScienceInitial\" name=\"非限项项目\" sourceRef=\"LimitProjectGateway\" targetRef=\"ScienceOfficeInitialReviewTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${isLimitedProject == false}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_DeptExpert_Gateway\" sourceRef=\"DeptExpertReviewTask\" targetRef=\"DeptExpertReviewGateway\" />\n    <sequenceFlow id=\"Flow_DeptExpertPass_ScienceInitial\" name=\"通过\" sourceRef=\"DeptExpertReviewGateway\" targetRef=\"ScienceOfficeInitialReviewTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${deptExpertApproved == true}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_ScienceInitial_Gateway\" sourceRef=\"ScienceOfficeInitialReviewTask\" targetRef=\"ScienceOfficeInitialGateway\" />\n    <sequenceFlow id=\"Flow_ScienceInitialPass_ExpertReview\" name=\"通过\" sourceRef=\"ScienceOfficeInitialGateway\" targetRef=\"ScienceExpertReviewTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${scienceInitialApproved == true}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_ScienceExpert_Gateway\" sourceRef=\"ScienceExpertReviewTask\" targetRef=\"ScienceExpertReviewGateway\" />\n    <sequenceFlow id=\"Flow_ScienceExpertPass_Publicity\" name=\"通过\" sourceRef=\"ScienceExpertReviewGateway\" targetRef=\"ScienceOfficePublicityTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${scienceExpertApproved == true}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_Publicity_Gateway\" sourceRef=\"ScienceOfficePublicityTask\" targetRef=\"ScienceOfficePublicityGateway\" />\n    <sequenceFlow id=\"Flow_PublicityPass_Submit\" name=\"通过\" sourceRef=\"ScienceOfficePublicityGateway\" targetRef=\"ScienceOfficeSubmitTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${publicityApproved == true}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_ScienceSubmit_AuthorityReview\" sourceRef=\"ScienceOfficeSubmitTask\" targetRef=\"AuthorityReviewTask\" />\n    <sequenceFlow id=\"Flow_AuthorityReview_Gateway\" sourceRef=\"AuthorityReviewTask\" targetRef=\"AuthorityReviewGateway\" />\n    <sequenceFlow id=\"Flow_AuthorityPass_SignSeal\" name=\"通过\" sourceRef=\"AuthorityReviewGateway\" targetRef=\"SignAndSealTask\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${authorityApproved == true}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"Flow_SignSeal_SubmitFinal\" sourceRef=\"SignAndSealTask\" targetRef=\"SubmitFinalMaterialsTask\" />\n    <sequenceFlow id=\"Flow_SubmitFinal_End\" sourceRef=\"SubmitFinalMaterialsTask\" targetRef=\"ApprovedEndEvent\" />\n  </process>\n  <bpmndi:BPMNDiagram id=\"BPMNDiagram_ResearchProjectApply_Lanes\">\n    <bpmndi:BPMNPlane id=\"BPMNPlane_ResearchProjectApply_Lanes\" bpmnElement=\"researchProjectApplyProcess\">\n      <bpmndi:BPMNShape id=\"Lane_Authority_di\" bpmnElement=\"Lane_Authority\" isHorizontal=\"true\">\n        <omgdc:Bounds x=\"160\" y=\"520\" width=\"3350\" height=\"120\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Lane_Expert_di\" bpmnElement=\"Lane_Expert\" isHorizontal=\"true\">\n        <omgdc:Bounds x=\"160\" y=\"400\" width=\"3350\" height=\"120\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Lane_Department_di\" bpmnElement=\"Lane_Department\" isHorizontal=\"true\">\n        <omgdc:Bounds x=\"160\" y=\"280\" width=\"3350\" height=\"120\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Lane_ProjectLeader_di\" bpmnElement=\"Lane_ProjectLeader\" isHorizontal=\"true\">\n        <omgdc:Bounds x=\"160\" y=\"160\" width=\"3350\" height=\"120\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Lane_ScienceOffice_di\" bpmnElement=\"Lane_ScienceOffice\" isHorizontal=\"true\">\n        <omgdc:Bounds x=\"160\" y=\"40\" width=\"3350\" height=\"120\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"StartEvent_di\" bpmnElement=\"StartEvent\">\n        <omgdc:Bounds x=\"210\" y=\"82\" width=\"36\" height=\"36\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"216\" y=\"125\" width=\"23\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"PublishNoticeTask_di\" bpmnElement=\"PublishNoticeTask\">\n        <omgdc:Bounds x=\"280\" y=\"65\" width=\"150\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"SubmitApplicationTask_di\" bpmnElement=\"SubmitApplicationTask\">\n        <omgdc:Bounds x=\"480\" y=\"185\" width=\"170\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"DeptReviewTask_di\" bpmnElement=\"DeptReviewTask\">\n        <omgdc:Bounds x=\"700\" y=\"305\" width=\"150\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"DeptReviewGateway_di\" bpmnElement=\"DeptReviewGateway\" isMarkerVisible=\"true\">\n        <omgdc:Bounds x=\"900\" y=\"315\" width=\"50\" height=\"50\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"881\" y=\"365\" width=\"89\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"LimitProjectGateway_di\" bpmnElement=\"LimitProjectGateway\" isMarkerVisible=\"true\">\n        <omgdc:Bounds x=\"1020\" y=\"315\" width=\"50\" height=\"50\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1012\" y=\"365\" width=\"66\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"DeptExpertReviewTask_di\" bpmnElement=\"DeptExpertReviewTask\">\n        <omgdc:Bounds x=\"1130\" y=\"305\" width=\"190\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"DeptExpertReviewGateway_di\" bpmnElement=\"DeptExpertReviewGateway\" isMarkerVisible=\"true\">\n        <omgdc:Bounds x=\"1370\" y=\"315\" width=\"50\" height=\"50\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1351\" y=\"365\" width=\"89\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"ScienceOfficeInitialReviewTask_di\" bpmnElement=\"ScienceOfficeInitialReviewTask\">\n        <omgdc:Bounds x=\"1470\" y=\"65\" width=\"150\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"ScienceOfficeInitialGateway_di\" bpmnElement=\"ScienceOfficeInitialGateway\" isMarkerVisible=\"true\">\n        <omgdc:Bounds x=\"1670\" y=\"75\" width=\"50\" height=\"50\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1656\" y=\"125\" width=\"78\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"ScienceExpertReviewTask_di\" bpmnElement=\"ScienceExpertReviewTask\">\n        <omgdc:Bounds x=\"1770\" y=\"425\" width=\"150\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"ScienceExpertReviewGateway_di\" bpmnElement=\"ScienceExpertReviewGateway\" isMarkerVisible=\"true\">\n        <omgdc:Bounds x=\"1970\" y=\"435\" width=\"50\" height=\"50\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1962\" y=\"485\" width=\"67\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"ScienceOfficePublicityTask_di\" bpmnElement=\"ScienceOfficePublicityTask\">\n        <omgdc:Bounds x=\"2070\" y=\"65\" width=\"190\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"ScienceOfficePublicityGateway_di\" bpmnElement=\"ScienceOfficePublicityGateway\" isMarkerVisible=\"true\">\n        <omgdc:Bounds x=\"2310\" y=\"75\" width=\"50\" height=\"50\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"2312\" y=\"125\" width=\"45\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"ScienceOfficeSubmitTask_di\" bpmnElement=\"ScienceOfficeSubmitTask\">\n        <omgdc:Bounds x=\"2410\" y=\"65\" width=\"150\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"AuthorityReviewTask_di\" bpmnElement=\"AuthorityReviewTask\">\n        <omgdc:Bounds x=\"2610\" y=\"545\" width=\"200\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"AuthorityReviewGateway_di\" bpmnElement=\"AuthorityReviewGateway\" isMarkerVisible=\"true\">\n        <omgdc:Bounds x=\"2860\" y=\"555\" width=\"50\" height=\"50\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"2841\" y=\"605\" width=\"89\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"SignAndSealTask_di\" bpmnElement=\"SignAndSealTask\">\n        <omgdc:Bounds x=\"2960\" y=\"185\" width=\"190\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"SubmitFinalMaterialsTask_di\" bpmnElement=\"SubmitFinalMaterialsTask\">\n        <omgdc:Bounds x=\"3200\" y=\"65\" width=\"190\" height=\"70\" />\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"ApprovedEndEvent_di\" bpmnElement=\"ApprovedEndEvent\">\n        <omgdc:Bounds x=\"3440\" y=\"82\" width=\"36\" height=\"36\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"3424\" y=\"123\" width=\"67\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"Flow_Start_Publish_di\" bpmnElement=\"Flow_Start_Publish\">\n        <omgdi:waypoint x=\"246\" y=\"100\" />\n        <omgdi:waypoint x=\"280\" y=\"100\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_Publish_Submit_di\" bpmnElement=\"Flow_Publish_Submit\">\n        <omgdi:waypoint x=\"430\" y=\"100\" />\n        <omgdi:waypoint x=\"480\" y=\"220\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_Submit_DeptReview_di\" bpmnElement=\"Flow_Submit_DeptReview\">\n        <omgdi:waypoint x=\"650\" y=\"220\" />\n        <omgdi:waypoint x=\"700\" y=\"340\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_DeptReview_Gateway_di\" bpmnElement=\"Flow_DeptReview_Gateway\">\n        <omgdi:waypoint x=\"850\" y=\"340\" />\n        <omgdi:waypoint x=\"900\" y=\"340\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_DeptReject_Return_di\" bpmnElement=\"Flow_DeptReject_Return\">\n        <omgdi:waypoint x=\"925\" y=\"315\" />\n        <omgdi:waypoint x=\"925\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"185\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"825\" y=\"238\" width=\"89\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_DeptPass_LimitGateway_di\" bpmnElement=\"Flow_DeptPass_LimitGateway\">\n        <omgdi:waypoint x=\"950\" y=\"340\" />\n        <omgdi:waypoint x=\"1020\" y=\"340\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"974\" y=\"315\" width=\"23\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_Limited_DeptExpert_di\" bpmnElement=\"Flow_Limited_DeptExpert\">\n        <omgdi:waypoint x=\"1070\" y=\"340\" />\n        <omgdi:waypoint x=\"1130\" y=\"340\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1078\" y=\"315\" width=\"44\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_NonLimited_ScienceInitial_di\" bpmnElement=\"Flow_NonLimited_ScienceInitial\">\n        <omgdi:waypoint x=\"1045\" y=\"315\" />\n        <omgdi:waypoint x=\"1045\" y=\"100\" />\n        <omgdi:waypoint x=\"1470\" y=\"100\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1052\" y=\"233\" width=\"55\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_DeptExpert_Gateway_di\" bpmnElement=\"Flow_DeptExpert_Gateway\">\n        <omgdi:waypoint x=\"1320\" y=\"340\" />\n        <omgdi:waypoint x=\"1370\" y=\"340\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_DeptExpertReject_Return_di\" bpmnElement=\"Flow_DeptExpertReject_Return\">\n        <omgdi:waypoint x=\"1395\" y=\"315\" />\n        <omgdi:waypoint x=\"1395\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"185\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1295\" y=\"238\" width=\"89\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_DeptExpertPass_ScienceInitial_di\" bpmnElement=\"Flow_DeptExpertPass_ScienceInitial\">\n        <omgdi:waypoint x=\"1420\" y=\"340\" />\n        <omgdi:waypoint x=\"1420\" y=\"100\" />\n        <omgdi:waypoint x=\"1470\" y=\"100\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1424\" y=\"210\" width=\"23\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_ScienceInitial_Gateway_di\" bpmnElement=\"Flow_ScienceInitial_Gateway\">\n        <omgdi:waypoint x=\"1620\" y=\"100\" />\n        <omgdi:waypoint x=\"1670\" y=\"100\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_ScienceInitialReject_Return_di\" bpmnElement=\"Flow_ScienceInitialReject_Return\">\n        <omgdi:waypoint x=\"1695\" y=\"75\" />\n        <omgdi:waypoint x=\"1695\" y=\"60\" />\n        <omgdi:waypoint x=\"1820\" y=\"60\" />\n        <omgdi:waypoint x=\"1820\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"185\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1895\" y=\"238\" width=\"89\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_ScienceInitialPass_ExpertReview_di\" bpmnElement=\"Flow_ScienceInitialPass_ExpertReview\">\n        <omgdi:waypoint x=\"1720\" y=\"100\" />\n        <omgdi:waypoint x=\"1770\" y=\"460\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1748\" y=\"238\" width=\"23\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_ScienceExpert_Gateway_di\" bpmnElement=\"Flow_ScienceExpert_Gateway\">\n        <omgdi:waypoint x=\"1920\" y=\"460\" />\n        <omgdi:waypoint x=\"1970\" y=\"460\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_ScienceExpertReject_Return_di\" bpmnElement=\"Flow_ScienceExpertReject_Return\">\n        <omgdi:waypoint x=\"1995\" y=\"435\" />\n        <omgdi:waypoint x=\"1995\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"185\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"2785\" y=\"473\" width=\"89\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_ScienceExpertPass_Publicity_di\" bpmnElement=\"Flow_ScienceExpertPass_Publicity\">\n        <omgdi:waypoint x=\"2020\" y=\"460\" />\n        <omgdi:waypoint x=\"2070\" y=\"100\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"2058\" y=\"255\" width=\"23\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_Publicity_Gateway_di\" bpmnElement=\"Flow_Publicity_Gateway\">\n        <omgdi:waypoint x=\"2260\" y=\"100\" />\n        <omgdi:waypoint x=\"2310\" y=\"100\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_PublicityReject_Return_di\" bpmnElement=\"Flow_PublicityReject_Return\">\n        <omgdi:waypoint x=\"2335\" y=\"75\" />\n        <omgdi:waypoint x=\"2335\" y=\"50\" />\n        <omgdi:waypoint x=\"2730\" y=\"50\" />\n        <omgdi:waypoint x=\"2730\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"185\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"1779\" y=\"63\" width=\"89\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_PublicityPass_Submit_di\" bpmnElement=\"Flow_PublicityPass_Submit\">\n        <omgdi:waypoint x=\"2360\" y=\"100\" />\n        <omgdi:waypoint x=\"2410\" y=\"100\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"2374\" y=\"75\" width=\"23\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_ScienceSubmit_AuthorityReview_di\" bpmnElement=\"Flow_ScienceSubmit_AuthorityReview\">\n        <omgdi:waypoint x=\"2560\" y=\"100\" />\n        <omgdi:waypoint x=\"2610\" y=\"580\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_AuthorityReview_Gateway_di\" bpmnElement=\"Flow_AuthorityReview_Gateway\">\n        <omgdi:waypoint x=\"2810\" y=\"580\" />\n        <omgdi:waypoint x=\"2860\" y=\"580\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_AuthorityReject_Return_di\" bpmnElement=\"Flow_AuthorityReject_Return\">\n        <omgdi:waypoint x=\"2885\" y=\"555\" />\n        <omgdi:waypoint x=\"2885\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"170\" />\n        <omgdi:waypoint x=\"565\" y=\"185\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"2585\" y=\"53\" width=\"89\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_AuthorityPass_SignSeal_di\" bpmnElement=\"Flow_AuthorityPass_SignSeal\">\n        <omgdi:waypoint x=\"2910\" y=\"580\" />\n        <omgdi:waypoint x=\"2960\" y=\"220\" />\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds x=\"2948\" y=\"375\" width=\"23\" height=\"14\" />\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_SignSeal_SubmitFinal_di\" bpmnElement=\"Flow_SignSeal_SubmitFinal\">\n        <omgdi:waypoint x=\"3150\" y=\"220\" />\n        <omgdi:waypoint x=\"3175\" y=\"220\" />\n        <omgdi:waypoint x=\"3175\" y=\"100\" />\n        <omgdi:waypoint x=\"3200\" y=\"100\" />\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Flow_SubmitFinal_End_di\" bpmnElement=\"Flow_SubmitFinal_End\">\n        <omgdi:waypoint x=\"3390\" y=\"100\" />\n        <omgdi:waypoint x=\"3440\" y=\"100\" />\n      </bpmndi:BPMNEdge>\n    </bpmndi:BPMNPlane>\n  </bpmndi:BPMNDiagram>\n</definitions>\n";
+const { createApp, ref, computed, onMounted, nextTick } = Vue;
+
+createApp({
+  delimiters: ['{', '}'],
+  setup() {
+    const thumbRef = ref(null);
+    const largeRef = ref(null);
+    const largeWrapRef = ref(null);
+    const showBpmnModal = ref(false);
+    const showMaterialModal = ref(false);
+    const activeMaterial = ref({});
+    const activeView = ref('latest');
+    const activeBpmnView = ref('latest');
+    const selectedActivityId = ref('ScienceOfficeInitialReviewTask');
+    const bpmnTooltip = ref({ visible:false, x:0, y:0, title:'', status:'', summary:'' });
+    const approvalScenario = ref('quick');
+    const selectedAction = ref('PASS');
+    const approvalComment = ref('');
+    let thumbViewer = null;
+    let largeViewer = null;
+
+    const timelineBase = [
+      { id:'PublishNoticeTask', name:'发布申报通知' },
+      { id:'SubmitApplicationTask', name:'填报申请书' },
+      { id:'DeptReviewTask', name:'二级单位审核' },
+      { id:'ScienceOfficeInitialReviewTask', name:'科技处初审' },
+      { id:'ScienceExpertReviewTask', name:'专家评审' },
+      { id:'ScienceOfficePublicityTask', name:'择优推荐并公示' },
+      { id:'AuthorityReviewTask', name:'主管部门审核登记' },
+      { id:'SubmitFinalMaterialsTask', name:'最终材料报送' }
+    ];
+
+    const nodeCatalog = {
+      StartEvent: { name:'开始', role:'科技处', nodeType:'开始事件', description:'流程实例启动后进入申报通知发布环节。' },
+      PublishNoticeTask: { name:'发布申报通知', role:'科技处', nodeType:'用户任务', description:'科技处发布申报通知，开放项目负责人填报入口。' },
+      SubmitApplicationTask: { name:'填报并提交项目申请书', role:'项目负责人', nodeType:'用户任务', description:'项目负责人填写申报材料，补充附件，并提交给二级单位审核。' },
+      DeptReviewTask: { name:'二级单位形式审核', role:'二级单位审核员', nodeType:'用户任务', description:'二级单位对材料完整性、资格条件和推荐意见进行形式审核。' },
+      DeptReviewGateway: { name:'二级单位审核结果', role:'二级单位', nodeType:'排他网关', description:'根据二级单位审核结果决定通过进入限项判断，或退回项目负责人修改。' },
+      LimitProjectGateway: { name:'是否限项项目', role:'二级单位', nodeType:'排他网关', description:'判断该申报是否属于限项项目；限项项目进入院级专家评审，非限项进入科技处初审。' },
+      DeptExpertReviewTask: { name:'二级单位专家评审并择优推荐', role:'二级单位专家', nodeType:'用户任务', description:'限项项目由二级单位组织专家择优推荐。' },
+      DeptExpertReviewGateway: { name:'院级专家评审结果', role:'二级单位', nodeType:'排他网关', description:'根据院级专家评审结果决定通过进入科技处初审，或退回项目负责人修改。' },
+      ScienceOfficeInitialReviewTask: { name:'科技处初审', role:'科技处管理员', nodeType:'用户任务', description:'科技处对申报资格、材料规范性、经费预算和单位推荐情况进行初审。' },
+      ScienceOfficeInitialGateway: { name:'科技处初审结果', role:'科技处', nodeType:'排他网关', description:'根据科技处初审结果决定进入专家评审，或退回项目负责人修改。' },
+      ScienceExpertReviewTask: { name:'科技处组织专家评审', role:'评审专家', nodeType:'用户任务', description:'科技处组织专家对项目创新性、可行性、研究基础和经费合理性进行评审。' },
+      ScienceExpertReviewGateway: { name:'专家评审结果', role:'科技处/专家组', nodeType:'排他网关', description:'根据专家评审结果决定进入公示推荐，或退回项目负责人修改。' },
+      ScienceOfficePublicityTask: { name:'科技处择优推荐并公示', role:'科技处', nodeType:'用户任务', description:'科技处根据评审结果择优推荐，并进行公示。' },
+      ScienceOfficePublicityGateway: { name:'公示结果', role:'科技处', nodeType:'排他网关', description:'根据公示结果决定是否上报，存在异议时可退回修改。' },
+      ScienceOfficeSubmitTask: { name:'科技处审核上报', role:'科技处', nodeType:'用户任务', description:'科技处完成审核并向主管部门或第三方机构上报。' },
+      AuthorityReviewTask: { name:'主管部门或第三方机构审核结果登记', role:'科技处', nodeType:'用户任务', description:'科技处登记主管部门或第三方机构反馈的审核结果。' },
+      AuthorityReviewGateway: { name:'主管部门审核结果', role:'主管部门/第三方机构', nodeType:'排他网关', description:'根据主管部门审核结果决定是否进入签字用章和最终报送。' },
+      SignAndSealTask: { name:'打印申请书、签字并申请用章', role:'项目负责人', nodeType:'用户任务', description:'项目负责人打印申请书，完成签字，并申请学校用章。' },
+      SubmitFinalMaterialsTask: { name:'报送主管部门或第三方机构', role:'科技处', nodeType:'用户任务', description:'科技处报送最终材料，完成申报流程。' },
+      ApprovedEndEvent: { name:'申报流程完成', role:'科技处', nodeType:'结束事件', description:'申报流程已完成，可进入后续立项、合同或归档环节。' }
+    };
+
+    const rounds = ref([
+      {
+        key:'r1', title:'第 1 轮 · 初审退回', note:'第一次提交后走到科技处初审，被退回修改。',
+        steps: [
+          step('PublishNoticeTask','发布申报通知','completed','05-20 09:00','科技处管理员','已发布申报通知并开放填报入口'),
+          step('SubmitApplicationTask','填报申请书','invalid','05-21 14:20','项目负责人 张三','首次提交申请书，后因退回而失效'),
+          step('DeptReviewTask','二级单位审核','invalid','05-22 10:10','李老师','形式审核通过，但本轮后续被退回'),
+          step('ScienceOfficeInitialReviewTask','科技处初审','returned','05-22 16:30','王老师','预算说明附件缺失，退回修改'),
+          pending('ScienceExpertReviewTask','专家评审'), pending('ScienceOfficePublicityTask','择优推荐并公示'), pending('AuthorityReviewTask','主管部门审核登记'), pending('SubmitFinalMaterialsTask','最终材料报送')
+        ],
+        returns: [{ no:1, left:'37%', from:'ScienceOfficeInitialReviewTask', fromName:'科技处初审', to:'SubmitApplicationTask', toName:'项目负责人重新提交', time:'05-22 16:30', resubmitTime:'05-23 09:40', reason:'预算说明附件缺失，请补充经费明细。' }],
+        future: []
+      },
+      {
+        key:'r2', title:'第 2 轮 · 专家评审退回', note:'补充预算说明后重新提交，专家评审阶段再次退回。',
+        steps: [
+          step('PublishNoticeTask','发布申报通知','completed','05-20 09:00','科技处管理员','通知已发布'),
+          step('SubmitApplicationTask','填报申请书','invalid','05-23 09:40','项目负责人 张三','补充预算说明并重新提交，后因第二次退回失效'),
+          step('DeptReviewTask','二级单位审核','invalid','05-24 10:00','李老师','重新审核通过'),
+          step('ScienceOfficeInitialReviewTask','科技处初审','invalid','05-25 11:20','王老师','初审通过，提交专家评审'),
+          step('ScienceExpertReviewTask','专家评审','returned','05-26 17:10','专家组','研究内容论证不足，退回修改'),
+          pending('ScienceOfficePublicityTask','择优推荐并公示'), pending('AuthorityReviewTask','主管部门审核登记'), pending('SubmitFinalMaterialsTask','最终材料报送')
+        ],
+        returns: [{ no:2, left:'50%', from:'ScienceExpertReviewTask', fromName:'科技处组织专家评审', to:'SubmitApplicationTask', toName:'项目负责人重新提交', time:'05-26 17:10', resubmitTime:'05-29 09:40', reason:'研究内容论证不足，需要补充技术路线和预期成果。' }],
+        future: []
+      },
+      {
+        key:'r3', title:'第 3 轮 · 当前有效进度', note:'默认展示最新有效进度。前两轮保留在完整轨迹中。',
+        steps: [
+          step('PublishNoticeTask','发布申报通知','completed','05-20 09:00','科技处管理员','申报通知已发布'),
+          step('SubmitApplicationTask','填报申请书','completed','05-29 09:40','项目负责人 张三','已补充预算说明和研究内容并重新提交'),
+          step('DeptReviewTask','二级单位审核','completed','05-29 11:10','李老师','形式审核通过，同意推荐'),
+          step('ScienceOfficeInitialReviewTask','科技处初审','current','当前','科技处管理员','等待科技处管理员办理'),
+          pending('ScienceExpertReviewTask','专家评审'), pending('ScienceOfficePublicityTask','择优推荐并公示'), pending('AuthorityReviewTask','主管部门审核登记'), pending('SubmitFinalMaterialsTask','最终材料报送')
+        ],
+        returns: [],
+        future: [
+          { id:'ScienceExpertReviewTask', name:'专家评审', summary:'科技处初审通过后进入专家评审' },
+          { id:'ScienceOfficePublicityTask', name:'择优推荐并公示', summary:'专家评审通过后进行推荐公示' },
+          { id:'AuthorityReviewTask', name:'主管部门审核登记', summary:'上报后登记主管部门审核结果' },
+          { id:'SubmitFinalMaterialsTask', name:'最终材料报送', summary:'签字用章后报送最终材料' }
+        ]
+      }
+    ]);
+
+    function step(id, name, status, time, assignee, summary) { return { id, name, status, time, assignee, summary }; }
+    function pending(id, name) { return { id, name, status:'pending', time:'', assignee:'', summary:'当前轮次尚未到达该节点' }; }
+
+    const materials = ref([
+      { name:'项目申请书', status:'已上传', tagClass:'green', desc:'最新版，含项目基本信息与研究内容' },
+      { name:'经费预算表', status:'已上传', tagClass:'green', desc:'经费科目、预算明细和测算依据' },
+      { name:'预算说明附件', status:'已补充', tagClass:'orange', desc:'第 1 次退回后补充上传' },
+      { name:'研究基础与成果证明', status:'已补充', tagClass:'orange', desc:'第 2 次退回后补充上传' },
+      { name:'签字盖章页', status:'待生成', tagClass:'', desc:'主管部门审核后生成' }
+    ]);
+
+    const tasks = {
+      quick: { taskName:'科技处初审', role:'SCIENCE_OFFICE_ADMIN', canOperate:true, operateMode:'QUICK_APPROVAL', activityId:'ScienceOfficeInitialReviewTask', availableActions:[{code:'PASS', label:'通过', type:'primary'}, {code:'RETURN', label:'退回修改', type:'warning'}, {code:'TRANSFER', label:'转交', type:''}] },
+      detail: { taskName:'专家评审', role:'PROJECT_EXPERT', canOperate:true, operateMode:'DETAIL_FORM', activityId:'ScienceExpertReviewTask', availableActions:[] },
+      readonly: { taskName:'科技处初审', role:'项目负责人', canOperate:false, operateMode:'READONLY', activityId:'ScienceOfficeInitialReviewTask', availableActions:[] }
+    };
+    const currentTask = ref(tasks.quick);
+
+    function roundForView(view) {
+      return view === 'r1' ? rounds.value[0] : view === 'r2' ? rounds.value[1] : rounds.value[2];
+    }
+    function labelForView(view) {
+      return view === 'all' ? '完整轨迹' : roundForView(view).title;
+    }
+    const currentRoundNo = computed(() => activeView.value === 'r1' ? 1 : activeView.value === 'r2' ? 2 : 3);
+    const currentRound = computed(() => roundForView(activeView.value));
+    const viewLabel = computed(() => labelForView(activeView.value));
+    const bpmnViewLabel = computed(() => labelForView(activeBpmnView.value));
+
+    function getActivityDetail(id, view) {
+      const statusMap = { completed:'已完成', current:'当前办理中', returned:'已退回', invalid:'历史完成但已失效', pending:'未到达' };
+      const round = roundForView(view);
+      const searchPool = view === 'all' ? rounds.value.flatMap(r => r.steps) : round.steps;
+      const found = searchPool.find(s => s.id === id) || rounds.value.flatMap(r => r.steps).find(s => s.id === id);
+      const meta = nodeCatalog[id] || { name: id || '未选择节点', role:'-', nodeType:'BPMN 元素', description:'该元素暂无业务说明，可由流程配置后台补充。' };
+      const status = found?.status || 'pending';
+      const roundHistory = rounds.value.map((r, idx) => {
+        const st = r.steps.find(s => s.id === id);
+        return st ? { round:'第' + (idx + 1) + '轮', statusText: statusMap[st.status] || st.status } : null;
+      }).filter(Boolean);
+      return {
+        id,
+        name: found?.name || meta.name,
+        status,
+        statusText: statusMap[status] || status,
+        assignee: found?.assignee || '',
+        time: found?.time || '',
+        summary: found?.summary || '当前视图中暂无该节点的执行记录。',
+        role: meta.role,
+        nodeType: meta.nodeType,
+        description: meta.description,
+        roundHistory
+      };
+    }
+
+    const selectedDetail = computed(() => getActivityDetail(selectedActivityId.value, activeView.value));
+    const modalSelectedDetail = computed(() => getActivityDetail(selectedActivityId.value, activeBpmnView.value));
+
+    function statusSymbol(status) { return status === 'completed' ? '✓' : status === 'current' ? '●' : status === 'returned' ? '!' : status === 'invalid' ? '↺' : '○'; }
+    function modeLabel(mode) { return mode === 'QUICK_APPROVAL' ? '轻量办理' : mode === 'DETAIL_FORM' ? '详细表单' : '只读查看'; }
+    function showToast(msg) { alert(msg); }
+    function openMaterial(m) { activeMaterial.value = m; showMaterialModal.value = true; }
+    function submitApproval() {
+      if ((selectedAction.value === 'RETURN' || selectedAction.value === 'TRANSFER') && !approvalComment.value.trim()) { alert('退回或转交时建议填写审批意见。'); return; }
+      alert('已模拟提交审批：' + selectedAction.value + '\n意见：' + (approvalComment.value || '无'));
+    }
+    function setApprovalScenario() {
+      currentTask.value = tasks[approvalScenario.value];
+      selectedActivityId.value = currentTask.value.activityId;
+      selectedAction.value = currentTask.value.availableActions?.[0]?.code || '';
+      renderBpmnState();
+    }
+    function selectActivity(id) {
+      if (!id) return;
+      selectedActivityId.value = id;
+      renderBpmnState();
+    }
+    function switchView(view) {
+      activeView.value = view;
+      if (!showBpmnModal.value) activeBpmnView.value = view;
+      nextTick(renderBpmnState);
+    }
+    function switchBpmnView(view) {
+      activeBpmnView.value = view;
+      bpmnTooltip.value.visible = false;
+      nextTick(() => applyViewerState(largeViewer, activeBpmnView.value));
+    }
+
+    function stateForBpmn(view = activeView.value) {
+      const round = view === 'all' ? rounds.value[2] : roundForView(view);
+      const nodeStatuses = {};
+      round.steps.forEach(s => { nodeStatuses[s.id] = s.status; });
+      if (view === 'all') {
+        rounds.value.forEach(r => r.steps.forEach(s => { if (s.status !== 'pending') nodeStatuses[s.id] = s.status === 'returned' ? 'returned' : (nodeStatuses[s.id] || s.status); }));
+      }
+      return { nodeStatuses, returns: view === 'all' ? rounds.value.flatMap(r => r.returns) : round.returns };
+    }
+
+    const flowMap = {
+      PublishNoticeTask: ['Flow_Start_Publish','Flow_Publish_Submit'],
+      SubmitApplicationTask: ['Flow_Publish_Submit','Flow_Submit_DeptReview'],
+      DeptReviewTask: ['Flow_Submit_DeptReview','Flow_DeptReview_Gateway','Flow_DeptPass_LimitGateway','Flow_NonLimited_ScienceInitial'],
+      ScienceOfficeInitialReviewTask: ['Flow_NonLimited_ScienceInitial','Flow_ScienceInitial_Gateway'],
+      ScienceExpertReviewTask: ['Flow_ScienceInitialPass_ExpertReview','Flow_ScienceExpert_Gateway'],
+      ScienceOfficePublicityTask: ['Flow_ScienceExpertPass_Publicity','Flow_Publicity_Gateway'],
+      AuthorityReviewTask: ['Flow_ScienceSubmit_AuthorityReview','Flow_AuthorityReview_Gateway'],
+      SubmitFinalMaterialsTask: ['Flow_SignSeal_SubmitFinal','Flow_SubmitFinal_End']
+    };
+    const returnFlows = {
+      ScienceOfficeInitialReviewTask: 'Flow_ScienceInitialReject_Return',
+      ScienceExpertReviewTask: 'Flow_ScienceExpertReject_Return',
+      DeptReviewTask: 'Flow_DeptReject_Return',
+      AuthorityReviewTask: 'Flow_AuthorityReject_Return'
+    };
+
+    async function initViewer(container, kind = 'thumb') {
+      const viewer = new BpmnJS({ container });
+      await viewer.importXML(BPMN_XML);
+      const canvas = viewer.get('canvas');
+      canvas.zoom('fit-viewport', 'auto');
+      bindViewerEvents(viewer, kind);
+      return viewer;
+    }
+
+    function isSelectableElement(element) {
+      if (!element || !element.id) return false;
+      if (element.type && String(element.type).includes('SequenceFlow')) return false;
+      return Boolean(nodeCatalog[element.id] || timelineBase.some(n => n.id === element.id));
+    }
+
+    function bindViewerEvents(viewer, kind) {
+      const eventBus = viewer.get('eventBus');
+      eventBus.on('element.click', 1500, (event) => {
+        const element = event.element;
+        if (!isSelectableElement(element)) return;
+        selectActivity(element.id);
+        if (kind === 'large') bpmnTooltip.value.visible = false;
+      });
+
+      if (kind === 'large') {
+        eventBus.on('element.hover', 1500, (event) => {
+          const element = event.element;
+          if (!isSelectableElement(element)) return;
+          const detail = getActivityDetail(element.id, activeBpmnView.value);
+          const original = event.originalEvent || window.event || { clientX: 0, clientY: 0 };
+          bpmnTooltip.value = {
+            visible: true,
+            x: Math.min(original.clientX + 14, window.innerWidth - 340),
+            y: Math.min(original.clientY + 14, window.innerHeight - 160),
+            title: detail.name,
+            status: '状态：' + detail.statusText + '｜角色：' + detail.role,
+            summary: detail.summary
+          };
+        });
+        eventBus.on('element.out', 1500, () => { bpmnTooltip.value.visible = false; });
+      }
+    }
+
+    function clearViewer(viewer) {
+      if (!viewer) return;
+      const canvas = viewer.get('canvas');
+      const registry = viewer.get('elementRegistry');
+      const overlays = viewer.get('overlays');
+      overlays.clear();
+      registry.forEach(el => {
+        ['node-completed','node-current','node-returned','node-invalid','node-dim','flow-completed','flow-returned','node-selected'].forEach(m => canvas.removeMarker(el.id, m));
+      });
+    }
+
+    function applyViewerState(viewer, view = activeView.value) {
+      if (!viewer) return;
+      clearViewer(viewer);
+      const { nodeStatuses, returns } = stateForBpmn(view);
+      const canvas = viewer.get('canvas');
+      const registry = viewer.get('elementRegistry');
+      const overlays = viewer.get('overlays');
+
+      const knownIds = new Set(timelineBase.map(x => x.id));
+      knownIds.forEach(id => { if (registry.get(id)) canvas.addMarker(id, 'node-dim'); });
+
+      Object.entries(nodeStatuses).forEach(([id, status]) => {
+        if (!registry.get(id)) return;
+        canvas.removeMarker(id, 'node-dim');
+        if (status === 'completed') canvas.addMarker(id, 'node-completed');
+        if (status === 'current') canvas.addMarker(id, 'node-current');
+        if (status === 'returned') canvas.addMarker(id, 'node-returned');
+        if (status === 'invalid') canvas.addMarker(id, 'node-invalid');
+
+        const st = view === 'all'
+          ? rounds.value.flatMap(r => r.steps).reverse().find(s => s.id === id && s.status !== 'pending')
+          : roundForView(view).steps.find(s => s.id === id);
+        if (st && (status === 'completed' || status === 'current' || status === 'returned')) {
+          overlays.add(id, { position: { top: -8, right: -8 }, html: `<div class="overlay-note ${status === 'returned' ? 'warn' : status === 'completed' ? 'green' : ''}">${st.summary}</div>` });
+        }
+      });
+
+      const completedIds = Object.entries(nodeStatuses).filter(([_,s]) => s === 'completed' || s === 'invalid' || s === 'returned' || s === 'current').map(([id]) => id);
+      completedIds.forEach(id => (flowMap[id] || []).forEach(f => { if (registry.get(f)) canvas.addMarker(f, 'flow-completed'); }));
+      returns.forEach(r => { const fid = returnFlows[r.from]; if (fid && registry.get(fid)) canvas.addMarker(fid, 'flow-returned'); });
+
+      if (selectedActivityId.value && registry.get(selectedActivityId.value)) {
+        canvas.addMarker(selectedActivityId.value, 'node-selected');
+      }
+    }
+
+    function renderBpmnState() {
+      applyViewerState(thumbViewer, activeView.value);
+      applyViewerState(largeViewer, activeBpmnView.value);
+    }
+
+    async function openLargeBpmn() {
+      activeBpmnView.value = activeView.value;
+      showBpmnModal.value = true;
+      await nextTick();
+      if (!largeViewer) {
+        largeViewer = await initViewer(largeRef.value, 'large');
+        initLargeInteractions();
+      }
+      largeViewer.get('canvas').zoom('fit-viewport', 'auto');
+      renderBpmnState();
+    }
+
+    function closeBpmnModal() {
+      showBpmnModal.value = false;
+      bpmnTooltip.value.visible = false;
+    }
+
+    function zoomLarge(delta) {
+      if (!largeViewer) return;
+      const canvas = largeViewer.get('canvas');
+      const current = canvas.zoom();
+      const next = Math.max(0.2, Math.min(2.8, current + delta));
+      canvas.zoom(next, 'auto');
+    }
+
+    function fitLarge() {
+      if (!largeViewer) return;
+      largeViewer.get('canvas').zoom('fit-viewport', 'auto');
+    }
+
+    function focusSelectedInLarge() {
+      if (!largeViewer || !selectedActivityId.value) return;
+      const canvas = largeViewer.get('canvas');
+      const registry = largeViewer.get('elementRegistry');
+      const element = registry.get(selectedActivityId.value);
+      if (!element) return;
+      try {
+        if (canvas.scrollToElement) canvas.scrollToElement(element);
+        else canvas.zoom(Math.max(canvas.zoom(), 1.0), { x: element.x + element.width / 2, y: element.y + element.height / 2 });
+      } catch (e) {
+        canvas.zoom(1.0, 'auto');
+      }
+      canvas.addMarker(selectedActivityId.value, 'node-selected');
+    }
+
+    function initLargeInteractions() {
+      const wrap = largeWrapRef.value;
+      if (!wrap || wrap.dataset.bound === '1') return;
+      wrap.dataset.bound = '1';
+      let dragging = false;
+      let lastX = 0;
+      let lastY = 0;
+      wrap.addEventListener('mousedown', (event) => {
+        if (event.button !== 0) return;
+        dragging = true;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        wrap.classList.add('dragging');
+      });
+      window.addEventListener('mouseup', () => {
+        dragging = false;
+        wrap.classList.remove('dragging');
+      });
+      window.addEventListener('mousemove', (event) => {
+        if (bpmnTooltip.value.visible) {
+          bpmnTooltip.value.x = Math.min(event.clientX + 14, window.innerWidth - 340);
+          bpmnTooltip.value.y = Math.min(event.clientY + 14, window.innerHeight - 160);
+        }
+        if (!dragging || !largeViewer) return;
+        const dx = event.clientX - lastX;
+        const dy = event.clientY - lastY;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        try { largeViewer.get('canvas').scroll({ dx, dy }); } catch (e) {}
+      });
+      wrap.addEventListener('wheel', (event) => {
+        if (!largeViewer) return;
+        event.preventDefault();
+        zoomLarge(event.deltaY < 0 ? 0.08 : -0.08);
+      }, { passive: false });
+    }
+
+    onMounted(async () => {
+      thumbViewer = await initViewer(thumbRef.value, 'thumb');
+      renderBpmnState();
+    });
+
+    return {
+      thumbRef, largeRef, largeWrapRef, showBpmnModal, showMaterialModal, activeMaterial,
+      activeView, activeBpmnView, bpmnTooltip, rounds, currentRound, currentRoundNo, viewLabel, bpmnViewLabel,
+      materials, currentTask, approvalScenario, selectedAction, approvalComment, selectedDetail, modalSelectedDetail,
+      statusSymbol, modeLabel, showToast, openMaterial, submitApproval, setApprovalScenario, selectActivity, switchView,
+      switchBpmnView, openLargeBpmn, closeBpmnModal, zoomLarge, fitLarge, focusSelectedInLarge
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

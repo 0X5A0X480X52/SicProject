@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.ModuleRuntimeContextViewDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.ModuleRuntimeContextView">
+        <id column="module_instance_id" property="moduleInstanceId" jdbcType="BIGINT" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <result column="module_type" property="moduleType" jdbcType="VARCHAR" />
+        <result column="workflow_definition_id" property="workflowDefinitionId" jdbcType="BIGINT" />
+        <result column="started_at" property="startedAt" jdbcType="TIMESTAMP" />
+        <result column="finished_at" property="finishedAt" jdbcType="TIMESTAMP" />
+        <result column="current_seq" property="currentSeq" jdbcType="INTEGER" />
+        <result column="current_round_no" property="currentRoundNo" jdbcType="INTEGER" />
+        <result column="current_state" property="currentState" jdbcType="VARCHAR" />
+        <result column="current_node_id" property="currentNodeId" jdbcType="BIGINT" />
+        <result column="last_event_type" property="lastEventType" jdbcType="VARCHAR" />
+        <result column="last_result" property="lastResult" jdbcType="VARCHAR" />
+        <result column="last_summary" property="lastSummary" jdbcType="VARCHAR" />
+        <result column="last_transition_time" property="lastTransitionTime" jdbcType="TIMESTAMP" />
+        <result column="current_workflow_node_id" property="currentWorkflowNodeId" jdbcType="BIGINT" />
+        <result column="current_node_name" property="currentNodeName" jdbcType="VARCHAR" />
+        <result column="current_node_type" property="currentNodeType" jdbcType="VARCHAR" />
+        <result column="current_lane_name" property="currentLaneName" jdbcType="VARCHAR" />
+        <result column="current_responsible_actor_code" property="currentResponsibleActorCode" jdbcType="VARCHAR" />
+        <result column="current_responsible_actor_name" property="currentResponsibleActorName" jdbcType="VARCHAR" />
+        <result column="current_candidate_role_code" property="currentCandidateRoleCode" jdbcType="VARCHAR" />
+        <result column="current_operation_mode" property="currentOperationMode" jdbcType="VARCHAR" />
+        <result column="current_represented_actor_code" property="currentRepresentedActorCode" jdbcType="VARCHAR" />
+        <result column="current_represented_actor_name" property="currentRepresentedActorName" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`module_instance_id`, `project_id`, `module_type`, `workflow_definition_id`, `started_at`, `finished_at`, `current_seq`, `current_round_no`, `current_state`, `current_node_id`, `last_event_type`, `last_result`, `last_summary`, `last_transition_time`, `current_workflow_node_id`, `current_node_name`, `current_node_type`, `current_lane_name`, `current_responsible_actor_code`, `current_responsible_actor_name`, `current_candidate_role_code`, `current_operation_mode`, `current_represented_actor_code`, `current_represented_actor_name`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `v_module_runtime_context` WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `v_module_runtime_context`
+    </select>
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.PermissionDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.Permission">
+        <id column="permission_id" property="permissionId" jdbcType="BIGINT" />
+        <result column="permission_code" property="permissionCode" jdbcType="VARCHAR" />
+        <result column="permission_name" property="permissionName" jdbcType="VARCHAR" />
+        <result column="permission_type" property="permissionType" jdbcType="VARCHAR" />
+        <result column="permission_desc" property="permissionDesc" jdbcType="LONGVARCHAR" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `permission` WHERE `permission_id` = #{permissionId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `permission`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.Permission" useGeneratedKeys="true" keyProperty="permissionId" keyColumn="permission_id">
+        INSERT INTO `permission`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="permissionCode != null">`permission_code`,</if>
+            <if test="permissionName != null">`permission_name`,</if>
+            <if test="permissionType != null">`permission_type`,</if>
+            <if test="permissionDesc != null">`permission_desc`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="permissionCode != null">#{permissionCode, jdbcType=VARCHAR},</if>
+            <if test="permissionName != null">#{permissionName, jdbcType=VARCHAR},</if>
+            <if test="permissionType != null">#{permissionType, jdbcType=VARCHAR},</if>
+            <if test="permissionDesc != null">#{permissionDesc, jdbcType=LONGVARCHAR},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.Permission">
+        UPDATE `permission`
+        <set>
+            <if test="permissionCode != null">`permission_code` = #{permissionCode, jdbcType=VARCHAR},</if>
+            <if test="permissionName != null">`permission_name` = #{permissionName, jdbcType=VARCHAR},</if>
+            <if test="permissionType != null">`permission_type` = #{permissionType, jdbcType=VARCHAR},</if>
+            <if test="permissionDesc != null">`permission_desc` = #{permissionDesc, jdbcType=LONGVARCHAR},</if>
+        </set>
+        WHERE `permission_id` = #{permissionId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `permission` WHERE `permission_id` = #{permissionId, jdbcType=BIGINT}
+    </delete>
+</mapper>

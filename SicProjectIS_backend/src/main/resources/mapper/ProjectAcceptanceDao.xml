@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.ProjectAcceptanceDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.ProjectAcceptance">
+        <id column="acceptance_id" property="acceptanceId" jdbcType="BIGINT" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <result column="submitted_at" property="submittedAt" jdbcType="TIMESTAMP" />
+        <result column="completed_at" property="completedAt" jdbcType="TIMESTAMP" />
+        <result column="certificate_no" property="certificateNo" jdbcType="VARCHAR" />
+        <result column="conclusion" property="conclusion" jdbcType="LONGVARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`acceptance_id`, `project_id`, `submitted_at`, `completed_at`, `certificate_no`, `conclusion`, `created_at`, `updated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_acceptance` WHERE `acceptance_id` = #{acceptanceId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_acceptance`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectAcceptance" useGeneratedKeys="true" keyProperty="acceptanceId" keyColumn="acceptance_id">
+        INSERT INTO `project_acceptance`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="projectId != null">`project_id`,</if>
+            <if test="submittedAt != null">`submitted_at`,</if>
+            <if test="completedAt != null">`completed_at`,</if>
+            <if test="certificateNo != null">`certificate_no`,</if>
+            <if test="conclusion != null">`conclusion`,</if>
+            <if test="createdAt != null">`created_at`,</if>
+            <if test="updatedAt != null">`updated_at`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="projectId != null">#{projectId, jdbcType=BIGINT},</if>
+            <if test="submittedAt != null">#{submittedAt, jdbcType=TIMESTAMP},</if>
+            <if test="completedAt != null">#{completedAt, jdbcType=TIMESTAMP},</if>
+            <if test="certificateNo != null">#{certificateNo, jdbcType=VARCHAR},</if>
+            <if test="conclusion != null">#{conclusion, jdbcType=LONGVARCHAR},</if>
+            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
+            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectAcceptance">
+        UPDATE `project_acceptance`
+        <set>
+            <if test="projectId != null">`project_id` = #{projectId, jdbcType=BIGINT},</if>
+            <if test="submittedAt != null">`submitted_at` = #{submittedAt, jdbcType=TIMESTAMP},</if>
+            <if test="completedAt != null">`completed_at` = #{completedAt, jdbcType=TIMESTAMP},</if>
+            <if test="certificateNo != null">`certificate_no` = #{certificateNo, jdbcType=VARCHAR},</if>
+            <if test="conclusion != null">`conclusion` = #{conclusion, jdbcType=LONGVARCHAR},</if>
+            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
+            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE `acceptance_id` = #{acceptanceId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `project_acceptance` WHERE `acceptance_id` = #{acceptanceId, jdbcType=BIGINT}
+    </delete>
+</mapper>

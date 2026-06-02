@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.StateRecordRemarkDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.StateRecordRemark">
+        <id column="remark_id" property="remarkId" jdbcType="BIGINT" />
+        <result column="state_record_id" property="stateRecordId" jdbcType="BIGINT" />
+        <result column="participant_user_id" property="participantUserId" jdbcType="BIGINT" />
+        <result column="participant_role_id" property="participantRoleId" jdbcType="BIGINT" />
+        <result column="participant_type" property="participantType" jdbcType="VARCHAR" />
+        <result column="action_type" property="actionType" jdbcType="VARCHAR" />
+        <result column="result" property="result" jdbcType="VARCHAR" />
+        <result column="is_operator" property="isOperator" jdbcType="TINYINT" />
+        <result column="score" property="score" jdbcType="DECIMAL" />
+        <result column="remark_content" property="remarkContent" jdbcType="LONGVARCHAR" />
+        <result column="is_final" property="isFinal" jdbcType="TINYINT" />
+        <result column="sort_no" property="sortNo" jdbcType="INTEGER" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`remark_id`, `state_record_id`, `participant_user_id`, `participant_role_id`, `participant_type`, `action_type`, `result`, `is_operator`, `score`, `remark_content`, `is_final`, `sort_no`, `created_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `state_record_remark` WHERE `remark_id` = #{remarkId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `state_record_remark`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.StateRecordRemark" useGeneratedKeys="true" keyProperty="remarkId" keyColumn="remark_id">
+        INSERT INTO `state_record_remark`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="stateRecordId != null">`state_record_id`,</if>
+            <if test="participantUserId != null">`participant_user_id`,</if>
+            <if test="participantRoleId != null">`participant_role_id`,</if>
+            <if test="participantType != null">`participant_type`,</if>
+            <if test="actionType != null">`action_type`,</if>
+            <if test="result != null">`result`,</if>
+            <if test="isOperator != null">`is_operator`,</if>
+            <if test="score != null">`score`,</if>
+            <if test="remarkContent != null">`remark_content`,</if>
+            <if test="isFinal != null">`is_final`,</if>
+            <if test="sortNo != null">`sort_no`,</if>
+            <if test="createdAt != null">`created_at`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="stateRecordId != null">#{stateRecordId, jdbcType=BIGINT},</if>
+            <if test="participantUserId != null">#{participantUserId, jdbcType=BIGINT},</if>
+            <if test="participantRoleId != null">#{participantRoleId, jdbcType=BIGINT},</if>
+            <if test="participantType != null">#{participantType, jdbcType=VARCHAR},</if>
+            <if test="actionType != null">#{actionType, jdbcType=VARCHAR},</if>
+            <if test="result != null">#{result, jdbcType=VARCHAR},</if>
+            <if test="isOperator != null">#{isOperator, jdbcType=TINYINT},</if>
+            <if test="score != null">#{score, jdbcType=DECIMAL},</if>
+            <if test="remarkContent != null">#{remarkContent, jdbcType=LONGVARCHAR},</if>
+            <if test="isFinal != null">#{isFinal, jdbcType=TINYINT},</if>
+            <if test="sortNo != null">#{sortNo, jdbcType=INTEGER},</if>
+            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.StateRecordRemark">
+        UPDATE `state_record_remark`
+        <set>
+            <if test="stateRecordId != null">`state_record_id` = #{stateRecordId, jdbcType=BIGINT},</if>
+            <if test="participantUserId != null">`participant_user_id` = #{participantUserId, jdbcType=BIGINT},</if>
+            <if test="participantRoleId != null">`participant_role_id` = #{participantRoleId, jdbcType=BIGINT},</if>
+            <if test="participantType != null">`participant_type` = #{participantType, jdbcType=VARCHAR},</if>
+            <if test="actionType != null">`action_type` = #{actionType, jdbcType=VARCHAR},</if>
+            <if test="result != null">`result` = #{result, jdbcType=VARCHAR},</if>
+            <if test="isOperator != null">`is_operator` = #{isOperator, jdbcType=TINYINT},</if>
+            <if test="score != null">`score` = #{score, jdbcType=DECIMAL},</if>
+            <if test="remarkContent != null">`remark_content` = #{remarkContent, jdbcType=LONGVARCHAR},</if>
+            <if test="isFinal != null">`is_final` = #{isFinal, jdbcType=TINYINT},</if>
+            <if test="sortNo != null">`sort_no` = #{sortNo, jdbcType=INTEGER},</if>
+            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE `remark_id` = #{remarkId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `state_record_remark` WHERE `remark_id` = #{remarkId, jdbcType=BIGINT}
+    </delete>
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.ProcessDocumentDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.ProcessDocument">
+        <id column="document_id" property="documentId" jdbcType="BIGINT" />
+        <result column="module_instance_id" property="moduleInstanceId" jdbcType="BIGINT" />
+        <result column="generated_state_record_id" property="generatedStateRecordId" jdbcType="BIGINT" />
+        <result column="document_type_code" property="documentTypeCode" jdbcType="VARCHAR" />
+        <result column="document_no" property="documentNo" jdbcType="VARCHAR" />
+        <result column="document_title" property="documentTitle" jdbcType="VARCHAR" />
+        <result column="document_status" property="documentStatus" jdbcType="VARCHAR" />
+        <result column="snapshot_json" property="snapshotJson" jdbcType="LONGVARCHAR" />
+        <result column="generated_at" property="generatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`document_id`, `module_instance_id`, `generated_state_record_id`, `document_type_code`, `document_no`, `document_title`, `document_status`, `snapshot_json`, `generated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `process_document` WHERE `document_id` = #{documentId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `process_document`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.ProcessDocument" useGeneratedKeys="true" keyProperty="documentId" keyColumn="document_id">
+        INSERT INTO `process_document`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="moduleInstanceId != null">`module_instance_id`,</if>
+            <if test="generatedStateRecordId != null">`generated_state_record_id`,</if>
+            <if test="documentTypeCode != null">`document_type_code`,</if>
+            <if test="documentNo != null">`document_no`,</if>
+            <if test="documentTitle != null">`document_title`,</if>
+            <if test="documentStatus != null">`document_status`,</if>
+            <if test="snapshotJson != null">`snapshot_json`,</if>
+            <if test="generatedAt != null">`generated_at`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="moduleInstanceId != null">#{moduleInstanceId, jdbcType=BIGINT},</if>
+            <if test="generatedStateRecordId != null">#{generatedStateRecordId, jdbcType=BIGINT},</if>
+            <if test="documentTypeCode != null">#{documentTypeCode, jdbcType=VARCHAR},</if>
+            <if test="documentNo != null">#{documentNo, jdbcType=VARCHAR},</if>
+            <if test="documentTitle != null">#{documentTitle, jdbcType=VARCHAR},</if>
+            <if test="documentStatus != null">#{documentStatus, jdbcType=VARCHAR},</if>
+            <if test="snapshotJson != null">#{snapshotJson, jdbcType=LONGVARCHAR},</if>
+            <if test="generatedAt != null">#{generatedAt, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.ProcessDocument">
+        UPDATE `process_document`
+        <set>
+            <if test="moduleInstanceId != null">`module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT},</if>
+            <if test="generatedStateRecordId != null">`generated_state_record_id` = #{generatedStateRecordId, jdbcType=BIGINT},</if>
+            <if test="documentTypeCode != null">`document_type_code` = #{documentTypeCode, jdbcType=VARCHAR},</if>
+            <if test="documentNo != null">`document_no` = #{documentNo, jdbcType=VARCHAR},</if>
+            <if test="documentTitle != null">`document_title` = #{documentTitle, jdbcType=VARCHAR},</if>
+            <if test="documentStatus != null">`document_status` = #{documentStatus, jdbcType=VARCHAR},</if>
+            <if test="snapshotJson != null">`snapshot_json` = #{snapshotJson, jdbcType=LONGVARCHAR},</if>
+            <if test="generatedAt != null">`generated_at` = #{generatedAt, jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE `document_id` = #{documentId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `process_document` WHERE `document_id` = #{documentId, jdbcType=BIGINT}
+    </delete>
+</mapper>

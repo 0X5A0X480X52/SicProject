@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.ProjectMemberDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.ProjectMember">
+        <id column="project_member_id" property="projectMemberId" jdbcType="BIGINT" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <result column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="member_role" property="memberRole" jdbcType="VARCHAR" />
+        <result column="responsibility" property="responsibility" jdbcType="LONGVARCHAR" />
+        <result column="joined_at" property="joinedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`project_member_id`, `project_id`, `user_id`, `member_role`, `responsibility`, `joined_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_member` WHERE `project_member_id` = #{projectMemberId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_member`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectMember" useGeneratedKeys="true" keyProperty="projectMemberId" keyColumn="project_member_id">
+        INSERT INTO `project_member`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="projectId != null">`project_id`,</if>
+            <if test="userId != null">`user_id`,</if>
+            <if test="memberRole != null">`member_role`,</if>
+            <if test="responsibility != null">`responsibility`,</if>
+            <if test="joinedAt != null">`joined_at`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="projectId != null">#{projectId, jdbcType=BIGINT},</if>
+            <if test="userId != null">#{userId, jdbcType=BIGINT},</if>
+            <if test="memberRole != null">#{memberRole, jdbcType=VARCHAR},</if>
+            <if test="responsibility != null">#{responsibility, jdbcType=LONGVARCHAR},</if>
+            <if test="joinedAt != null">#{joinedAt, jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectMember">
+        UPDATE `project_member`
+        <set>
+            <if test="projectId != null">`project_id` = #{projectId, jdbcType=BIGINT},</if>
+            <if test="userId != null">`user_id` = #{userId, jdbcType=BIGINT},</if>
+            <if test="memberRole != null">`member_role` = #{memberRole, jdbcType=VARCHAR},</if>
+            <if test="responsibility != null">`responsibility` = #{responsibility, jdbcType=LONGVARCHAR},</if>
+            <if test="joinedAt != null">`joined_at` = #{joinedAt, jdbcType=TIMESTAMP},</if>
+        </set>
+        WHERE `project_member_id` = #{projectMemberId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `project_member` WHERE `project_member_id` = #{projectMemberId, jdbcType=BIGINT}
+    </delete>
+</mapper>

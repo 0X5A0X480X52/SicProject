@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.dao.MaterialVersionDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.MaterialVersion">
+        <id column="material_version_id" property="materialVersionId" jdbcType="BIGINT" />
+        <result column="material_id" property="materialId" jdbcType="BIGINT" />
+        <result column="version_no" property="versionNo" jdbcType="INTEGER" />
+        <result column="file_name" property="fileName" jdbcType="VARCHAR" />
+        <result column="file_url" property="fileUrl" jdbcType="VARCHAR" />
+        <result column="file_hash" property="fileHash" jdbcType="VARCHAR" />
+        <result column="uploaded_by" property="uploadedBy" jdbcType="BIGINT" />
+        <result column="uploaded_at" property="uploadedAt" jdbcType="TIMESTAMP" />
+        <result column="is_current" property="isCurrent" jdbcType="TINYINT" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`material_version_id`, `material_id`, `version_no`, `file_name`, `file_url`, `file_hash`, `uploaded_by`, `uploaded_at`, `is_current`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `material_version` WHERE `material_version_id` = #{materialVersionId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `material_version`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.MaterialVersion" useGeneratedKeys="true" keyProperty="materialVersionId" keyColumn="material_version_id">
+        INSERT INTO `material_version`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">`material_id`,</if>
+            <if test="versionNo != null">`version_no`,</if>
+            <if test="fileName != null">`file_name`,</if>
+            <if test="fileUrl != null">`file_url`,</if>
+            <if test="fileHash != null">`file_hash`,</if>
+            <if test="uploadedBy != null">`uploaded_by`,</if>
+            <if test="uploadedAt != null">`uploaded_at`,</if>
+            <if test="isCurrent != null">`is_current`,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">#{materialId, jdbcType=BIGINT},</if>
+            <if test="versionNo != null">#{versionNo, jdbcType=INTEGER},</if>
+            <if test="fileName != null">#{fileName, jdbcType=VARCHAR},</if>
+            <if test="fileUrl != null">#{fileUrl, jdbcType=VARCHAR},</if>
+            <if test="fileHash != null">#{fileHash, jdbcType=VARCHAR},</if>
+            <if test="uploadedBy != null">#{uploadedBy, jdbcType=BIGINT},</if>
+            <if test="uploadedAt != null">#{uploadedAt, jdbcType=TIMESTAMP},</if>
+            <if test="isCurrent != null">#{isCurrent, jdbcType=TINYINT},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.MaterialVersion">
+        UPDATE `material_version`
+        <set>
+            <if test="materialId != null">`material_id` = #{materialId, jdbcType=BIGINT},</if>
+            <if test="versionNo != null">`version_no` = #{versionNo, jdbcType=INTEGER},</if>
+            <if test="fileName != null">`file_name` = #{fileName, jdbcType=VARCHAR},</if>
+            <if test="fileUrl != null">`file_url` = #{fileUrl, jdbcType=VARCHAR},</if>
+            <if test="fileHash != null">`file_hash` = #{fileHash, jdbcType=VARCHAR},</if>
+            <if test="uploadedBy != null">`uploaded_by` = #{uploadedBy, jdbcType=BIGINT},</if>
+            <if test="uploadedAt != null">`uploaded_at` = #{uploadedAt, jdbcType=TIMESTAMP},</if>
+            <if test="isCurrent != null">`is_current` = #{isCurrent, jdbcType=TINYINT},</if>
+        </set>
+        WHERE `material_version_id` = #{materialVersionId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `material_version` WHERE `material_version_id` = #{materialVersionId, jdbcType=BIGINT}
+    </delete>
+</mapper>
