@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.system.dao.RolePermissionDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.system.entity.RolePermission">
+        <id column="role_permission_id" property="rolePermissionId" jdbcType="BIGINT" />
+        <result column="role_id" property="roleId" jdbcType="BIGINT" />
+        <result column="permission_id" property="permissionId" jdbcType="BIGINT" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`role_permission_id`, `role_id`, `permission_id`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `role_permission` WHERE `role_permission_id` = #{rolePermissionId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `role_permission`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.system.entity.RolePermission" useGeneratedKeys="true" keyProperty="rolePermissionId" keyColumn="role_permission_id">
+        INSERT INTO `role_permission` (
+            `role_id`, `permission_id`
+        ) VALUES (
+            #{roleId, jdbcType=BIGINT}, #{permissionId, jdbcType=BIGINT}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.system.entity.RolePermission">
+        UPDATE `role_permission`
+        SET
+            `role_id` = #{roleId, jdbcType=BIGINT},
+            `permission_id` = #{permissionId, jdbcType=BIGINT}
+        WHERE `role_permission_id` = #{rolePermissionId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `role_permission` WHERE `role_permission_id` = #{rolePermissionId, jdbcType=BIGINT}
+    </delete>
+</mapper>

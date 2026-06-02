@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.system.dao.AppUserDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.system.entity.AppUser">
+        <id column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="username" property="username" jdbcType="VARCHAR" />
+        <result column="password_hash" property="passwordHash" jdbcType="VARCHAR" />
+        <result column="real_name" property="realName" jdbcType="VARCHAR" />
+        <result column="dept_id" property="deptId" jdbcType="BIGINT" />
+        <result column="phone" property="phone" jdbcType="VARCHAR" />
+        <result column="email" property="email" jdbcType="VARCHAR" />
+        <result column="enabled" property="enabled" jdbcType="TINYINT" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`user_id`, `username`, `password_hash`, `real_name`, `dept_id`, `phone`, `email`, `enabled`, `created_at`, `updated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `app_user` WHERE `user_id` = #{userId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `app_user`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.system.entity.AppUser" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
+        INSERT INTO `app_user` (
+            `username`, `password_hash`, `real_name`, `dept_id`, `phone`, `email`, `enabled`
+        ) VALUES (
+            #{username, jdbcType=VARCHAR}, #{passwordHash, jdbcType=VARCHAR}, #{realName, jdbcType=VARCHAR}, #{deptId, jdbcType=BIGINT}, #{phone, jdbcType=VARCHAR}, #{email, jdbcType=VARCHAR}, #{enabled, jdbcType=TINYINT}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.system.entity.AppUser">
+        UPDATE `app_user`
+        SET
+            `username` = #{username, jdbcType=VARCHAR},
+            `password_hash` = #{passwordHash, jdbcType=VARCHAR},
+            `real_name` = #{realName, jdbcType=VARCHAR},
+            `dept_id` = #{deptId, jdbcType=BIGINT},
+            `phone` = #{phone, jdbcType=VARCHAR},
+            `email` = #{email, jdbcType=VARCHAR},
+            `enabled` = #{enabled, jdbcType=TINYINT}
+        WHERE `user_id` = #{userId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `app_user` WHERE `user_id` = #{userId, jdbcType=BIGINT}
+    </delete>
+</mapper>

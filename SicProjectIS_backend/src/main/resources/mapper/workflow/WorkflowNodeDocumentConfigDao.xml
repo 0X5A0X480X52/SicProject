@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeDocumentConfigDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNodeDocumentConfig">
+        <id column="document_config_id" property="documentConfigId" jdbcType="BIGINT" />
+        <result column="workflow_node_id" property="workflowNodeId" jdbcType="BIGINT" />
+        <result column="document_type_code" property="documentTypeCode" jdbcType="VARCHAR" />
+        <result column="document_type_name" property="documentTypeName" jdbcType="VARCHAR" />
+        <result column="generate_timing" property="generateTiming" jdbcType="VARCHAR" />
+        <result column="template_code" property="templateCode" jdbcType="VARCHAR" />
+        <result column="snapshot_schema_json" property="snapshotSchemaJson" jdbcType="LONGVARCHAR" />
+        <result column="snapshot_view_name" property="snapshotViewName" jdbcType="VARCHAR" />
+        <result column="output_material_type_id" property="outputMaterialTypeId" jdbcType="BIGINT" />
+        <result column="required" property="required" jdbcType="TINYINT" />
+        <result column="enabled" property="enabled" jdbcType="TINYINT" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`document_config_id`, `workflow_node_id`, `document_type_code`, `document_type_name`, `generate_timing`, `template_code`, `snapshot_schema_json`, `snapshot_view_name`, `output_material_type_id`, `required`, `enabled`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `workflow_node_document_config` WHERE `document_config_id` = #{documentConfigId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `workflow_node_document_config`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNodeDocumentConfig" useGeneratedKeys="true" keyProperty="documentConfigId" keyColumn="document_config_id">
+        INSERT INTO `workflow_node_document_config` (
+            `workflow_node_id`, `document_type_code`, `document_type_name`, `generate_timing`, `template_code`, `snapshot_schema_json`, `snapshot_view_name`, `output_material_type_id`, `required`, `enabled`
+        ) VALUES (
+            #{workflowNodeId, jdbcType=BIGINT}, #{documentTypeCode, jdbcType=VARCHAR}, #{documentTypeName, jdbcType=VARCHAR}, #{generateTiming, jdbcType=VARCHAR}, #{templateCode, jdbcType=VARCHAR}, #{snapshotSchemaJson, jdbcType=LONGVARCHAR}, #{snapshotViewName, jdbcType=VARCHAR}, #{outputMaterialTypeId, jdbcType=BIGINT}, #{required, jdbcType=TINYINT}, #{enabled, jdbcType=TINYINT}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNodeDocumentConfig">
+        UPDATE `workflow_node_document_config`
+        SET
+            `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT},
+            `document_type_code` = #{documentTypeCode, jdbcType=VARCHAR},
+            `document_type_name` = #{documentTypeName, jdbcType=VARCHAR},
+            `generate_timing` = #{generateTiming, jdbcType=VARCHAR},
+            `template_code` = #{templateCode, jdbcType=VARCHAR},
+            `snapshot_schema_json` = #{snapshotSchemaJson, jdbcType=LONGVARCHAR},
+            `snapshot_view_name` = #{snapshotViewName, jdbcType=VARCHAR},
+            `output_material_type_id` = #{outputMaterialTypeId, jdbcType=BIGINT},
+            `required` = #{required, jdbcType=TINYINT},
+            `enabled` = #{enabled, jdbcType=TINYINT}
+        WHERE `document_config_id` = #{documentConfigId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `workflow_node_document_config` WHERE `document_config_id` = #{documentConfigId, jdbcType=BIGINT}
+    </delete>
+</mapper>

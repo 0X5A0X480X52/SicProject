@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.runtime.dao.ModuleStateRecordDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.runtime.entity.ModuleStateRecord">
+        <id column="state_record_id" property="stateRecordId" jdbcType="BIGINT" />
+        <result column="module_instance_id" property="moduleInstanceId" jdbcType="BIGINT" />
+        <result column="seq" property="seq" jdbcType="INTEGER" />
+        <result column="round_no" property="roundNo" jdbcType="INTEGER" />
+        <result column="event_type" property="eventType" jdbcType="VARCHAR" />
+        <result column="from_state" property="fromState" jdbcType="VARCHAR" />
+        <result column="to_state" property="toState" jdbcType="VARCHAR" />
+        <result column="from_node_id" property="fromNodeId" jdbcType="VARCHAR" />
+        <result column="to_node_id" property="toNodeId" jdbcType="VARCHAR" />
+        <result column="result" property="result" jdbcType="VARCHAR" />
+        <result column="summary" property="summary" jdbcType="VARCHAR" />
+        <result column="payload_json" property="payloadJson" jdbcType="LONGVARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`state_record_id`, `module_instance_id`, `seq`, `round_no`, `event_type`, `from_state`, `to_state`, `from_node_id`, `to_node_id`, `result`, `summary`, `payload_json`, `created_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `module_state_record` WHERE `state_record_id` = #{stateRecordId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `module_state_record`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.runtime.entity.ModuleStateRecord" useGeneratedKeys="true" keyProperty="stateRecordId" keyColumn="state_record_id">
+        INSERT INTO `module_state_record` (
+            `module_instance_id`, `seq`, `round_no`, `event_type`, `from_state`, `to_state`, `from_node_id`, `to_node_id`, `result`, `summary`, `payload_json`
+        ) VALUES (
+            #{moduleInstanceId, jdbcType=BIGINT}, #{seq, jdbcType=INTEGER}, #{roundNo, jdbcType=INTEGER}, #{eventType, jdbcType=VARCHAR}, #{fromState, jdbcType=VARCHAR}, #{toState, jdbcType=VARCHAR}, #{fromNodeId, jdbcType=VARCHAR}, #{toNodeId, jdbcType=VARCHAR}, #{result, jdbcType=VARCHAR}, #{summary, jdbcType=VARCHAR}, #{payloadJson, jdbcType=LONGVARCHAR}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.runtime.entity.ModuleStateRecord">
+        UPDATE `module_state_record`
+        SET
+            `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT},
+            `seq` = #{seq, jdbcType=INTEGER},
+            `round_no` = #{roundNo, jdbcType=INTEGER},
+            `event_type` = #{eventType, jdbcType=VARCHAR},
+            `from_state` = #{fromState, jdbcType=VARCHAR},
+            `to_state` = #{toState, jdbcType=VARCHAR},
+            `from_node_id` = #{fromNodeId, jdbcType=VARCHAR},
+            `to_node_id` = #{toNodeId, jdbcType=VARCHAR},
+            `result` = #{result, jdbcType=VARCHAR},
+            `summary` = #{summary, jdbcType=VARCHAR},
+            `payload_json` = #{payloadJson, jdbcType=LONGVARCHAR}
+        WHERE `state_record_id` = #{stateRecordId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `module_state_record` WHERE `state_record_id` = #{stateRecordId, jdbcType=BIGINT}
+    </delete>
+</mapper>

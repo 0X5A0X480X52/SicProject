@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.document.dao.ProcessDocumentDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.document.entity.ProcessDocument">
+        <id column="document_id" property="documentId" jdbcType="BIGINT" />
+        <result column="module_instance_id" property="moduleInstanceId" jdbcType="BIGINT" />
+        <result column="generated_state_record_id" property="generatedStateRecordId" jdbcType="BIGINT" />
+        <result column="document_type_code" property="documentTypeCode" jdbcType="VARCHAR" />
+        <result column="document_no" property="documentNo" jdbcType="VARCHAR" />
+        <result column="document_title" property="documentTitle" jdbcType="VARCHAR" />
+        <result column="document_status" property="documentStatus" jdbcType="VARCHAR" />
+        <result column="snapshot_json" property="snapshotJson" jdbcType="LONGVARCHAR" />
+        <result column="generated_at" property="generatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`document_id`, `module_instance_id`, `generated_state_record_id`, `document_type_code`, `document_no`, `document_title`, `document_status`, `snapshot_json`, `generated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `process_document` WHERE `document_id` = #{documentId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `process_document`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.document.entity.ProcessDocument" useGeneratedKeys="true" keyProperty="documentId" keyColumn="document_id">
+        INSERT INTO `process_document` (
+            `module_instance_id`, `generated_state_record_id`, `document_type_code`, `document_no`, `document_title`, `document_status`, `snapshot_json`
+        ) VALUES (
+            #{moduleInstanceId, jdbcType=BIGINT}, #{generatedStateRecordId, jdbcType=BIGINT}, #{documentTypeCode, jdbcType=VARCHAR}, #{documentNo, jdbcType=VARCHAR}, #{documentTitle, jdbcType=VARCHAR}, #{documentStatus, jdbcType=VARCHAR}, #{snapshotJson, jdbcType=LONGVARCHAR}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.document.entity.ProcessDocument">
+        UPDATE `process_document`
+        SET
+            `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT},
+            `generated_state_record_id` = #{generatedStateRecordId, jdbcType=BIGINT},
+            `document_type_code` = #{documentTypeCode, jdbcType=VARCHAR},
+            `document_no` = #{documentNo, jdbcType=VARCHAR},
+            `document_title` = #{documentTitle, jdbcType=VARCHAR},
+            `document_status` = #{documentStatus, jdbcType=VARCHAR},
+            `snapshot_json` = #{snapshotJson, jdbcType=LONGVARCHAR}
+        WHERE `document_id` = #{documentId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `process_document` WHERE `document_id` = #{documentId, jdbcType=BIGINT}
+    </delete>
+</mapper>

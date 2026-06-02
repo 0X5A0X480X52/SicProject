@@ -1,4 +1,4 @@
-spring:
+﻿spring:
   datasource:
     url: jdbc:h2:mem:sic_project_is;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
     username: sa
@@ -11,7 +11,7 @@ spring:
       data-locations: classpath:data-h2.sql
 
 mybatis:
-  mapper-locations: classpath*:mapper/*.xml
-  type-aliases-package: com.amatrix.sicprojectis_backend.entity
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.amatrix.sicprojectis_backend
   configuration:
     map-underscore-to-camel-case: true

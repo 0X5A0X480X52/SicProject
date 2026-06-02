@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.project.dao.ProjectContractDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.project.entity.ProjectContract">
+        <id column="contract_id" property="contractId" jdbcType="BIGINT" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <result column="contract_code" property="contractCode" jdbcType="VARCHAR" />
+        <result column="contract_name" property="contractName" jdbcType="VARCHAR" />
+        <result column="contract_amount" property="contractAmount" jdbcType="DECIMAL" />
+        <result column="contract_start_date" property="contractStartDate" jdbcType="DATE" />
+        <result column="contract_end_date" property="contractEndDate" jdbcType="DATE" />
+        <result column="seal_status" property="sealStatus" jdbcType="VARCHAR" />
+        <result column="submitted_at" property="submittedAt" jdbcType="TIMESTAMP" />
+        <result column="signed_at" property="signedAt" jdbcType="TIMESTAMP" />
+        <result column="archived_at" property="archivedAt" jdbcType="TIMESTAMP" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`contract_id`, `project_id`, `contract_code`, `contract_name`, `contract_amount`, `contract_start_date`, `contract_end_date`, `seal_status`, `submitted_at`, `signed_at`, `archived_at`, `created_at`, `updated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_contract` WHERE `contract_id` = #{contractId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_contract`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.project.entity.ProjectContract" useGeneratedKeys="true" keyProperty="contractId" keyColumn="contract_id">
+        INSERT INTO `project_contract` (
+            `project_id`, `contract_code`, `contract_name`, `contract_amount`, `contract_start_date`, `contract_end_date`, `seal_status`, `submitted_at`, `signed_at`, `archived_at`
+        ) VALUES (
+            #{projectId, jdbcType=BIGINT}, #{contractCode, jdbcType=VARCHAR}, #{contractName, jdbcType=VARCHAR}, #{contractAmount, jdbcType=DECIMAL}, #{contractStartDate, jdbcType=DATE}, #{contractEndDate, jdbcType=DATE}, #{sealStatus, jdbcType=VARCHAR}, #{submittedAt, jdbcType=TIMESTAMP}, #{signedAt, jdbcType=TIMESTAMP}, #{archivedAt, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.project.entity.ProjectContract">
+        UPDATE `project_contract`
+        SET
+            `project_id` = #{projectId, jdbcType=BIGINT},
+            `contract_code` = #{contractCode, jdbcType=VARCHAR},
+            `contract_name` = #{contractName, jdbcType=VARCHAR},
+            `contract_amount` = #{contractAmount, jdbcType=DECIMAL},
+            `contract_start_date` = #{contractStartDate, jdbcType=DATE},
+            `contract_end_date` = #{contractEndDate, jdbcType=DATE},
+            `seal_status` = #{sealStatus, jdbcType=VARCHAR},
+            `submitted_at` = #{submittedAt, jdbcType=TIMESTAMP},
+            `signed_at` = #{signedAt, jdbcType=TIMESTAMP},
+            `archived_at` = #{archivedAt, jdbcType=TIMESTAMP}
+        WHERE `contract_id` = #{contractId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `project_contract` WHERE `contract_id` = #{contractId, jdbcType=BIGINT}
+    </delete>
+</mapper>

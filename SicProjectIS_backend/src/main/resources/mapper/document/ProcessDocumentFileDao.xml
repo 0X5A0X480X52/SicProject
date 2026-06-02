@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.document.dao.ProcessDocumentFileDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.document.entity.ProcessDocumentFile">
+        <id column="document_file_id" property="documentFileId" jdbcType="BIGINT" />
+        <result column="document_id" property="documentId" jdbcType="BIGINT" />
+        <result column="material_version_id" property="materialVersionId" jdbcType="BIGINT" />
+        <result column="file_purpose" property="filePurpose" jdbcType="VARCHAR" />
+        <result column="is_main_file" property="isMainFile" jdbcType="TINYINT" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`document_file_id`, `document_id`, `material_version_id`, `file_purpose`, `is_main_file`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `process_document_file` WHERE `document_file_id` = #{documentFileId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `process_document_file`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.document.entity.ProcessDocumentFile" useGeneratedKeys="true" keyProperty="documentFileId" keyColumn="document_file_id">
+        INSERT INTO `process_document_file` (
+            `document_id`, `material_version_id`, `file_purpose`, `is_main_file`
+        ) VALUES (
+            #{documentId, jdbcType=BIGINT}, #{materialVersionId, jdbcType=BIGINT}, #{filePurpose, jdbcType=VARCHAR}, #{isMainFile, jdbcType=TINYINT}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.document.entity.ProcessDocumentFile">
+        UPDATE `process_document_file`
+        SET
+            `document_id` = #{documentId, jdbcType=BIGINT},
+            `material_version_id` = #{materialVersionId, jdbcType=BIGINT},
+            `file_purpose` = #{filePurpose, jdbcType=VARCHAR},
+            `is_main_file` = #{isMainFile, jdbcType=TINYINT}
+        WHERE `document_file_id` = #{documentFileId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `process_document_file` WHERE `document_file_id` = #{documentFileId, jdbcType=BIGINT}
+    </delete>
+</mapper>

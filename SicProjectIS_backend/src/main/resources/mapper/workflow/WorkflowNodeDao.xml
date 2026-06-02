@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNode">
+        <id column="workflow_node_id" property="workflowNodeId" jdbcType="BIGINT" />
+        <result column="workflow_definition_id" property="workflowDefinitionId" jdbcType="BIGINT" />
+        <result column="node_id" property="nodeId" jdbcType="VARCHAR" />
+        <result column="node_name" property="nodeName" jdbcType="VARCHAR" />
+        <result column="node_type" property="nodeType" jdbcType="VARCHAR" />
+        <result column="state_code" property="stateCode" jdbcType="VARCHAR" />
+        <result column="lane_name" property="laneName" jdbcType="VARCHAR" />
+        <result column="responsible_actor_code" property="responsibleActorCode" jdbcType="VARCHAR" />
+        <result column="responsible_actor_name" property="responsibleActorName" jdbcType="VARCHAR" />
+        <result column="candidate_role_code" property="candidateRoleCode" jdbcType="VARCHAR" />
+        <result column="operation_mode" property="operationMode" jdbcType="VARCHAR" />
+        <result column="represented_actor_code" property="representedActorCode" jdbcType="VARCHAR" />
+        <result column="represented_actor_name" property="representedActorName" jdbcType="VARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`workflow_node_id`, `workflow_definition_id`, `node_id`, `node_name`, `node_type`, `state_code`, `lane_name`, `responsible_actor_code`, `responsible_actor_name`, `candidate_role_code`, `operation_mode`, `represented_actor_code`, `represented_actor_name`, `created_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `workflow_node` WHERE `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `workflow_node`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNode" useGeneratedKeys="true" keyProperty="workflowNodeId" keyColumn="workflow_node_id">
+        INSERT INTO `workflow_node` (
+            `workflow_definition_id`, `node_id`, `node_name`, `node_type`, `state_code`, `lane_name`, `responsible_actor_code`, `responsible_actor_name`, `candidate_role_code`, `operation_mode`, `represented_actor_code`, `represented_actor_name`
+        ) VALUES (
+            #{workflowDefinitionId, jdbcType=BIGINT}, #{nodeId, jdbcType=VARCHAR}, #{nodeName, jdbcType=VARCHAR}, #{nodeType, jdbcType=VARCHAR}, #{stateCode, jdbcType=VARCHAR}, #{laneName, jdbcType=VARCHAR}, #{responsibleActorCode, jdbcType=VARCHAR}, #{responsibleActorName, jdbcType=VARCHAR}, #{candidateRoleCode, jdbcType=VARCHAR}, #{operationMode, jdbcType=VARCHAR}, #{representedActorCode, jdbcType=VARCHAR}, #{representedActorName, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNode">
+        UPDATE `workflow_node`
+        SET
+            `workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT},
+            `node_id` = #{nodeId, jdbcType=VARCHAR},
+            `node_name` = #{nodeName, jdbcType=VARCHAR},
+            `node_type` = #{nodeType, jdbcType=VARCHAR},
+            `state_code` = #{stateCode, jdbcType=VARCHAR},
+            `lane_name` = #{laneName, jdbcType=VARCHAR},
+            `responsible_actor_code` = #{responsibleActorCode, jdbcType=VARCHAR},
+            `responsible_actor_name` = #{responsibleActorName, jdbcType=VARCHAR},
+            `candidate_role_code` = #{candidateRoleCode, jdbcType=VARCHAR},
+            `operation_mode` = #{operationMode, jdbcType=VARCHAR},
+            `represented_actor_code` = #{representedActorCode, jdbcType=VARCHAR},
+            `represented_actor_name` = #{representedActorName, jdbcType=VARCHAR}
+        WHERE `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `workflow_node` WHERE `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT}
+    </delete>
+</mapper>

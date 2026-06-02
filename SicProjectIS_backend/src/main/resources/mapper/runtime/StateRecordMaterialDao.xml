@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.runtime.dao.StateRecordMaterialDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.runtime.entity.StateRecordMaterial">
+        <id column="record_material_id" property="recordMaterialId" jdbcType="BIGINT" />
+        <result column="state_record_id" property="stateRecordId" jdbcType="BIGINT" />
+        <result column="remark_id" property="remarkId" jdbcType="BIGINT" />
+        <result column="material_version_id" property="materialVersionId" jdbcType="BIGINT" />
+        <result column="material_usage" property="materialUsage" jdbcType="VARCHAR" />
+        <result column="is_required" property="isRequired" jdbcType="TINYINT" />
+        <result column="linked_at" property="linkedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`record_material_id`, `state_record_id`, `remark_id`, `material_version_id`, `material_usage`, `is_required`, `linked_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `state_record_material` WHERE `record_material_id` = #{recordMaterialId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `state_record_material`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.runtime.entity.StateRecordMaterial" useGeneratedKeys="true" keyProperty="recordMaterialId" keyColumn="record_material_id">
+        INSERT INTO `state_record_material` (
+            `state_record_id`, `remark_id`, `material_version_id`, `material_usage`, `is_required`
+        ) VALUES (
+            #{stateRecordId, jdbcType=BIGINT}, #{remarkId, jdbcType=BIGINT}, #{materialVersionId, jdbcType=BIGINT}, #{materialUsage, jdbcType=VARCHAR}, #{isRequired, jdbcType=TINYINT}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.runtime.entity.StateRecordMaterial">
+        UPDATE `state_record_material`
+        SET
+            `state_record_id` = #{stateRecordId, jdbcType=BIGINT},
+            `remark_id` = #{remarkId, jdbcType=BIGINT},
+            `material_version_id` = #{materialVersionId, jdbcType=BIGINT},
+            `material_usage` = #{materialUsage, jdbcType=VARCHAR},
+            `is_required` = #{isRequired, jdbcType=TINYINT}
+        WHERE `record_material_id` = #{recordMaterialId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `state_record_material` WHERE `record_material_id` = #{recordMaterialId, jdbcType=BIGINT}
+    </delete>
+</mapper>
