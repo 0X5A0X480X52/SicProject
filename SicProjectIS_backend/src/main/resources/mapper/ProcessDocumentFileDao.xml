@@ -20,29 +20,20 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.ProcessDocumentFile" useGeneratedKeys="true" keyProperty="documentFileId" keyColumn="document_file_id">
-        INSERT INTO `process_document_file`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="documentId != null">`document_id`,</if>
-            <if test="materialVersionId != null">`material_version_id`,</if>
-            <if test="filePurpose != null">`file_purpose`,</if>
-            <if test="isMainFile != null">`is_main_file`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="documentId != null">#{documentId, jdbcType=BIGINT},</if>
-            <if test="materialVersionId != null">#{materialVersionId, jdbcType=BIGINT},</if>
-            <if test="filePurpose != null">#{filePurpose, jdbcType=VARCHAR},</if>
-            <if test="isMainFile != null">#{isMainFile, jdbcType=TINYINT},</if>
-        </trim>
+        INSERT INTO `process_document_file` (
+            `document_id`, `material_version_id`, `file_purpose`, `is_main_file`
+        ) VALUES (
+            #{documentId, jdbcType=BIGINT}, #{materialVersionId, jdbcType=BIGINT}, #{filePurpose, jdbcType=VARCHAR}, #{isMainFile, jdbcType=TINYINT}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.ProcessDocumentFile">
         UPDATE `process_document_file`
-        <set>
-            <if test="documentId != null">`document_id` = #{documentId, jdbcType=BIGINT},</if>
-            <if test="materialVersionId != null">`material_version_id` = #{materialVersionId, jdbcType=BIGINT},</if>
-            <if test="filePurpose != null">`file_purpose` = #{filePurpose, jdbcType=VARCHAR},</if>
-            <if test="isMainFile != null">`is_main_file` = #{isMainFile, jdbcType=TINYINT},</if>
-        </set>
+        SET
+            `document_id` = #{documentId, jdbcType=BIGINT},
+            `material_version_id` = #{materialVersionId, jdbcType=BIGINT},
+            `file_purpose` = #{filePurpose, jdbcType=VARCHAR},
+            `is_main_file` = #{isMainFile, jdbcType=TINYINT}
         WHERE `document_file_id` = #{documentFileId, jdbcType=BIGINT}
     </update>
 

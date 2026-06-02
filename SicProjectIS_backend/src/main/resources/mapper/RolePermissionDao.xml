@@ -18,23 +18,18 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.RolePermission" useGeneratedKeys="true" keyProperty="rolePermissionId" keyColumn="role_permission_id">
-        INSERT INTO `role_permission`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="roleId != null">`role_id`,</if>
-            <if test="permissionId != null">`permission_id`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="roleId != null">#{roleId, jdbcType=BIGINT},</if>
-            <if test="permissionId != null">#{permissionId, jdbcType=BIGINT},</if>
-        </trim>
+        INSERT INTO `role_permission` (
+            `role_id`, `permission_id`
+        ) VALUES (
+            #{roleId, jdbcType=BIGINT}, #{permissionId, jdbcType=BIGINT}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.RolePermission">
         UPDATE `role_permission`
-        <set>
-            <if test="roleId != null">`role_id` = #{roleId, jdbcType=BIGINT},</if>
-            <if test="permissionId != null">`permission_id` = #{permissionId, jdbcType=BIGINT},</if>
-        </set>
+        SET
+            `role_id` = #{roleId, jdbcType=BIGINT},
+            `permission_id` = #{permissionId, jdbcType=BIGINT}
         WHERE `role_permission_id` = #{rolePermissionId, jdbcType=BIGINT}
     </update>
 

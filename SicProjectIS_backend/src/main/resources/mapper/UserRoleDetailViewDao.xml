@@ -14,7 +14,7 @@
 
     <sql id="BaseColumnList">`user_id`, `username`, `real_name`, `dept_id`, `dept_name`, `role_id`, `role_code`, `role_name`</sql>
 
-    <select id="selectById" resultMap="BaseResultMap">
+    <select id="selectByUserId" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `v_user_role_detail` WHERE `user_id` = #{userId, jdbcType=BIGINT}
     </select>
 

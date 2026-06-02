@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface WorkflowNodeConfigViewDao {
-    WorkflowNodeConfigView selectById(@Param("workflowNodeId") Long workflowNodeId);
+    WorkflowNodeConfigView selectByWorkflowNodeId(@Param("workflowNodeId") Long workflowNodeId);
 
     List<WorkflowNodeConfigView> selectAll();
 }

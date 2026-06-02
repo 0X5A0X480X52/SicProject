@@ -15,7 +15,7 @@ public class ModuleRuntimeContextView {
     private Integer currentSeq;
     private Integer currentRoundNo;
     private String currentState;
-    private Long currentNodeId;
+    private String currentNodeId;
     private String lastEventType;
     private String lastResult;
     private String lastSummary;

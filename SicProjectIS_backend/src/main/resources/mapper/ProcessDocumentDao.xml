@@ -24,41 +24,23 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.ProcessDocument" useGeneratedKeys="true" keyProperty="documentId" keyColumn="document_id">
-        INSERT INTO `process_document`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="moduleInstanceId != null">`module_instance_id`,</if>
-            <if test="generatedStateRecordId != null">`generated_state_record_id`,</if>
-            <if test="documentTypeCode != null">`document_type_code`,</if>
-            <if test="documentNo != null">`document_no`,</if>
-            <if test="documentTitle != null">`document_title`,</if>
-            <if test="documentStatus != null">`document_status`,</if>
-            <if test="snapshotJson != null">`snapshot_json`,</if>
-            <if test="generatedAt != null">`generated_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="moduleInstanceId != null">#{moduleInstanceId, jdbcType=BIGINT},</if>
-            <if test="generatedStateRecordId != null">#{generatedStateRecordId, jdbcType=BIGINT},</if>
-            <if test="documentTypeCode != null">#{documentTypeCode, jdbcType=VARCHAR},</if>
-            <if test="documentNo != null">#{documentNo, jdbcType=VARCHAR},</if>
-            <if test="documentTitle != null">#{documentTitle, jdbcType=VARCHAR},</if>
-            <if test="documentStatus != null">#{documentStatus, jdbcType=VARCHAR},</if>
-            <if test="snapshotJson != null">#{snapshotJson, jdbcType=LONGVARCHAR},</if>
-            <if test="generatedAt != null">#{generatedAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `process_document` (
+            `module_instance_id`, `generated_state_record_id`, `document_type_code`, `document_no`, `document_title`, `document_status`, `snapshot_json`
+        ) VALUES (
+            #{moduleInstanceId, jdbcType=BIGINT}, #{generatedStateRecordId, jdbcType=BIGINT}, #{documentTypeCode, jdbcType=VARCHAR}, #{documentNo, jdbcType=VARCHAR}, #{documentTitle, jdbcType=VARCHAR}, #{documentStatus, jdbcType=VARCHAR}, #{snapshotJson, jdbcType=LONGVARCHAR}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.ProcessDocument">
         UPDATE `process_document`
-        <set>
-            <if test="moduleInstanceId != null">`module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT},</if>
-            <if test="generatedStateRecordId != null">`generated_state_record_id` = #{generatedStateRecordId, jdbcType=BIGINT},</if>
-            <if test="documentTypeCode != null">`document_type_code` = #{documentTypeCode, jdbcType=VARCHAR},</if>
-            <if test="documentNo != null">`document_no` = #{documentNo, jdbcType=VARCHAR},</if>
-            <if test="documentTitle != null">`document_title` = #{documentTitle, jdbcType=VARCHAR},</if>
-            <if test="documentStatus != null">`document_status` = #{documentStatus, jdbcType=VARCHAR},</if>
-            <if test="snapshotJson != null">`snapshot_json` = #{snapshotJson, jdbcType=LONGVARCHAR},</if>
-            <if test="generatedAt != null">`generated_at` = #{generatedAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT},
+            `generated_state_record_id` = #{generatedStateRecordId, jdbcType=BIGINT},
+            `document_type_code` = #{documentTypeCode, jdbcType=VARCHAR},
+            `document_no` = #{documentNo, jdbcType=VARCHAR},
+            `document_title` = #{documentTitle, jdbcType=VARCHAR},
+            `document_status` = #{documentStatus, jdbcType=VARCHAR},
+            `snapshot_json` = #{snapshotJson, jdbcType=LONGVARCHAR}
         WHERE `document_id` = #{documentId, jdbcType=BIGINT}
     </update>
 

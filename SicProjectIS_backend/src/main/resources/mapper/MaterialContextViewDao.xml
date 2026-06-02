@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sicprojectis_backend.dao.MaterialContextViewDao">
     <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.entity.MaterialContextView">
+        <id column="material_version_id" property="materialVersionId" jdbcType="BIGINT" />
         <result column="material_id" property="materialId" jdbcType="BIGINT" />
         <result column="project_id" property="projectId" jdbcType="BIGINT" />
         <result column="material_type_id" property="materialTypeId" jdbcType="BIGINT" />
@@ -10,7 +11,6 @@
         <result column="module_type" property="moduleType" jdbcType="VARCHAR" />
         <result column="allowed_file_types" property="allowedFileTypes" jdbcType="VARCHAR" />
         <result column="max_file_size_mb" property="maxFileSizeMb" jdbcType="INTEGER" />
-        <id column="material_version_id" property="materialVersionId" jdbcType="BIGINT" />
         <result column="version_no" property="versionNo" jdbcType="INTEGER" />
         <result column="file_name" property="fileName" jdbcType="VARCHAR" />
         <result column="file_url" property="fileUrl" jdbcType="VARCHAR" />
@@ -23,7 +23,7 @@
 
     <sql id="BaseColumnList">`material_id`, `project_id`, `material_type_id`, `material_type_code`, `material_type_name`, `module_type`, `allowed_file_types`, `max_file_size_mb`, `material_version_id`, `version_no`, `file_name`, `file_url`, `file_hash`, `uploaded_by`, `uploaded_by_name`, `uploaded_at`, `is_current`</sql>
 
-    <select id="selectById" resultMap="BaseResultMap">
+    <select id="selectByMaterialVersionId" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `v_material_context` WHERE `material_version_id` = #{materialVersionId, jdbcType=BIGINT}
     </select>
 

@@ -38,7 +38,7 @@
 
     <sql id="BaseColumnList">`state_record_id`, `module_instance_id`, `project_id`, `module_type`, `workflow_definition_id`, `seq`, `round_no`, `event_type`, `from_state`, `to_state`, `from_node_id`, `to_node_id`, `result`, `summary`, `payload_json`, `transition_time`, `to_workflow_node_id`, `to_node_name`, `to_node_type`, `to_lane_name`, `to_responsible_actor_name`, `to_operation_mode`, `to_represented_actor_name`, `operator_remark_id`, `operator_user_id`, `operator_name`, `operator_role_id`, `operator_role_code`, `operator_role_name`, `operator_participant_type`, `operator_action_type`, `operator_remark`</sql>
 
-    <select id="selectById" resultMap="BaseResultMap">
+    <select id="selectByStateRecordId" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `v_state_record_context` WHERE `state_record_id` = #{stateRecordId, jdbcType=BIGINT}
     </select>
 

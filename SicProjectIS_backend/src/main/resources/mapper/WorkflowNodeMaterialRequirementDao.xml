@@ -25,44 +25,25 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.WorkflowNodeMaterialRequirement" useGeneratedKeys="true" keyProperty="requirementId" keyColumn="requirement_id">
-        INSERT INTO `workflow_node_material_requirement`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="workflowNodeId != null">`workflow_node_id`,</if>
-            <if test="materialTypeId != null">`material_type_id`,</if>
-            <if test="requirementTiming != null">`requirement_timing`,</if>
-            <if test="required != null">`required`,</if>
-            <if test="minCount != null">`min_count`,</if>
-            <if test="maxCount != null">`max_count`,</if>
-            <if test="usageType != null">`usage_type`,</if>
-            <if test="validatorKey != null">`validator_key`,</if>
-            <if test="description != null">`description`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="workflowNodeId != null">#{workflowNodeId, jdbcType=BIGINT},</if>
-            <if test="materialTypeId != null">#{materialTypeId, jdbcType=BIGINT},</if>
-            <if test="requirementTiming != null">#{requirementTiming, jdbcType=VARCHAR},</if>
-            <if test="required != null">#{required, jdbcType=TINYINT},</if>
-            <if test="minCount != null">#{minCount, jdbcType=INTEGER},</if>
-            <if test="maxCount != null">#{maxCount, jdbcType=INTEGER},</if>
-            <if test="usageType != null">#{usageType, jdbcType=VARCHAR},</if>
-            <if test="validatorKey != null">#{validatorKey, jdbcType=VARCHAR},</if>
-            <if test="description != null">#{description, jdbcType=LONGVARCHAR},</if>
-        </trim>
+        INSERT INTO `workflow_node_material_requirement` (
+            `workflow_node_id`, `material_type_id`, `requirement_timing`, `required`, `min_count`, `max_count`, `usage_type`, `validator_key`, `description`
+        ) VALUES (
+            #{workflowNodeId, jdbcType=BIGINT}, #{materialTypeId, jdbcType=BIGINT}, #{requirementTiming, jdbcType=VARCHAR}, #{required, jdbcType=TINYINT}, #{minCount, jdbcType=INTEGER}, #{maxCount, jdbcType=INTEGER}, #{usageType, jdbcType=VARCHAR}, #{validatorKey, jdbcType=VARCHAR}, #{description, jdbcType=LONGVARCHAR}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.WorkflowNodeMaterialRequirement">
         UPDATE `workflow_node_material_requirement`
-        <set>
-            <if test="workflowNodeId != null">`workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT},</if>
-            <if test="materialTypeId != null">`material_type_id` = #{materialTypeId, jdbcType=BIGINT},</if>
-            <if test="requirementTiming != null">`requirement_timing` = #{requirementTiming, jdbcType=VARCHAR},</if>
-            <if test="required != null">`required` = #{required, jdbcType=TINYINT},</if>
-            <if test="minCount != null">`min_count` = #{minCount, jdbcType=INTEGER},</if>
-            <if test="maxCount != null">`max_count` = #{maxCount, jdbcType=INTEGER},</if>
-            <if test="usageType != null">`usage_type` = #{usageType, jdbcType=VARCHAR},</if>
-            <if test="validatorKey != null">`validator_key` = #{validatorKey, jdbcType=VARCHAR},</if>
-            <if test="description != null">`description` = #{description, jdbcType=LONGVARCHAR},</if>
-        </set>
+        SET
+            `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT},
+            `material_type_id` = #{materialTypeId, jdbcType=BIGINT},
+            `requirement_timing` = #{requirementTiming, jdbcType=VARCHAR},
+            `required` = #{required, jdbcType=TINYINT},
+            `min_count` = #{minCount, jdbcType=INTEGER},
+            `max_count` = #{maxCount, jdbcType=INTEGER},
+            `usage_type` = #{usageType, jdbcType=VARCHAR},
+            `validator_key` = #{validatorKey, jdbcType=VARCHAR},
+            `description` = #{description, jdbcType=LONGVARCHAR}
         WHERE `requirement_id` = #{requirementId, jdbcType=BIGINT}
     </update>
 

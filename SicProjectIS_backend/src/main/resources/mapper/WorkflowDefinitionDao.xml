@@ -25,44 +25,23 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.WorkflowDefinition" useGeneratedKeys="true" keyProperty="workflowDefinitionId" keyColumn="workflow_definition_id">
-        INSERT INTO `workflow_definition`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="processKey != null">`process_key`,</if>
-            <if test="processName != null">`process_name`,</if>
-            <if test="moduleType != null">`module_type`,</if>
-            <if test="bpmnXml != null">`bpmn_xml`,</if>
-            <if test="stateMachineRulesJson != null">`state_machine_rules_json`,</if>
-            <if test="versionNo != null">`version_no`,</if>
-            <if test="status != null">`status`,</if>
-            <if test="createdAt != null">`created_at`,</if>
-            <if test="updatedAt != null">`updated_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="processKey != null">#{processKey, jdbcType=VARCHAR},</if>
-            <if test="processName != null">#{processName, jdbcType=VARCHAR},</if>
-            <if test="moduleType != null">#{moduleType, jdbcType=VARCHAR},</if>
-            <if test="bpmnXml != null">#{bpmnXml, jdbcType=LONGVARCHAR},</if>
-            <if test="stateMachineRulesJson != null">#{stateMachineRulesJson, jdbcType=LONGVARCHAR},</if>
-            <if test="versionNo != null">#{versionNo, jdbcType=INTEGER},</if>
-            <if test="status != null">#{status, jdbcType=VARCHAR},</if>
-            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `workflow_definition` (
+            `process_key`, `process_name`, `module_type`, `bpmn_xml`, `state_machine_rules_json`, `version_no`, `status`
+        ) VALUES (
+            #{processKey, jdbcType=VARCHAR}, #{processName, jdbcType=VARCHAR}, #{moduleType, jdbcType=VARCHAR}, #{bpmnXml, jdbcType=LONGVARCHAR}, #{stateMachineRulesJson, jdbcType=LONGVARCHAR}, #{versionNo, jdbcType=INTEGER}, #{status, jdbcType=VARCHAR}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.WorkflowDefinition">
         UPDATE `workflow_definition`
-        <set>
-            <if test="processKey != null">`process_key` = #{processKey, jdbcType=VARCHAR},</if>
-            <if test="processName != null">`process_name` = #{processName, jdbcType=VARCHAR},</if>
-            <if test="moduleType != null">`module_type` = #{moduleType, jdbcType=VARCHAR},</if>
-            <if test="bpmnXml != null">`bpmn_xml` = #{bpmnXml, jdbcType=LONGVARCHAR},</if>
-            <if test="stateMachineRulesJson != null">`state_machine_rules_json` = #{stateMachineRulesJson, jdbcType=LONGVARCHAR},</if>
-            <if test="versionNo != null">`version_no` = #{versionNo, jdbcType=INTEGER},</if>
-            <if test="status != null">`status` = #{status, jdbcType=VARCHAR},</if>
-            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `process_key` = #{processKey, jdbcType=VARCHAR},
+            `process_name` = #{processName, jdbcType=VARCHAR},
+            `module_type` = #{moduleType, jdbcType=VARCHAR},
+            `bpmn_xml` = #{bpmnXml, jdbcType=LONGVARCHAR},
+            `state_machine_rules_json` = #{stateMachineRulesJson, jdbcType=LONGVARCHAR},
+            `version_no` = #{versionNo, jdbcType=INTEGER},
+            `status` = #{status, jdbcType=VARCHAR}
         WHERE `workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT}
     </update>
 

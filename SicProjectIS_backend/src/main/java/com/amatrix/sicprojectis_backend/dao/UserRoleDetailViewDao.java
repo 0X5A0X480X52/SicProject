@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface UserRoleDetailViewDao {
-    UserRoleDetailView selectById(@Param("userId") Long userId);
+    List<UserRoleDetailView> selectByUserId(@Param("userId") Long userId);
 
     List<UserRoleDetailView> selectAll();
 }

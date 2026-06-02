@@ -22,35 +22,21 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.StateRecordMaterial" useGeneratedKeys="true" keyProperty="recordMaterialId" keyColumn="record_material_id">
-        INSERT INTO `state_record_material`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="stateRecordId != null">`state_record_id`,</if>
-            <if test="remarkId != null">`remark_id`,</if>
-            <if test="materialVersionId != null">`material_version_id`,</if>
-            <if test="materialUsage != null">`material_usage`,</if>
-            <if test="isRequired != null">`is_required`,</if>
-            <if test="linkedAt != null">`linked_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="stateRecordId != null">#{stateRecordId, jdbcType=BIGINT},</if>
-            <if test="remarkId != null">#{remarkId, jdbcType=BIGINT},</if>
-            <if test="materialVersionId != null">#{materialVersionId, jdbcType=BIGINT},</if>
-            <if test="materialUsage != null">#{materialUsage, jdbcType=VARCHAR},</if>
-            <if test="isRequired != null">#{isRequired, jdbcType=TINYINT},</if>
-            <if test="linkedAt != null">#{linkedAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `state_record_material` (
+            `state_record_id`, `remark_id`, `material_version_id`, `material_usage`, `is_required`
+        ) VALUES (
+            #{stateRecordId, jdbcType=BIGINT}, #{remarkId, jdbcType=BIGINT}, #{materialVersionId, jdbcType=BIGINT}, #{materialUsage, jdbcType=VARCHAR}, #{isRequired, jdbcType=TINYINT}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.StateRecordMaterial">
         UPDATE `state_record_material`
-        <set>
-            <if test="stateRecordId != null">`state_record_id` = #{stateRecordId, jdbcType=BIGINT},</if>
-            <if test="remarkId != null">`remark_id` = #{remarkId, jdbcType=BIGINT},</if>
-            <if test="materialVersionId != null">`material_version_id` = #{materialVersionId, jdbcType=BIGINT},</if>
-            <if test="materialUsage != null">`material_usage` = #{materialUsage, jdbcType=VARCHAR},</if>
-            <if test="isRequired != null">`is_required` = #{isRequired, jdbcType=TINYINT},</if>
-            <if test="linkedAt != null">`linked_at` = #{linkedAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `state_record_id` = #{stateRecordId, jdbcType=BIGINT},
+            `remark_id` = #{remarkId, jdbcType=BIGINT},
+            `material_version_id` = #{materialVersionId, jdbcType=BIGINT},
+            `material_usage` = #{materialUsage, jdbcType=VARCHAR},
+            `is_required` = #{isRequired, jdbcType=TINYINT}
         WHERE `record_material_id` = #{recordMaterialId, jdbcType=BIGINT}
     </update>
 

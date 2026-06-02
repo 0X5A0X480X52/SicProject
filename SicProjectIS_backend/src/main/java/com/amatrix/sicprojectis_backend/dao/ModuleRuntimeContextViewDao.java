@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface ModuleRuntimeContextViewDao {
-    ModuleRuntimeContextView selectById(@Param("moduleInstanceId") Long moduleInstanceId);
+    ModuleRuntimeContextView selectByModuleInstanceId(@Param("moduleInstanceId") Long moduleInstanceId);
 
     List<ModuleRuntimeContextView> selectAll();
 }

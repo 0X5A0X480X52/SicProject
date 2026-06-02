@@ -24,41 +24,23 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.MaterialVersion" useGeneratedKeys="true" keyProperty="materialVersionId" keyColumn="material_version_id">
-        INSERT INTO `material_version`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="materialId != null">`material_id`,</if>
-            <if test="versionNo != null">`version_no`,</if>
-            <if test="fileName != null">`file_name`,</if>
-            <if test="fileUrl != null">`file_url`,</if>
-            <if test="fileHash != null">`file_hash`,</if>
-            <if test="uploadedBy != null">`uploaded_by`,</if>
-            <if test="uploadedAt != null">`uploaded_at`,</if>
-            <if test="isCurrent != null">`is_current`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="materialId != null">#{materialId, jdbcType=BIGINT},</if>
-            <if test="versionNo != null">#{versionNo, jdbcType=INTEGER},</if>
-            <if test="fileName != null">#{fileName, jdbcType=VARCHAR},</if>
-            <if test="fileUrl != null">#{fileUrl, jdbcType=VARCHAR},</if>
-            <if test="fileHash != null">#{fileHash, jdbcType=VARCHAR},</if>
-            <if test="uploadedBy != null">#{uploadedBy, jdbcType=BIGINT},</if>
-            <if test="uploadedAt != null">#{uploadedAt, jdbcType=TIMESTAMP},</if>
-            <if test="isCurrent != null">#{isCurrent, jdbcType=TINYINT},</if>
-        </trim>
+        INSERT INTO `material_version` (
+            `material_id`, `version_no`, `file_name`, `file_url`, `file_hash`, `uploaded_by`, `is_current`
+        ) VALUES (
+            #{materialId, jdbcType=BIGINT}, #{versionNo, jdbcType=INTEGER}, #{fileName, jdbcType=VARCHAR}, #{fileUrl, jdbcType=VARCHAR}, #{fileHash, jdbcType=VARCHAR}, #{uploadedBy, jdbcType=BIGINT}, #{isCurrent, jdbcType=TINYINT}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.MaterialVersion">
         UPDATE `material_version`
-        <set>
-            <if test="materialId != null">`material_id` = #{materialId, jdbcType=BIGINT},</if>
-            <if test="versionNo != null">`version_no` = #{versionNo, jdbcType=INTEGER},</if>
-            <if test="fileName != null">`file_name` = #{fileName, jdbcType=VARCHAR},</if>
-            <if test="fileUrl != null">`file_url` = #{fileUrl, jdbcType=VARCHAR},</if>
-            <if test="fileHash != null">`file_hash` = #{fileHash, jdbcType=VARCHAR},</if>
-            <if test="uploadedBy != null">`uploaded_by` = #{uploadedBy, jdbcType=BIGINT},</if>
-            <if test="uploadedAt != null">`uploaded_at` = #{uploadedAt, jdbcType=TIMESTAMP},</if>
-            <if test="isCurrent != null">`is_current` = #{isCurrent, jdbcType=TINYINT},</if>
-        </set>
+        SET
+            `material_id` = #{materialId, jdbcType=BIGINT},
+            `version_no` = #{versionNo, jdbcType=INTEGER},
+            `file_name` = #{fileName, jdbcType=VARCHAR},
+            `file_url` = #{fileUrl, jdbcType=VARCHAR},
+            `file_hash` = #{fileHash, jdbcType=VARCHAR},
+            `uploaded_by` = #{uploadedBy, jdbcType=BIGINT},
+            `is_current` = #{isCurrent, jdbcType=TINYINT}
         WHERE `material_version_id` = #{materialVersionId, jdbcType=BIGINT}
     </update>
 

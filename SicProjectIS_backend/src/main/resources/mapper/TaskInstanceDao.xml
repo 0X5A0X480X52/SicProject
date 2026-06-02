@@ -27,50 +27,26 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.TaskInstance" useGeneratedKeys="true" keyProperty="taskInstanceId" keyColumn="task_instance_id">
-        INSERT INTO `task_instance`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="moduleInstanceId != null">`module_instance_id`,</if>
-            <if test="nodeId != null">`node_id`,</if>
-            <if test="stateCode != null">`state_code`,</if>
-            <if test="assigneeUserId != null">`assignee_user_id`,</if>
-            <if test="candidateRoleCode != null">`candidate_role_code`,</if>
-            <if test="taskStatus != null">`task_status`,</if>
-            <if test="roundNo != null">`round_no`,</if>
-            <if test="createdAt != null">`created_at`,</if>
-            <if test="claimedAt != null">`claimed_at`,</if>
-            <if test="completedAt != null">`completed_at`,</if>
-            <if test="deadlineAt != null">`deadline_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="moduleInstanceId != null">#{moduleInstanceId, jdbcType=BIGINT},</if>
-            <if test="nodeId != null">#{nodeId, jdbcType=VARCHAR},</if>
-            <if test="stateCode != null">#{stateCode, jdbcType=VARCHAR},</if>
-            <if test="assigneeUserId != null">#{assigneeUserId, jdbcType=BIGINT},</if>
-            <if test="candidateRoleCode != null">#{candidateRoleCode, jdbcType=VARCHAR},</if>
-            <if test="taskStatus != null">#{taskStatus, jdbcType=VARCHAR},</if>
-            <if test="roundNo != null">#{roundNo, jdbcType=INTEGER},</if>
-            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="claimedAt != null">#{claimedAt, jdbcType=TIMESTAMP},</if>
-            <if test="completedAt != null">#{completedAt, jdbcType=TIMESTAMP},</if>
-            <if test="deadlineAt != null">#{deadlineAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `task_instance` (
+            `module_instance_id`, `node_id`, `state_code`, `assignee_user_id`, `candidate_role_code`, `task_status`, `round_no`, `claimed_at`, `completed_at`, `deadline_at`
+        ) VALUES (
+            #{moduleInstanceId, jdbcType=BIGINT}, #{nodeId, jdbcType=VARCHAR}, #{stateCode, jdbcType=VARCHAR}, #{assigneeUserId, jdbcType=BIGINT}, #{candidateRoleCode, jdbcType=VARCHAR}, #{taskStatus, jdbcType=VARCHAR}, #{roundNo, jdbcType=INTEGER}, #{claimedAt, jdbcType=TIMESTAMP}, #{completedAt, jdbcType=TIMESTAMP}, #{deadlineAt, jdbcType=TIMESTAMP}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.TaskInstance">
         UPDATE `task_instance`
-        <set>
-            <if test="moduleInstanceId != null">`module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT},</if>
-            <if test="nodeId != null">`node_id` = #{nodeId, jdbcType=VARCHAR},</if>
-            <if test="stateCode != null">`state_code` = #{stateCode, jdbcType=VARCHAR},</if>
-            <if test="assigneeUserId != null">`assignee_user_id` = #{assigneeUserId, jdbcType=BIGINT},</if>
-            <if test="candidateRoleCode != null">`candidate_role_code` = #{candidateRoleCode, jdbcType=VARCHAR},</if>
-            <if test="taskStatus != null">`task_status` = #{taskStatus, jdbcType=VARCHAR},</if>
-            <if test="roundNo != null">`round_no` = #{roundNo, jdbcType=INTEGER},</if>
-            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="claimedAt != null">`claimed_at` = #{claimedAt, jdbcType=TIMESTAMP},</if>
-            <if test="completedAt != null">`completed_at` = #{completedAt, jdbcType=TIMESTAMP},</if>
-            <if test="deadlineAt != null">`deadline_at` = #{deadlineAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT},
+            `node_id` = #{nodeId, jdbcType=VARCHAR},
+            `state_code` = #{stateCode, jdbcType=VARCHAR},
+            `assignee_user_id` = #{assigneeUserId, jdbcType=BIGINT},
+            `candidate_role_code` = #{candidateRoleCode, jdbcType=VARCHAR},
+            `task_status` = #{taskStatus, jdbcType=VARCHAR},
+            `round_no` = #{roundNo, jdbcType=INTEGER},
+            `claimed_at` = #{claimedAt, jdbcType=TIMESTAMP},
+            `completed_at` = #{completedAt, jdbcType=TIMESTAMP},
+            `deadline_at` = #{deadlineAt, jdbcType=TIMESTAMP}
         WHERE `task_instance_id` = #{taskInstanceId, jdbcType=BIGINT}
     </update>
 

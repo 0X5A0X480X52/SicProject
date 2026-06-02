@@ -28,53 +28,26 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.Project" useGeneratedKeys="true" keyProperty="projectId" keyColumn="project_id">
-        INSERT INTO `project`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="projectCode != null">`project_code`,</if>
-            <if test="projectName != null">`project_name`,</if>
-            <if test="leaderUserId != null">`leader_user_id`,</if>
-            <if test="deptId != null">`dept_id`,</if>
-            <if test="projectType != null">`project_type`,</if>
-            <if test="projectLevel != null">`project_level`,</if>
-            <if test="approvedAmount != null">`approved_amount`,</if>
-            <if test="startDate != null">`start_date`,</if>
-            <if test="endDate != null">`end_date`,</if>
-            <if test="lifecycleStage != null">`lifecycle_stage`,</if>
-            <if test="createdAt != null">`created_at`,</if>
-            <if test="updatedAt != null">`updated_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="projectCode != null">#{projectCode, jdbcType=VARCHAR},</if>
-            <if test="projectName != null">#{projectName, jdbcType=VARCHAR},</if>
-            <if test="leaderUserId != null">#{leaderUserId, jdbcType=BIGINT},</if>
-            <if test="deptId != null">#{deptId, jdbcType=BIGINT},</if>
-            <if test="projectType != null">#{projectType, jdbcType=VARCHAR},</if>
-            <if test="projectLevel != null">#{projectLevel, jdbcType=VARCHAR},</if>
-            <if test="approvedAmount != null">#{approvedAmount, jdbcType=DECIMAL},</if>
-            <if test="startDate != null">#{startDate, jdbcType=DATE},</if>
-            <if test="endDate != null">#{endDate, jdbcType=DATE},</if>
-            <if test="lifecycleStage != null">#{lifecycleStage, jdbcType=VARCHAR},</if>
-            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `project` (
+            `project_code`, `project_name`, `leader_user_id`, `dept_id`, `project_type`, `project_level`, `approved_amount`, `start_date`, `end_date`, `lifecycle_stage`
+        ) VALUES (
+            #{projectCode, jdbcType=VARCHAR}, #{projectName, jdbcType=VARCHAR}, #{leaderUserId, jdbcType=BIGINT}, #{deptId, jdbcType=BIGINT}, #{projectType, jdbcType=VARCHAR}, #{projectLevel, jdbcType=VARCHAR}, #{approvedAmount, jdbcType=DECIMAL}, #{startDate, jdbcType=DATE}, #{endDate, jdbcType=DATE}, #{lifecycleStage, jdbcType=VARCHAR}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.Project">
         UPDATE `project`
-        <set>
-            <if test="projectCode != null">`project_code` = #{projectCode, jdbcType=VARCHAR},</if>
-            <if test="projectName != null">`project_name` = #{projectName, jdbcType=VARCHAR},</if>
-            <if test="leaderUserId != null">`leader_user_id` = #{leaderUserId, jdbcType=BIGINT},</if>
-            <if test="deptId != null">`dept_id` = #{deptId, jdbcType=BIGINT},</if>
-            <if test="projectType != null">`project_type` = #{projectType, jdbcType=VARCHAR},</if>
-            <if test="projectLevel != null">`project_level` = #{projectLevel, jdbcType=VARCHAR},</if>
-            <if test="approvedAmount != null">`approved_amount` = #{approvedAmount, jdbcType=DECIMAL},</if>
-            <if test="startDate != null">`start_date` = #{startDate, jdbcType=DATE},</if>
-            <if test="endDate != null">`end_date` = #{endDate, jdbcType=DATE},</if>
-            <if test="lifecycleStage != null">`lifecycle_stage` = #{lifecycleStage, jdbcType=VARCHAR},</if>
-            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `project_code` = #{projectCode, jdbcType=VARCHAR},
+            `project_name` = #{projectName, jdbcType=VARCHAR},
+            `leader_user_id` = #{leaderUserId, jdbcType=BIGINT},
+            `dept_id` = #{deptId, jdbcType=BIGINT},
+            `project_type` = #{projectType, jdbcType=VARCHAR},
+            `project_level` = #{projectLevel, jdbcType=VARCHAR},
+            `approved_amount` = #{approvedAmount, jdbcType=DECIMAL},
+            `start_date` = #{startDate, jdbcType=DATE},
+            `end_date` = #{endDate, jdbcType=DATE},
+            `lifecycle_stage` = #{lifecycleStage, jdbcType=VARCHAR}
         WHERE `project_id` = #{projectId, jdbcType=BIGINT}
     </update>
 

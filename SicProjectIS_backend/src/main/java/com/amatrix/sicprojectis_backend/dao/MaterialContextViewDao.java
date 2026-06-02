@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface MaterialContextViewDao {
-    MaterialContextView selectById(@Param("materialVersionId") Long materialVersionId);
+    MaterialContextView selectByMaterialVersionId(@Param("materialVersionId") Long materialVersionId);
 
     List<MaterialContextView> selectAll();
 }

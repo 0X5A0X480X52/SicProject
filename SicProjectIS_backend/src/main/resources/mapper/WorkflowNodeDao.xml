@@ -29,56 +29,28 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.WorkflowNode" useGeneratedKeys="true" keyProperty="workflowNodeId" keyColumn="workflow_node_id">
-        INSERT INTO `workflow_node`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="workflowDefinitionId != null">`workflow_definition_id`,</if>
-            <if test="nodeId != null">`node_id`,</if>
-            <if test="nodeName != null">`node_name`,</if>
-            <if test="nodeType != null">`node_type`,</if>
-            <if test="stateCode != null">`state_code`,</if>
-            <if test="laneName != null">`lane_name`,</if>
-            <if test="responsibleActorCode != null">`responsible_actor_code`,</if>
-            <if test="responsibleActorName != null">`responsible_actor_name`,</if>
-            <if test="candidateRoleCode != null">`candidate_role_code`,</if>
-            <if test="operationMode != null">`operation_mode`,</if>
-            <if test="representedActorCode != null">`represented_actor_code`,</if>
-            <if test="representedActorName != null">`represented_actor_name`,</if>
-            <if test="createdAt != null">`created_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="workflowDefinitionId != null">#{workflowDefinitionId, jdbcType=BIGINT},</if>
-            <if test="nodeId != null">#{nodeId, jdbcType=VARCHAR},</if>
-            <if test="nodeName != null">#{nodeName, jdbcType=VARCHAR},</if>
-            <if test="nodeType != null">#{nodeType, jdbcType=VARCHAR},</if>
-            <if test="stateCode != null">#{stateCode, jdbcType=VARCHAR},</if>
-            <if test="laneName != null">#{laneName, jdbcType=VARCHAR},</if>
-            <if test="responsibleActorCode != null">#{responsibleActorCode, jdbcType=VARCHAR},</if>
-            <if test="responsibleActorName != null">#{responsibleActorName, jdbcType=VARCHAR},</if>
-            <if test="candidateRoleCode != null">#{candidateRoleCode, jdbcType=VARCHAR},</if>
-            <if test="operationMode != null">#{operationMode, jdbcType=VARCHAR},</if>
-            <if test="representedActorCode != null">#{representedActorCode, jdbcType=VARCHAR},</if>
-            <if test="representedActorName != null">#{representedActorName, jdbcType=VARCHAR},</if>
-            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `workflow_node` (
+            `workflow_definition_id`, `node_id`, `node_name`, `node_type`, `state_code`, `lane_name`, `responsible_actor_code`, `responsible_actor_name`, `candidate_role_code`, `operation_mode`, `represented_actor_code`, `represented_actor_name`
+        ) VALUES (
+            #{workflowDefinitionId, jdbcType=BIGINT}, #{nodeId, jdbcType=VARCHAR}, #{nodeName, jdbcType=VARCHAR}, #{nodeType, jdbcType=VARCHAR}, #{stateCode, jdbcType=VARCHAR}, #{laneName, jdbcType=VARCHAR}, #{responsibleActorCode, jdbcType=VARCHAR}, #{responsibleActorName, jdbcType=VARCHAR}, #{candidateRoleCode, jdbcType=VARCHAR}, #{operationMode, jdbcType=VARCHAR}, #{representedActorCode, jdbcType=VARCHAR}, #{representedActorName, jdbcType=VARCHAR}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.WorkflowNode">
         UPDATE `workflow_node`
-        <set>
-            <if test="workflowDefinitionId != null">`workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT},</if>
-            <if test="nodeId != null">`node_id` = #{nodeId, jdbcType=VARCHAR},</if>
-            <if test="nodeName != null">`node_name` = #{nodeName, jdbcType=VARCHAR},</if>
-            <if test="nodeType != null">`node_type` = #{nodeType, jdbcType=VARCHAR},</if>
-            <if test="stateCode != null">`state_code` = #{stateCode, jdbcType=VARCHAR},</if>
-            <if test="laneName != null">`lane_name` = #{laneName, jdbcType=VARCHAR},</if>
-            <if test="responsibleActorCode != null">`responsible_actor_code` = #{responsibleActorCode, jdbcType=VARCHAR},</if>
-            <if test="responsibleActorName != null">`responsible_actor_name` = #{responsibleActorName, jdbcType=VARCHAR},</if>
-            <if test="candidateRoleCode != null">`candidate_role_code` = #{candidateRoleCode, jdbcType=VARCHAR},</if>
-            <if test="operationMode != null">`operation_mode` = #{operationMode, jdbcType=VARCHAR},</if>
-            <if test="representedActorCode != null">`represented_actor_code` = #{representedActorCode, jdbcType=VARCHAR},</if>
-            <if test="representedActorName != null">`represented_actor_name` = #{representedActorName, jdbcType=VARCHAR},</if>
-            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT},
+            `node_id` = #{nodeId, jdbcType=VARCHAR},
+            `node_name` = #{nodeName, jdbcType=VARCHAR},
+            `node_type` = #{nodeType, jdbcType=VARCHAR},
+            `state_code` = #{stateCode, jdbcType=VARCHAR},
+            `lane_name` = #{laneName, jdbcType=VARCHAR},
+            `responsible_actor_code` = #{responsibleActorCode, jdbcType=VARCHAR},
+            `responsible_actor_name` = #{responsibleActorName, jdbcType=VARCHAR},
+            `candidate_role_code` = #{candidateRoleCode, jdbcType=VARCHAR},
+            `operation_mode` = #{operationMode, jdbcType=VARCHAR},
+            `represented_actor_code` = #{representedActorCode, jdbcType=VARCHAR},
+            `represented_actor_name` = #{representedActorName, jdbcType=VARCHAR}
         WHERE `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT}
     </update>
 

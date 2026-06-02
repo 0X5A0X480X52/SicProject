@@ -25,44 +25,23 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.AppUser" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
-        INSERT INTO `app_user`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="username != null">`username`,</if>
-            <if test="passwordHash != null">`password_hash`,</if>
-            <if test="realName != null">`real_name`,</if>
-            <if test="deptId != null">`dept_id`,</if>
-            <if test="phone != null">`phone`,</if>
-            <if test="email != null">`email`,</if>
-            <if test="enabled != null">`enabled`,</if>
-            <if test="createdAt != null">`created_at`,</if>
-            <if test="updatedAt != null">`updated_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="username != null">#{username, jdbcType=VARCHAR},</if>
-            <if test="passwordHash != null">#{passwordHash, jdbcType=VARCHAR},</if>
-            <if test="realName != null">#{realName, jdbcType=VARCHAR},</if>
-            <if test="deptId != null">#{deptId, jdbcType=BIGINT},</if>
-            <if test="phone != null">#{phone, jdbcType=VARCHAR},</if>
-            <if test="email != null">#{email, jdbcType=VARCHAR},</if>
-            <if test="enabled != null">#{enabled, jdbcType=TINYINT},</if>
-            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `app_user` (
+            `username`, `password_hash`, `real_name`, `dept_id`, `phone`, `email`, `enabled`
+        ) VALUES (
+            #{username, jdbcType=VARCHAR}, #{passwordHash, jdbcType=VARCHAR}, #{realName, jdbcType=VARCHAR}, #{deptId, jdbcType=BIGINT}, #{phone, jdbcType=VARCHAR}, #{email, jdbcType=VARCHAR}, #{enabled, jdbcType=TINYINT}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.AppUser">
         UPDATE `app_user`
-        <set>
-            <if test="username != null">`username` = #{username, jdbcType=VARCHAR},</if>
-            <if test="passwordHash != null">`password_hash` = #{passwordHash, jdbcType=VARCHAR},</if>
-            <if test="realName != null">`real_name` = #{realName, jdbcType=VARCHAR},</if>
-            <if test="deptId != null">`dept_id` = #{deptId, jdbcType=BIGINT},</if>
-            <if test="phone != null">`phone` = #{phone, jdbcType=VARCHAR},</if>
-            <if test="email != null">`email` = #{email, jdbcType=VARCHAR},</if>
-            <if test="enabled != null">`enabled` = #{enabled, jdbcType=TINYINT},</if>
-            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `username` = #{username, jdbcType=VARCHAR},
+            `password_hash` = #{passwordHash, jdbcType=VARCHAR},
+            `real_name` = #{realName, jdbcType=VARCHAR},
+            `dept_id` = #{deptId, jdbcType=BIGINT},
+            `phone` = #{phone, jdbcType=VARCHAR},
+            `email` = #{email, jdbcType=VARCHAR},
+            `enabled` = #{enabled, jdbcType=TINYINT}
         WHERE `user_id` = #{userId, jdbcType=BIGINT}
     </update>
 

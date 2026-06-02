@@ -20,29 +20,19 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.Material" useGeneratedKeys="true" keyProperty="materialId" keyColumn="material_id">
-        INSERT INTO `material`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="projectId != null">`project_id`,</if>
-            <if test="materialTypeId != null">`material_type_id`,</if>
-            <if test="createdBy != null">`created_by`,</if>
-            <if test="createdAt != null">`created_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="projectId != null">#{projectId, jdbcType=BIGINT},</if>
-            <if test="materialTypeId != null">#{materialTypeId, jdbcType=BIGINT},</if>
-            <if test="createdBy != null">#{createdBy, jdbcType=BIGINT},</if>
-            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `material` (
+            `project_id`, `material_type_id`, `created_by`
+        ) VALUES (
+            #{projectId, jdbcType=BIGINT}, #{materialTypeId, jdbcType=BIGINT}, #{createdBy, jdbcType=BIGINT}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.Material">
         UPDATE `material`
-        <set>
-            <if test="projectId != null">`project_id` = #{projectId, jdbcType=BIGINT},</if>
-            <if test="materialTypeId != null">`material_type_id` = #{materialTypeId, jdbcType=BIGINT},</if>
-            <if test="createdBy != null">`created_by` = #{createdBy, jdbcType=BIGINT},</if>
-            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `project_id` = #{projectId, jdbcType=BIGINT},
+            `material_type_id` = #{materialTypeId, jdbcType=BIGINT},
+            `created_by` = #{createdBy, jdbcType=BIGINT}
         WHERE `material_id` = #{materialId, jdbcType=BIGINT}
     </update>
 

@@ -20,29 +20,20 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.Role" useGeneratedKeys="true" keyProperty="roleId" keyColumn="role_id">
-        INSERT INTO `role`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="roleCode != null">`role_code`,</if>
-            <if test="roleName != null">`role_name`,</if>
-            <if test="roleDesc != null">`role_desc`,</if>
-            <if test="enabled != null">`enabled`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="roleCode != null">#{roleCode, jdbcType=VARCHAR},</if>
-            <if test="roleName != null">#{roleName, jdbcType=VARCHAR},</if>
-            <if test="roleDesc != null">#{roleDesc, jdbcType=LONGVARCHAR},</if>
-            <if test="enabled != null">#{enabled, jdbcType=TINYINT},</if>
-        </trim>
+        INSERT INTO `role` (
+            `role_code`, `role_name`, `role_desc`, `enabled`
+        ) VALUES (
+            #{roleCode, jdbcType=VARCHAR}, #{roleName, jdbcType=VARCHAR}, #{roleDesc, jdbcType=LONGVARCHAR}, #{enabled, jdbcType=TINYINT}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.Role">
         UPDATE `role`
-        <set>
-            <if test="roleCode != null">`role_code` = #{roleCode, jdbcType=VARCHAR},</if>
-            <if test="roleName != null">`role_name` = #{roleName, jdbcType=VARCHAR},</if>
-            <if test="roleDesc != null">`role_desc` = #{roleDesc, jdbcType=LONGVARCHAR},</if>
-            <if test="enabled != null">`enabled` = #{enabled, jdbcType=TINYINT},</if>
-        </set>
+        SET
+            `role_code` = #{roleCode, jdbcType=VARCHAR},
+            `role_name` = #{roleName, jdbcType=VARCHAR},
+            `role_desc` = #{roleDesc, jdbcType=LONGVARCHAR},
+            `enabled` = #{enabled, jdbcType=TINYINT}
         WHERE `role_id` = #{roleId, jdbcType=BIGINT}
     </update>
 

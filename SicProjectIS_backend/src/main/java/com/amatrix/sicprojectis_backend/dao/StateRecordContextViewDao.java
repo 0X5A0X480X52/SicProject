@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface StateRecordContextViewDao {
-    StateRecordContextView selectById(@Param("stateRecordId") Long stateRecordId);
+    List<StateRecordContextView> selectByStateRecordId(@Param("stateRecordId") Long stateRecordId);
 
     List<StateRecordContextView> selectAll();
 }

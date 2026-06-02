@@ -24,41 +24,22 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.MaterialType" useGeneratedKeys="true" keyProperty="materialTypeId" keyColumn="material_type_id">
-        INSERT INTO `material_type`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="materialTypeCode != null">`material_type_code`,</if>
-            <if test="materialTypeName != null">`material_type_name`,</if>
-            <if test="moduleType != null">`module_type`,</if>
-            <if test="allowedFileTypes != null">`allowed_file_types`,</if>
-            <if test="maxFileSizeMb != null">`max_file_size_mb`,</if>
-            <if test="enabled != null">`enabled`,</if>
-            <if test="createdAt != null">`created_at`,</if>
-            <if test="updatedAt != null">`updated_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="materialTypeCode != null">#{materialTypeCode, jdbcType=VARCHAR},</if>
-            <if test="materialTypeName != null">#{materialTypeName, jdbcType=VARCHAR},</if>
-            <if test="moduleType != null">#{moduleType, jdbcType=VARCHAR},</if>
-            <if test="allowedFileTypes != null">#{allowedFileTypes, jdbcType=VARCHAR},</if>
-            <if test="maxFileSizeMb != null">#{maxFileSizeMb, jdbcType=INTEGER},</if>
-            <if test="enabled != null">#{enabled, jdbcType=TINYINT},</if>
-            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `material_type` (
+            `material_type_code`, `material_type_name`, `module_type`, `allowed_file_types`, `max_file_size_mb`, `enabled`
+        ) VALUES (
+            #{materialTypeCode, jdbcType=VARCHAR}, #{materialTypeName, jdbcType=VARCHAR}, #{moduleType, jdbcType=VARCHAR}, #{allowedFileTypes, jdbcType=VARCHAR}, #{maxFileSizeMb, jdbcType=INTEGER}, #{enabled, jdbcType=TINYINT}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.MaterialType">
         UPDATE `material_type`
-        <set>
-            <if test="materialTypeCode != null">`material_type_code` = #{materialTypeCode, jdbcType=VARCHAR},</if>
-            <if test="materialTypeName != null">`material_type_name` = #{materialTypeName, jdbcType=VARCHAR},</if>
-            <if test="moduleType != null">`module_type` = #{moduleType, jdbcType=VARCHAR},</if>
-            <if test="allowedFileTypes != null">`allowed_file_types` = #{allowedFileTypes, jdbcType=VARCHAR},</if>
-            <if test="maxFileSizeMb != null">`max_file_size_mb` = #{maxFileSizeMb, jdbcType=INTEGER},</if>
-            <if test="enabled != null">`enabled` = #{enabled, jdbcType=TINYINT},</if>
-            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `material_type_code` = #{materialTypeCode, jdbcType=VARCHAR},
+            `material_type_name` = #{materialTypeName, jdbcType=VARCHAR},
+            `module_type` = #{moduleType, jdbcType=VARCHAR},
+            `allowed_file_types` = #{allowedFileTypes, jdbcType=VARCHAR},
+            `max_file_size_mb` = #{maxFileSizeMb, jdbcType=INTEGER},
+            `enabled` = #{enabled, jdbcType=TINYINT}
         WHERE `material_type_id` = #{materialTypeId, jdbcType=BIGINT}
     </update>
 

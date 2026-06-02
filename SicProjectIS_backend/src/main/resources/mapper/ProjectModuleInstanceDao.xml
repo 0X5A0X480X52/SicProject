@@ -23,38 +23,21 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectModuleInstance" useGeneratedKeys="true" keyProperty="moduleInstanceId" keyColumn="module_instance_id">
-        INSERT INTO `project_module_instance`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="projectId != null">`project_id`,</if>
-            <if test="moduleType != null">`module_type`,</if>
-            <if test="workflowDefinitionId != null">`workflow_definition_id`,</if>
-            <if test="startedAt != null">`started_at`,</if>
-            <if test="finishedAt != null">`finished_at`,</if>
-            <if test="createdAt != null">`created_at`,</if>
-            <if test="updatedAt != null">`updated_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="projectId != null">#{projectId, jdbcType=BIGINT},</if>
-            <if test="moduleType != null">#{moduleType, jdbcType=VARCHAR},</if>
-            <if test="workflowDefinitionId != null">#{workflowDefinitionId, jdbcType=BIGINT},</if>
-            <if test="startedAt != null">#{startedAt, jdbcType=TIMESTAMP},</if>
-            <if test="finishedAt != null">#{finishedAt, jdbcType=TIMESTAMP},</if>
-            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `project_module_instance` (
+            `project_id`, `module_type`, `workflow_definition_id`, `started_at`, `finished_at`
+        ) VALUES (
+            #{projectId, jdbcType=BIGINT}, #{moduleType, jdbcType=VARCHAR}, #{workflowDefinitionId, jdbcType=BIGINT}, #{startedAt, jdbcType=TIMESTAMP}, #{finishedAt, jdbcType=TIMESTAMP}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectModuleInstance">
         UPDATE `project_module_instance`
-        <set>
-            <if test="projectId != null">`project_id` = #{projectId, jdbcType=BIGINT},</if>
-            <if test="moduleType != null">`module_type` = #{moduleType, jdbcType=VARCHAR},</if>
-            <if test="workflowDefinitionId != null">`workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT},</if>
-            <if test="startedAt != null">`started_at` = #{startedAt, jdbcType=TIMESTAMP},</if>
-            <if test="finishedAt != null">`finished_at` = #{finishedAt, jdbcType=TIMESTAMP},</if>
-            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `project_id` = #{projectId, jdbcType=BIGINT},
+            `module_type` = #{moduleType, jdbcType=VARCHAR},
+            `workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT},
+            `started_at` = #{startedAt, jdbcType=TIMESTAMP},
+            `finished_at` = #{finishedAt, jdbcType=TIMESTAMP}
         WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
     </update>
 

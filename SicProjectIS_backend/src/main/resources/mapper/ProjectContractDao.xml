@@ -28,53 +28,26 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectContract" useGeneratedKeys="true" keyProperty="contractId" keyColumn="contract_id">
-        INSERT INTO `project_contract`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="projectId != null">`project_id`,</if>
-            <if test="contractCode != null">`contract_code`,</if>
-            <if test="contractName != null">`contract_name`,</if>
-            <if test="contractAmount != null">`contract_amount`,</if>
-            <if test="contractStartDate != null">`contract_start_date`,</if>
-            <if test="contractEndDate != null">`contract_end_date`,</if>
-            <if test="sealStatus != null">`seal_status`,</if>
-            <if test="submittedAt != null">`submitted_at`,</if>
-            <if test="signedAt != null">`signed_at`,</if>
-            <if test="archivedAt != null">`archived_at`,</if>
-            <if test="createdAt != null">`created_at`,</if>
-            <if test="updatedAt != null">`updated_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="projectId != null">#{projectId, jdbcType=BIGINT},</if>
-            <if test="contractCode != null">#{contractCode, jdbcType=VARCHAR},</if>
-            <if test="contractName != null">#{contractName, jdbcType=VARCHAR},</if>
-            <if test="contractAmount != null">#{contractAmount, jdbcType=DECIMAL},</if>
-            <if test="contractStartDate != null">#{contractStartDate, jdbcType=DATE},</if>
-            <if test="contractEndDate != null">#{contractEndDate, jdbcType=DATE},</if>
-            <if test="sealStatus != null">#{sealStatus, jdbcType=VARCHAR},</if>
-            <if test="submittedAt != null">#{submittedAt, jdbcType=TIMESTAMP},</if>
-            <if test="signedAt != null">#{signedAt, jdbcType=TIMESTAMP},</if>
-            <if test="archivedAt != null">#{archivedAt, jdbcType=TIMESTAMP},</if>
-            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `project_contract` (
+            `project_id`, `contract_code`, `contract_name`, `contract_amount`, `contract_start_date`, `contract_end_date`, `seal_status`, `submitted_at`, `signed_at`, `archived_at`
+        ) VALUES (
+            #{projectId, jdbcType=BIGINT}, #{contractCode, jdbcType=VARCHAR}, #{contractName, jdbcType=VARCHAR}, #{contractAmount, jdbcType=DECIMAL}, #{contractStartDate, jdbcType=DATE}, #{contractEndDate, jdbcType=DATE}, #{sealStatus, jdbcType=VARCHAR}, #{submittedAt, jdbcType=TIMESTAMP}, #{signedAt, jdbcType=TIMESTAMP}, #{archivedAt, jdbcType=TIMESTAMP}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectContract">
         UPDATE `project_contract`
-        <set>
-            <if test="projectId != null">`project_id` = #{projectId, jdbcType=BIGINT},</if>
-            <if test="contractCode != null">`contract_code` = #{contractCode, jdbcType=VARCHAR},</if>
-            <if test="contractName != null">`contract_name` = #{contractName, jdbcType=VARCHAR},</if>
-            <if test="contractAmount != null">`contract_amount` = #{contractAmount, jdbcType=DECIMAL},</if>
-            <if test="contractStartDate != null">`contract_start_date` = #{contractStartDate, jdbcType=DATE},</if>
-            <if test="contractEndDate != null">`contract_end_date` = #{contractEndDate, jdbcType=DATE},</if>
-            <if test="sealStatus != null">`seal_status` = #{sealStatus, jdbcType=VARCHAR},</if>
-            <if test="submittedAt != null">`submitted_at` = #{submittedAt, jdbcType=TIMESTAMP},</if>
-            <if test="signedAt != null">`signed_at` = #{signedAt, jdbcType=TIMESTAMP},</if>
-            <if test="archivedAt != null">`archived_at` = #{archivedAt, jdbcType=TIMESTAMP},</if>
-            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `project_id` = #{projectId, jdbcType=BIGINT},
+            `contract_code` = #{contractCode, jdbcType=VARCHAR},
+            `contract_name` = #{contractName, jdbcType=VARCHAR},
+            `contract_amount` = #{contractAmount, jdbcType=DECIMAL},
+            `contract_start_date` = #{contractStartDate, jdbcType=DATE},
+            `contract_end_date` = #{contractEndDate, jdbcType=DATE},
+            `seal_status` = #{sealStatus, jdbcType=VARCHAR},
+            `submitted_at` = #{submittedAt, jdbcType=TIMESTAMP},
+            `signed_at` = #{signedAt, jdbcType=TIMESTAMP},
+            `archived_at` = #{archivedAt, jdbcType=TIMESTAMP}
         WHERE `contract_id` = #{contractId, jdbcType=BIGINT}
     </update>
 

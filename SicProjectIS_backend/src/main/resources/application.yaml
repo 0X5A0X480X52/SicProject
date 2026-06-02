@@ -1,3 +1,14 @@
 spring:
   application:
     name: SicProjectIS_backend
+  datasource:
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/research_project_management?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.amatrix.sicprojectis_backend.entity
+  configuration:
+    map-underscore-to-camel-case: true

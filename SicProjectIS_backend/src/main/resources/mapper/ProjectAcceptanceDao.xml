@@ -23,38 +23,21 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectAcceptance" useGeneratedKeys="true" keyProperty="acceptanceId" keyColumn="acceptance_id">
-        INSERT INTO `project_acceptance`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="projectId != null">`project_id`,</if>
-            <if test="submittedAt != null">`submitted_at`,</if>
-            <if test="completedAt != null">`completed_at`,</if>
-            <if test="certificateNo != null">`certificate_no`,</if>
-            <if test="conclusion != null">`conclusion`,</if>
-            <if test="createdAt != null">`created_at`,</if>
-            <if test="updatedAt != null">`updated_at`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="projectId != null">#{projectId, jdbcType=BIGINT},</if>
-            <if test="submittedAt != null">#{submittedAt, jdbcType=TIMESTAMP},</if>
-            <if test="completedAt != null">#{completedAt, jdbcType=TIMESTAMP},</if>
-            <if test="certificateNo != null">#{certificateNo, jdbcType=VARCHAR},</if>
-            <if test="conclusion != null">#{conclusion, jdbcType=LONGVARCHAR},</if>
-            <if test="createdAt != null">#{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">#{updatedAt, jdbcType=TIMESTAMP},</if>
-        </trim>
+        INSERT INTO `project_acceptance` (
+            `project_id`, `submitted_at`, `completed_at`, `certificate_no`, `conclusion`
+        ) VALUES (
+            #{projectId, jdbcType=BIGINT}, #{submittedAt, jdbcType=TIMESTAMP}, #{completedAt, jdbcType=TIMESTAMP}, #{certificateNo, jdbcType=VARCHAR}, #{conclusion, jdbcType=LONGVARCHAR}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.ProjectAcceptance">
         UPDATE `project_acceptance`
-        <set>
-            <if test="projectId != null">`project_id` = #{projectId, jdbcType=BIGINT},</if>
-            <if test="submittedAt != null">`submitted_at` = #{submittedAt, jdbcType=TIMESTAMP},</if>
-            <if test="completedAt != null">`completed_at` = #{completedAt, jdbcType=TIMESTAMP},</if>
-            <if test="certificateNo != null">`certificate_no` = #{certificateNo, jdbcType=VARCHAR},</if>
-            <if test="conclusion != null">`conclusion` = #{conclusion, jdbcType=LONGVARCHAR},</if>
-            <if test="createdAt != null">`created_at` = #{createdAt, jdbcType=TIMESTAMP},</if>
-            <if test="updatedAt != null">`updated_at` = #{updatedAt, jdbcType=TIMESTAMP},</if>
-        </set>
+        SET
+            `project_id` = #{projectId, jdbcType=BIGINT},
+            `submitted_at` = #{submittedAt, jdbcType=TIMESTAMP},
+            `completed_at` = #{completedAt, jdbcType=TIMESTAMP},
+            `certificate_no` = #{certificateNo, jdbcType=VARCHAR},
+            `conclusion` = #{conclusion, jdbcType=LONGVARCHAR}
         WHERE `acceptance_id` = #{acceptanceId, jdbcType=BIGINT}
     </update>
 

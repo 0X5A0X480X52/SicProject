@@ -26,47 +26,26 @@
     </select>
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.entity.WorkflowNodeDocumentConfig" useGeneratedKeys="true" keyProperty="documentConfigId" keyColumn="document_config_id">
-        INSERT INTO `workflow_node_document_config`
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="workflowNodeId != null">`workflow_node_id`,</if>
-            <if test="documentTypeCode != null">`document_type_code`,</if>
-            <if test="documentTypeName != null">`document_type_name`,</if>
-            <if test="generateTiming != null">`generate_timing`,</if>
-            <if test="templateCode != null">`template_code`,</if>
-            <if test="snapshotSchemaJson != null">`snapshot_schema_json`,</if>
-            <if test="snapshotViewName != null">`snapshot_view_name`,</if>
-            <if test="outputMaterialTypeId != null">`output_material_type_id`,</if>
-            <if test="required != null">`required`,</if>
-            <if test="enabled != null">`enabled`,</if>
-        </trim>
-        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
-            <if test="workflowNodeId != null">#{workflowNodeId, jdbcType=BIGINT},</if>
-            <if test="documentTypeCode != null">#{documentTypeCode, jdbcType=VARCHAR},</if>
-            <if test="documentTypeName != null">#{documentTypeName, jdbcType=VARCHAR},</if>
-            <if test="generateTiming != null">#{generateTiming, jdbcType=VARCHAR},</if>
-            <if test="templateCode != null">#{templateCode, jdbcType=VARCHAR},</if>
-            <if test="snapshotSchemaJson != null">#{snapshotSchemaJson, jdbcType=LONGVARCHAR},</if>
-            <if test="snapshotViewName != null">#{snapshotViewName, jdbcType=VARCHAR},</if>
-            <if test="outputMaterialTypeId != null">#{outputMaterialTypeId, jdbcType=BIGINT},</if>
-            <if test="required != null">#{required, jdbcType=TINYINT},</if>
-            <if test="enabled != null">#{enabled, jdbcType=TINYINT},</if>
-        </trim>
+        INSERT INTO `workflow_node_document_config` (
+            `workflow_node_id`, `document_type_code`, `document_type_name`, `generate_timing`, `template_code`, `snapshot_schema_json`, `snapshot_view_name`, `output_material_type_id`, `required`, `enabled`
+        ) VALUES (
+            #{workflowNodeId, jdbcType=BIGINT}, #{documentTypeCode, jdbcType=VARCHAR}, #{documentTypeName, jdbcType=VARCHAR}, #{generateTiming, jdbcType=VARCHAR}, #{templateCode, jdbcType=VARCHAR}, #{snapshotSchemaJson, jdbcType=LONGVARCHAR}, #{snapshotViewName, jdbcType=VARCHAR}, #{outputMaterialTypeId, jdbcType=BIGINT}, #{required, jdbcType=TINYINT}, #{enabled, jdbcType=TINYINT}
+        )
     </insert>
 
     <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.entity.WorkflowNodeDocumentConfig">
         UPDATE `workflow_node_document_config`
-        <set>
-            <if test="workflowNodeId != null">`workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT},</if>
-            <if test="documentTypeCode != null">`document_type_code` = #{documentTypeCode, jdbcType=VARCHAR},</if>
-            <if test="documentTypeName != null">`document_type_name` = #{documentTypeName, jdbcType=VARCHAR},</if>
-            <if test="generateTiming != null">`generate_timing` = #{generateTiming, jdbcType=VARCHAR},</if>
-            <if test="templateCode != null">`template_code` = #{templateCode, jdbcType=VARCHAR},</if>
-            <if test="snapshotSchemaJson != null">`snapshot_schema_json` = #{snapshotSchemaJson, jdbcType=LONGVARCHAR},</if>
-            <if test="snapshotViewName != null">`snapshot_view_name` = #{snapshotViewName, jdbcType=VARCHAR},</if>
-            <if test="outputMaterialTypeId != null">`output_material_type_id` = #{outputMaterialTypeId, jdbcType=BIGINT},</if>
-            <if test="required != null">`required` = #{required, jdbcType=TINYINT},</if>
-            <if test="enabled != null">`enabled` = #{enabled, jdbcType=TINYINT},</if>
-        </set>
+        SET
+            `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT},
+            `document_type_code` = #{documentTypeCode, jdbcType=VARCHAR},
+            `document_type_name` = #{documentTypeName, jdbcType=VARCHAR},
+            `generate_timing` = #{generateTiming, jdbcType=VARCHAR},
+            `template_code` = #{templateCode, jdbcType=VARCHAR},
+            `snapshot_schema_json` = #{snapshotSchemaJson, jdbcType=LONGVARCHAR},
+            `snapshot_view_name` = #{snapshotViewName, jdbcType=VARCHAR},
+            `output_material_type_id` = #{outputMaterialTypeId, jdbcType=BIGINT},
+            `required` = #{required, jdbcType=TINYINT},
+            `enabled` = #{enabled, jdbcType=TINYINT}
         WHERE `document_config_id` = #{documentConfigId, jdbcType=BIGINT}
     </update>
 
