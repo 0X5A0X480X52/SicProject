@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.project.dao.ProjectRoleGrantDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.project.entity.ProjectRoleGrant">
+        <id column="project_role_grant_id" property="projectRoleGrantId" jdbcType="BIGINT" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <result column="module_type" property="moduleType" jdbcType="VARCHAR" />
+        <result column="grant_role_code" property="grantRoleCode" jdbcType="VARCHAR" />
+        <result column="grantee_user_id" property="granteeUserId" jdbcType="BIGINT" />
+        <result column="granted_by_user_id" property="grantedByUserId" jdbcType="BIGINT" />
+        <result column="grant_scope" property="grantScope" jdbcType="VARCHAR" />
+        <result column="round_no" property="roundNo" jdbcType="INTEGER" />
+        <result column="task_node_id" property="taskNodeId" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="VARCHAR" />
+        <result column="effective_from" property="effectiveFrom" jdbcType="TIMESTAMP" />
+        <result column="effective_to" property="effectiveTo" jdbcType="TIMESTAMP" />
+        <result column="grant_reason" property="grantReason" jdbcType="LONGVARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`project_role_grant_id`, `project_id`, `module_type`, `grant_role_code`, `grantee_user_id`, `granted_by_user_id`, `grant_scope`, `round_no`, `task_node_id`, `status`, `effective_from`, `effective_to`, `grant_reason`, `created_at`, `updated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_role_grant` WHERE `project_role_grant_id` = #{projectRoleGrantId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_role_grant`
+    </select>
+
+    <select id="selectByProjectId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `project_role_grant`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+        ORDER BY `created_at` DESC, `project_role_grant_id` DESC
+    </select>
+
+    <select id="selectActiveByProjectId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `project_role_grant`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+          AND `status` = 'ACTIVE'
+        ORDER BY `created_at` DESC, `project_role_grant_id` DESC
+    </select>
+
+    <select id="selectActiveByGranteeUserId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `project_role_grant`
+        WHERE `grantee_user_id` = #{granteeUserId, jdbcType=BIGINT}
+          AND `status` = 'ACTIVE'
+        ORDER BY `created_at` DESC, `project_role_grant_id` DESC
+    </select>
+
+    <select id="selectActiveByProjectAndGrantRole" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `project_role_grant`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+          AND `grant_role_code` = #{grantRoleCode, jdbcType=VARCHAR}
+          AND `status` = 'ACTIVE'
+        ORDER BY `created_at` DESC, `project_role_grant_id` DESC
+    </select>
+
+    <select id="selectActiveForUserAndProject" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `project_role_grant`
+        WHERE `grantee_user_id` = #{granteeUserId, jdbcType=BIGINT}
+          AND `project_id` = #{projectId, jdbcType=BIGINT}
+          AND `status` = 'ACTIVE'
+        ORDER BY `created_at` DESC, `project_role_grant_id` DESC
+    </select>
+
+    <select id="selectMatchingActiveGrant" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `project_role_grant`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+          AND `grant_role_code` = #{grantRoleCode, jdbcType=VARCHAR}
+          AND `grantee_user_id` = #{granteeUserId, jdbcType=BIGINT}
+          AND `status` = 'ACTIVE'
+          AND (
+            (#{moduleType, jdbcType=VARCHAR} IS NULL AND `module_type` IS NULL)
+            OR `module_type` = #{moduleType, jdbcType=VARCHAR}
+          )
+          AND (
+            (#{roundNo, jdbcType=INTEGER} IS NULL AND `round_no` IS NULL)
+            OR `round_no` = #{roundNo, jdbcType=INTEGER}
+          )
+          AND (
+            (#{taskNodeId, jdbcType=VARCHAR} IS NULL AND `task_node_id` IS NULL)
+            OR `task_node_id` = #{taskNodeId, jdbcType=VARCHAR}
+          )
+        ORDER BY `created_at` DESC, `project_role_grant_id` DESC
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.project.entity.ProjectRoleGrant" useGeneratedKeys="true" keyProperty="projectRoleGrantId" keyColumn="project_role_grant_id">
+        INSERT INTO `project_role_grant` (
+            `project_id`, `module_type`, `grant_role_code`, `grantee_user_id`, `granted_by_user_id`, `grant_scope`,
+            `round_no`, `task_node_id`, `status`, `effective_from`, `effective_to`, `grant_reason`
+        ) VALUES (
+            #{projectId, jdbcType=BIGINT}, #{moduleType, jdbcType=VARCHAR}, #{grantRoleCode, jdbcType=VARCHAR},
+            #{granteeUserId, jdbcType=BIGINT}, #{grantedByUserId, jdbcType=BIGINT}, #{grantScope, jdbcType=VARCHAR},
+            #{roundNo, jdbcType=INTEGER}, #{taskNodeId, jdbcType=VARCHAR}, #{status, jdbcType=VARCHAR},
+            #{effectiveFrom, jdbcType=TIMESTAMP}, #{effectiveTo, jdbcType=TIMESTAMP}, #{grantReason, jdbcType=LONGVARCHAR}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.project.entity.ProjectRoleGrant">
+        UPDATE `project_role_grant`
+        SET
+            `project_id` = #{projectId, jdbcType=BIGINT},
+            `module_type` = #{moduleType, jdbcType=VARCHAR},
+            `grant_role_code` = #{grantRoleCode, jdbcType=VARCHAR},
+            `grantee_user_id` = #{granteeUserId, jdbcType=BIGINT},
+            `granted_by_user_id` = #{grantedByUserId, jdbcType=BIGINT},
+            `grant_scope` = #{grantScope, jdbcType=VARCHAR},
+            `round_no` = #{roundNo, jdbcType=INTEGER},
+            `task_node_id` = #{taskNodeId, jdbcType=VARCHAR},
+            `status` = #{status, jdbcType=VARCHAR},
+            `effective_from` = #{effectiveFrom, jdbcType=TIMESTAMP},
+            `effective_to` = #{effectiveTo, jdbcType=TIMESTAMP},
+            `grant_reason` = #{grantReason, jdbcType=LONGVARCHAR}
+        WHERE `project_role_grant_id` = #{projectRoleGrantId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `project_role_grant` WHERE `project_role_grant_id` = #{projectRoleGrantId, jdbcType=BIGINT}
+    </delete>
+</mapper>

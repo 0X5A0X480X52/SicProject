@@ -39,6 +39,9 @@ DROP TABLE IF EXISTS `material`;
 DROP TABLE IF EXISTS `project_acceptance`;
 DROP TABLE IF EXISTS `project_contract`;
 DROP TABLE IF EXISTS `project_application`;
+DROP TABLE IF EXISTS `admin_operation_log`;
+DROP TABLE IF EXISTS `project_role_grant_log`;
+DROP TABLE IF EXISTS `project_role_grant`;
 DROP TABLE IF EXISTS `project_member`;
 DROP TABLE IF EXISTS `task_instance`;
 DROP TABLE IF EXISTS `state_record_remark`;
@@ -418,6 +421,99 @@ CREATE TABLE `task_instance` (
         ON UPDATE CASCADE
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='待办任务表';
+
+CREATE TABLE `project_role_grant` (
+    `project_role_grant_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '项目级授权 ID',
+    `project_id` BIGINT NOT NULL COMMENT '项目 ID',
+    `module_type` VARCHAR(64) NULL COMMENT '模块类型，项目级授权可空',
+    `grant_role_code` VARCHAR(128) NOT NULL COMMENT '授权角色编码',
+    `grantee_user_id` BIGINT NOT NULL COMMENT '被授权用户 ID',
+    `granted_by_user_id` BIGINT NULL COMMENT '授权操作人用户 ID',
+    `grant_scope` VARCHAR(32) NULL COMMENT 'PROJECT / MODULE / TASK_NODE',
+    `round_no` INT NULL COMMENT '轮次，可空',
+    `task_node_id` VARCHAR(128) NULL COMMENT '任务节点 ID，可空',
+    `status` VARCHAR(32) NOT NULL DEFAULT 'ACTIVE' COMMENT 'ACTIVE / REVOKED / EXPIRED',
+    `effective_from` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '生效时间',
+    `effective_to` DATETIME NULL COMMENT '失效时间',
+    `grant_reason` TEXT NULL COMMENT '授权原因',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`project_role_grant_id`),
+    KEY `idx_prg_project_status` (`project_id`, `status`),
+    KEY `idx_prg_grantee_status` (`grantee_user_id`, `status`),
+    KEY `idx_prg_role_status` (`grant_role_code`, `status`),
+    KEY `idx_prg_created_at` (`created_at`),
+    KEY `idx_prg_matching` (`project_id`, `grant_role_code`, `grantee_user_id`, `status`, `module_type`, `round_no`, `task_node_id`),
+    CONSTRAINT `fk_prg_project`
+        FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT `fk_prg_grantee`
+        FOREIGN KEY (`grantee_user_id`) REFERENCES `app_user` (`user_id`)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT `fk_prg_granted_by`
+        FOREIGN KEY (`granted_by_user_id`) REFERENCES `app_user` (`user_id`)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目级授权表';
+
+CREATE TABLE `project_role_grant_log` (
+    `grant_log_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '授权日志 ID',
+    `project_role_grant_id` BIGINT NOT NULL COMMENT '对应的项目授权 ID',
+    `action_type` VARCHAR(32) NOT NULL COMMENT 'GRANT / UPDATE / REVOKE',
+    `operator_user_id` BIGINT NULL COMMENT '操作人用户 ID',
+    `before_snapshot_json` LONGTEXT NULL COMMENT '变更前快照',
+    `after_snapshot_json` LONGTEXT NULL COMMENT '变更后快照',
+    `remark` TEXT NULL COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`grant_log_id`),
+    KEY `idx_prg_log_grant` (`project_role_grant_id`),
+    KEY `idx_prg_log_operator` (`operator_user_id`),
+    KEY `idx_prg_log_created_at` (`created_at`),
+    CONSTRAINT `fk_prg_log_grant`
+        FOREIGN KEY (`project_role_grant_id`) REFERENCES `project_role_grant` (`project_role_grant_id`)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT `fk_prg_log_operator`
+        FOREIGN KEY (`operator_user_id`) REFERENCES `app_user` (`user_id`)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目级授权日志表';
+
+CREATE TABLE `admin_operation_log` (
+    `admin_operation_log_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '权限中心日志 ID',
+    `scope_type` VARCHAR(32) NOT NULL COMMENT 'SYSTEM_ROLE / ROLE_PERMISSION / PROJECT_GRANT / PROJECT_LEADER',
+    `action_type` VARCHAR(32) NOT NULL COMMENT 'GRANT / REVOKE / UPDATE',
+    `operator_user_id` BIGINT NULL COMMENT '操作人用户 ID',
+    `target_user_id` BIGINT NULL COMMENT '目标用户 ID',
+    `project_id` BIGINT NULL COMMENT '关联项目 ID',
+    `role_code` VARCHAR(128) NULL COMMENT '系统角色编码',
+    `permission_code` VARCHAR(128) NULL COMMENT '权限编码',
+    `grant_type` VARCHAR(128) NULL COMMENT '项目授权类型',
+    `before_snapshot_json` LONGTEXT NULL COMMENT '变更前快照',
+    `after_snapshot_json` LONGTEXT NULL COMMENT '变更后快照',
+    `remark` TEXT NULL COMMENT '备注',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`admin_operation_log_id`),
+    KEY `idx_aol_scope_action` (`scope_type`, `action_type`),
+    KEY `idx_aol_operator` (`operator_user_id`),
+    KEY `idx_aol_target` (`target_user_id`),
+    KEY `idx_aol_project` (`project_id`),
+    KEY `idx_aol_created_at` (`created_at`),
+    CONSTRAINT `fk_aol_operator`
+        FOREIGN KEY (`operator_user_id`) REFERENCES `app_user` (`user_id`)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL,
+    CONSTRAINT `fk_aol_target`
+        FOREIGN KEY (`target_user_id`) REFERENCES `app_user` (`user_id`)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL,
+    CONSTRAINT `fk_aol_project`
+        FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='权限中心操作审计日志表';
 
 CREATE TABLE `project_member` (
     `project_member_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',

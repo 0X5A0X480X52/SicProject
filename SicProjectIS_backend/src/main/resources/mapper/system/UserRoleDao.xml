@@ -18,6 +18,21 @@
         SELECT <include refid="BaseColumnList" /> FROM `user_role`
     </select>
 
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `user_role`
+        WHERE `user_id` = #{userId, jdbcType=BIGINT}
+        ORDER BY `user_role_id`
+    </select>
+
+    <select id="selectByUserIdAndRoleId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `user_role`
+        WHERE `user_id` = #{userId, jdbcType=BIGINT}
+          AND `role_id` = #{roleId, jdbcType=BIGINT}
+        LIMIT 1
+    </select>
+
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.system.entity.UserRole" useGeneratedKeys="true" keyProperty="userRoleId" keyColumn="user_role_id">
         INSERT INTO `user_role` (
             `user_id`, `role_id`
@@ -36,5 +51,11 @@
 
     <delete id="deleteById">
         DELETE FROM `user_role` WHERE `user_role_id` = #{userRoleId, jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByUserIdAndRoleId">
+        DELETE FROM `user_role`
+        WHERE `user_id` = #{userId, jdbcType=BIGINT}
+          AND `role_id` = #{roleId, jdbcType=BIGINT}
     </delete>
 </mapper>

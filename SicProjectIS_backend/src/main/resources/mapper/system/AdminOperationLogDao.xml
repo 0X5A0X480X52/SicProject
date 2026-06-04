@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.system.dao.AdminOperationLogDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.system.entity.AdminOperationLog">
+        <id column="admin_operation_log_id" property="adminOperationLogId" jdbcType="BIGINT" />
+        <result column="scope_type" property="scopeType" jdbcType="VARCHAR" />
+        <result column="action_type" property="actionType" jdbcType="VARCHAR" />
+        <result column="operator_user_id" property="operatorUserId" jdbcType="BIGINT" />
+        <result column="target_user_id" property="targetUserId" jdbcType="BIGINT" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <result column="role_code" property="roleCode" jdbcType="VARCHAR" />
+        <result column="permission_code" property="permissionCode" jdbcType="VARCHAR" />
+        <result column="grant_type" property="grantType" jdbcType="VARCHAR" />
+        <result column="before_snapshot_json" property="beforeSnapshotJson" jdbcType="LONGVARCHAR" />
+        <result column="after_snapshot_json" property="afterSnapshotJson" jdbcType="LONGVARCHAR" />
+        <result column="remark" property="remark" jdbcType="LONGVARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`admin_operation_log_id`, `scope_type`, `action_type`, `operator_user_id`, `target_user_id`, `project_id`, `role_code`, `permission_code`, `grant_type`, `before_snapshot_json`, `after_snapshot_json`, `remark`, `created_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `admin_operation_log`
+        WHERE `admin_operation_log_id` = #{adminOperationLogId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `admin_operation_log`
+        ORDER BY `admin_operation_log_id` DESC
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.system.entity.AdminOperationLog" useGeneratedKeys="true" keyProperty="adminOperationLogId" keyColumn="admin_operation_log_id">
+        INSERT INTO `admin_operation_log` (
+            `scope_type`, `action_type`, `operator_user_id`, `target_user_id`, `project_id`, `role_code`, `permission_code`, `grant_type`,
+            `before_snapshot_json`, `after_snapshot_json`, `remark`, `created_at`
+        ) VALUES (
+            #{scopeType, jdbcType=VARCHAR}, #{actionType, jdbcType=VARCHAR}, #{operatorUserId, jdbcType=BIGINT},
+            #{targetUserId, jdbcType=BIGINT}, #{projectId, jdbcType=BIGINT}, #{roleCode, jdbcType=VARCHAR},
+            #{permissionCode, jdbcType=VARCHAR}, #{grantType, jdbcType=VARCHAR}, #{beforeSnapshotJson, jdbcType=LONGVARCHAR},
+            #{afterSnapshotJson, jdbcType=LONGVARCHAR}, #{remark, jdbcType=LONGVARCHAR}, #{createdAt, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.system.entity.AdminOperationLog">
+        UPDATE `admin_operation_log`
+        SET
+            `scope_type` = #{scopeType, jdbcType=VARCHAR},
+            `action_type` = #{actionType, jdbcType=VARCHAR},
+            `operator_user_id` = #{operatorUserId, jdbcType=BIGINT},
+            `target_user_id` = #{targetUserId, jdbcType=BIGINT},
+            `project_id` = #{projectId, jdbcType=BIGINT},
+            `role_code` = #{roleCode, jdbcType=VARCHAR},
+            `permission_code` = #{permissionCode, jdbcType=VARCHAR},
+            `grant_type` = #{grantType, jdbcType=VARCHAR},
+            `before_snapshot_json` = #{beforeSnapshotJson, jdbcType=LONGVARCHAR},
+            `after_snapshot_json` = #{afterSnapshotJson, jdbcType=LONGVARCHAR},
+            `remark` = #{remark, jdbcType=LONGVARCHAR},
+            `created_at` = #{createdAt, jdbcType=TIMESTAMP}
+        WHERE `admin_operation_log_id` = #{adminOperationLogId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `admin_operation_log`
+        WHERE `admin_operation_log_id` = #{adminOperationLogId, jdbcType=BIGINT}
+    </delete>
+</mapper>

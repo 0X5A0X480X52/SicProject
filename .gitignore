@@ -44,6 +44,9 @@ HELP.md
 **/lerna-debug.log*
 
 **/node_modules
+**/.manual-packages/
+**/.npm-cache/
+**/.vite-cache/
 **/dist
 **/dist-ssr
 **/*.local

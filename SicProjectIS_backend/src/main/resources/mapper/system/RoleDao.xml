@@ -15,6 +15,10 @@
         SELECT <include refid="BaseColumnList" /> FROM `role` WHERE `role_id` = #{roleId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByCode" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `role` WHERE `role_code` = #{roleCode, jdbcType=VARCHAR}
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `role`
     </select>

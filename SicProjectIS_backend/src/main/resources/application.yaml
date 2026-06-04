@@ -6,9 +6,23 @@
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:ZHRhenry20050305}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/migration/R__authorization_admin_tables.sql
 
 mybatis:
   mapper-locations: classpath*:mapper/**/*.xml
   type-aliases-package: com.amatrix.sicprojectis_backend
   configuration:
     map-underscore-to-camel-case: true
+
+app:
+  security:
+    jwt-secret: ${JWT_SECRET:change-this-development-secret-to-at-least-32-bytes}
+    jwt-expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}
+  bootstrap-admin:
+    enabled: ${BOOTSTRAP_ADMIN_ENABLED:true}
+    username: ${BOOTSTRAP_ADMIN_USERNAME:admin}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:Admin123456}
+    real-name: ${BOOTSTRAP_ADMIN_REAL_NAME:System Administrator}

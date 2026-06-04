@@ -25,7 +25,7 @@ class DaoSmokeTest {
     void allDaoBeansShouldLoadAndExecuteSelectAll() throws Exception {
         Map<String, Object> daoBeans = applicationContext.getBeansWithAnnotation(org.apache.ibatis.annotations.Mapper.class);
 
-        assertThat(daoBeans).hasSize(30);
+        assertThat(daoBeans).hasSize(33);
 
         for (Object daoBean : daoBeans.values()) {
             Method selectAll = AopUtils.getTargetClass(daoBean).getMethod("selectAll");

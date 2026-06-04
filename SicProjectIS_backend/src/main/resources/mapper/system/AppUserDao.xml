@@ -20,6 +20,10 @@
         SELECT <include refid="BaseColumnList" /> FROM `app_user` WHERE `user_id` = #{userId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `app_user` WHERE `username` = #{username, jdbcType=VARCHAR}
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `app_user`
     </select>

@@ -14,7 +14,13 @@ public interface UserRoleDao {
 
     List<UserRole> selectAll();
 
+    List<UserRole> selectByUserId(@Param("userId") Long userId);
+
+    UserRole selectByUserIdAndRoleId(@Param("userId") Long userId, @Param("roleId") Long roleId);
+
     int updateById(UserRole entity);
+
+    int deleteByUserIdAndRoleId(@Param("userId") Long userId, @Param("roleId") Long roleId);
 
     int deleteById(@Param("userRoleId") Long userRoleId);
 }

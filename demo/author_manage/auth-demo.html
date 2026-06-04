@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>权限与角色管理完整 Demo</title>
+  <style>
+    :root {
+      --primary:#2563eb;
+      --danger:#dc2626;
+      --success:#16a34a;
+      --gray:#6b7280;
+      --bg:#f5f7fb;
+      --text:#1f2937;
+      --border:#e5e7eb;
+      --sidebar:#111827;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .app { display:flex; height:100vh; }
+    aside {
+      width:250px;
+      background:var(--sidebar);
+      color:white;
+      padding:20px 0;
+      flex-shrink:0;
+    }
+    aside h2 {
+      font-size:18px;
+      padding:0 20px 20px;
+      margin:0;
+    }
+    .menu div {
+      padding:14px 24px;
+      cursor:pointer;
+      border-left:4px solid transparent;
+    }
+    .menu div.active, .menu div:hover {
+      background:#1f2937;
+      border-left-color:#60a5fa;
+    }
+    main { flex:1; padding:24px; overflow:auto; }
+    .card {
+      background:white;
+      border-radius:12px;
+      padding:20px;
+      margin-bottom:20px;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+    .card h2 { margin-top:0; }
+    .toolbar {
+      display:flex;
+      gap:12px;
+      margin-bottom:16px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    input, select, button, textarea {
+      padding:9px 12px;
+      border:1px solid #d1d5db;
+      border-radius:8px;
+      font-family:inherit;
+    }
+    input, select, textarea { background:white; color:var(--text); }
+    button {
+      background:var(--primary);
+      color:white;
+      border:none;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    button:hover { opacity:.92; }
+    button.gray { background:var(--gray); }
+    button.red { background:var(--danger); }
+    button.green { background:var(--success); }
+    button.light { background:#e5e7eb; color:#111827; }
+    table { width:100%; border-collapse:collapse; }
+    th, td {
+      padding:12px;
+      border-bottom:1px solid var(--border);
+      text-align:left;
+      vertical-align:top;
+    }
+    th { background:#f9fafb; font-weight:600; }
+    .tag {
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#e0ecff;
+      color:#1d4ed8;
+      font-size:12px;
+      margin:2px 4px 2px 0;
+    }
+    .tag.red { background:#fee2e2; color:#b91c1c; }
+    .tag.green { background:#dcfce7; color:#166534; }
+    .tag.gray { background:#f3f4f6; color:#374151; }
+    .tabs { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+    .tabs button { background:#e5e7eb; color:#111827; }
+    .tabs button.active { background:var(--primary); color:white; }
+    .hidden { display:none !important; }
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(4, minmax(160px, 1fr));
+      gap:16px;
+    }
+    .stat {
+      background:#f9fafb;
+      padding:16px;
+      border-radius:10px;
+      border:1px solid var(--border);
+    }
+    .stat b { display:block; margin-bottom:8px; }
+    .modal-mask {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.38);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:1000;
+      padding:20px;
+    }
+    .modal {
+      width:min(620px, 96vw);
+      max-height:90vh;
+      overflow:auto;
+      background:white;
+      border-radius:14px;
+      padding:22px;
+      box-shadow:0 10px 30px rgba(0,0,0,.18);
+    }
+    .modal h3 { margin-top:0; }
+    .form-row {
+      margin-bottom:12px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .checkbox-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      padding:8px 0;
+    }
+    .checkbox-grid label {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px;
+      border:1px solid var(--border);
+      border-radius:8px;
+    }
+    .muted { color:#6b7280; font-size:13px; }
+    .danger-text { color:#b91c1c; }
+    .diff-box {
+      background:#f9fafb;
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:12px;
+      line-height:1.8;
+    }
+    @media (max-width: 900px) {
+      .app { flex-direction:column; height:auto; min-height:100vh; }
+      aside { width:100%; }
+      .grid { grid-template-columns:1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <h2>权限与角色管理</h2>
+    <div class="menu">
+      <div class="active" onclick="showPage('dashboard', this)">总览</div>
+      <div onclick="showPage('users', this)">用户与系统角色</div>
+      <div onclick="showPage('rolePerms', this)">角色权限配置</div>
+      <div onclick="showPage('projectAuth', this)">项目授权管理</div>
+      <div onclick="showPage('logs', this)">授权审计日志</div>
+    </div>
+  </aside>
+
+  <main>
+    <section id="dashboard" class="page">
+      <div class="card">
+        <h2>权限管理总览</h2>
+        <div class="grid">
+          <div class="stat"><b>系统用户</b><span id="userCount"></span> 人</div>
+          <div class="stat"><b>系统角色</b><span id="roleCount"></span> 类</div>
+          <div class="stat"><b>项目授权</b><span id="grantCount"></span> 条</div>
+          <div class="stat"><b>审计记录</b><span id="logCount"></span> 条</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Demo 说明</h2>
+        <p>该页面使用静态假数据，模拟系统级角色、项目级授权、授权回收、二次确认、人员搜索和审计日志。</p>
+        <p class="muted">系统角色用于表达全局资格；项目授权用于表达某人在某项目、某模块、某轮次下的实际处理身份。</p>
+      </div>
+    </section>
+
+    <section id="users" class="page hidden">
+      <div class="card">
+        <h2>用户与系统角色</h2>
+        <div class="toolbar">
+          <input id="userKeyword" style="min-width:260px" placeholder="搜索姓名 / 部门 / 角色" oninput="renderUsers()" />
+          <select id="roleFilter" onchange="renderUsers()">
+            <option value="">全部角色</option>
+          </select>
+          <button onclick="openModal('role')">选择用户编辑角色</button>
+        </div>
+        <table>
+          <thead>
+          <tr><th>用户</th><th>部门</th><th>系统角色</th><th>状态</th><th>操作</th></tr>
+          </thead>
+          <tbody id="userTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="rolePerms" class="page hidden">
+      <div class="card">
+        <h2>角色权限配置</h2>
+        <div class="toolbar">
+          <input id="permKeyword" style="min-width:260px" placeholder="搜索角色 / 权限" oninput="renderPerms()" />
+        </div>
+        <table>
+          <thead>
+          <tr>
+            <th>角色</th><th>项目申报</th><th>合同管理</th><th>专家分配</th><th>财务结算</th><th>用户管理</th>
+          </tr>
+          </thead>
+          <tbody id="permTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="projectAuth" class="page hidden">
+      <div class="card">
+        <h2>项目授权管理</h2>
+        <div class="toolbar">
+          <select id="projectSelect" onchange="renderProjectAuth()"></select>
+          <input id="projectPersonKeyword" style="min-width:300px" placeholder="在项目授权中搜索人员 / 角色 / 模块 / 状态" oninput="renderProjectAuth()" />
+        </div>
+
+        <div class="tabs">
+          <button class="active" onclick="switchTab('leader', this)">项目负责人</button>
+          <button onclick="switchTab('members', this)">项目成员</button>
+          <button onclick="switchTab('experts', this)">项目专家</button>
+          <button onclick="switchTab('finance', this)">财务/代录授权</button>
+        </div>
+
+        <div id="leader" class="tab">
+          <p><b>当前负责人：</b><span id="leaderName"></span></p>
+          <button onclick="openModal('leader')">更换负责人</button>
+        </div>
+
+        <div id="members" class="tab hidden">
+          <div class="toolbar">
+            <button onclick="openModal('member')">添加项目成员</button>
+          </div>
+          <table>
+            <thead><tr><th>成员</th><th>部门</th><th>项目身份</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="memberTable"></tbody>
+          </table>
+        </div>
+
+        <div id="experts" class="tab hidden">
+          <div class="toolbar">
+            <button onclick="openModal('expert')">分配评审专家</button>
+          </div>
+          <table>
+            <thead><tr><th>模块</th><th>轮次</th><th>专家</th><th>专家资格</th><th>授权状态</th><th>任务状态</th><th>操作</th></tr></thead>
+            <tbody id="expertTable"></tbody>
+          </table>
+        </div>
+
+        <div id="finance" class="tab hidden">
+          <div class="toolbar">
+            <button onclick="openModal('finance')">添加财务/代录授权</button>
+          </div>
+          <table>
+            <thead><tr><th>授权类型</th><th>人员</th><th>模块</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="financeTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="logs" class="page hidden">
+      <div class="card">
+        <h2>授权审计日志</h2>
+        <div class="toolbar">
+          <input id="logKeyword" style="min-width:300px" placeholder="搜索操作人 / 被授权人 / 授权类型 / 备注" oninput="renderLogs()" />
+          <select id="logActionFilter" onchange="renderLogs()">
+            <option value="">全部操作</option>
+            <option value="GRANT">GRANT</option>
+            <option value="REVOKE">REVOKE</option>
+            <option value="UPDATE">UPDATE</option>
+          </select>
+        </div>
+        <table>
+          <thead><tr><th>时间</th><th>操作人</th><th>操作类型</th><th>被授权人</th><th>授权类型</th><th>备注</th></tr></thead>
+          <tbody id="logTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <h3 id="modalTitle">操作</h3>
+    <div id="modalBody"></div>
+    <div style="text-align:right;margin-top:16px;">
+      <button class="gray" onclick="closeModal()">取消</button>
+      <button onclick="submitModal()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask" id="confirmMask">
+  <div class="modal">
+    <h3>确认重要修改</h3>
+    <div id="confirmText" class="diff-box"></div>
+    <div style="text-align:right;margin-top:16px;">
+      <button class="gray" onclick="closeConfirm()">取消</button>
+      <button class="red" onclick="runConfirm()">确认执行</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_ROLES = [
+  "SYSTEM_ADMIN",
+  "SCIENCE_ADMIN",
+  "DEPT_ADMIN",
+  "FINANCE_ADMIN",
+  "EXPERT",
+  "PROJECT_LEADER"
+];
+
+const users = [
+  {id:1,name:"张三",dept:"信息学院",roles:["PROJECT_LEADER"],status:"启用"},
+  {id:2,name:"李四",dept:"科技处",roles:["SCIENCE_ADMIN"],status:"启用"},
+  {id:3,name:"王教授",dept:"专家库",roles:["EXPERT"],status:"启用"},
+  {id:4,name:"赵教授",dept:"专家库",roles:["EXPERT"],status:"启用"},
+  {id:5,name:"钱老师",dept:"财务处",roles:["FINANCE_ADMIN"],status:"启用"},
+  {id:6,name:"孙老师",dept:"信息学院",roles:["DEPT_ADMIN"],status:"启用"},
+  {id:7,name:"周同学",dept:"信息学院",roles:["PROJECT_LEADER"],status:"启用"},
+  {id:8,name:"吴老师",dept:"科技处",roles:["SCIENCE_ADMIN","EXPERT"],status:"启用"},
+  {id:9,name:"郑老师",dept:"材料学院",roles:["DEPT_ADMIN"],status:"启用"},
+  {id:10,name:"陈教授",dept:"专家库",roles:["EXPERT"],status:"启用"},
+  {id:11,name:"刘老师",dept:"科技处",roles:["SYSTEM_ADMIN"],status:"启用"},
+  {id:12,name:"黄老师",dept:"财务处",roles:["FINANCE_ADMIN"],status:"停用"}
+];
+
+const projects = [
+  {id:101,name:"绿色企业识别与评级系统",leader:1},
+  {id:102,name:"科研项目管理系统",leader:7},
+  {id:103,name:"智能文献综述与推荐系统",leader:8}
+];
+
+let grants = [
+  {projectId:101,type:"PROJECT_MEMBER_BINDING",userId:1,module:"项目级",round:"-",status:"ACTIVE",task:"-"},
+  {projectId:101,type:"PROJECT_MEMBER_BINDING",userId:6,module:"项目级",round:"-",status:"ACTIVE",task:"-"},
+  {projectId:101,type:"PROJECT_MODULE_EXPERT_ASSIGNMENT",userId:3,module:"项目申报",round:"第1轮",status:"ACTIVE",task:"待评审"},
+  {projectId:101,type:"PROJECT_MODULE_EXPERT_ASSIGNMENT",userId:4,module:"结题验收",round:"第1轮",status:"ACTIVE",task:"已完成"},
+  {projectId:101,type:"PROJECT_FINANCE_HANDLER_ASSIGNMENT",userId:5,module:"财务结算",round:"-",status:"ACTIVE",task:"待处理"},
+  {projectId:102,type:"PROJECT_MEMBER_BINDING",userId:7,module:"项目级",round:"-",status:"ACTIVE",task:"-"},
+  {projectId:102,type:"PROJECT_MODULE_EXPERT_ASSIGNMENT",userId:10,module:"项目申报",round:"第1轮",status:"ACTIVE",task:"待评审"}
+];
+
+let logs = [
+  {time:"2026-06-03 10:00",operator:"李四",action:"GRANT",target:"王教授",type:"项目申报专家",remark:"第一轮专家评审"},
+  {time:"2026-06-03 10:30",operator:"李四",action:"GRANT",target:"赵教授",type:"结题验收专家",remark:"结题材料评审"},
+  {time:"2026-06-03 11:00",operator:"李四",action:"GRANT",target:"钱老师",type:"财务处理人",remark:"财务结算节点"}
+];
+
+const perms = [
+  ["SYSTEM_ADMIN","全部","全部","全部","全部","全部"],
+  ["SCIENCE_ADMIN","审核/查看","管理","分配专家","查看","无"],
+  ["DEPT_ADMIN","本部门查看/初审","无","推荐专家","无","无"],
+  ["FINANCE_ADMIN","无","无","无","处理","无"],
+  ["EXPERT","本人任务","无","无","无","无"],
+  ["PROJECT_LEADER","本人项目","提交/修改","无","无","无"]
+];
+
+let modalType = "";
+let pendingAction = null;
+
+function nowText(){
+  return new Date().toLocaleString("zh-CN", {hour12:false});
+}
+
+function userName(id){
+  return users.find(u=>u.id===id)?.name || "-";
+}
+
+function userDept(id){
+  return users.find(u=>u.id===id)?.dept || "-";
+}
+
+function getUser(id){
+  return users.find(u=>u.id===Number(id));
+}
+
+function selectedProject(){
+  return Number(document.getElementById("projectSelect").value);
+}
+
+function currentProject(){
+  return projects.find(p=>p.id===selectedProject());
+}
+
+function addLog(action, target, type, remark){
+  logs.unshift({
+    time: nowText(),
+    operator: "当前管理员",
+    action,
+    target,
+    type,
+    remark
+  });
+}
+
+function statusTag(status){
+  if(status === "ACTIVE" || status === "启用") return `<span class="tag green">${status}</span>`;
+  if(status === "REVOKED" || status === "停用") return `<span class="tag red">${status}</span>`;
+  return `<span class="tag gray">${status}</span>`;
+}
+
+function showPage(id, el){
+  document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll(".menu div").forEach(m=>m.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function switchTab(id, el){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function renderRoleFilter(){
+  const roleFilter = document.getElementById("roleFilter");
+  roleFilter.innerHTML = `<option value="">全部角色</option>` + ALL_ROLES.map(r=>`<option value="${r}">${r}</option>`).join("");
+}
+
+function renderUsers(){
+  const kw = document.getElementById("userKeyword").value.trim();
+  const role = document.getElementById("roleFilter").value;
+
+  const rows = users.filter(u => {
+    const text = [u.name, u.dept, u.status, ...u.roles].join(" ");
+    return (!kw || text.includes(kw)) && (!role || u.roles.includes(role));
+  }).map(u => `
+    <tr>
+      <td>${u.name}</td>
+      <td>${u.dept}</td>
+      <td>${u.roles.map(r=>`<span class="tag">${r}</span>`).join("") || `<span class="tag gray">无角色</span>`}</td>
+      <td>${statusTag(u.status)}</td>
+      <td><button onclick="openModal('role', ${u.id})">编辑角色</button></td>
+    </tr>
+  `).join("");
+
+  document.getElementById("userTable").innerHTML = rows || `<tr><td colspan="5">未找到匹配用户</td></tr>`;
+}
+
+function renderPerms(){
+  const kw = document.getElementById("permKeyword").value.trim();
+  document.getElementById("permTable").innerHTML = perms.filter(p => {
+    return !kw || p.join(" ").includes(kw);
+  }).map(p=>`
+    <tr>${p.map(x=>`<td>${x}</td>`).join("")}</tr>
+  `).join("") || `<tr><td colspan="6">未找到匹配权限</td></tr>`;
+}
+
+function renderProjectSelect(){
+  const projectSelect = document.getElementById("projectSelect");
+  const currentValue = projectSelect.value;
+  projectSelect.innerHTML = projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join("");
+  if(currentValue) projectSelect.value = currentValue;
+}
+
+function activeGrants(){
+  return grants.filter(g=>g.status === "ACTIVE");
+}
+
+function renderProjectAuth(){
+  const projectSelect = document.getElementById("projectSelect");
+  if(!projectSelect.value && projects.length) projectSelect.value = projects[0].id;
+
+  const pid = selectedProject();
+  const kw = document.getElementById("projectPersonKeyword").value.trim();
+  const project = currentProject();
+  document.getElementById("leaderName").innerHTML = `${userName(project.leader)} <span class="tag">${userDept(project.leader)}</span>`;
+
+  const filtered = grants.filter(g => g.projectId === pid).filter(g => {
+    const text = [g.type,userName(g.userId),userDept(g.userId),g.module,g.round,g.status,g.task].join(" ");
+    return !kw || text.includes(kw);
+  });
+
+  document.getElementById("memberTable").innerHTML = filtered
+    .filter(g=>g.type==="PROJECT_MEMBER_BINDING")
+    .map(g=>`
+      <tr>
+        <td>${userName(g.userId)}</td>
+        <td>${userDept(g.userId)}</td>
+        <td>项目成员</td>
+        <td>${statusTag(g.status)}</td>
+        <td>${g.status === "ACTIVE" ? `<button class="red" onclick="confirmRevoke(${g.userId}, '${g.type}', '${g.module}')">移除</button>` : "-"}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="5">暂无项目成员授权</td></tr>`;
+
+  document.getElementById("expertTable").innerHTML = filtered
+    .filter(g=>g.type==="PROJECT_MODULE_EXPERT_ASSIGNMENT")
+    .map(g=>`
+      <tr>
+        <td>${g.module}</td>
+        <td>${g.round}</td>
+        <td>${userName(g.userId)}</td>
+        <td><span class="tag">EXPERT</span></td>
+        <td>${statusTag(g.status)}</td>
+        <td>${g.task}</td>
+        <td>${g.status === "ACTIVE" ? `<button class="red" onclick="confirmRevoke(${g.userId}, '${g.type}', '${g.module}')">撤销</button>` : "-"}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="7">暂无专家授权</td></tr>`;
+
+  document.getElementById("financeTable").innerHTML = filtered
+    .filter(g=>g.type.includes("FINANCE") || g.type.includes("PROXY"))
+    .map(g=>`
+      <tr>
+        <td>${g.type}</td>
+        <td>${userName(g.userId)}</td>
+        <td>${g.module}</td>
+        <td>${statusTag(g.status)}</td>
+        <td>${g.status === "ACTIVE" ? `<button class="red" onclick="confirmRevoke(${g.userId}, '${g.type}', '${g.module}')">撤销</button>` : "-"}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="5">暂无财务/代录授权</td></tr>`;
+}
+
+function renderLogs(){
+  const kw = document.getElementById("logKeyword").value.trim();
+  const action = document.getElementById("logActionFilter").value;
+
+  document.getElementById("logTable").innerHTML = logs.filter(l => {
+    const text = Object.values(l).join(" ");
+    return (!kw || text.includes(kw)) && (!action || l.action === action);
+  }).map(l=>`
+    <tr>
+      <td>${l.time}</td>
+      <td>${l.operator}</td>
+      <td>${l.action}</td>
+      <td>${l.target}</td>
+      <td>${l.type}</td>
+      <td>${l.remark}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="6">暂无匹配日志</td></tr>`;
+}
+
+function renderDashboard(){
+  document.getElementById("userCount").innerText = users.length;
+  document.getElementById("roleCount").innerText = ALL_ROLES.length;
+  document.getElementById("grantCount").innerText = activeGrants().length;
+  document.getElementById("logCount").innerText = logs.length;
+}
+
+function userOptions(list = users, selectedId = null){
+  return list.map(u=>`
+    <option value="${u.id}" ${selectedId === u.id ? "selected" : ""}>
+      ${u.name} - ${u.dept} - ${u.roles.join("/") || "无角色"}
+    </option>
+  `).join("");
+}
+
+function openModal(type, userId = null){
+  modalType = type;
+  const pid = selectedProject();
+  const project = currentProject();
+  const targetUser = getUser(userId) || users[0];
+  const experts = users.filter(u=>u.roles.includes("EXPERT") && u.status === "启用");
+  const activeUsers = users.filter(u=>u.status === "启用");
+
+  if(type === "role"){
+    document.getElementById("modalTitle").innerText = "编辑系统角色";
+    document.getElementById("modalBody").innerHTML = `
+      <div class="form-row">
+        <label>搜索并选择用户</label>
+        <input id="roleUserSearch" placeholder="输入姓名 / 部门 / 角色过滤用户" oninput="refreshRoleUserSelect()" />
+        <select id="modalUser" onchange="openModal('role', Number(this.value))">
+          ${userOptions(users, targetUser.id)}
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label>系统角色</label>
+        <div class="checkbox-grid">
+          ${ALL_ROLES.map(role => `
+            <label>
+              <input type="checkbox" name="roleCheck" value="${role}" ${targetUser.roles.includes(role) ? "checked" : ""}>
+              ${role}
+            </label>
+          `).join("")}
+        </div>
+      </div>
+
+      <p class="muted">
+        勾选表示授予角色；取消勾选表示回收角色。点击保存后会弹出二次确认。
+      </p>
+    `;
+  }
+
+  if(type === "leader"){
+    document.getElementById("modalTitle").innerText = "更换项目负责人";
+    document.getElementById("modalBody").innerHTML = `
+      <p>当前项目：<b>${project.name}</b></p>
+      <p>当前负责人：<b>${userName(project.leader)}</b></p>
+      <div class="form-row">
+        <label>选择新负责人</label>
+        <input id="leaderUserSearch" placeholder="搜索姓名 / 部门 / 角色" oninput="refreshGenericUserSelect('leaderUserSearch','modalUser')" />
+        <select id="modalUser">${userOptions(activeUsers, project.leader)}</select>
+      </div>
+    `;
+  }
+
+  if(type === "member"){
+    document.getElementById("modalTitle").innerText = "添加项目成员";
+    document.getElementById("modalBody").innerHTML = `
+      <p>当前项目：<b>${project.name}</b></p>
+      <div class="form-row">
+        <label>选择成员</label>
+        <input id="memberUserSearch" placeholder="搜索姓名 / 部门 / 角色" oninput="refreshGenericUserSelect('memberUserSearch','modalUser')" />
+        <select id="modalUser">${userOptions(activeUsers)}</select>
+      </div>
+      <div class="form-row">
+        <label>备注</label>
+        <textarea id="modalRemark">添加项目成员</textarea>
+      </div>
+    `;
+  }
+
+  if(type === "expert"){
+    document.getElementById("modalTitle").innerText = "分配评审专家";
+    document.getElementById("modalBody").innerHTML = `
+      <p>当前项目：<b>${project.name}</b></p>
+      <div class="form-row">
+        <label>评审模块</label>
+        <select id="modalModule">
+          <option>项目申报</option>
+          <option>结题验收</option>
+          <option>科研合作审批</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>评审轮次</label>
+        <select id="modalRound">
+          <option>第1轮</option>
+          <option>第2轮</option>
+          <option>第3轮</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>选择专家</label>
+        <input id="expertUserSearch" placeholder="搜索专家姓名 / 部门" oninput="refreshExpertSelect()" />
+        <select id="modalUser">${userOptions(experts)}</select>
+      </div>
+      <div class="form-row">
+        <label>授权原因</label>
+        <textarea id="modalRemark">专家评审任务分配</textarea>
+      </div>
+      <p class="muted">这里只允许从拥有 EXPERT 系统角色的用户中选择。</p>
+    `;
+  }
+
+  if(type === "finance"){
+    document.getElementById("modalTitle").innerText = "添加财务/代录授权";
+    document.getElementById("modalBody").innerHTML = `
+      <p>当前项目：<b>${project.name}</b></p>
+      <div class="form-row">
+        <label>授权类型</label>
+        <select id="modalGrantType">
+          <option>PROJECT_FINANCE_HANDLER_ASSIGNMENT</option>
+          <option>PROJECT_PROXY_RECORDER_ASSIGNMENT</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>选择人员</label>
+        <input id="financeUserSearch" placeholder="搜索姓名 / 部门 / 角色" oninput="refreshGenericUserSelect('financeUserSearch','modalUser')" />
+        <select id="modalUser">${userOptions(activeUsers)}</select>
+      </div>
+      <div class="form-row">
+        <label>模块</label>
+        <input id="modalModule" value="财务结算" />
+      </div>
+      <div class="form-row">
+        <label>备注</label>
+        <textarea id="modalRemark">添加财务或代录授权</textarea>
+      </div>
+    `;
+  }
+
+  document.getElementById("modalMask").style.display = "flex";
+}
+
+function refreshRoleUserSelect(){
+  const kw = document.getElementById("roleUserSearch").value.trim();
+  const select = document.getElementById("modalUser");
+  const filtered = users.filter(u => [u.name,u.dept,u.status,...u.roles].join(" ").includes(kw));
+  select.innerHTML = userOptions(filtered.length ? filtered : users);
+}
+
+function refreshGenericUserSelect(inputId, selectId){
+  const kw = document.getElementById(inputId).value.trim();
+  const activeUsers = users.filter(u=>u.status === "启用");
+  const filtered = activeUsers.filter(u => [u.name,u.dept,u.status,...u.roles].join(" ").includes(kw));
+  document.getElementById(selectId).innerHTML = userOptions(filtered.length ? filtered : activeUsers);
+}
+
+function refreshExpertSelect(){
+  const kw = document.getElementById("expertUserSearch").value.trim();
+  const experts = users.filter(u=>u.roles.includes("EXPERT") && u.status === "启用");
+  const filtered = experts.filter(u => [u.name,u.dept,...u.roles].join(" ").includes(kw));
+  document.getElementById("modalUser").innerHTML = userOptions(filtered.length ? filtered : experts);
+}
+
+function closeModal(){
+  document.getElementById("modalMask").style.display = "none";
+}
+
+function openConfirm(html, action){
+  pendingAction = action;
+  document.getElementById("confirmText").innerHTML = html;
+  document.getElementById("confirmMask").style.display = "flex";
+}
+
+function closeConfirm(){
+  pendingAction = null;
+  document.getElementById("confirmMask").style.display = "none";
+}
+
+function runConfirm(){
+  if(pendingAction) pendingAction();
+}
+
+function submitModal(){
+  const uid = Number(document.getElementById("modalUser")?.value);
+  const u = getUser(uid);
+  const pid = selectedProject();
+  const project = currentProject();
+
+  if(modalType === "role"){
+    const checkedRoles = Array.from(document.querySelectorAll("input[name='roleCheck']:checked")).map(x=>x.value);
+    const oldRoles = [...u.roles];
+    const addedRoles = checkedRoles.filter(r=>!oldRoles.includes(r));
+    const removedRoles = oldRoles.filter(r=>!checkedRoles.includes(r));
+
+    if(addedRoles.length === 0 && removedRoles.length === 0){
+      alert("角色没有变化。");
+      return;
+    }
+
+    openConfirm(`
+      <b>确认修改用户【${u.name}】的系统角色？</b><br>
+      新增角色：${addedRoles.length ? addedRoles.map(r=>`<span class="tag green">${r}</span>`).join("") : "无"}<br>
+      回收角色：${removedRoles.length ? removedRoles.map(r=>`<span class="tag red">${r}</span>`).join("") : "无"}<br>
+      <span class="danger-text">该操作会影响该用户后续可访问菜单、接口和待办任务。</span>
+    `, () => {
+      u.roles = checkedRoles;
+      addedRoles.forEach(role=>addLog("GRANT", u.name, role, "授予系统角色"));
+      removedRoles.forEach(role=>addLog("REVOKE", u.name, role, "回收系统角色"));
+      closeConfirm();
+      closeModal();
+      renderAll();
+    });
+    return;
+  }
+
+  if(modalType === "leader"){
+    if(project.leader === uid){
+      alert("负责人没有变化。");
+      return;
+    }
+
+    const oldLeader = userName(project.leader);
+    openConfirm(`
+      <b>确认更换项目负责人？</b><br>
+      项目：${project.name}<br>
+      原负责人：<span class="tag red">${oldLeader}</span><br>
+      新负责人：<span class="tag green">${u.name}</span><br>
+      <span class="danger-text">该操作会影响 PROJECT_LEADER 节点处理权限。</span>
+    `, () => {
+      project.leader = uid;
+      addLog("UPDATE", u.name, "PROJECT_LEADER_BINDING", `项目【${project.name}】负责人由 ${oldLeader} 更换为 ${u.name}`);
+      closeConfirm();
+      closeModal();
+      renderAll();
+    });
+    return;
+  }
+
+  if(modalType === "member"){
+    const exists = grants.some(g => g.projectId===pid && g.userId===uid && g.type==="PROJECT_MEMBER_BINDING" && g.status==="ACTIVE");
+    if(exists){
+      alert("该用户已经是当前项目成员。");
+      return;
+    }
+
+    const remark = document.getElementById("modalRemark").value || "添加项目成员";
+    openConfirm(`
+      <b>确认添加项目成员？</b><br>
+      项目：${project.name}<br>
+      成员：<span class="tag green">${u.name}</span><br>
+      备注：${remark}
+    `, () => {
+      grants.push({projectId:pid,type:"PROJECT_MEMBER_BINDING",userId:uid,module:"项目级",round:"-",status:"ACTIVE",task:"-"});
+      addLog("GRANT", u.name, "PROJECT_MEMBER_BINDING", remark);
+      closeConfirm();
+      closeModal();
+      renderAll();
+    });
+    return;
+  }
+
+  if(modalType === "expert"){
+    const module = document.getElementById("modalModule").value;
+    const round = document.getElementById("modalRound").value;
+    const remark = document.getElementById("modalRemark").value || "分配评审专家";
+
+    const exists = grants.some(g =>
+      g.projectId===pid &&
+      g.userId===uid &&
+      g.type==="PROJECT_MODULE_EXPERT_ASSIGNMENT" &&
+      g.module===module &&
+      g.round===round &&
+      g.status==="ACTIVE"
+    );
+    if(exists){
+      alert("该专家已经被分配到当前模块与轮次。");
+      return;
+    }
+
+    openConfirm(`
+      <b>确认分配评审专家？</b><br>
+      项目：${project.name}<br>
+      模块：${module}<br>
+      轮次：${round}<br>
+      专家：<span class="tag green">${u.name}</span><br>
+      <span class="danger-text">确认后会生成该专家在该项目模块下的评审处理权限。</span>
+    `, () => {
+      grants.push({projectId:pid,type:"PROJECT_MODULE_EXPERT_ASSIGNMENT",userId:uid,module,round,status:"ACTIVE",task:"待评审"});
+      addLog("GRANT", u.name, "PROJECT_MODULE_EXPERT_ASSIGNMENT", remark);
+      closeConfirm();
+      closeModal();
+      renderAll();
+    });
+    return;
+  }
+
+  if(modalType === "finance"){
+    const type = document.getElementById("modalGrantType").value;
+    const module = document.getElementById("modalModule").value;
+    const remark = document.getElementById("modalRemark").value || "添加财务或代录授权";
+
+    openConfirm(`
+      <b>确认添加财务/代录授权？</b><br>
+      项目：${project.name}<br>
+      授权类型：${type}<br>
+      模块：${module}<br>
+      人员：<span class="tag green">${u.name}</span>
+    `, () => {
+      grants.push({projectId:pid,type,userId:uid,module,round:"-",status:"ACTIVE",task:"待处理"});
+      addLog("GRANT", u.name, type, remark);
+      closeConfirm();
+      closeModal();
+      renderAll();
+    });
+    return;
+  }
+}
+
+function confirmRevoke(uid, type, module){
+  const pid = selectedProject();
+  const project = currentProject();
+  const u = getUser(uid);
+
+  openConfirm(`
+    <b>确认撤销项目级授权？</b><br>
+    项目：${project.name}<br>
+    被授权人：<span class="tag red">${u.name}</span><br>
+    授权类型：${type}<br>
+    模块：${module}<br>
+    <span class="danger-text">撤销后，该用户将失去对应项目上下文下的处理权限。</span>
+  `, () => {
+    const g = grants.find(x=>x.projectId===pid && x.userId===uid && x.type===type && x.module===module && x.status==="ACTIVE");
+    if(g) g.status = "REVOKED";
+    addLog("REVOKE", u.name, type, `撤销项目【${project.name}】下的 ${module} 授权`);
+    closeConfirm();
+    renderAll();
+  });
+}
+
+function renderAll(){
+  renderDashboard();
+  renderRoleFilter();
+  renderUsers();
+  renderPerms();
+  renderProjectSelect();
+  renderProjectAuth();
+  renderLogs();
+}
+
+renderAll();
+</script>
+</body>
+</html>

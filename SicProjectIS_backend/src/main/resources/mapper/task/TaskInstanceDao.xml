@@ -26,6 +26,13 @@
         SELECT <include refid="BaseColumnList" /> FROM `task_instance`
     </select>
 
+    <select id="selectOpenByModuleInstanceId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `task_instance`
+        WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
+          AND `task_status` = 'OPEN'
+    </select>
+
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.task.entity.TaskInstance" useGeneratedKeys="true" keyProperty="taskInstanceId" keyColumn="task_instance_id">
         INSERT INTO `task_instance` (
             `module_instance_id`, `node_id`, `state_code`, `assignee_user_id`, `candidate_role_code`, `task_status`, `round_no`, `claimed_at`, `completed_at`, `deadline_at`

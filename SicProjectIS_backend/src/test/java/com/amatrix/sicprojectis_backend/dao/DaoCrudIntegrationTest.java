@@ -145,7 +145,7 @@ class DaoCrudIntegrationTest {
     void viewDaosShouldReturnSeededContextData() {
         UserRoleDetailView userRoleDetail = userRoleDetailViewDao.selectByUserId(1L).getFirst();
         assertThat(userRoleDetail.getUsername()).isEqualTo("alice");
-        assertThat(userRoleDetail.getRoleCode()).isEqualTo("PI");
+        assertThat(userRoleDetail.getRoleCode()).isEqualTo("PROJECT_LEADER");
 
         WorkflowNodeConfigView workflowNodeConfig = workflowNodeConfigViewDao.selectByWorkflowNodeId(1L);
         assertThat(workflowNodeConfig).isNotNull();

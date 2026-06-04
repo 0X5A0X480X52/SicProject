@@ -20,6 +20,28 @@
         SELECT <include refid="BaseColumnList" /> FROM `project_member`
     </select>
 
+    <select id="selectByProjectId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `project_member`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+        ORDER BY `project_member_id`
+    </select>
+
+    <select id="selectByProjectIdAndUserId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `project_member`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+          AND `user_id` = #{userId, jdbcType=BIGINT}
+        LIMIT 1
+    </select>
+
+    <select id="countByProjectIdAndUserId" resultType="int">
+        SELECT COUNT(1)
+        FROM `project_member`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+          AND `user_id` = #{userId, jdbcType=BIGINT}
+    </select>
+
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.project.entity.ProjectMember" useGeneratedKeys="true" keyProperty="projectMemberId" keyColumn="project_member_id">
         INSERT INTO `project_member` (
             `project_id`, `user_id`, `member_role`, `responsibility`
@@ -37,6 +59,12 @@
             `responsibility` = #{responsibility, jdbcType=LONGVARCHAR}
         WHERE `project_member_id` = #{projectMemberId, jdbcType=BIGINT}
     </update>
+
+    <delete id="deleteByProjectIdAndUserId">
+        DELETE FROM `project_member`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+          AND `user_id` = #{userId, jdbcType=BIGINT}
+    </delete>
 
     <delete id="deleteById">
         DELETE FROM `project_member` WHERE `project_member_id` = #{projectMemberId, jdbcType=BIGINT}

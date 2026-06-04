@@ -17,6 +17,21 @@
         SELECT <include refid="BaseColumnList" /> FROM `role_permission`
     </select>
 
+    <select id="selectByRoleId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `role_permission`
+        WHERE `role_id` = #{roleId, jdbcType=BIGINT}
+        ORDER BY `role_permission_id`
+    </select>
+
+    <select id="selectByRoleIdAndPermissionId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `role_permission`
+        WHERE `role_id` = #{roleId, jdbcType=BIGINT}
+          AND `permission_id` = #{permissionId, jdbcType=BIGINT}
+        LIMIT 1
+    </select>
+
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.system.entity.RolePermission" useGeneratedKeys="true" keyProperty="rolePermissionId" keyColumn="role_permission_id">
         INSERT INTO `role_permission` (
             `role_id`, `permission_id`
@@ -35,5 +50,11 @@
 
     <delete id="deleteById">
         DELETE FROM `role_permission` WHERE `role_permission_id` = #{rolePermissionId, jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByRoleIdAndPermissionId">
+        DELETE FROM `role_permission`
+        WHERE `role_id` = #{roleId, jdbcType=BIGINT}
+          AND `permission_id` = #{permissionId, jdbcType=BIGINT}
     </delete>
 </mapper>

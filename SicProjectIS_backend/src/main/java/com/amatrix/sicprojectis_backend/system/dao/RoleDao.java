@@ -12,6 +12,8 @@ public interface RoleDao {
 
     Role selectById(@Param("roleId") Long roleId);
 
+    Role selectByCode(@Param("roleCode") String roleCode);
+
     List<Role> selectAll();
 
     int updateById(Role entity);

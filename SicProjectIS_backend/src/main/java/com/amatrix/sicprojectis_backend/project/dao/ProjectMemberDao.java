@@ -14,7 +14,15 @@ public interface ProjectMemberDao {
 
     List<ProjectMember> selectAll();
 
+    List<ProjectMember> selectByProjectId(@Param("projectId") Long projectId);
+
+    ProjectMember selectByProjectIdAndUserId(@Param("projectId") Long projectId, @Param("userId") Long userId);
+
+    int countByProjectIdAndUserId(@Param("projectId") Long projectId, @Param("userId") Long userId);
+
     int updateById(ProjectMember entity);
+
+    int deleteByProjectIdAndUserId(@Param("projectId") Long projectId, @Param("userId") Long userId);
 
     int deleteById(@Param("projectMemberId") Long projectMemberId);
 }

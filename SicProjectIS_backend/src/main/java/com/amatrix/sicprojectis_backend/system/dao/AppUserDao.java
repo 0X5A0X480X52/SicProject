@@ -12,6 +12,8 @@ public interface AppUserDao {
 
     AppUser selectById(@Param("userId") Long userId);
 
+    AppUser selectByUsername(@Param("username") String username);
+
     List<AppUser> selectAll();
 
     int updateById(AppUser entity);

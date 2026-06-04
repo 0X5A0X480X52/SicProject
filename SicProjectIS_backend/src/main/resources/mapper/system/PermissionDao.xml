@@ -15,6 +15,18 @@
         SELECT <include refid="BaseColumnList" /> FROM `permission` WHERE `permission_id` = #{permissionId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByCode" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `permission` WHERE `permission_code` = #{permissionCode, jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectPermissionCodesByUserId" resultType="java.lang.String">
+        SELECT DISTINCT p.`permission_code`
+        FROM `permission` p
+        INNER JOIN `role_permission` rp ON rp.`permission_id` = p.`permission_id`
+        INNER JOIN `user_role` ur ON ur.`role_id` = rp.`role_id`
+        WHERE ur.`user_id` = #{userId, jdbcType=BIGINT}
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `permission`
     </select>

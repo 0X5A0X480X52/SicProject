@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.project.dao.ProjectRoleGrantLogDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.project.entity.ProjectRoleGrantLog">
+        <id column="grant_log_id" property="grantLogId" jdbcType="BIGINT" />
+        <result column="project_role_grant_id" property="projectRoleGrantId" jdbcType="BIGINT" />
+        <result column="action_type" property="actionType" jdbcType="VARCHAR" />
+        <result column="operator_user_id" property="operatorUserId" jdbcType="BIGINT" />
+        <result column="before_snapshot_json" property="beforeSnapshotJson" jdbcType="LONGVARCHAR" />
+        <result column="after_snapshot_json" property="afterSnapshotJson" jdbcType="LONGVARCHAR" />
+        <result column="remark" property="remark" jdbcType="LONGVARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`grant_log_id`, `project_role_grant_id`, `action_type`, `operator_user_id`, `before_snapshot_json`, `after_snapshot_json`, `remark`, `created_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_role_grant_log` WHERE `grant_log_id` = #{grantLogId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_role_grant_log`
+    </select>
+
+    <select id="selectByGrantId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `project_role_grant_log`
+        WHERE `project_role_grant_id` = #{projectRoleGrantId, jdbcType=BIGINT}
+        ORDER BY `grant_log_id` DESC
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.project.entity.ProjectRoleGrantLog" useGeneratedKeys="true" keyProperty="grantLogId" keyColumn="grant_log_id">
+        INSERT INTO `project_role_grant_log` (
+            `project_role_grant_id`, `action_type`, `operator_user_id`, `before_snapshot_json`, `after_snapshot_json`, `remark`
+        ) VALUES (
+            #{projectRoleGrantId, jdbcType=BIGINT}, #{actionType, jdbcType=VARCHAR}, #{operatorUserId, jdbcType=BIGINT},
+            #{beforeSnapshotJson, jdbcType=LONGVARCHAR}, #{afterSnapshotJson, jdbcType=LONGVARCHAR}, #{remark, jdbcType=LONGVARCHAR}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.project.entity.ProjectRoleGrantLog">
+        UPDATE `project_role_grant_log`
+        SET
+            `project_role_grant_id` = #{projectRoleGrantId, jdbcType=BIGINT},
+            `action_type` = #{actionType, jdbcType=VARCHAR},
+            `operator_user_id` = #{operatorUserId, jdbcType=BIGINT},
+            `before_snapshot_json` = #{beforeSnapshotJson, jdbcType=LONGVARCHAR},
+            `after_snapshot_json` = #{afterSnapshotJson, jdbcType=LONGVARCHAR},
+            `remark` = #{remark, jdbcType=LONGVARCHAR}
+        WHERE `grant_log_id` = #{grantLogId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `project_role_grant_log` WHERE `grant_log_id` = #{grantLogId, jdbcType=BIGINT}
+    </delete>
+</mapper>
