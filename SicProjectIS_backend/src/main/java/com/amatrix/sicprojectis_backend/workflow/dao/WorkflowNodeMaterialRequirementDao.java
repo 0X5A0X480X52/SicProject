@@ -12,9 +12,13 @@ public interface WorkflowNodeMaterialRequirementDao {
 
     WorkflowNodeMaterialRequirement selectById(@Param("requirementId") Long requirementId);
 
+    List<WorkflowNodeMaterialRequirement> selectByWorkflowNodeId(@Param("workflowNodeId") Long workflowNodeId);
+
     List<WorkflowNodeMaterialRequirement> selectAll();
 
     int updateById(WorkflowNodeMaterialRequirement entity);
+
+    int deleteByWorkflowNodeId(@Param("workflowNodeId") Long workflowNodeId);
 
     int deleteById(@Param("requirementId") Long requirementId);
 }

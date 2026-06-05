@@ -24,6 +24,13 @@
         SELECT <include refid="BaseColumnList" /> FROM `workflow_node` WHERE `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByWorkflowDefinitionId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `workflow_node`
+        WHERE `workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT}
+        ORDER BY `workflow_node_id`
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `workflow_node`
     </select>
@@ -56,5 +63,9 @@
 
     <delete id="deleteById">
         DELETE FROM `workflow_node` WHERE `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByWorkflowDefinitionId">
+        DELETE FROM `workflow_node` WHERE `workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT}
     </delete>
 </mapper>

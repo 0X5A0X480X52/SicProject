@@ -53,11 +53,11 @@ class AdminWorkbenchIntegrationTest {
 
         mockMvc.perform(get("/api/admin/overview").header("Authorization", "Bearer " + systemAdminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.totalPermissions").value(9));
+                .andExpect(jsonPath("$.data.totalPermissions").value(19));
 
         mockMvc.perform(get("/api/admin/roles/permissions").header("Authorization", "Bearer " + systemAdminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.permissions", hasSize(9)))
+                .andExpect(jsonPath("$.data.permissions", hasSize(19)))
                 .andExpect(jsonPath("$.data.matrix[?(@.roleCode=='SYSTEM_ADMIN')].permissionCodes[*]", hasItem("user:manage")));
 
         mockMvc.perform(put("/api/admin/roles/EXPERT/permissions")
@@ -65,16 +65,16 @@ class AdminWorkbenchIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "permissionCodes": ["project:view", "audit-log:view"]
+                                  "permissionCodes": ["project:view", "audit:read"]
                                 }
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.diff.added[*]", hasItem("audit-log:view")));
+                .andExpect(jsonPath("$.data.diff.added[*]", hasItem("audit:read")));
 
         String expertToken = login("bob", "password");
         mockMvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + expertToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.permissionCodes[*]", hasItem("audit-log:view")));
+                .andExpect(jsonPath("$.data.permissionCodes[*]", hasItem("audit:read")));
 
         mockMvc.perform(get("/api/admin/audit-logs").header("Authorization", "Bearer " + systemAdminToken))
                 .andExpect(status().isOk())

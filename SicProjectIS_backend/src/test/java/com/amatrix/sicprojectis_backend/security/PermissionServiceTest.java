@@ -20,7 +20,8 @@ class PermissionServiceTest {
         assertThat(permissionService.hasRole(3L, "SCIENCE_ADMIN")).isTrue();
         assertThat(permissionService.hasPermission(1L, "project:view")).isTrue();
         assertThat(permissionService.hasPermission(2L, "project:view")).isFalse();
-        assertThat(permissionService.hasPermission(3L, "project:expert:assign")).isTrue();
+        assertThat(permissionService.hasPermission(3L, "project:grant:expert")).isTrue();
+        assertThat(permissionService.hasPermission(3L, "workflow:definition:publish")).isTrue();
     }
 
     @Test

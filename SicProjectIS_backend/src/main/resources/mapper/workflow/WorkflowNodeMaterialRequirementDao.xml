@@ -20,6 +20,13 @@
         SELECT <include refid="BaseColumnList" /> FROM `workflow_node_material_requirement` WHERE `requirement_id` = #{requirementId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByWorkflowNodeId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `workflow_node_material_requirement`
+        WHERE `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT}
+        ORDER BY `requirement_id`
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `workflow_node_material_requirement`
     </select>
@@ -49,5 +56,9 @@
 
     <delete id="deleteById">
         DELETE FROM `workflow_node_material_requirement` WHERE `requirement_id` = #{requirementId, jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByWorkflowNodeId">
+        DELETE FROM `workflow_node_material_requirement` WHERE `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT}
     </delete>
 </mapper>

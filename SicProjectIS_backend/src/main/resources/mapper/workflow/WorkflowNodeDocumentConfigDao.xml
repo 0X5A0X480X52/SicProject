@@ -21,6 +21,13 @@
         SELECT <include refid="BaseColumnList" /> FROM `workflow_node_document_config` WHERE `document_config_id` = #{documentConfigId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByWorkflowNodeId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `workflow_node_document_config`
+        WHERE `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT}
+        ORDER BY `document_config_id`
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `workflow_node_document_config`
     </select>
@@ -51,5 +58,9 @@
 
     <delete id="deleteById">
         DELETE FROM `workflow_node_document_config` WHERE `document_config_id` = #{documentConfigId, jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByWorkflowNodeId">
+        DELETE FROM `workflow_node_document_config` WHERE `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT}
     </delete>
 </mapper>

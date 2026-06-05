@@ -12,6 +12,8 @@ public interface MaterialTypeDao {
 
     MaterialType selectById(@Param("materialTypeId") Long materialTypeId);
 
+    MaterialType selectByCode(@Param("materialTypeCode") String materialTypeCode);
+
     List<MaterialType> selectAll();
 
     int updateById(MaterialType entity);

@@ -12,9 +12,13 @@ public interface WorkflowNodeDao {
 
     WorkflowNode selectById(@Param("workflowNodeId") Long workflowNodeId);
 
+    List<WorkflowNode> selectByWorkflowDefinitionId(@Param("workflowDefinitionId") Long workflowDefinitionId);
+
     List<WorkflowNode> selectAll();
 
     int updateById(WorkflowNode entity);
+
+    int deleteByWorkflowDefinitionId(@Param("workflowDefinitionId") Long workflowDefinitionId);
 
     int deleteById(@Param("workflowNodeId") Long workflowNodeId);
 }

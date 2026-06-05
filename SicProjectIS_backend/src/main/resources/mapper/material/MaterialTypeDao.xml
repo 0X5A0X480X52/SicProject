@@ -19,6 +19,10 @@
         SELECT <include refid="BaseColumnList" /> FROM `material_type` WHERE `material_type_id` = #{materialTypeId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByCode" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `material_type` WHERE `material_type_code` = #{materialTypeCode, jdbcType=VARCHAR}
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `material_type`
     </select>

@@ -36,6 +36,7 @@ class BootstrapAdminIntegrationTest {
                 .andExpect(jsonPath("$.data.token", not(blankOrNullString())))
                 .andExpect(jsonPath("$.data.user.username").value("bootstrap_admin"))
                 .andExpect(jsonPath("$.data.user.roleCodes[*]", hasItem("SYSTEM_ADMIN")))
-                .andExpect(jsonPath("$.data.user.permissionCodes[*]", hasItem("project:view")));
+                .andExpect(jsonPath("$.data.user.permissionCodes[*]", hasItem("project:view")))
+                .andExpect(jsonPath("$.data.user.permissionCodes[*]", hasItem("workflow:definition:publish")));
     }
 }

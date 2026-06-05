@@ -16,12 +16,14 @@ import com.amatrix.sicprojectis_backend.system.entity.UserRole;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @EnableConfigurationProperties(BootstrapAdminProperties.class)
+@Order(20)
 public class BootstrapAdminInitializer implements ApplicationRunner {
     private static final String SYSTEM_ADMIN = "SYSTEM_ADMIN";
 

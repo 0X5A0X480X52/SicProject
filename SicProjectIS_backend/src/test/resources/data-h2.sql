@@ -41,31 +41,61 @@ INSERT INTO `role` (`role_id`, `role_code`, `role_name`, `role_desc`, `enabled`)
 VALUES (6, 'FINANCE_ADMIN', 'Finance Admin', 'Finance handler role', TRUE);
 
 INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
-VALUES (1, 'project:view', 'View Project', 'API', 'Read project information');
+VALUES (1, 'auth:login', 'User Login', 'API', 'Authenticate a user');
 
 INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
-VALUES (2, 'project:authorization:manage', 'Manage Project Authorization', 'API', 'Manage project authorization settings');
+VALUES (2, 'auth:me', 'Current User', 'API', 'Read the current user context');
 
 INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
-VALUES (3, 'project:expert:assign', 'Assign Project Expert', 'API', 'Assign experts to project modules');
+VALUES (3, 'admin:overview', 'Admin Overview', 'API', 'View authorization overview');
 
 INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
-VALUES (4, 'admin:overview:view', 'View Admin Overview', 'API', 'View permission administration overview');
+VALUES (4, 'user:manage', 'Manage Users', 'API', 'Manage users and global roles');
 
 INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
-VALUES (5, 'user:manage', 'Manage Users', 'API', 'Manage users and their system roles');
+VALUES (5, 'role:manage', 'Manage Roles', 'API', 'Manage global role assignments');
 
 INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
-VALUES (6, 'role-permission:manage', 'Manage Role Permissions', 'API', 'Manage role permission matrix');
+VALUES (6, 'permission:manage', 'Manage Permissions', 'API', 'Manage role permission mappings');
 
 INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
-VALUES (7, 'audit-log:view', 'View Audit Logs', 'API', 'View authorization audit logs');
+VALUES (7, 'audit:read', 'Read Audit Logs', 'API', 'Read authorization audit logs');
 
 INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
-VALUES (8, 'project:finance:assign', 'Assign Project Finance', 'API', 'Assign project finance handlers');
+VALUES (8, 'project:view', 'View Project', 'API', 'View project information');
 
 INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
-VALUES (9, 'project:proxy:assign', 'Assign Project Proxy Recorder', 'API', 'Assign project proxy recorders');
+VALUES (9, 'project:grant:view', 'View Project Grants', 'API', 'View project-level grants');
+
+INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
+VALUES (10, 'project:grant:leader', 'Manage Project Leader', 'API', 'Change project leaders');
+
+INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
+VALUES (11, 'project:grant:member', 'Manage Project Members', 'API', 'Manage project members');
+
+INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
+VALUES (12, 'project:grant:expert', 'Manage Project Experts', 'API', 'Manage project expert grants');
+
+INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
+VALUES (13, 'project:grant:finance', 'Manage Project Finance', 'API', 'Manage project finance grants');
+
+INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
+VALUES (14, 'project:grant:proxy', 'Manage Project Proxy', 'API', 'Manage project proxy recorder grants');
+
+INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
+VALUES (15, 'project:grant:revoke', 'Revoke Project Grants', 'API', 'Revoke project-level grants');
+
+INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
+VALUES (16, 'workflow:definition:view', 'View Workflow Definitions', 'API', 'View workflow definitions');
+
+INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
+VALUES (17, 'workflow:definition:upload', 'Upload Workflow Definition', 'API', 'Upload BPMN workflow definitions');
+
+INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
+VALUES (18, 'workflow:definition:validate', 'Validate Workflow Definition', 'API', 'Validate BPMN workflow definitions');
+
+INSERT INTO `permission` (`permission_id`, `permission_code`, `permission_name`, `permission_type`, `permission_desc`)
+VALUES (19, 'workflow:definition:publish', 'Publish Workflow Definition', 'API', 'Publish BPMN workflow definitions');
 
 INSERT INTO `user_role` (`user_role_id`, `user_id`, `role_id`, `assigned_at`)
 VALUES (1, 1, 1, TIMESTAMP '2026-01-01 09:10:00');
@@ -86,64 +116,118 @@ INSERT INTO `user_role` (`user_role_id`, `user_id`, `role_id`, `assigned_at`)
 VALUES (6, 5, 6, TIMESTAMP '2026-01-01 09:14:30');
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (1, 1, 1);
+VALUES (1, 1, 8);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (2, 3, 1);
+VALUES (2, 3, 3);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (3, 3, 2);
+VALUES (3, 3, 7);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (4, 3, 3);
+VALUES (4, 3, 8);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (5, 4, 1);
+VALUES (5, 3, 9);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (6, 4, 2);
+VALUES (6, 3, 10);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (7, 5, 1);
+VALUES (7, 3, 11);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (8, 5, 2);
+VALUES (8, 3, 12);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (9, 5, 3);
+VALUES (9, 3, 13);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (10, 3, 4);
+VALUES (10, 3, 14);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (11, 3, 7);
+VALUES (11, 3, 15);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (12, 3, 8);
+VALUES (12, 3, 16);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (13, 3, 9);
+VALUES (13, 3, 17);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (14, 4, 4);
+VALUES (14, 3, 18);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (15, 5, 4);
+VALUES (15, 3, 19);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (16, 5, 5);
+VALUES (16, 4, 8);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (17, 5, 6);
+VALUES (17, 4, 9);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (18, 5, 7);
+VALUES (18, 4, 11);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (19, 5, 8);
+VALUES (19, 5, 1);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
-VALUES (20, 5, 9);
+VALUES (20, 5, 2);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (21, 5, 3);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (22, 5, 4);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (23, 5, 5);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (24, 5, 6);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (25, 5, 7);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (26, 5, 8);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (27, 5, 9);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (28, 5, 10);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (29, 5, 11);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (30, 5, 12);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (31, 5, 13);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (32, 5, 14);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (33, 5, 15);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (34, 5, 16);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (35, 5, 17);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (36, 5, 18);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (37, 5, 19);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (38, 6, 8);
 
 INSERT INTO `workflow_definition` (`workflow_definition_id`, `process_key`, `process_name`, `module_type`, `bpmn_xml`, `state_machine_rules_json`, `version_no`, `status`, `created_at`, `updated_at`)
 VALUES (1, 'project_apply', 'Project Application Flow', 'APPLICATION', '<bpmn />', '{"initial":"SUBMITTED"}', 1, 'ACTIVE', TIMESTAMP '2026-01-01 09:15:00', TIMESTAMP '2026-01-01 09:15:00');
