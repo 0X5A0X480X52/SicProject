@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.amatrix.sicprojectis_backend.common.ApiResponse;
 import com.amatrix.sicprojectis_backend.workflow.dto.UploadWorkflowDefinitionRequest;
+import com.amatrix.sicprojectis_backend.workflow.dto.WorkflowAssetResponse;
 import com.amatrix.sicprojectis_backend.workflow.dto.WorkflowBpmnResponse;
 import com.amatrix.sicprojectis_backend.workflow.dto.WorkflowDefinitionDetailResponse;
 import com.amatrix.sicprojectis_backend.workflow.dto.WorkflowDefinitionSummaryResponse;
@@ -14,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +35,24 @@ public class WorkflowDefinitionController {
         return ApiResponse.ok(workflowDefinitionService.upload(request));
     }
 
+    @GetMapping("/assets")
+    @PreAuthorize("@permissionService.hasPermission(authentication.principal.userId(), 'workflow:definition:view')")
+    public ApiResponse<List<WorkflowAssetResponse>> assets() {
+        return ApiResponse.ok(workflowDefinitionService.listAssets());
+    }
+
+    @PostMapping("/assets/{assetName}/upload")
+    @PreAuthorize("@permissionService.hasPermission(authentication.principal.userId(), 'workflow:definition:upload')")
+    public ApiResponse<WorkflowDefinitionSummaryResponse> uploadAsset(@PathVariable String assetName) {
+        return ApiResponse.ok(workflowDefinitionService.uploadAsset(assetName));
+    }
+
+    @PostMapping("/assets/{assetName}/publish")
+    @PreAuthorize("@permissionService.hasPermission(authentication.principal.userId(), 'workflow:definition:publish')")
+    public ApiResponse<WorkflowDefinitionDetailResponse> publishAsset(@PathVariable String assetName) {
+        return ApiResponse.ok(workflowDefinitionService.publishAsset(assetName));
+    }
+
     @PostMapping("/{workflowDefinitionId}/validate")
     @PreAuthorize("@permissionService.hasPermission(authentication.principal.userId(), 'workflow:definition:validate')")
     public ApiResponse<WorkflowValidationResponse> validate(@PathVariable Long workflowDefinitionId) {
@@ -49,6 +69,12 @@ public class WorkflowDefinitionController {
     @PreAuthorize("@permissionService.hasPermission(authentication.principal.userId(), 'workflow:definition:view')")
     public ApiResponse<List<WorkflowDefinitionSummaryResponse>> list() {
         return ApiResponse.ok(workflowDefinitionService.listDefinitions());
+    }
+
+    @GetMapping("/latest")
+    @PreAuthorize("@permissionService.hasPermission(authentication.principal.userId(), 'workflow:definition:view')")
+    public ApiResponse<WorkflowDefinitionSummaryResponse> latest(@RequestParam String moduleType) {
+        return ApiResponse.ok(workflowDefinitionService.getLatestActiveDefinition(moduleType));
     }
 
     @GetMapping("/{workflowDefinitionId}")

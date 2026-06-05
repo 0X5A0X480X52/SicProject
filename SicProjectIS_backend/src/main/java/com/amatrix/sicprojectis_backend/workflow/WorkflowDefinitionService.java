@@ -1,18 +1,13 @@
 package com.amatrix.sicprojectis_backend.workflow;
 
-import java.io.StringReader;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import com.amatrix.sicprojectis_backend.material.dao.MaterialTypeDao;
 import com.amatrix.sicprojectis_backend.material.entity.MaterialType;
@@ -23,6 +18,7 @@ import com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeDao;
 import com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeDocumentConfigDao;
 import com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeMaterialRequirementDao;
 import com.amatrix.sicprojectis_backend.workflow.dto.UploadWorkflowDefinitionRequest;
+import com.amatrix.sicprojectis_backend.workflow.dto.WorkflowAssetResponse;
 import com.amatrix.sicprojectis_backend.workflow.dto.WorkflowBpmnResponse;
 import com.amatrix.sicprojectis_backend.workflow.dto.WorkflowDefinitionDetailResponse;
 import com.amatrix.sicprojectis_backend.workflow.dto.WorkflowDefinitionSummaryResponse;
@@ -39,19 +35,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class WorkflowDefinitionService {
-    private static final String BPMN_NS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
-    private static final String RM_NS = "http://example.com/research-management";
     private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_ACTIVE = "ACTIVE";
     private static final String STATUS_INACTIVE = "INACTIVE";
+    private static final Set<String> SIMPLE_BOOL_VALUES = Set.of("true", "false");
 
     private final WorkflowDefinitionDao workflowDefinitionDao;
     private final WorkflowNodeDao workflowNodeDao;
@@ -59,6 +50,10 @@ public class WorkflowDefinitionService {
     private final WorkflowNodeDocumentConfigDao workflowNodeDocumentConfigDao;
     private final MaterialTypeDao materialTypeDao;
     private final RoleDao roleDao;
+    private final FlowableBpmnDefinitionParser parser;
+    private final WorkflowAssetService workflowAssetService;
+    private final WorkflowDefinitionStaticRegistry staticRegistry;
+    private final ObjectMapper objectMapper;
 
     public WorkflowDefinitionService(
             WorkflowDefinitionDao workflowDefinitionDao,
@@ -66,27 +61,52 @@ public class WorkflowDefinitionService {
             WorkflowNodeMaterialRequirementDao workflowNodeMaterialRequirementDao,
             WorkflowNodeDocumentConfigDao workflowNodeDocumentConfigDao,
             MaterialTypeDao materialTypeDao,
-            RoleDao roleDao) {
+            RoleDao roleDao,
+            FlowableBpmnDefinitionParser parser,
+            WorkflowAssetService workflowAssetService,
+            WorkflowDefinitionStaticRegistry staticRegistry,
+            ObjectMapper objectMapper) {
         this.workflowDefinitionDao = workflowDefinitionDao;
         this.workflowNodeDao = workflowNodeDao;
         this.workflowNodeMaterialRequirementDao = workflowNodeMaterialRequirementDao;
         this.workflowNodeDocumentConfigDao = workflowNodeDocumentConfigDao;
         this.materialTypeDao = materialTypeDao;
         this.roleDao = roleDao;
+        this.parser = parser;
+        this.workflowAssetService = workflowAssetService;
+        this.staticRegistry = staticRegistry;
+        this.objectMapper = objectMapper;
     }
 
     @Transactional
     public WorkflowDefinitionSummaryResponse upload(UploadWorkflowDefinitionRequest request) {
-        String bpmnXml = normalizeRequired(request.bpmnXml(), "BPMN XML is required");
-        ParseResult parseResult = parse(bpmnXml);
+        return uploadBpmnXml(normalizeRequired(request.bpmnXml(), "BPMN XML is required"));
+    }
 
+    @Transactional
+    public WorkflowDefinitionSummaryResponse uploadAsset(String assetName) {
+        return uploadBpmnXml(workflowAssetService.readAssetXml(assetName));
+    }
+
+    @Transactional
+    public WorkflowDefinitionDetailResponse publishAsset(String assetName) {
+        WorkflowDefinitionSummaryResponse uploaded = uploadAsset(assetName);
+        return publish(uploaded.workflowDefinitionId());
+    }
+
+    public List<WorkflowAssetResponse> listAssets() {
+        return workflowAssetService.listAssets();
+    }
+
+    private WorkflowDefinitionSummaryResponse uploadBpmnXml(String bpmnXml) {
+        WorkflowBpmnParseResult parseResult = parser.parse(bpmnXml);
         WorkflowDefinition definition = new WorkflowDefinition();
-        definition.setProcessKey(parseResult.processConfig.processKey());
-        definition.setProcessName(parseResult.processConfig.processName());
-        definition.setModuleType(parseResult.processConfig.moduleType());
+        definition.setProcessKey(parseResult.processConfig().processKey());
+        definition.setProcessName(parseResult.processConfig().processName());
+        definition.setModuleType(parseResult.processConfig().moduleType());
         definition.setBpmnXml(bpmnXml);
-        definition.setStateMachineRulesJson(toJsonTransitions(parseResult.transitions));
-        definition.setVersionNo(parseResult.processConfig.versionNo());
+        definition.setStateMachineRulesJson(toRulesJson(parseResult.transitions()));
+        definition.setVersionNo(parseResult.processConfig().versionNo());
         definition.setStatus(STATUS_DRAFT);
         workflowDefinitionDao.insert(definition);
         return toSummary(definition);
@@ -101,13 +121,18 @@ public class WorkflowDefinitionService {
 
     public WorkflowDefinitionDetailResponse getDefinition(Long workflowDefinitionId) {
         WorkflowDefinition definition = requireDefinition(workflowDefinitionId);
-        ParseResult parseResult = parse(definition.getBpmnXml());
+        WorkflowBpmnParseResult parseResult = parser.parse(definition.getBpmnXml());
         ValidationResult validation = validateParse(parseResult);
-        return new WorkflowDefinitionDetailResponse(
-                toSummary(definition),
-                toValidationResponse(parseResult, validation),
-                toNodeResponses(parseResult.nodes),
-                toTransitionResponses(parseResult.transitions));
+        return toDetail(definition, parseResult, validation);
+    }
+
+    public WorkflowDefinitionSummaryResponse getLatestActiveDefinition(String moduleType) {
+        WorkflowDefinition definition = workflowDefinitionDao.selectLatestActiveByModuleType(
+                normalizeRequired(moduleType, "Module type is required"));
+        if (definition == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Active workflow definition not found");
+        }
+        return toSummary(definition);
     }
 
     public WorkflowBpmnResponse getBpmn(Long workflowDefinitionId) {
@@ -117,41 +142,40 @@ public class WorkflowDefinitionService {
 
     public List<WorkflowNodeResponse> getNodes(Long workflowDefinitionId) {
         WorkflowDefinition definition = requireDefinition(workflowDefinitionId);
-        return toNodeResponses(parse(definition.getBpmnXml()).nodes);
+        return toNodeResponses(parser.parse(definition.getBpmnXml()).nodes());
     }
 
     public List<WorkflowTransitionResponse> getTransitions(Long workflowDefinitionId) {
         WorkflowDefinition definition = requireDefinition(workflowDefinitionId);
-        return toTransitionResponses(parse(definition.getBpmnXml()).transitions);
+        return toTransitionResponses(parser.parse(definition.getBpmnXml()).transitions());
     }
 
     public WorkflowValidationResponse validate(Long workflowDefinitionId) {
-        WorkflowDefinition definition = requireDefinition(workflowDefinitionId);
-        ParseResult parseResult = parse(definition.getBpmnXml());
+        WorkflowBpmnParseResult parseResult = parser.parse(requireDefinition(workflowDefinitionId).getBpmnXml());
         return toValidationResponse(parseResult, validateParse(parseResult));
     }
 
     @Transactional
     public WorkflowDefinitionDetailResponse publish(Long workflowDefinitionId) {
         WorkflowDefinition definition = requireDefinition(workflowDefinitionId);
-        ParseResult parseResult = parse(definition.getBpmnXml());
+        WorkflowBpmnParseResult parseResult = parser.parse(definition.getBpmnXml());
         ValidationResult validation = validateParse(parseResult);
         if (!validation.errors.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.join("; ", validation.errors));
         }
 
-        deactivateOtherActiveDefinitions(definition.getWorkflowDefinitionId(), parseResult.processConfig.moduleType());
+        deactivateOtherActiveDefinitions(definition.getWorkflowDefinitionId(), parseResult.processConfig().moduleType());
         deleteExistingNodeConfiguration(definition.getWorkflowDefinitionId());
 
-        definition.setProcessKey(parseResult.processConfig.processKey());
-        definition.setProcessName(parseResult.processConfig.processName());
-        definition.setModuleType(parseResult.processConfig.moduleType());
-        definition.setVersionNo(parseResult.processConfig.versionNo());
-        definition.setStateMachineRulesJson(toJsonTransitions(parseResult.transitions));
+        definition.setProcessKey(parseResult.processConfig().processKey());
+        definition.setProcessName(parseResult.processConfig().processName());
+        definition.setModuleType(parseResult.processConfig().moduleType());
+        definition.setVersionNo(parseResult.processConfig().versionNo());
+        definition.setStateMachineRulesJson(toRulesJson(parseResult.transitions()));
         definition.setStatus(STATUS_ACTIVE);
         workflowDefinitionDao.updateById(definition);
 
-        for (ParsedWorkflowNode parsedNode : parseResult.nodes) {
+        for (WorkflowBpmnParseResult.NodeConfig parsedNode : parseResult.nodes()) {
             WorkflowNode workflowNode = new WorkflowNode();
             workflowNode.setWorkflowDefinitionId(definition.getWorkflowDefinitionId());
             workflowNode.setNodeId(parsedNode.nodeId());
@@ -168,9 +192,9 @@ public class WorkflowDefinitionService {
             workflowNode.setCreatedAt(LocalDateTime.now());
             workflowNodeDao.insert(workflowNode);
 
-            for (ParsedMaterialRequirement requirement : parsedNode.materialRequirements()) {
+            for (WorkflowBpmnParseResult.MaterialRequirementConfig requirement : parsedNode.materialRequirements()) {
                 MaterialType materialType = ensureMaterialType(requirement.materialTypeCode(),
-                        requirement.materialTypeName(), parseResult.processConfig.moduleType(),
+                        requirement.materialTypeName(), parseResult.processConfig().moduleType(),
                         requirement.allowedFileTypes(), requirement.maxFileSizeMb());
                 WorkflowNodeMaterialRequirement entity = new WorkflowNodeMaterialRequirement();
                 entity.setWorkflowNodeId(workflowNode.getWorkflowNodeId());
@@ -185,11 +209,11 @@ public class WorkflowDefinitionService {
                 workflowNodeMaterialRequirementDao.insert(entity);
             }
 
-            for (ParsedDocumentConfig documentConfig : parsedNode.documentConfigs()) {
+            for (WorkflowBpmnParseResult.DocumentConfig documentConfig : parsedNode.documentConfigs()) {
                 Long outputMaterialTypeId = null;
                 if (documentConfig.outputMaterialTypeCode() != null) {
                     MaterialType outputMaterialType = ensureMaterialType(documentConfig.outputMaterialTypeCode(),
-                            documentConfig.outputMaterialTypeName(), parseResult.processConfig.moduleType(), null, null);
+                            documentConfig.outputMaterialTypeName(), parseResult.processConfig().moduleType(), null, null);
                     outputMaterialTypeId = outputMaterialType.getMaterialTypeId();
                 }
                 WorkflowNodeDocumentConfig entity = new WorkflowNodeDocumentConfig();
@@ -207,11 +231,89 @@ public class WorkflowDefinitionService {
             }
         }
 
-        return new WorkflowDefinitionDetailResponse(
-                toSummary(definition),
-                toValidationResponse(parseResult, validation),
-                toNodeResponses(parseResult.nodes),
-                toTransitionResponses(parseResult.transitions));
+        return toDetail(definition, parseResult, validation);
+    }
+
+    private ValidationResult validateParse(WorkflowBpmnParseResult parseResult) {
+        ValidationResult result = new ValidationResult();
+        Set<String> nodeIds = new LinkedHashSet<>();
+        Set<String> stateCodes = new LinkedHashSet<>();
+        Set<String> nodeIdSet = parseResult.nodes().stream()
+                .map(WorkflowBpmnParseResult.NodeConfig::nodeId)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toCollection(HashSet::new));
+
+        requireConfig(parseResult.processConfig().processKey(), "processConfig.processKey is required", result);
+        requireConfig(parseResult.processConfig().moduleType(), "processConfig.moduleType is required", result);
+        if (parseResult.processConfig().versionNo() == null) {
+            result.errors.add("processConfig.versionNo is required");
+        }
+
+        for (WorkflowBpmnParseResult.NodeConfig node : parseResult.nodes()) {
+            if (node.nodeId() == null || !nodeIds.add(node.nodeId())) {
+                result.errors.add("Duplicate or missing nodeId: " + node.nodeId());
+            }
+            if (node.stateCode() != null && !stateCodes.add(node.stateCode())) {
+                result.errors.add("Duplicate stateCode: " + node.stateCode());
+            }
+            if (node.candidateRoleCode() != null) {
+                Role role = roleDao.selectByCode(node.candidateRoleCode());
+                if (role == null) {
+                    result.errors.add("Unknown candidateRoleCode: " + node.candidateRoleCode());
+                }
+            }
+            for (WorkflowBpmnParseResult.MaterialRequirementConfig requirement : node.materialRequirements()) {
+                requireConfig(requirement.materialTypeCode(), "Node " + node.nodeId() + " has materialRequirement without materialTypeCode", result);
+                requireConfig(requirement.requirementTiming(), "Node " + node.nodeId() + " has materialRequirement without requirementTiming", result);
+                requireConfig(requirement.usageType(), "Node " + node.nodeId() + " has materialRequirement without usageType", result);
+                if (requirement.validatorKey() != null && !staticRegistry.validatorExists(requirement.validatorKey())) {
+                    result.errors.add("Unknown validatorKey: " + requirement.validatorKey());
+                }
+            }
+            for (WorkflowBpmnParseResult.DocumentConfig document : node.documentConfigs()) {
+                requireConfig(document.documentTypeCode(), "Node " + node.nodeId() + " has documentConfig without documentTypeCode", result);
+                requireConfig(document.generateTiming(), "Node " + node.nodeId() + " has documentConfig without generateTiming", result);
+            }
+        }
+
+        if (parseResult.transitions().isEmpty()) {
+            result.warnings.add("No rm:transition definitions were found");
+        }
+        for (WorkflowBpmnParseResult.TransitionConfig transition : parseResult.transitions()) {
+            requireConfig(transition.eventType(), "Transition " + transition.transitionId() + " is missing eventType", result);
+            if (transition.sourceRef() == null || !nodeIdSet.contains(transition.sourceRef())) {
+                result.errors.add("Transition " + transition.transitionId() + " has unknown sourceRef: " + transition.sourceRef());
+            }
+            if (transition.targetRef() == null || !nodeIdSet.contains(transition.targetRef())) {
+                result.errors.add("Transition " + transition.transitionId() + " has unknown targetRef: " + transition.targetRef());
+            }
+            if ("SIMPLE_BOOL".equals(transition.conditionType())) {
+                requireConfig(transition.conditionKey(), "Transition " + transition.transitionId() + " SIMPLE_BOOL is missing conditionKey", result);
+                if (!SIMPLE_BOOL_VALUES.contains(String.valueOf(transition.conditionValue()).toLowerCase())) {
+                    result.errors.add("Transition " + transition.transitionId() + " SIMPLE_BOOL has invalid conditionValue: " + transition.conditionValue());
+                }
+                if (transition.conditionExpression() != null
+                        && transition.conditionKey() != null
+                        && !transition.conditionExpression().contains(transition.conditionKey())) {
+                    result.errors.add("Transition " + transition.transitionId() + " conditionExpression does not reference conditionKey: " + transition.conditionKey());
+                }
+            }
+            if (transition.conditionHandlerKey() != null && !staticRegistry.conditionHandlerExists(transition.conditionHandlerKey())) {
+                result.errors.add("Unknown conditionHandlerKey: " + transition.conditionHandlerKey());
+            }
+            for (String actionKey : transition.actionKeys()) {
+                if (!staticRegistry.actionKeyExists(actionKey)) {
+                    result.errors.add("Unknown actionKey: " + actionKey);
+                }
+            }
+        }
+        return result;
+    }
+
+    private void requireConfig(String value, String message, ValidationResult result) {
+        if (value == null || value.isBlank()) {
+            result.errors.add(message);
+        }
     }
 
     private void deactivateOtherActiveDefinitions(Long currentDefinitionId, String moduleType) {
@@ -233,12 +335,8 @@ public class WorkflowDefinitionService {
         workflowNodeDao.deleteByWorkflowDefinitionId(workflowDefinitionId);
     }
 
-    private MaterialType ensureMaterialType(
-            String materialTypeCode,
-            String materialTypeName,
-            String moduleType,
-            String allowedFileTypes,
-            Integer maxFileSizeMb) {
+    private MaterialType ensureMaterialType(String materialTypeCode, String materialTypeName, String moduleType,
+            String allowedFileTypes, Integer maxFileSizeMb) {
         MaterialType existing = materialTypeDao.selectByCode(materialTypeCode);
         if (existing != null) {
             if (!Boolean.TRUE.equals(existing.getEnabled())) {
@@ -268,6 +366,15 @@ public class WorkflowDefinitionService {
         return definition;
     }
 
+    private WorkflowDefinitionDetailResponse toDetail(WorkflowDefinition definition, WorkflowBpmnParseResult parseResult,
+            ValidationResult validation) {
+        return new WorkflowDefinitionDetailResponse(
+                toSummary(definition),
+                toValidationResponse(parseResult, validation),
+                toNodeResponses(parseResult.nodes()),
+                toTransitionResponses(parseResult.transitions()));
+    }
+
     private WorkflowDefinitionSummaryResponse toSummary(WorkflowDefinition definition) {
         return new WorkflowDefinitionSummaryResponse(
                 definition.getWorkflowDefinitionId(),
@@ -278,23 +385,23 @@ public class WorkflowDefinitionService {
                 definition.getStatus());
     }
 
-    private WorkflowValidationResponse toValidationResponse(ParseResult parseResult, ValidationResult validationResult) {
+    private WorkflowValidationResponse toValidationResponse(WorkflowBpmnParseResult parseResult, ValidationResult validationResult) {
         return new WorkflowValidationResponse(
                 validationResult.errors.isEmpty(),
-                parseResult.processConfig.processKey(),
-                parseResult.processConfig.processName(),
-                parseResult.processConfig.moduleType(),
-                parseResult.processConfig.versionNo(),
-                parseResult.nodes.size(),
-                parseResult.transitions.size(),
-                parseResult.nodes.stream()
-                        .map(ParsedWorkflowNode::candidateRoleCode)
+                parseResult.processConfig().processKey(),
+                parseResult.processConfig().processName(),
+                parseResult.processConfig().moduleType(),
+                parseResult.processConfig().versionNo(),
+                parseResult.nodes().size(),
+                parseResult.transitions().size(),
+                parseResult.nodes().stream()
+                        .map(WorkflowBpmnParseResult.NodeConfig::candidateRoleCode)
                         .filter(Objects::nonNull)
                         .distinct()
                         .sorted()
                         .toList(),
-                parseResult.nodes.stream()
-                        .map(ParsedWorkflowNode::stateCode)
+                parseResult.nodes().stream()
+                        .map(WorkflowBpmnParseResult.NodeConfig::stateCode)
                         .filter(Objects::nonNull)
                         .distinct()
                         .sorted()
@@ -303,7 +410,7 @@ public class WorkflowDefinitionService {
                 List.copyOf(validationResult.warnings));
     }
 
-    private List<WorkflowNodeResponse> toNodeResponses(List<ParsedWorkflowNode> nodes) {
+    private List<WorkflowNodeResponse> toNodeResponses(List<WorkflowBpmnParseResult.NodeConfig> nodes) {
         return nodes.stream()
                 .map(node -> new WorkflowNodeResponse(
                         node.nodeId(),
@@ -347,9 +454,10 @@ public class WorkflowDefinitionService {
                 .toList();
     }
 
-    private List<WorkflowTransitionResponse> toTransitionResponses(List<ParsedTransition> transitions) {
+    private List<WorkflowTransitionResponse> toTransitionResponses(List<WorkflowBpmnParseResult.TransitionConfig> transitions) {
         return transitions.stream()
                 .map(transition -> new WorkflowTransitionResponse(
+                        transition.transitionId(),
                         transition.sourceRef(),
                         transition.targetRef(),
                         transition.sourceStateCode(),
@@ -359,480 +467,25 @@ public class WorkflowDefinitionService {
                         transition.conditionType(),
                         transition.conditionKey(),
                         transition.conditionValue(),
+                        transition.conditionHandlerKey(),
+                        transition.conditionExpression(),
                         transition.actionKeys()))
                 .toList();
     }
 
-    private ValidationResult validateParse(ParseResult parseResult) {
-        ValidationResult result = new ValidationResult();
-        Set<String> stateCodes = new LinkedHashSet<>();
-        for (ParsedWorkflowNode node : parseResult.nodes) {
-            if (node.stateCode() == null) {
-                result.warnings.add("Node " + node.nodeId() + " does not declare stateCode");
-            } else if (!stateCodes.add(node.stateCode())) {
-                result.errors.add("Duplicate stateCode: " + node.stateCode());
-            }
-            if (node.candidateRoleCode() != null) {
-                Role role = roleDao.selectByCode(node.candidateRoleCode());
-                if (role == null) {
-                    result.errors.add("Unknown candidateRoleCode: " + node.candidateRoleCode());
-                }
-            }
-            for (ParsedMaterialRequirement requirement : node.materialRequirements()) {
-                if (requirement.materialTypeCode() == null) {
-                    result.errors.add("Node " + node.nodeId() + " has materialRequirement without materialTypeCode");
-                }
-                if (requirement.requirementTiming() == null) {
-                    result.errors.add("Node " + node.nodeId() + " has materialRequirement without requirementTiming");
-                }
-                if (requirement.usageType() == null) {
-                    result.errors.add("Node " + node.nodeId() + " has materialRequirement without usageType");
-                }
-            }
-            for (ParsedDocumentConfig document : node.documentConfigs()) {
-                if (document.documentTypeCode() == null) {
-                    result.errors.add("Node " + node.nodeId() + " has documentConfig without documentTypeCode");
-                }
-                if (document.generateTiming() == null) {
-                    result.errors.add("Node " + node.nodeId() + " has documentConfig without generateTiming");
-                }
-            }
-        }
-        if (parseResult.processConfig.processKey() == null) {
-            result.errors.add("processConfig.processKey is required");
-        }
-        if (parseResult.processConfig.moduleType() == null) {
-            result.errors.add("processConfig.moduleType is required");
-        }
-        if (parseResult.processConfig.versionNo() == null) {
-            result.errors.add("processConfig.versionNo is required");
-        }
-        if (parseResult.transitions.isEmpty()) {
-            result.warnings.add("No rm:transition definitions were found");
-        }
-        for (ParsedTransition transition : parseResult.transitions) {
-            if (transition.eventType() == null) {
-                result.errors.add("Transition " + transition.sourceRef() + " -> " + transition.targetRef()
-                        + " is missing eventType");
-            }
-        }
-        return result;
-    }
-
-    private ParseResult parse(String bpmnXml) {
+    private String toRulesJson(List<WorkflowBpmnParseResult.TransitionConfig> transitions) {
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            Document document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(bpmnXml)));
-            Element processConfigElement = firstElement(document.getElementsByTagNameNS(RM_NS, "processConfig"));
-            if (processConfigElement == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "BPMN is missing rm:processConfig");
-            }
-            Element processElement = firstElement(document.getElementsByTagNameNS(BPMN_NS, "process"));
-            if (processElement == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "BPMN is missing process element");
-            }
-
-            ParsedProcessConfig processConfig = new ParsedProcessConfig(
-                    normalizeOptional(attr(processConfigElement, "processKey")),
-                    firstNonBlank(normalizeOptional(attr(processConfigElement, "processName")),
-                            normalizeOptional(processElement.getAttribute("name"))),
-                    normalizeOptional(attr(processConfigElement, "moduleType")),
-                    parseInteger(attr(processConfigElement, "versionNo")),
-                    firstNonBlank(normalizeOptional(attr(processConfigElement, "status")), STATUS_DRAFT));
-
-            Map<String, String> laneByNodeId = parseLaneMap(processElement);
-            List<ParsedWorkflowNode> nodes = new ArrayList<>();
-            Map<String, ParsedWorkflowNode> nodeById = new LinkedHashMap<>();
-
-            for (Element candidate : descendantElements(processElement)) {
-                Element workflowNodeElement = directWorkflowNode(candidate);
-                if (workflowNodeElement == null) {
-                    continue;
-                }
-                ParsedWorkflowNode parsedNode = parseWorkflowNode(candidate, workflowNodeElement, laneByNodeId);
-                nodes.add(parsedNode);
-                nodeById.put(parsedNode.nodeId(), parsedNode);
-            }
-
-            List<ParsedTransition> transitions = new ArrayList<>();
-            for (Element sequenceFlowElement : elementsByLocalName(processElement, "sequenceFlow")) {
-                Element transitionElement = directTransition(sequenceFlowElement);
-                if (transitionElement == null) {
-                    continue;
-                }
-                String sourceRef = normalizeOptional(sequenceFlowElement.getAttribute("sourceRef"));
-                String targetRef = normalizeOptional(sequenceFlowElement.getAttribute("targetRef"));
-                ParsedWorkflowNode sourceNode = nodeById.get(sourceRef);
-                ParsedWorkflowNode targetNode = nodeById.get(targetRef);
-                transitions.add(new ParsedTransition(
-                        sourceRef,
-                        targetRef,
-                        firstNonBlank(normalizeOptional(attr(transitionElement, "sourceStateCode")),
-                                sourceNode == null ? null : sourceNode.stateCode()),
-                        firstNonBlank(normalizeOptional(attr(transitionElement, "targetStateCode")),
-                                targetNode == null ? null : targetNode.stateCode()),
-                        normalizeOptional(attr(transitionElement, "eventType")),
-                        normalizeOptional(attr(transitionElement, "result")),
-                        normalizeOptional(attr(transitionElement, "conditionType")),
-                        normalizeOptional(attr(transitionElement, "conditionKey")),
-                        normalizeOptional(attr(transitionElement, "conditionValue")),
-                        splitCsv(attr(transitionElement, "actionKeys"))));
-            }
-
-            return new ParseResult(processConfig, nodes, transitions);
-        } catch (ResponseStatusException ex) {
-            throw ex;
+            return objectMapper.writeValueAsString(transitions);
         } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to parse BPMN XML", ex);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to serialize workflow rules", ex);
         }
-    }
-
-    private ParsedWorkflowNode parseWorkflowNode(Element bpmnNodeElement, Element workflowNodeElement, Map<String, String> laneByNodeId) {
-        List<ParsedMaterialRequirement> materialRequirements = childElements(workflowNodeElement, "materialRequirement").stream()
-                .map(this::parseMaterialRequirement)
-                .toList();
-        List<ParsedDocumentConfig> documentConfigs = childElements(workflowNodeElement, "documentConfig").stream()
-                .map(this::parseDocumentConfig)
-                .toList();
-        String nodeId = normalizeOptional(bpmnNodeElement.getAttribute("id"));
-        return new ParsedWorkflowNode(
-                nodeId,
-                firstNonBlank(normalizeOptional(attr(workflowNodeElement, "nodeName")),
-                        normalizeOptional(bpmnNodeElement.getAttribute("name")),
-                        nodeId),
-                toNodeType(bpmnNodeElement.getLocalName()),
-                normalizeOptional(attr(workflowNodeElement, "stateCode")),
-                firstNonBlank(normalizeOptional(attr(workflowNodeElement, "laneName")), laneByNodeId.get(nodeId)),
-                normalizeOptional(attr(workflowNodeElement, "responsibleActorCode")),
-                normalizeOptional(attr(workflowNodeElement, "responsibleActorName")),
-                normalizeOptional(attr(workflowNodeElement, "candidateRoleCode")),
-                normalizeOptional(attr(workflowNodeElement, "operationMode")),
-                normalizeOptional(attr(workflowNodeElement, "representedActorCode")),
-                normalizeOptional(attr(workflowNodeElement, "representedActorName")),
-                materialRequirements,
-                documentConfigs);
-    }
-
-    private ParsedMaterialRequirement parseMaterialRequirement(Element element) {
-        return new ParsedMaterialRequirement(
-                normalizeOptional(attr(element, "materialTypeCode")),
-                normalizeOptional(attr(element, "materialTypeName")),
-                normalizeOptional(attr(element, "requirementTiming")),
-                parseBoolean(attr(element, "required")),
-                parseInteger(attr(element, "minCount")),
-                parseInteger(attr(element, "maxCount")),
-                normalizeOptional(attr(element, "usageType")),
-                normalizeOptional(attr(element, "validatorKey")),
-                normalizeOptional(attr(element, "description")),
-                normalizeOptional(attr(element, "allowedFileTypes")),
-                parseInteger(attr(element, "maxFileSizeMb")));
-    }
-
-    private ParsedDocumentConfig parseDocumentConfig(Element element) {
-        return new ParsedDocumentConfig(
-                normalizeOptional(attr(element, "documentTypeCode")),
-                normalizeOptional(attr(element, "documentTypeName")),
-                normalizeOptional(attr(element, "generateTiming")),
-                normalizeOptional(attr(element, "templateCode")),
-                normalizeOptional(attr(element, "snapshotSchemaJson")),
-                normalizeOptional(attr(element, "snapshotViewName")),
-                normalizeOptional(attr(element, "outputMaterialTypeCode")),
-                normalizeOptional(attr(element, "outputMaterialTypeName")),
-                parseBoolean(attr(element, "required")),
-                parseBooleanDefaultTrue(attr(element, "enabled")));
-    }
-
-    private Map<String, String> parseLaneMap(Element processElement) {
-        Map<String, String> laneByNodeId = new LinkedHashMap<>();
-        for (Element laneElement : elementsByLocalName(processElement, "lane")) {
-            String laneName = normalizeOptional(laneElement.getAttribute("name"));
-            for (Element flowNodeRefElement : childElements(laneElement, "flowNodeRef")) {
-                String flowNodeId = normalizeOptional(flowNodeRefElement.getTextContent());
-                if (flowNodeId != null) {
-                    laneByNodeId.put(flowNodeId, laneName);
-                }
-            }
-        }
-        return laneByNodeId;
-    }
-
-    private List<Element> descendantElements(Element root) {
-        List<Element> elements = new ArrayList<>();
-        collectElements(root, elements);
-        return elements;
-    }
-
-    private void collectElements(Element current, List<Element> elements) {
-        NodeList children = current.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node child = children.item(i);
-            if (child instanceof Element element) {
-                elements.add(element);
-                collectElements(element, elements);
-            }
-        }
-    }
-
-    private List<Element> elementsByLocalName(Element root, String localName) {
-        List<Element> results = new ArrayList<>();
-        for (Element element : descendantElements(root)) {
-            if (localName.equals(element.getLocalName())) {
-                results.add(element);
-            }
-        }
-        return results;
-    }
-
-    private Element directWorkflowNode(Element bpmnNodeElement) {
-        Element extensionElements = directChild(bpmnNodeElement, BPMN_NS, "extensionElements");
-        return extensionElements == null ? null : directChild(extensionElements, RM_NS, "workflowNode");
-    }
-
-    private Element directTransition(Element sequenceFlowElement) {
-        Element extensionElements = directChild(sequenceFlowElement, BPMN_NS, "extensionElements");
-        return extensionElements == null ? null : directChild(extensionElements, RM_NS, "transition");
-    }
-
-    private Element directChild(Element parent, String namespace, String localName) {
-        NodeList children = parent.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node child = children.item(i);
-            if (child instanceof Element element
-                    && Objects.equals(element.getNamespaceURI(), namespace)
-                    && Objects.equals(element.getLocalName(), localName)) {
-                return element;
-            }
-        }
-        return null;
-    }
-
-    private List<Element> childElements(Element parent, String localName) {
-        List<Element> results = new ArrayList<>();
-        NodeList children = parent.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node child = children.item(i);
-            if (child instanceof Element element
-                    && Objects.equals(element.getNamespaceURI(), RM_NS)
-                    && Objects.equals(element.getLocalName(), localName)) {
-                results.add(element);
-            }
-        }
-        return results;
-    }
-
-    private Element firstElement(NodeList nodeList) {
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if (node instanceof Element element) {
-                return element;
-            }
-        }
-        return null;
-    }
-
-    private String attr(Element element, String attrName) {
-        return element.hasAttribute(attrName) ? element.getAttribute(attrName) : null;
-    }
-
-    private Boolean parseBoolean(String value) {
-        String normalized = normalizeOptional(value);
-        return normalized == null ? null : Boolean.parseBoolean(normalized);
-    }
-
-    private Boolean parseBooleanDefaultTrue(String value) {
-        Boolean parsed = parseBoolean(value);
-        return parsed == null ? Boolean.TRUE : parsed;
-    }
-
-    private Integer parseInteger(String value) {
-        String normalized = normalizeOptional(value);
-        if (normalized == null) {
-            return null;
-        }
-        return Integer.valueOf(normalized);
-    }
-
-    private List<String> splitCsv(String value) {
-        String normalized = normalizeOptional(value);
-        if (normalized == null) {
-            return List.of();
-        }
-        return List.of(normalized.split(",")).stream()
-                .map(String::trim)
-                .filter(item -> !item.isEmpty())
-                .toList();
-    }
-
-    private String toNodeType(String localName) {
-        if (localName == null) {
-            return null;
-        }
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < localName.length(); i++) {
-            char ch = localName.charAt(i);
-            if (Character.isUpperCase(ch) && i > 0) {
-                result.append('_');
-            }
-            result.append(Character.toUpperCase(ch));
-        }
-        return result.toString();
-    }
-
-    private String toJsonTransitions(List<ParsedTransition> transitions) {
-        StringBuilder builder = new StringBuilder("[");
-        for (int i = 0; i < transitions.size(); i++) {
-            ParsedTransition transition = transitions.get(i);
-            if (i > 0) {
-                builder.append(',');
-            }
-            builder.append('{')
-                    .append(jsonField("sourceRef", transition.sourceRef())).append(',')
-                    .append(jsonField("targetRef", transition.targetRef())).append(',')
-                    .append(jsonField("sourceStateCode", transition.sourceStateCode())).append(',')
-                    .append(jsonField("targetStateCode", transition.targetStateCode())).append(',')
-                    .append(jsonField("eventType", transition.eventType())).append(',')
-                    .append(jsonField("result", transition.result())).append(',')
-                    .append(jsonField("conditionType", transition.conditionType())).append(',')
-                    .append(jsonField("conditionKey", transition.conditionKey())).append(',')
-                    .append(jsonField("conditionValue", transition.conditionValue())).append(',')
-                    .append("\"actionKeys\":").append(jsonArray(transition.actionKeys()))
-                    .append('}');
-        }
-        builder.append(']');
-        return builder.toString();
-    }
-
-    private String jsonField(String name, String value) {
-        return "\"" + escapeJson(name) + "\":" + jsonString(value);
-    }
-
-    private String jsonArray(List<String> values) {
-        StringBuilder builder = new StringBuilder("[");
-        for (int i = 0; i < values.size(); i++) {
-            if (i > 0) {
-                builder.append(',');
-            }
-            builder.append(jsonString(values.get(i)));
-        }
-        builder.append(']');
-        return builder.toString();
-    }
-
-    private String jsonString(String value) {
-        return value == null ? "null" : "\"" + escapeJson(value) + "\"";
-    }
-
-    private String escapeJson(String value) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < value.length(); i++) {
-            char ch = value.charAt(i);
-            switch (ch) {
-                case '\\' -> builder.append("\\\\");
-                case '"' -> builder.append("\\\"");
-                case '\n' -> builder.append("\\n");
-                case '\r' -> builder.append("\\r");
-                case '\t' -> builder.append("\\t");
-                default -> builder.append(ch);
-            }
-        }
-        return builder.toString();
     }
 
     private String normalizeRequired(String value, String message) {
-        String normalized = normalizeOptional(value);
-        if (normalized == null) {
+        if (value == null || value.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
         }
-        return normalized;
-    }
-
-    private String normalizeOptional(String value) {
-        if (value == null) {
-            return null;
-        }
-        String normalized = value.trim();
-        return normalized.isEmpty() ? null : normalized;
-    }
-
-    private String firstNonBlank(String... values) {
-        for (String value : values) {
-            if (value != null && !value.isBlank()) {
-                return value;
-            }
-        }
-        return null;
-    }
-
-    private record ParseResult(
-            ParsedProcessConfig processConfig,
-            List<ParsedWorkflowNode> nodes,
-            List<ParsedTransition> transitions) {
-    }
-
-    private record ParsedProcessConfig(
-            String processKey,
-            String processName,
-            String moduleType,
-            Integer versionNo,
-            String status) {
-    }
-
-    private record ParsedWorkflowNode(
-            String nodeId,
-            String nodeName,
-            String nodeType,
-            String stateCode,
-            String laneName,
-            String responsibleActorCode,
-            String responsibleActorName,
-            String candidateRoleCode,
-            String operationMode,
-            String representedActorCode,
-            String representedActorName,
-            List<ParsedMaterialRequirement> materialRequirements,
-            List<ParsedDocumentConfig> documentConfigs) {
-    }
-
-    private record ParsedMaterialRequirement(
-            String materialTypeCode,
-            String materialTypeName,
-            String requirementTiming,
-            Boolean required,
-            Integer minCount,
-            Integer maxCount,
-            String usageType,
-            String validatorKey,
-            String description,
-            String allowedFileTypes,
-            Integer maxFileSizeMb) {
-    }
-
-    private record ParsedDocumentConfig(
-            String documentTypeCode,
-            String documentTypeName,
-            String generateTiming,
-            String templateCode,
-            String snapshotSchemaJson,
-            String snapshotViewName,
-            String outputMaterialTypeCode,
-            String outputMaterialTypeName,
-            Boolean required,
-            Boolean enabled) {
-    }
-
-    private record ParsedTransition(
-            String sourceRef,
-            String targetRef,
-            String sourceStateCode,
-            String targetStateCode,
-            String eventType,
-            String result,
-            String conditionType,
-            String conditionKey,
-            String conditionValue,
-            List<String> actionKeys) {
+        return value.trim();
     }
 
     private static class ValidationResult {

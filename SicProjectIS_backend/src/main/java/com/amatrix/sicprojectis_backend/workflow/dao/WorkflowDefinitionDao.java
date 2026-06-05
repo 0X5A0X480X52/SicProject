@@ -12,6 +12,8 @@ public interface WorkflowDefinitionDao {
 
     WorkflowDefinition selectById(@Param("workflowDefinitionId") Long workflowDefinitionId);
 
+    WorkflowDefinition selectLatestActiveByModuleType(@Param("moduleType") String moduleType);
+
     List<WorkflowDefinition> selectAll();
 
     int updateById(WorkflowDefinition entity);

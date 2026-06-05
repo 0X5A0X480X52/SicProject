@@ -20,6 +20,15 @@
         SELECT <include refid="BaseColumnList" /> FROM `workflow_definition` WHERE `workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectLatestActiveByModuleType" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `workflow_definition`
+        WHERE `module_type` = #{moduleType, jdbcType=VARCHAR}
+          AND `status` = 'ACTIVE'
+        ORDER BY `version_no` DESC, `workflow_definition_id` DESC
+        LIMIT 1
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `workflow_definition`
     </select>
