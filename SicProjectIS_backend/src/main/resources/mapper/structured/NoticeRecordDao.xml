@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.structured.dao.NoticeRecordDao">
+    <sql id="columns">notice_id, module_instance_id, state_record_id, module_type, notice_type, notice_title, notice_no, publish_unit, publish_user_id, publish_time, notice_scope, target_dept_scope, target_user_scope, project_category, is_limited_project, limit_count, start_time, deadline_time, material_requirement_summary, content_summary, remark, created_at, updated_at</sql>
+    <select id="selectById" resultType="com.amatrix.sicprojectis_backend.structured.entity.NoticeRecord">SELECT <include refid="columns"/> FROM notice_record WHERE notice_id = #{noticeId}</select>
+    <select id="selectByModuleType" resultType="com.amatrix.sicprojectis_backend.structured.entity.NoticeRecord">SELECT <include refid="columns"/> FROM notice_record WHERE module_type = #{moduleType} ORDER BY notice_id DESC</select>
+    <select id="selectAll" resultType="com.amatrix.sicprojectis_backend.structured.entity.NoticeRecord">SELECT <include refid="columns"/> FROM notice_record ORDER BY notice_id</select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="noticeId" keyColumn="notice_id">
+        INSERT INTO notice_record (module_instance_id, state_record_id, module_type, notice_type, notice_title, notice_no, publish_unit, publish_user_id, publish_time, notice_scope, target_dept_scope, target_user_scope, project_category, is_limited_project, limit_count, start_time, deadline_time, material_requirement_summary, content_summary, remark, created_at, updated_at)
+        VALUES (#{moduleInstanceId}, #{stateRecordId}, #{moduleType}, #{noticeType}, #{noticeTitle}, #{noticeNo}, #{publishUnit}, #{publishUserId}, #{publishTime}, #{noticeScope}, #{targetDeptScope}, #{targetUserScope}, #{projectCategory}, #{isLimitedProject}, #{limitCount}, #{startTime}, #{deadlineTime}, #{materialRequirementSummary}, #{contentSummary}, #{remark}, #{createdAt}, #{updatedAt})
+    </insert>
+    <update id="updateById">
+        UPDATE notice_record SET module_instance_id=#{moduleInstanceId}, state_record_id=#{stateRecordId}, module_type=#{moduleType}, notice_type=#{noticeType}, notice_title=#{noticeTitle}, notice_no=#{noticeNo}, publish_unit=#{publishUnit}, publish_user_id=#{publishUserId}, publish_time=#{publishTime}, notice_scope=#{noticeScope}, target_dept_scope=#{targetDeptScope}, target_user_scope=#{targetUserScope}, project_category=#{projectCategory}, is_limited_project=#{isLimitedProject}, limit_count=#{limitCount}, start_time=#{startTime}, deadline_time=#{deadlineTime}, material_requirement_summary=#{materialRequirementSummary}, content_summary=#{contentSummary}, remark=#{remark}, updated_at=#{updatedAt}
+        WHERE notice_id=#{noticeId}
+    </update>
+    <delete id="deleteById">DELETE FROM notice_record WHERE notice_id=#{noticeId}</delete>
+</mapper>

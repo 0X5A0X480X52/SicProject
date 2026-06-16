@@ -12,6 +12,8 @@ public interface ProjectContractDao {
 
     ProjectContract selectById(@Param("contractId") Long contractId);
 
+    ProjectContract selectByProjectId(@Param("projectId") Long projectId);
+
     List<ProjectContract> selectAll();
 
     int updateById(ProjectContract entity);

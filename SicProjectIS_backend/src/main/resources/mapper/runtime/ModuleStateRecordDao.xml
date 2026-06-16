@@ -13,11 +13,10 @@
         <result column="to_node_id" property="toNodeId" jdbcType="VARCHAR" />
         <result column="result" property="result" jdbcType="VARCHAR" />
         <result column="summary" property="summary" jdbcType="VARCHAR" />
-        <result column="payload_json" property="payloadJson" jdbcType="LONGVARCHAR" />
         <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
     </resultMap>
 
-    <sql id="BaseColumnList">`state_record_id`, `module_instance_id`, `seq`, `round_no`, `event_type`, `from_state`, `to_state`, `from_node_id`, `to_node_id`, `result`, `summary`, `payload_json`, `created_at`</sql>
+    <sql id="BaseColumnList">`state_record_id`, `module_instance_id`, `seq`, `round_no`, `event_type`, `from_state`, `to_state`, `from_node_id`, `to_node_id`, `result`, `summary`, `created_at`</sql>
 
     <select id="selectById" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `module_state_record` WHERE `state_record_id` = #{stateRecordId, jdbcType=BIGINT}
@@ -29,9 +28,9 @@
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.runtime.entity.ModuleStateRecord" useGeneratedKeys="true" keyProperty="stateRecordId" keyColumn="state_record_id">
         INSERT INTO `module_state_record` (
-            `module_instance_id`, `seq`, `round_no`, `event_type`, `from_state`, `to_state`, `from_node_id`, `to_node_id`, `result`, `summary`, `payload_json`
+            `module_instance_id`, `seq`, `round_no`, `event_type`, `from_state`, `to_state`, `from_node_id`, `to_node_id`, `result`, `summary`, `created_at`
         ) VALUES (
-            #{moduleInstanceId, jdbcType=BIGINT}, #{seq, jdbcType=INTEGER}, #{roundNo, jdbcType=INTEGER}, #{eventType, jdbcType=VARCHAR}, #{fromState, jdbcType=VARCHAR}, #{toState, jdbcType=VARCHAR}, #{fromNodeId, jdbcType=VARCHAR}, #{toNodeId, jdbcType=VARCHAR}, #{result, jdbcType=VARCHAR}, #{summary, jdbcType=VARCHAR}, #{payloadJson, jdbcType=LONGVARCHAR}
+            #{moduleInstanceId, jdbcType=BIGINT}, #{seq, jdbcType=INTEGER}, #{roundNo, jdbcType=INTEGER}, #{eventType, jdbcType=VARCHAR}, #{fromState, jdbcType=VARCHAR}, #{toState, jdbcType=VARCHAR}, #{fromNodeId, jdbcType=VARCHAR}, #{toNodeId, jdbcType=VARCHAR}, #{result, jdbcType=VARCHAR}, #{summary, jdbcType=VARCHAR}, #{createdAt, jdbcType=TIMESTAMP}
         )
     </insert>
 
@@ -47,8 +46,7 @@
             `from_node_id` = #{fromNodeId, jdbcType=VARCHAR},
             `to_node_id` = #{toNodeId, jdbcType=VARCHAR},
             `result` = #{result, jdbcType=VARCHAR},
-            `summary` = #{summary, jdbcType=VARCHAR},
-            `payload_json` = #{payloadJson, jdbcType=LONGVARCHAR}
+            `summary` = #{summary, jdbcType=VARCHAR}
         WHERE `state_record_id` = #{stateRecordId, jdbcType=BIGINT}
     </update>
 

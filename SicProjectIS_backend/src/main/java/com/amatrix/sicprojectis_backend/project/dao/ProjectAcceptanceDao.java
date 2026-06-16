@@ -12,6 +12,8 @@ public interface ProjectAcceptanceDao {
 
     ProjectAcceptance selectById(@Param("acceptanceId") Long acceptanceId);
 
+    ProjectAcceptance selectByProjectId(@Param("projectId") Long projectId);
+
     List<ProjectAcceptance> selectAll();
 
     int updateById(ProjectAcceptance entity);

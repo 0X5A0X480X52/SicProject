@@ -23,6 +23,10 @@
         SELECT <include refid="BaseColumnList" /> FROM `project_contract` WHERE `contract_id` = #{contractId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByProjectId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_contract` WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `project_contract`
     </select>

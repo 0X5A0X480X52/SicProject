@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.expert.dao.ExpertReviewAssignmentDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewAssignment">
+        <id column="assignment_id" property="assignmentId" jdbcType="BIGINT" />
+        <result column="batch_id" property="batchId" jdbcType="BIGINT" />
+        <result column="expert_user_id" property="expertUserId" jdbcType="BIGINT" />
+        <result column="expert_name" property="expertName" jdbcType="VARCHAR" />
+        <result column="expert_org" property="expertOrg" jdbcType="VARCHAR" />
+        <result column="expert_title" property="expertTitle" jdbcType="VARCHAR" />
+        <result column="assigned_at" property="assignedAt" jdbcType="TIMESTAMP" />
+        <result column="submitted_at" property="submittedAt" jdbcType="TIMESTAMP" />
+        <result column="review_status" property="reviewStatus" jdbcType="VARCHAR" />
+        <result column="conflict_of_interest" property="conflictOfInterest" jdbcType="TINYINT" />
+        <result column="is_valid" property="isValid" jdbcType="TINYINT" />
+        <result column="total_score" property="totalScore" jdbcType="DECIMAL" />
+        <result column="review_result" property="reviewResult" jdbcType="VARCHAR" />
+        <result column="review_comment" property="reviewComment" jdbcType="LONGVARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`assignment_id`, `batch_id`, `expert_user_id`, `expert_name`, `expert_org`, `expert_title`, `assigned_at`, `submitted_at`, `review_status`, `conflict_of_interest`, `is_valid`, `total_score`, `review_result`, `review_comment`, `created_at`, `updated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `expert_review_assignment` WHERE `assignment_id` = #{assignmentId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByBatchId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `expert_review_assignment` WHERE `batch_id` = #{batchId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `expert_review_assignment`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewAssignment" useGeneratedKeys="true" keyProperty="assignmentId" keyColumn="assignment_id">
+        INSERT INTO `expert_review_assignment` (
+            `batch_id`, `expert_user_id`, `expert_name`, `expert_org`, `expert_title`, `assigned_at`, `submitted_at`,
+            `review_status`, `conflict_of_interest`, `is_valid`, `total_score`, `review_result`, `review_comment`, `created_at`, `updated_at`
+        ) VALUES (
+            #{batchId, jdbcType=BIGINT}, #{expertUserId, jdbcType=BIGINT}, #{expertName, jdbcType=VARCHAR},
+            #{expertOrg, jdbcType=VARCHAR}, #{expertTitle, jdbcType=VARCHAR}, #{assignedAt, jdbcType=TIMESTAMP},
+            #{submittedAt, jdbcType=TIMESTAMP}, #{reviewStatus, jdbcType=VARCHAR},
+            #{conflictOfInterest, jdbcType=TINYINT}, #{isValid, jdbcType=TINYINT},
+            #{totalScore, jdbcType=DECIMAL}, #{reviewResult, jdbcType=VARCHAR}, #{reviewComment, jdbcType=LONGVARCHAR},
+            #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewAssignment">
+        UPDATE `expert_review_assignment`
+        SET
+            `batch_id` = #{batchId, jdbcType=BIGINT},
+            `expert_user_id` = #{expertUserId, jdbcType=BIGINT},
+            `expert_name` = #{expertName, jdbcType=VARCHAR},
+            `expert_org` = #{expertOrg, jdbcType=VARCHAR},
+            `expert_title` = #{expertTitle, jdbcType=VARCHAR},
+            `assigned_at` = #{assignedAt, jdbcType=TIMESTAMP},
+            `submitted_at` = #{submittedAt, jdbcType=TIMESTAMP},
+            `review_status` = #{reviewStatus, jdbcType=VARCHAR},
+            `conflict_of_interest` = #{conflictOfInterest, jdbcType=TINYINT},
+            `is_valid` = #{isValid, jdbcType=TINYINT},
+            `total_score` = #{totalScore, jdbcType=DECIMAL},
+            `review_result` = #{reviewResult, jdbcType=VARCHAR},
+            `review_comment` = #{reviewComment, jdbcType=LONGVARCHAR}
+            , `updated_at` = #{updatedAt, jdbcType=TIMESTAMP}
+        WHERE `assignment_id` = #{assignmentId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `expert_review_assignment` WHERE `assignment_id` = #{assignmentId, jdbcType=BIGINT}
+    </delete>
+</mapper>

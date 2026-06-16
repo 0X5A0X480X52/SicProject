@@ -12,6 +12,8 @@ public interface ProjectApplicationDao {
 
     ProjectApplication selectById(@Param("applicationId") Long applicationId);
 
+    ProjectApplication selectByProjectId(@Param("projectId") Long projectId);
+
     List<ProjectApplication> selectAll();
 
     int updateById(ProjectApplication entity);

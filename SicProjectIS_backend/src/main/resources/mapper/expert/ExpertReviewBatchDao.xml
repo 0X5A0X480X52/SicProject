@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.expert.dao.ExpertReviewBatchDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewBatch">
+        <id column="batch_id" property="batchId" jdbcType="BIGINT" />
+        <result column="module_instance_id" property="moduleInstanceId" jdbcType="BIGINT" />
+        <result column="workflow_node_id" property="workflowNodeId" jdbcType="BIGINT" />
+        <result column="state_record_id" property="stateRecordId" jdbcType="BIGINT" />
+        <result column="review_type" property="reviewType" jdbcType="VARCHAR" />
+        <result column="review_title" property="reviewTitle" jdbcType="VARCHAR" />
+        <result column="rule_type" property="ruleType" jdbcType="VARCHAR" />
+        <result column="min_expert_count" property="minExpertCount" jdbcType="INTEGER" />
+        <result column="pass_score" property="passScore" jdbcType="DECIMAL" />
+        <result column="recommend_score" property="recommendScore" jdbcType="DECIMAL" />
+        <result column="remove_highest_lowest" property="removeHighestLowest" jdbcType="TINYINT" />
+        <result column="expected_expert_count" property="expectedExpertCount" jdbcType="INTEGER" />
+        <result column="submitted_expert_count" property="submittedExpertCount" jdbcType="INTEGER" />
+        <result column="valid_expert_count" property="validExpertCount" jdbcType="INTEGER" />
+        <result column="highest_score" property="highestScore" jdbcType="DECIMAL" />
+        <result column="lowest_score" property="lowestScore" jdbcType="DECIMAL" />
+        <result column="final_score" property="finalScore" jdbcType="DECIMAL" />
+        <result column="final_result" property="finalResult" jdbcType="VARCHAR" />
+        <result column="rank_no" property="rankNo" jdbcType="INTEGER" />
+        <result column="summary_comment" property="summaryComment" jdbcType="LONGVARCHAR" />
+        <result column="status" property="status" jdbcType="VARCHAR" />
+        <result column="created_by" property="createdBy" jdbcType="BIGINT" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="completed_at" property="completedAt" jdbcType="TIMESTAMP" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`batch_id`, `module_instance_id`, `workflow_node_id`, `state_record_id`, `review_type`, `review_title`, `rule_type`, `min_expert_count`, `pass_score`, `recommend_score`, `remove_highest_lowest`, `expected_expert_count`, `submitted_expert_count`, `valid_expert_count`, `highest_score`, `lowest_score`, `final_score`, `final_result`, `rank_no`, `summary_comment`, `status`, `created_by`, `created_at`, `completed_at`, `updated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `expert_review_batch` WHERE `batch_id` = #{batchId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByModuleInstanceId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `expert_review_batch` WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `expert_review_batch`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewBatch" useGeneratedKeys="true" keyProperty="batchId" keyColumn="batch_id">
+        INSERT INTO `expert_review_batch` (
+            `module_instance_id`, `workflow_node_id`, `state_record_id`, `review_type`, `review_title`, `rule_type`,
+            `min_expert_count`, `pass_score`, `recommend_score`, `remove_highest_lowest`, `expected_expert_count`,
+            `submitted_expert_count`, `valid_expert_count`, `highest_score`, `lowest_score`, `final_score`,
+            `final_result`, `rank_no`, `summary_comment`, `status`, `created_by`, `created_at`, `completed_at`, `updated_at`
+        ) VALUES (
+            #{moduleInstanceId, jdbcType=BIGINT}, #{workflowNodeId, jdbcType=BIGINT}, #{stateRecordId, jdbcType=BIGINT},
+            #{reviewType, jdbcType=VARCHAR}, #{reviewTitle, jdbcType=VARCHAR}, #{ruleType, jdbcType=VARCHAR},
+            #{minExpertCount, jdbcType=INTEGER}, #{passScore, jdbcType=DECIMAL}, #{recommendScore, jdbcType=DECIMAL},
+            #{removeHighestLowest, jdbcType=TINYINT}, #{expectedExpertCount, jdbcType=INTEGER},
+            #{submittedExpertCount, jdbcType=INTEGER}, #{validExpertCount, jdbcType=INTEGER},
+            #{highestScore, jdbcType=DECIMAL}, #{lowestScore, jdbcType=DECIMAL}, #{finalScore, jdbcType=DECIMAL},
+            #{finalResult, jdbcType=VARCHAR}, #{rankNo, jdbcType=INTEGER}, #{summaryComment, jdbcType=LONGVARCHAR}, #{status, jdbcType=VARCHAR},
+            #{createdBy, jdbcType=BIGINT}, #{createdAt, jdbcType=TIMESTAMP}, #{completedAt, jdbcType=TIMESTAMP},
+            #{updatedAt, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewBatch">
+        UPDATE `expert_review_batch`
+        SET
+            `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT},
+            `workflow_node_id` = #{workflowNodeId, jdbcType=BIGINT},
+            `state_record_id` = #{stateRecordId, jdbcType=BIGINT},
+            `review_type` = #{reviewType, jdbcType=VARCHAR},
+            `review_title` = #{reviewTitle, jdbcType=VARCHAR},
+            `rule_type` = #{ruleType, jdbcType=VARCHAR},
+            `min_expert_count` = #{minExpertCount, jdbcType=INTEGER},
+            `pass_score` = #{passScore, jdbcType=DECIMAL},
+            `recommend_score` = #{recommendScore, jdbcType=DECIMAL},
+            `remove_highest_lowest` = #{removeHighestLowest, jdbcType=TINYINT},
+            `expected_expert_count` = #{expectedExpertCount, jdbcType=INTEGER},
+            `submitted_expert_count` = #{submittedExpertCount, jdbcType=INTEGER},
+            `valid_expert_count` = #{validExpertCount, jdbcType=INTEGER},
+            `highest_score` = #{highestScore, jdbcType=DECIMAL},
+            `lowest_score` = #{lowestScore, jdbcType=DECIMAL},
+            `final_score` = #{finalScore, jdbcType=DECIMAL},
+            `final_result` = #{finalResult, jdbcType=VARCHAR},
+            `rank_no` = #{rankNo, jdbcType=INTEGER},
+            `summary_comment` = #{summaryComment, jdbcType=LONGVARCHAR},
+            `status` = #{status, jdbcType=VARCHAR},
+            `created_by` = #{createdBy, jdbcType=BIGINT},
+            `completed_at` = #{completedAt, jdbcType=TIMESTAMP},
+            `updated_at` = #{updatedAt, jdbcType=TIMESTAMP}
+        WHERE `batch_id` = #{batchId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `expert_review_batch` WHERE `batch_id` = #{batchId, jdbcType=BIGINT}
+    </delete>
+</mapper>

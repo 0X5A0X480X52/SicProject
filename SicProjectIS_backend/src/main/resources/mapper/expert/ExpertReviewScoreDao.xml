@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.expert.dao.ExpertReviewScoreDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewScore">
+        <id column="score_id" property="scoreId" jdbcType="BIGINT" />
+        <result column="assignment_id" property="assignmentId" jdbcType="BIGINT" />
+        <result column="score_item_code" property="scoreItemCode" jdbcType="VARCHAR" />
+        <result column="score_item_name" property="scoreItemName" jdbcType="VARCHAR" />
+        <result column="weight" property="weight" jdbcType="DECIMAL" />
+        <result column="max_score" property="maxScore" jdbcType="DECIMAL" />
+        <result column="score_value" property="scoreValue" jdbcType="DECIMAL" />
+        <result column="comment" property="comment" jdbcType="LONGVARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`score_id`, `assignment_id`, `score_item_code`, `score_item_name`, `weight`, `max_score`, `score_value`, `comment`, `created_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `expert_review_score` WHERE `score_id` = #{scoreId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByAssignmentId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `expert_review_score` WHERE `assignment_id` = #{assignmentId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `expert_review_score`
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewScore" useGeneratedKeys="true" keyProperty="scoreId" keyColumn="score_id">
+        INSERT INTO `expert_review_score` (
+            `assignment_id`, `score_item_code`, `score_item_name`, `weight`, `max_score`, `score_value`, `comment`, `created_at`
+        ) VALUES (
+            #{assignmentId, jdbcType=BIGINT}, #{scoreItemCode, jdbcType=VARCHAR}, #{scoreItemName, jdbcType=VARCHAR},
+            #{weight, jdbcType=DECIMAL}, #{maxScore, jdbcType=DECIMAL}, #{scoreValue, jdbcType=DECIMAL},
+            #{comment, jdbcType=LONGVARCHAR}, #{createdAt, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewScore">
+        UPDATE `expert_review_score`
+        SET
+            `assignment_id` = #{assignmentId, jdbcType=BIGINT},
+            `score_item_code` = #{scoreItemCode, jdbcType=VARCHAR},
+            `score_item_name` = #{scoreItemName, jdbcType=VARCHAR},
+            `weight` = #{weight, jdbcType=DECIMAL},
+            `max_score` = #{maxScore, jdbcType=DECIMAL},
+            `score_value` = #{scoreValue, jdbcType=DECIMAL},
+            `comment` = #{comment, jdbcType=LONGVARCHAR}
+        WHERE `score_id` = #{scoreId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `expert_review_score` WHERE `score_id` = #{scoreId, jdbcType=BIGINT}
+    </delete>
+</mapper>

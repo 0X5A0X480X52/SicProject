@@ -29,9 +29,9 @@
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.runtime.entity.StateRecordRemark" useGeneratedKeys="true" keyProperty="remarkId" keyColumn="remark_id">
         INSERT INTO `state_record_remark` (
-            `state_record_id`, `participant_user_id`, `participant_role_id`, `participant_type`, `action_type`, `result`, `is_operator`, `score`, `remark_content`, `is_final`, `sort_no`
+            `state_record_id`, `participant_user_id`, `participant_role_id`, `participant_type`, `action_type`, `result`, `is_operator`, `score`, `remark_content`, `is_final`, `sort_no`, `created_at`
         ) VALUES (
-            #{stateRecordId, jdbcType=BIGINT}, #{participantUserId, jdbcType=BIGINT}, #{participantRoleId, jdbcType=BIGINT}, #{participantType, jdbcType=VARCHAR}, #{actionType, jdbcType=VARCHAR}, #{result, jdbcType=VARCHAR}, #{isOperator, jdbcType=TINYINT}, #{score, jdbcType=DECIMAL}, #{remarkContent, jdbcType=LONGVARCHAR}, #{isFinal, jdbcType=TINYINT}, #{sortNo, jdbcType=INTEGER}
+            #{stateRecordId, jdbcType=BIGINT}, #{participantUserId, jdbcType=BIGINT}, #{participantRoleId, jdbcType=BIGINT}, #{participantType, jdbcType=VARCHAR}, #{actionType, jdbcType=VARCHAR}, #{result, jdbcType=VARCHAR}, #{isOperator, jdbcType=TINYINT}, #{score, jdbcType=DECIMAL}, #{remarkContent, jdbcType=LONGVARCHAR}, #{isFinal, jdbcType=TINYINT}, #{sortNo, jdbcType=INTEGER}, #{createdAt, jdbcType=TIMESTAMP}
         )
     </insert>
 

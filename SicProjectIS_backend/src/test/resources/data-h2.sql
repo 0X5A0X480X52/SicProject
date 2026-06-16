@@ -253,8 +253,8 @@ VALUES (2, 'PRJ-002', 'Industrial Robotics Upgrade', 6, 2, 'ENGINEERING', 'PROVI
 INSERT INTO `project_module_instance` (`module_instance_id`, `project_id`, `module_type`, `workflow_definition_id`, `started_at`, `finished_at`, `created_at`, `updated_at`)
 VALUES (1, 1, 'APPLICATION', 1, TIMESTAMP '2026-01-01 09:35:00', NULL, TIMESTAMP '2026-01-01 09:35:00', TIMESTAMP '2026-01-01 09:35:00');
 
-INSERT INTO `module_state_record` (`state_record_id`, `module_instance_id`, `seq`, `round_no`, `event_type`, `from_state`, `to_state`, `from_node_id`, `to_node_id`, `result`, `summary`, `payload_json`, `created_at`)
-VALUES (1, 1, 1, 1, 'SUBMIT', 'DRAFT', 'SUBMITTED', 'draft_apply', 'start_apply', 'PASS', 'Initial submission', '{"submitted":true}', TIMESTAMP '2026-01-01 09:40:00');
+INSERT INTO `module_state_record` (`state_record_id`, `module_instance_id`, `seq`, `round_no`, `event_type`, `from_state`, `to_state`, `from_node_id`, `to_node_id`, `result`, `summary`, `created_at`)
+VALUES (1, 1, 1, 1, 'SUBMIT', 'DRAFT', 'SUBMITTED', 'draft_apply', 'start_apply', 'PASS', 'Initial submission', TIMESTAMP '2026-01-01 09:40:00');
 
 INSERT INTO `state_record_remark` (`remark_id`, `state_record_id`, `participant_user_id`, `participant_role_id`, `participant_type`, `action_type`, `result`, `is_operator`, `score`, `remark_content`, `is_final`, `sort_no`, `created_at`)
 VALUES (1, 1, 1, 1, 'USER', 'SUBMIT', 'PASS', TRUE, 98.50, 'Submission completed', TRUE, 1, TIMESTAMP '2026-01-01 09:45:00');

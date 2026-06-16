@@ -8,8 +8,8 @@
     driver-class-name: com.mysql.cj.jdbc.Driver
   sql:
     init:
-      mode: always
-      schema-locations: classpath:db/migration/R__authorization_admin_tables.sql
+      mode: never
+      schema-locations: classpath:db/migration/R__authorization_admin_tables.sql,classpath:db/migration/R__structured_v2_tables.sql
 
 mybatis:
   mapper-locations: classpath*:mapper/**/*.xml

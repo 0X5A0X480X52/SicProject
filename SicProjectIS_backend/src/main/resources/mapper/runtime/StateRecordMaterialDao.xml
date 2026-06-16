@@ -23,9 +23,9 @@
 
     <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.runtime.entity.StateRecordMaterial" useGeneratedKeys="true" keyProperty="recordMaterialId" keyColumn="record_material_id">
         INSERT INTO `state_record_material` (
-            `state_record_id`, `remark_id`, `material_version_id`, `material_usage`, `is_required`
+            `state_record_id`, `remark_id`, `material_version_id`, `material_usage`, `is_required`, `linked_at`
         ) VALUES (
-            #{stateRecordId, jdbcType=BIGINT}, #{remarkId, jdbcType=BIGINT}, #{materialVersionId, jdbcType=BIGINT}, #{materialUsage, jdbcType=VARCHAR}, #{isRequired, jdbcType=TINYINT}
+            #{stateRecordId, jdbcType=BIGINT}, #{remarkId, jdbcType=BIGINT}, #{materialVersionId, jdbcType=BIGINT}, #{materialUsage, jdbcType=VARCHAR}, #{isRequired, jdbcType=TINYINT}, #{linkedAt, jdbcType=TIMESTAMP}
         )
     </insert>
 

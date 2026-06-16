@@ -20,7 +20,6 @@ public class StateRecordContextView {
     private String toNodeId;
     private String result;
     private String summary;
-    private String payloadJson;
     private LocalDateTime transitionTime;
     private Long toWorkflowNodeId;
     private String toNodeName;

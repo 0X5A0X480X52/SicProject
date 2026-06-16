@@ -19,6 +19,10 @@
         SELECT <include refid="BaseColumnList" /> FROM `project_application` WHERE `application_id` = #{applicationId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByProjectId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_application` WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `project_application`
     </select>

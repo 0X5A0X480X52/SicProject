@@ -8,6 +8,7 @@ import com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeDao;
 import com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeDocumentConfigDao;
 import com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeMaterialRequirementDao;
 import com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNode;
+import com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNodeDocumentConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,9 +78,12 @@ class WorkflowDefinitionIntegrationTest {
                 .andExpect(jsonPath("$.data[*].moduleType", hasItem("CONTRACT")))
                 .andExpect(jsonPath("$.data[*].moduleType", hasItem("ACCEPTANCE")));
 
-        assertPublishedAsset(scienceAdminToken, APPLICATION_ASSET, "APPLICATION", 20, 12, 2, 26);
-        assertPublishedAsset(scienceAdminToken, CONTRACT_ASSET, "CONTRACT", 15, 10, 2, 17);
-        assertPublishedAsset(scienceAdminToken, ACCEPTANCE_ASSET, "ACCEPTANCE", 21, 14, 3, 24);
+        assertPublishedAsset(scienceAdminToken, APPLICATION_ASSET, "APPLICATION", 20, 12, 2, 26,
+                "APPLICATION_APPROVAL_FORM");
+        assertPublishedAsset(scienceAdminToken, CONTRACT_ASSET, "CONTRACT", 15, 10, 2, 17,
+                "CONTRACT_ARCHIVE_FORM", "SIGNED_CONTRACT_DOCUMENT");
+        assertPublishedAsset(scienceAdminToken, ACCEPTANCE_ASSET, "ACCEPTANCE", 21, 14, 3, 24,
+                "ACCEPTANCE_CERTIFICATE_DOCUMENT", "ACCEPTANCE_FAIL_DOCUMENT", "ACCEPTANCE_SUMMARY_FORM");
     }
 
     @Test
@@ -149,7 +153,8 @@ class WorkflowDefinitionIntegrationTest {
             int nodeCount,
             int materialRequirementCount,
             int documentConfigCount,
-            int transitionCount) throws Exception {
+            int transitionCount,
+            String... requiredDocumentTypeCodes) throws Exception {
         Long workflowDefinitionId = publishAsset(token, assetName, moduleType, nodeCount, transitionCount);
         mockMvc.perform(get("/api/workflow-definitions/latest")
                         .header("Authorization", "Bearer " + token)
@@ -166,6 +171,16 @@ class WorkflowDefinitionIntegrationTest {
                 .sum();
         assertThat(materialCount).isEqualTo(materialRequirementCount);
         assertThat(documentCount).isEqualTo(documentConfigCount);
+        assertThat(nodes).anySatisfy(node -> {
+            assertThat(node.getNodeType()).isEqualTo("GATEWAY");
+            assertThat(node.getStateCode()).isNull();
+        });
+
+        List<String> documentTypeCodes = nodes.stream()
+                .flatMap(node -> workflowNodeDocumentConfigDao.selectByWorkflowNodeId(node.getWorkflowNodeId()).stream())
+                .map(WorkflowNodeDocumentConfig::getDocumentTypeCode)
+                .toList();
+        assertThat(documentTypeCodes).contains(requiredDocumentTypeCodes);
     }
 
     private Long publishAsset(String token, String assetName, String moduleType, int nodeCount, int transitionCount) throws Exception {

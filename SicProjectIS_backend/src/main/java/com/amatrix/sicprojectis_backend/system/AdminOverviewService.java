@@ -2,7 +2,6 @@ package com.amatrix.sicprojectis_backend.system;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import com.amatrix.sicprojectis_backend.project.dao.ProjectRoleGrantDao;
@@ -18,7 +17,6 @@ import com.amatrix.sicprojectis_backend.system.dao.RoleDao;
 import com.amatrix.sicprojectis_backend.system.dao.UserRoleDetailViewDao;
 import com.amatrix.sicprojectis_backend.system.dto.AdminCountItemResponse;
 import com.amatrix.sicprojectis_backend.system.dto.AdminOverviewResponse;
-import com.amatrix.sicprojectis_backend.system.entity.AppUser;
 import com.amatrix.sicprojectis_backend.system.entity.UserRoleDetailView;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

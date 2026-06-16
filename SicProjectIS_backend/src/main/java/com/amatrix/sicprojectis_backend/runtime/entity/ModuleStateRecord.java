@@ -17,6 +17,5 @@ public class ModuleStateRecord {
     private String toNodeId;
     private String result;
     private String summary;
-    private String payloadJson;
     private LocalDateTime createdAt;
 }

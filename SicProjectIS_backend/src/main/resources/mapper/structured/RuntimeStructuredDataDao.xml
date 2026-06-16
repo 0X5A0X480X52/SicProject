@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.structured.dao.RuntimeStructuredDataDao">
+    <insert id="insertCheckItem" useGeneratedKeys="true" keyProperty="checkItemId" keyColumn="check_item_id">
+        INSERT INTO state_record_check_item (state_record_id, module_instance_id, node_id, state_code, item_code, item_name, item_type, item_value, item_result, required, passed, remark, sort_no, created_at)
+        VALUES (#{stateRecordId}, #{moduleInstanceId}, #{nodeId}, #{stateCode}, #{itemCode}, #{itemName}, #{itemType}, #{itemValue}, #{itemResult}, #{required}, #{passed}, #{remark}, #{sortNo}, #{createdAt})
+    </insert>
+    <select id="selectCheckItemsByModuleInstanceId" resultType="com.amatrix.sicprojectis_backend.structured.entity.StateRecordCheckItem">SELECT * FROM state_record_check_item WHERE module_instance_id=#{moduleInstanceId} ORDER BY check_item_id</select>
+    <select id="selectCheckItemsByStateRecordId" resultType="com.amatrix.sicprojectis_backend.structured.entity.StateRecordCheckItem">SELECT * FROM state_record_check_item WHERE state_record_id=#{stateRecordId} ORDER BY sort_no, check_item_id</select>
+
+    <insert id="insertExternalResult" useGeneratedKeys="true" keyProperty="externalResultId" keyColumn="external_result_id">
+        INSERT INTO external_result_record (module_instance_id, state_record_id, module_type, result_type, external_actor_code, external_actor_name, external_result, external_result_date, external_file_no, external_system_no, approved_amount, effective_date, summary, registered_by, registered_at, created_at, updated_at)
+        VALUES (#{moduleInstanceId}, #{stateRecordId}, #{moduleType}, #{resultType}, #{externalActorCode}, #{externalActorName}, #{externalResult}, #{externalResultDate}, #{externalFileNo}, #{externalSystemNo}, #{approvedAmount}, #{effectiveDate}, #{summary}, #{registeredBy}, #{registeredAt}, #{createdAt}, #{updatedAt})
+    </insert>
+    <select id="selectExternalResultsByModuleInstanceId" resultType="com.amatrix.sicprojectis_backend.structured.entity.ExternalResultRecord">SELECT * FROM external_result_record WHERE module_instance_id=#{moduleInstanceId} ORDER BY external_result_id</select>
+    <select id="selectLatestExternalResult" resultType="com.amatrix.sicprojectis_backend.structured.entity.ExternalResultRecord">SELECT * FROM external_result_record WHERE module_instance_id=#{moduleInstanceId} AND result_type=#{resultType} ORDER BY external_result_id DESC LIMIT 1</select>
+
+    <insert id="insertSealRecord" useGeneratedKeys="true" keyProperty="sealRecordId" keyColumn="seal_record_id">
+        INSERT INTO seal_record (module_instance_id, state_record_id, module_type, seal_subject, seal_type, seal_reason, copy_count, applicant_user_id, handled_by, leader_signed, leader_signed_at, school_sealed, school_sealed_at, external_sealed, external_actor_name, external_sealed_at, seal_status, remark, created_at, updated_at)
+        VALUES (#{moduleInstanceId}, #{stateRecordId}, #{moduleType}, #{sealSubject}, #{sealType}, #{sealReason}, #{copyCount}, #{applicantUserId}, #{handledBy}, #{leaderSigned}, #{leaderSignedAt}, #{schoolSealed}, #{schoolSealedAt}, #{externalSealed}, #{externalActorName}, #{externalSealedAt}, #{sealStatus}, #{remark}, #{createdAt}, #{updatedAt})
+    </insert>
+    <select id="selectSealRecordsByModuleInstanceId" resultType="com.amatrix.sicprojectis_backend.structured.entity.SealRecord">SELECT * FROM seal_record WHERE module_instance_id=#{moduleInstanceId} ORDER BY seal_record_id</select>
+
+    <insert id="insertSubmissionRecord" useGeneratedKeys="true" keyProperty="submissionId" keyColumn="submission_id">
+        INSERT INTO submission_record (module_instance_id, state_record_id, module_type, submission_type, target_actor_code, target_actor_name, submission_method, submission_no, external_system_no, receipt_no, submitted_by, submitted_at, remark, created_at, updated_at)
+        VALUES (#{moduleInstanceId}, #{stateRecordId}, #{moduleType}, #{submissionType}, #{targetActorCode}, #{targetActorName}, #{submissionMethod}, #{submissionNo}, #{externalSystemNo}, #{receiptNo}, #{submittedBy}, #{submittedAt}, #{remark}, #{createdAt}, #{updatedAt})
+    </insert>
+    <select id="selectSubmissionRecordsByModuleInstanceId" resultType="com.amatrix.sicprojectis_backend.structured.entity.SubmissionRecord">SELECT * FROM submission_record WHERE module_instance_id=#{moduleInstanceId} ORDER BY submission_id</select>
+
+    <insert id="insertArchiveRecord" useGeneratedKeys="true" keyProperty="archiveId" keyColumn="archive_id">
+        INSERT INTO archive_record (module_instance_id, state_record_id, module_type, archive_type, archive_no, archive_location, paper_copy_count, electronic_copy_count, archived_by, archived_at, archive_status, remark, created_at, updated_at)
+        VALUES (#{moduleInstanceId}, #{stateRecordId}, #{moduleType}, #{archiveType}, #{archiveNo}, #{archiveLocation}, #{paperCopyCount}, #{electronicCopyCount}, #{archivedBy}, #{archivedAt}, #{archiveStatus}, #{remark}, #{createdAt}, #{updatedAt})
+    </insert>
+    <select id="selectArchiveRecordsByModuleInstanceId" resultType="com.amatrix.sicprojectis_backend.structured.entity.ArchiveRecord">SELECT * FROM archive_record WHERE module_instance_id=#{moduleInstanceId} ORDER BY archive_id</select>
+</mapper>
