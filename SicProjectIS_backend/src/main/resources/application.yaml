@@ -18,6 +18,10 @@ mybatis:
     map-underscore-to-camel-case: true
 
 app:
+  file-storage:
+    provider: ${FILE_STORAGE_PROVIDER:local}
+    local-root: ${FILE_STORAGE_LOCAL_ROOT:${user.dir}/uploads}
+    public-url-prefix: ${FILE_STORAGE_PUBLIC_URL_PREFIX:/api/material-versions}
   security:
     jwt-secret: ${JWT_SECRET:change-this-development-secret-to-at-least-32-bytes}
     jwt-expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}

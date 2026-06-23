@@ -12,6 +12,12 @@ public interface MaterialVersionDao {
 
     MaterialVersion selectById(@Param("materialVersionId") Long materialVersionId);
 
+    List<MaterialVersion> selectByMaterialId(@Param("materialId") Long materialId);
+
+    MaterialVersion selectLatestByMaterialId(@Param("materialId") Long materialId);
+
+    int clearCurrentByMaterialId(@Param("materialId") Long materialId);
+
     List<MaterialVersion> selectAll();
 
     int updateById(MaterialVersion entity);

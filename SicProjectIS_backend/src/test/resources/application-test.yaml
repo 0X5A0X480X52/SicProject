@@ -17,6 +17,10 @@ mybatis:
     map-underscore-to-camel-case: true
 
 app:
+  file-storage:
+    provider: local
+    local-root: ${user.dir}/target/test-uploads
+    public-url-prefix: /api/material-versions
   security:
     jwt-secret: test-secret-key-with-more-than-thirty-two-bytes
     jwt-expiration-minutes: 120

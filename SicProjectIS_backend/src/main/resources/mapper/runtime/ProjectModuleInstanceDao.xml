@@ -18,6 +18,18 @@
         SELECT <include refid="BaseColumnList" /> FROM `project_module_instance` WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByIdForUpdate" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `project_module_instance` WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT} FOR UPDATE
+    </select>
+
+    <select id="selectByProjectIdAndModuleType" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `project_module_instance`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+          AND `module_type` = #{moduleType, jdbcType=VARCHAR}
+        LIMIT 1
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `project_module_instance`
     </select>

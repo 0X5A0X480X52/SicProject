@@ -13,7 +13,7 @@ import com.amatrix.sicprojectis_backend.structured.dto.TransitionRequest;
 import com.amatrix.sicprojectis_backend.structured.dto.TransitionResponse;
 
 @RestController
-@RequestMapping("/api/module-instances")
+@RequestMapping("/api/legacy/module-instances")
 public class StructuredStateMachineController {
     private final StructuredStateMachineService service;
     public StructuredStateMachineController(StructuredStateMachineService service) { this.service = service; }

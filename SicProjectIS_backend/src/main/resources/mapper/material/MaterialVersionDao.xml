@@ -19,6 +19,25 @@
         SELECT <include refid="BaseColumnList" /> FROM `material_version` WHERE `material_version_id` = #{materialVersionId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByMaterialId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `material_version`
+        WHERE `material_id` = #{materialId, jdbcType=BIGINT}
+        ORDER BY `version_no`
+    </select>
+
+    <select id="selectLatestByMaterialId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `material_version`
+        WHERE `material_id` = #{materialId, jdbcType=BIGINT}
+        ORDER BY `version_no` DESC
+        LIMIT 1
+    </select>
+
+    <update id="clearCurrentByMaterialId">
+        UPDATE `material_version`
+        SET `is_current` = 0
+        WHERE `material_id` = #{materialId, jdbcType=BIGINT}
+    </update>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `material_version`
     </select>

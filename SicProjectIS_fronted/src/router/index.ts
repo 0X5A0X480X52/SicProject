@@ -10,6 +10,7 @@ import UserRoleManagementView from '../views/UserRoleManagementView.vue'
 import RolePermissionMatrixView from '../views/RolePermissionMatrixView.vue'
 import AdminProjectAuthorizationsView from '../views/AdminProjectAuthorizationsView.vue'
 import AuditLogsView from '../views/AuditLogsView.vue'
+import NodeFormsDebugView from '../features/node-forms/common/NodeFormsDebugView.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -29,6 +30,7 @@ export const router = createRouter({
     { path: '/admin/roles-permissions', name: 'admin-roles-permissions', component: RolePermissionMatrixView },
     { path: '/admin/project-authorizations', name: 'admin-project-authorizations', component: AdminProjectAuthorizationsView },
     { path: '/admin/audit-logs', name: 'admin-audit-logs', component: AuditLogsView },
+    { path: '/node-forms/debug', name: 'node-forms-debug', component: NodeFormsDebugView },
   ],
 })
 

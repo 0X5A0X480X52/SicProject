@@ -12,6 +12,10 @@ public interface ProjectModuleInstanceDao {
 
     ProjectModuleInstance selectById(@Param("moduleInstanceId") Long moduleInstanceId);
 
+    ProjectModuleInstance selectByIdForUpdate(@Param("moduleInstanceId") Long moduleInstanceId);
+
+    ProjectModuleInstance selectByProjectIdAndModuleType(@Param("projectId") Long projectId, @Param("moduleType") String moduleType);
+
     List<ProjectModuleInstance> selectAll();
 
     int updateById(ProjectModuleInstance entity);

@@ -22,6 +22,21 @@
         SELECT <include refid="BaseColumnList" /> FROM `module_state_record` WHERE `state_record_id` = #{stateRecordId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectLatestByModuleInstanceId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `module_state_record`
+        WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
+        ORDER BY `seq` DESC, `state_record_id` DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectByModuleInstanceId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `module_state_record`
+        WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
+        ORDER BY `seq`, `state_record_id`
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `module_state_record`
     </select>

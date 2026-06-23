@@ -15,6 +15,13 @@
         SELECT <include refid="BaseColumnList" /> FROM `material` WHERE `material_id` = #{materialId, jdbcType=BIGINT}
     </select>
 
+    <select id="selectByProjectIdAndTypeId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `material`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+          AND `material_type_id` = #{materialTypeId, jdbcType=BIGINT}
+        LIMIT 1
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `material`
     </select>

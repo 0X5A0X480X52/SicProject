@@ -31,6 +31,22 @@
         ORDER BY `workflow_node_id`
     </select>
 
+    <select id="selectByWorkflowDefinitionIdAndNodeId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `workflow_node`
+        WHERE `workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT}
+          AND `node_id` = #{nodeId, jdbcType=VARCHAR}
+        LIMIT 1
+    </select>
+
+    <select id="selectByWorkflowDefinitionIdAndStateCode" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `workflow_node`
+        WHERE `workflow_definition_id` = #{workflowDefinitionId, jdbcType=BIGINT}
+          AND `state_code` = #{stateCode, jdbcType=VARCHAR}
+        LIMIT 1
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `workflow_node`
     </select>

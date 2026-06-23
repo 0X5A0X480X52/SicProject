@@ -12,6 +12,10 @@ public interface ModuleStateRecordDao {
 
     ModuleStateRecord selectById(@Param("stateRecordId") Long stateRecordId);
 
+    ModuleStateRecord selectLatestByModuleInstanceId(@Param("moduleInstanceId") Long moduleInstanceId);
+
+    List<ModuleStateRecord> selectByModuleInstanceId(@Param("moduleInstanceId") Long moduleInstanceId);
+
     List<ModuleStateRecord> selectAll();
 
     int updateById(ModuleStateRecord entity);

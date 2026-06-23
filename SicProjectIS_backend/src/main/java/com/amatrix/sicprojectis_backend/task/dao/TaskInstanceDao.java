@@ -16,6 +16,10 @@ public interface TaskInstanceDao {
 
     List<TaskInstance> selectOpenByModuleInstanceId(@Param("moduleInstanceId") Long moduleInstanceId);
 
+    List<TaskInstance> selectOpenByModuleInstanceIdAndNodeId(@Param("moduleInstanceId") Long moduleInstanceId, @Param("nodeId") String nodeId);
+
+    int closeOpenByModuleInstanceId(@Param("moduleInstanceId") Long moduleInstanceId);
+
     int updateById(TaskInstance entity);
 
     int deleteById(@Param("taskInstanceId") Long taskInstanceId);

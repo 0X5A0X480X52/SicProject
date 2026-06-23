@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
-import { FolderOpened, House, Lock, SwitchButton } from '@element-plus/icons-vue'
+import { FolderOpened, House, Lock, SwitchButton, Tickets } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
@@ -20,6 +20,9 @@ const isAdminWorkspaceVisible = computed(
 const currentMainTab = computed(() => {
   if (route.path.startsWith('/admin')) {
     return 'admin'
+  }
+  if (route.path.startsWith('/node-forms')) {
+    return 'node-forms'
   }
   return 'dashboard'
 })
@@ -41,6 +44,10 @@ async function handleLogout() {
 function handleTabSelect(index: string) {
   if (index === 'dashboard') {
     router.push({ name: 'dashboard' })
+    return
+  }
+  if (index === 'node-forms') {
+    router.push({ name: 'node-forms-debug' })
     return
   }
   if (roles.value.includes('SYSTEM_ADMIN') || roles.value.includes('SCIENCE_ADMIN')) {
@@ -91,6 +98,10 @@ function handleTabSelect(index: string) {
       <el-menu-item v-if="isAdminWorkspaceVisible" index="admin">
         <el-icon><Lock /></el-icon>
         <span>Permission Center</span>
+      </el-menu-item>
+      <el-menu-item index="node-forms">
+        <el-icon><Tickets /></el-icon>
+        <span>Node Forms</span>
       </el-menu-item>
     </el-menu>
 

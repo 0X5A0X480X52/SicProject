@@ -14,6 +14,10 @@ public interface WorkflowNodeDao {
 
     List<WorkflowNode> selectByWorkflowDefinitionId(@Param("workflowDefinitionId") Long workflowDefinitionId);
 
+    WorkflowNode selectByWorkflowDefinitionIdAndNodeId(@Param("workflowDefinitionId") Long workflowDefinitionId, @Param("nodeId") String nodeId);
+
+    WorkflowNode selectByWorkflowDefinitionIdAndStateCode(@Param("workflowDefinitionId") Long workflowDefinitionId, @Param("stateCode") String stateCode);
+
     List<WorkflowNode> selectAll();
 
     int updateById(WorkflowNode entity);

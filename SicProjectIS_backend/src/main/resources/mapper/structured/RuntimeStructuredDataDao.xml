@@ -5,6 +5,8 @@
         INSERT INTO state_record_check_item (state_record_id, module_instance_id, node_id, state_code, item_code, item_name, item_type, item_value, item_result, required, passed, remark, sort_no, created_at)
         VALUES (#{stateRecordId}, #{moduleInstanceId}, #{nodeId}, #{stateCode}, #{itemCode}, #{itemName}, #{itemType}, #{itemValue}, #{itemResult}, #{required}, #{passed}, #{remark}, #{sortNo}, #{createdAt})
     </insert>
+    <update id="updateCheckItem">UPDATE state_record_check_item SET state_record_id=#{stateRecordId}, module_instance_id=#{moduleInstanceId}, node_id=#{nodeId}, state_code=#{stateCode}, item_code=#{itemCode}, item_name=#{itemName}, item_type=#{itemType}, item_value=#{itemValue}, item_result=#{itemResult}, required=#{required}, passed=#{passed}, remark=#{remark}, sort_no=#{sortNo} WHERE check_item_id=#{checkItemId}</update>
+    <delete id="deleteCheckItem">DELETE FROM state_record_check_item WHERE check_item_id=#{checkItemId}</delete>
     <select id="selectCheckItemsByModuleInstanceId" resultType="com.amatrix.sicprojectis_backend.structured.entity.StateRecordCheckItem">SELECT * FROM state_record_check_item WHERE module_instance_id=#{moduleInstanceId} ORDER BY check_item_id</select>
     <select id="selectCheckItemsByStateRecordId" resultType="com.amatrix.sicprojectis_backend.structured.entity.StateRecordCheckItem">SELECT * FROM state_record_check_item WHERE state_record_id=#{stateRecordId} ORDER BY sort_no, check_item_id</select>
 
@@ -12,6 +14,8 @@
         INSERT INTO external_result_record (module_instance_id, state_record_id, module_type, result_type, external_actor_code, external_actor_name, external_result, external_result_date, external_file_no, external_system_no, approved_amount, effective_date, summary, registered_by, registered_at, created_at, updated_at)
         VALUES (#{moduleInstanceId}, #{stateRecordId}, #{moduleType}, #{resultType}, #{externalActorCode}, #{externalActorName}, #{externalResult}, #{externalResultDate}, #{externalFileNo}, #{externalSystemNo}, #{approvedAmount}, #{effectiveDate}, #{summary}, #{registeredBy}, #{registeredAt}, #{createdAt}, #{updatedAt})
     </insert>
+    <update id="updateExternalResult">UPDATE external_result_record SET module_instance_id=#{moduleInstanceId}, state_record_id=#{stateRecordId}, module_type=#{moduleType}, result_type=#{resultType}, external_actor_code=#{externalActorCode}, external_actor_name=#{externalActorName}, external_result=#{externalResult}, external_result_date=#{externalResultDate}, external_file_no=#{externalFileNo}, external_system_no=#{externalSystemNo}, approved_amount=#{approvedAmount}, effective_date=#{effectiveDate}, summary=#{summary}, registered_by=#{registeredBy}, registered_at=#{registeredAt}, updated_at=#{updatedAt} WHERE external_result_id=#{externalResultId}</update>
+    <delete id="deleteExternalResult">DELETE FROM external_result_record WHERE external_result_id=#{externalResultId}</delete>
     <select id="selectExternalResultsByModuleInstanceId" resultType="com.amatrix.sicprojectis_backend.structured.entity.ExternalResultRecord">SELECT * FROM external_result_record WHERE module_instance_id=#{moduleInstanceId} ORDER BY external_result_id</select>
     <select id="selectLatestExternalResult" resultType="com.amatrix.sicprojectis_backend.structured.entity.ExternalResultRecord">SELECT * FROM external_result_record WHERE module_instance_id=#{moduleInstanceId} AND result_type=#{resultType} ORDER BY external_result_id DESC LIMIT 1</select>
 
@@ -19,17 +23,23 @@
         INSERT INTO seal_record (module_instance_id, state_record_id, module_type, seal_subject, seal_type, seal_reason, copy_count, applicant_user_id, handled_by, leader_signed, leader_signed_at, school_sealed, school_sealed_at, external_sealed, external_actor_name, external_sealed_at, seal_status, remark, created_at, updated_at)
         VALUES (#{moduleInstanceId}, #{stateRecordId}, #{moduleType}, #{sealSubject}, #{sealType}, #{sealReason}, #{copyCount}, #{applicantUserId}, #{handledBy}, #{leaderSigned}, #{leaderSignedAt}, #{schoolSealed}, #{schoolSealedAt}, #{externalSealed}, #{externalActorName}, #{externalSealedAt}, #{sealStatus}, #{remark}, #{createdAt}, #{updatedAt})
     </insert>
+    <update id="updateSealRecord">UPDATE seal_record SET module_instance_id=#{moduleInstanceId}, state_record_id=#{stateRecordId}, module_type=#{moduleType}, seal_subject=#{sealSubject}, seal_type=#{sealType}, seal_reason=#{sealReason}, copy_count=#{copyCount}, applicant_user_id=#{applicantUserId}, handled_by=#{handledBy}, leader_signed=#{leaderSigned}, leader_signed_at=#{leaderSignedAt}, school_sealed=#{schoolSealed}, school_sealed_at=#{schoolSealedAt}, external_sealed=#{externalSealed}, external_actor_name=#{externalActorName}, external_sealed_at=#{externalSealedAt}, seal_status=#{sealStatus}, remark=#{remark}, updated_at=#{updatedAt} WHERE seal_record_id=#{sealRecordId}</update>
+    <delete id="deleteSealRecord">DELETE FROM seal_record WHERE seal_record_id=#{sealRecordId}</delete>
     <select id="selectSealRecordsByModuleInstanceId" resultType="com.amatrix.sicprojectis_backend.structured.entity.SealRecord">SELECT * FROM seal_record WHERE module_instance_id=#{moduleInstanceId} ORDER BY seal_record_id</select>
 
     <insert id="insertSubmissionRecord" useGeneratedKeys="true" keyProperty="submissionId" keyColumn="submission_id">
         INSERT INTO submission_record (module_instance_id, state_record_id, module_type, submission_type, target_actor_code, target_actor_name, submission_method, submission_no, external_system_no, receipt_no, submitted_by, submitted_at, remark, created_at, updated_at)
         VALUES (#{moduleInstanceId}, #{stateRecordId}, #{moduleType}, #{submissionType}, #{targetActorCode}, #{targetActorName}, #{submissionMethod}, #{submissionNo}, #{externalSystemNo}, #{receiptNo}, #{submittedBy}, #{submittedAt}, #{remark}, #{createdAt}, #{updatedAt})
     </insert>
+    <update id="updateSubmissionRecord">UPDATE submission_record SET module_instance_id=#{moduleInstanceId}, state_record_id=#{stateRecordId}, module_type=#{moduleType}, submission_type=#{submissionType}, target_actor_code=#{targetActorCode}, target_actor_name=#{targetActorName}, submission_method=#{submissionMethod}, submission_no=#{submissionNo}, external_system_no=#{externalSystemNo}, receipt_no=#{receiptNo}, submitted_by=#{submittedBy}, submitted_at=#{submittedAt}, remark=#{remark}, updated_at=#{updatedAt} WHERE submission_id=#{submissionId}</update>
+    <delete id="deleteSubmissionRecord">DELETE FROM submission_record WHERE submission_id=#{submissionId}</delete>
     <select id="selectSubmissionRecordsByModuleInstanceId" resultType="com.amatrix.sicprojectis_backend.structured.entity.SubmissionRecord">SELECT * FROM submission_record WHERE module_instance_id=#{moduleInstanceId} ORDER BY submission_id</select>
 
     <insert id="insertArchiveRecord" useGeneratedKeys="true" keyProperty="archiveId" keyColumn="archive_id">
         INSERT INTO archive_record (module_instance_id, state_record_id, module_type, archive_type, archive_no, archive_location, paper_copy_count, electronic_copy_count, archived_by, archived_at, archive_status, remark, created_at, updated_at)
         VALUES (#{moduleInstanceId}, #{stateRecordId}, #{moduleType}, #{archiveType}, #{archiveNo}, #{archiveLocation}, #{paperCopyCount}, #{electronicCopyCount}, #{archivedBy}, #{archivedAt}, #{archiveStatus}, #{remark}, #{createdAt}, #{updatedAt})
     </insert>
+    <update id="updateArchiveRecord">UPDATE archive_record SET module_instance_id=#{moduleInstanceId}, state_record_id=#{stateRecordId}, module_type=#{moduleType}, archive_type=#{archiveType}, archive_no=#{archiveNo}, archive_location=#{archiveLocation}, paper_copy_count=#{paperCopyCount}, electronic_copy_count=#{electronicCopyCount}, archived_by=#{archivedBy}, archived_at=#{archivedAt}, archive_status=#{archiveStatus}, remark=#{remark}, updated_at=#{updatedAt} WHERE archive_id=#{archiveId}</update>
+    <delete id="deleteArchiveRecord">DELETE FROM archive_record WHERE archive_id=#{archiveId}</delete>
     <select id="selectArchiveRecordsByModuleInstanceId" resultType="com.amatrix.sicprojectis_backend.structured.entity.ArchiveRecord">SELECT * FROM archive_record WHERE module_instance_id=#{moduleInstanceId} ORDER BY archive_id</select>
 </mapper>

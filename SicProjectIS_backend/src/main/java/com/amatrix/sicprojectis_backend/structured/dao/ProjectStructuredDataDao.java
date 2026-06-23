@@ -27,13 +27,19 @@ public interface ProjectStructuredDataDao {
     int insertAcceptanceExt(ProjectAcceptanceExt record);
     int updateAcceptanceExt(ProjectAcceptanceExt record);
     int insertPublicity(ProjectApplicationPublicity record);
+    int updatePublicity(ProjectApplicationPublicity record);
+    int deletePublicity(@Param("publicityId") Long publicityId);
     List<ProjectApplicationPublicity> selectPublicitiesByProjectId(@Param("projectId") Long projectId);
     int insertFinancialSettlement(AcceptanceFinancialSettlement record);
+    int updateFinancialSettlement(AcceptanceFinancialSettlement record);
+    int deleteFinancialSettlement(@Param("settlementId") Long settlementId);
     List<AcceptanceFinancialSettlement> selectFinancialSettlementsByProjectId(@Param("projectId") Long projectId);
     int insertAchievement(ProjectAchievement record);
     int updateAchievement(ProjectAchievement record);
     int deleteAchievement(@Param("achievementId") Long achievementId);
     List<ProjectAchievement> selectAchievementsByProjectId(@Param("projectId") Long projectId);
     int insertSurplusReturn(SurplusFundsReturnRecord record);
+    int updateSurplusReturn(SurplusFundsReturnRecord record);
+    int deleteSurplusReturn(@Param("returnId") Long returnId);
     List<SurplusFundsReturnRecord> selectSurplusReturnsByProjectId(@Param("projectId") Long projectId);
 }
