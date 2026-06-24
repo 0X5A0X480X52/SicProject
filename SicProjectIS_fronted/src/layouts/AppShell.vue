@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
-import { FolderOpened, House, Lock, SwitchButton, Tickets } from '@element-plus/icons-vue'
+import { Connection, FolderOpened, House, Lock, SwitchButton, Tickets } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
@@ -20,6 +20,9 @@ const isAdminWorkspaceVisible = computed(
 const currentMainTab = computed(() => {
   if (route.path.startsWith('/admin')) {
     return 'admin'
+  }
+  if (route.path.startsWith('/workflow')) {
+    return 'workflow'
   }
   if (route.path.startsWith('/node-forms')) {
     return 'node-forms'
@@ -44,6 +47,10 @@ async function handleLogout() {
 function handleTabSelect(index: string) {
   if (index === 'dashboard') {
     router.push({ name: 'dashboard' })
+    return
+  }
+  if (index === 'workflow') {
+    router.push({ name: 'workflow' })
     return
   }
   if (index === 'node-forms') {
@@ -94,6 +101,10 @@ function handleTabSelect(index: string) {
       <el-menu-item index="dashboard">
         <el-icon><House /></el-icon>
         <span>Dashboard</span>
+      </el-menu-item>
+      <el-menu-item index="workflow">
+        <el-icon><Connection /></el-icon>
+        <span>Workflow</span>
       </el-menu-item>
       <el-menu-item v-if="isAdminWorkspaceVisible" index="admin">
         <el-icon><Lock /></el-icon>

@@ -1,4 +1,4 @@
-export type NodeFormModuleType = 'APPLICATION' | 'CONTRACT' | 'ACCEPTANCE'
+﻿export type NodeFormModuleType = 'APPLICATION' | 'CONTRACT' | 'ACCEPTANCE'
 export type NodeFormWriteMode = 'SINGLE_INSTANCE' | 'HISTORY_RECORD' | 'READ_ONLY'
 export type NodeFormDataKind =
   | 'NOTICE'
@@ -137,9 +137,19 @@ export interface RuntimeContextView {
   currentRoundNo?: number
   currentState?: string
   currentNodeId?: string
+  currentWorkflowNodeId?: number
   currentNodeName?: string
   currentNodeType?: string
   currentCandidateRoleCode?: string
+  currentLaneName?: string
+  currentResponsibleActorName?: string
+  currentOperationMode?: string
+  currentRepresentedActorName?: string
+  lastEventType?: string
+  lastResult?: string
+  lastSummary?: string
+  lastTransitionTime?: string
+  startedAt?: string
   finishedAt?: string
 }
 
@@ -170,8 +180,10 @@ export interface MaterialRequirementView {
 
 export interface RuntimeViewResponse {
   context: RuntimeContextView
+  canOperate: boolean
   availableTransitions: AvailableTransition[]
   materialRequirements: MaterialRequirementView[]
+  nodeForms: NodeFormDefinition[]
   openTasks: TaskInstance[]
   history: ModuleStateRecord[]
 }
@@ -192,3 +204,6 @@ export interface StateTransitionResponse {
   currentState: string
   finished: boolean
 }
+
+
+

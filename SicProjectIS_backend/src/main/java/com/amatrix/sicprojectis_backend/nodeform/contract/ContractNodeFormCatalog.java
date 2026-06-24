@@ -13,7 +13,7 @@ public final class ContractNodeFormCatalog {
 
     public static List<NodeFormDefinition> definitions() {
         return List.of(
-                form("PROJECT_APPROVAL_FORM", "ApprovalRegistrationTask", "CONTRACT_APPROVAL_REGISTERING", "批准立项", NodeFormDataKind.EXTERNAL_RESULT, NodeFormWriteMode.HISTORY_RECORD),
+                form("PROJECT_APPROVAL_FORM", "AuthorityApproveProjectTask", "CONTRACT_PROJECT_APPROVED", "批准立项", NodeFormDataKind.EXTERNAL_RESULT, NodeFormWriteMode.HISTORY_RECORD),
                 form("CONTRACT_DRAFT_FORM", "FillContractTask", "CONTRACT_DRAFT", "填写合同", NodeFormDataKind.CONTRACT_DRAFT, NodeFormWriteMode.SINGLE_INSTANCE),
                 form("CONTRACT_DEPT_REVIEW_FORM", "DeptReviewTask", "CONTRACT_DEPT_REVIEWING", "二级单位审核", NodeFormDataKind.CHECK_ITEM, NodeFormWriteMode.HISTORY_RECORD),
                 form("CONTRACT_SCIENCE_REVIEW_FORM", "ScienceOfficeReviewTask", "CONTRACT_SCIENCE_REVIEWING", "科技处审核", NodeFormDataKind.CHECK_ITEM, NodeFormWriteMode.HISTORY_RECORD),
@@ -30,3 +30,4 @@ public final class ContractNodeFormCatalog {
         return new NodeFormDefinition(code, NodeFormModuleType.CONTRACT, nodeId, stateCode, title, kind, mode, true, List.of());
     }
 }
+

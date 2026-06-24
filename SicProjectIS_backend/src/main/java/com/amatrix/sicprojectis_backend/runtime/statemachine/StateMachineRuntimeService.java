@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.amatrix.sicprojectis_backend.material.dao.MaterialTypeDao;
 import com.amatrix.sicprojectis_backend.material.dao.MaterialVersionDao;
 import com.amatrix.sicprojectis_backend.nodeform.NodeFormService;
+import com.amatrix.sicprojectis_backend.nodeform.common.NodeFormDefinition;
 import com.amatrix.sicprojectis_backend.project.dao.ProjectDao;
 import com.amatrix.sicprojectis_backend.runtime.dao.ModuleRuntimeContextViewDao;
 import com.amatrix.sicprojectis_backend.runtime.dao.ModuleStateRecordDao;
@@ -62,6 +64,7 @@ public class StateMachineRuntimeService {
     private final StructuredTransitionConditionEvaluator conditionEvaluator;
     private final ProcessDocumentGenerationService documentGenerationService;
     private final StateMachineExtensionRegistry extensionRegistry;
+    private final ApplicationEventPublisher eventPublisher;
 
     public StateMachineRuntimeService(ProjectDao projectDao, ProjectModuleInstanceDao moduleDao,
             ModuleStateRecordDao stateRecordDao, StateRecordRemarkDao remarkDao,
@@ -73,7 +76,7 @@ public class StateMachineRuntimeService {
             NodeMaterialValidationService materialValidationService,
             StructuredTransitionConditionEvaluator conditionEvaluator,
             ProcessDocumentGenerationService documentGenerationService,
-            StateMachineExtensionRegistry extensionRegistry) {
+            StateMachineExtensionRegistry extensionRegistry, ApplicationEventPublisher eventPublisher) {
         this.projectDao = projectDao;
         this.moduleDao = moduleDao;
         this.stateRecordDao = stateRecordDao;
@@ -93,12 +96,17 @@ public class StateMachineRuntimeService {
         this.conditionEvaluator = conditionEvaluator;
         this.documentGenerationService = documentGenerationService;
         this.extensionRegistry = extensionRegistry;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
     public StateTransitionResponse startModule(AuthenticatedUser user, Long projectId, StartModuleInstanceRequest request) {
         String moduleType = required(request == null ? null : request.moduleType(), "Module type is required");
+        if ("APPLICATION".equals(moduleType)) {
+            throw badRequest("APPLICATION must be started with POST /api/project-applications/start");
+        }
         requireProjectAccess(user, projectId);
+        requireModuleStarter(user);
         if (moduleDao.selectByProjectIdAndModuleType(projectId, moduleType) != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Module instance already exists");
         }
@@ -141,6 +149,7 @@ public class StateMachineRuntimeService {
             module.setFinishedAt(now);
             moduleDao.updateById(module);
         }
+        publishStateChanged(module, record);
         return new StateTransitionResponse(record, target.nodeId(), target.stateCode(), "END_EVENT".equals(target.nodeType()));
     }
 
@@ -216,9 +225,11 @@ public class StateMachineRuntimeService {
             module.setFinishedAt(now);
             moduleDao.updateById(module);
             documentGenerationService.generateForProcessEnd(module, targetWorkflowNode, record);
+            createFollowUpModuleIfNeeded(module, now);
         } else {
             createTask(moduleInstanceId, target, record.getRoundNo(), now);
         }
+        publishStateChanged(module, record);
         return new StateTransitionResponse(record, target.nodeId(), target.stateCode(), finished);
     }
 
@@ -250,7 +261,13 @@ public class StateMachineRuntimeService {
                                     requirement.getUsageType(), requirement.getValidatorKey(), requirement.getDescription());
                         })
                         .toList();
-        return new RuntimeViewResponse(context, transitions, requirements,
+        boolean canOperate = permissionService.canOperateModuleNode(user.userId(), moduleInstanceId);
+        List<NodeFormDefinition> nodeForms = nodeFormService.definitions().stream()
+                .filter(form -> form.moduleType().name().equals(context.getModuleType()))
+                .filter(form -> Objects.equals(form.nodeId(), context.getCurrentNodeId())
+                        || Objects.equals(form.stateCode(), context.getCurrentState()))
+                .toList();
+        return new RuntimeViewResponse(context, canOperate, transitions, requirements, nodeForms,
                 taskDao.selectOpenByModuleInstanceId(moduleInstanceId),
                 stateRecordDao.selectByModuleInstanceId(moduleInstanceId));
     }
@@ -370,6 +387,72 @@ public class StateMachineRuntimeService {
         return currentRoundNo;
     }
 
+    private void requireModuleStarter(AuthenticatedUser user) {
+        if (user == null || (!permissionService.hasRole(user.userId(), "SCIENCE_ADMIN")
+                && !permissionService.hasRole(user.userId(), "SYSTEM_ADMIN"))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Only science office administrators can start workflow modules");
+        }
+    }
+
+    private void createFollowUpModuleIfNeeded(ProjectModuleInstance completedModule, LocalDateTime now) {
+        if (!"APPLICATION".equals(completedModule.getModuleType())) {
+            return;
+        }
+        if (moduleDao.selectByProjectIdAndModuleType(completedModule.getProjectId(), "CONTRACT") != null) {
+            return;
+        }
+        WorkflowDefinition definition = workflowDefinitionDao.selectLatestActiveByModuleType("CONTRACT");
+        if (definition == null) {
+            return;
+        }
+        WorkflowBpmnParseResult model = parser.parse(definition.getBpmnXml());
+        NodeConfig start = startNode(model);
+        TransitionConfig startTransition = model.transitions().stream()
+                .filter(transition -> Objects.equals(transition.sourceRef(), start.nodeId()))
+                .findFirst()
+                .orElse(null);
+        if (startTransition == null) {
+            return;
+        }
+        NodeConfig target = resolveTarget(model, null, null, startTransition.targetRef(), null).node();
+        ProjectModuleInstance module = new ProjectModuleInstance();
+        module.setProjectId(completedModule.getProjectId());
+        module.setModuleType("CONTRACT");
+        module.setWorkflowDefinitionId(definition.getWorkflowDefinitionId());
+        module.setStartedAt(now);
+        moduleDao.insert(module);
+
+        ModuleStateRecord record = new ModuleStateRecord();
+        record.setModuleInstanceId(module.getModuleInstanceId());
+        record.setSeq(1);
+        record.setRoundNo(1);
+        record.setEventType(startTransition.eventType());
+        record.setFromState(start.stateCode());
+        record.setToState(target.stateCode());
+        record.setFromNodeId(start.nodeId());
+        record.setToNodeId(target.nodeId());
+        record.setResult(startTransition.result());
+        record.setSummary("Created after application completion");
+        record.setCreatedAt(now);
+        stateRecordDao.insert(record);
+        if (!"END_EVENT".equals(target.nodeType())) {
+            createTask(module.getModuleInstanceId(), target, 1, now);
+        }
+        publishStateChanged(module, record);
+    }
+
+    private void publishStateChanged(ProjectModuleInstance module, ModuleStateRecord record) {
+        eventPublisher.publishEvent(new ModuleStateChangedEvent(
+                module.getProjectId(),
+                module.getModuleInstanceId(),
+                module.getModuleType(),
+                record.getFromState(),
+                record.getToState(),
+                record.getSeq(),
+                record.getEventType(),
+                record.getCreatedAt()));
+    }
     private ProjectModuleInstance requireModuleForUpdate(Long moduleInstanceId) {
         ProjectModuleInstance module = moduleDao.selectByIdForUpdate(moduleInstanceId);
         if (module == null) {
@@ -429,3 +512,5 @@ public class StateMachineRuntimeService {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }
 }
+
+

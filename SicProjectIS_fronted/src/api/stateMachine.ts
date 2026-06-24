@@ -4,6 +4,7 @@ import type {
   StateTransitionRequest,
   StateTransitionResponse,
 } from '../types/nodeForms'
+import type { WorkflowBpmnResponse } from '../types/workflow'
 
 export function startModuleInstance(projectId: number, moduleType: string) {
   return apiRequest<StateTransitionResponse>(`/projects/${projectId}/module-instances`, {
@@ -22,3 +23,8 @@ export function submitStateTransition(moduleInstanceId: number, request: StateTr
     body: JSON.stringify(request),
   })
 }
+
+export function getWorkflowBpmn(workflowDefinitionId: number) {
+  return apiRequest<WorkflowBpmnResponse>(`/workflow-definitions/${workflowDefinitionId}/bpmn`)
+}
+

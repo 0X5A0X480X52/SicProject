@@ -121,3 +121,22 @@ export interface BatchRevokeProjectGrantRequest {
   grantIds: number[]
   reason: string
 }
+
+export interface StartProjectApplicationRequest {
+  projectCode?: string | null
+  projectName: string
+  projectType?: string | null
+  projectLevel?: string | null
+  approvedAmount?: number | null
+  startDate?: string | null
+  endDate?: string | null
+  applicationTitle?: string | null
+  isLimitedProject?: boolean | null
+  applicationSummary?: string | null
+}
+
+export interface StartProjectApplicationResponse {
+  projectId: number
+  moduleInstanceId: number
+  transition: import('./nodeForms').StateTransitionResponse
+}

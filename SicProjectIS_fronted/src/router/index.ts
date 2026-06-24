@@ -11,6 +11,8 @@ import RolePermissionMatrixView from '../views/RolePermissionMatrixView.vue'
 import AdminProjectAuthorizationsView from '../views/AdminProjectAuthorizationsView.vue'
 import AuditLogsView from '../views/AuditLogsView.vue'
 import NodeFormsDebugView from '../features/node-forms/common/NodeFormsDebugView.vue'
+import WorkflowWorkbenchView from '../views/WorkflowWorkbenchView.vue'
+import WorkflowDetailView from '../views/WorkflowDetailView.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -20,6 +22,8 @@ export const router = createRouter({
     { path: '/register', name: 'register', component: RegisterView, meta: { public: true } },
     { path: '/dashboard', name: 'dashboard', component: DashboardView },
     { path: '/projects', name: 'projects', component: ProjectsView },
+    { path: '/workflow', name: 'workflow', component: WorkflowWorkbenchView },
+    { path: '/workflow/modules/:moduleInstanceId', name: 'workflow-detail', component: WorkflowDetailView },
     {
       path: '/projects/:projectId/authorization',
       name: 'project-authorization',

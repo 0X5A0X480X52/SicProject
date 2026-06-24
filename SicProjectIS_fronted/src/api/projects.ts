@@ -10,6 +10,8 @@ import type {
   ProjectAuthorizationMutation,
   ProjectSummary,
   RevokeProjectGrantRequest,
+  StartProjectApplicationRequest,
+  StartProjectApplicationResponse,
   UpsertProjectMemberRequest,
 } from '../types/project'
 
@@ -103,6 +105,13 @@ export function revokeProjectGrant(
 
 export function revokeProjectGrants(projectId: number, request: BatchRevokeProjectGrantRequest) {
   return apiRequest<ProjectAuthorizationMutation>(`/projects/${projectId}/grants/revoke-batch`, {
+    method: 'POST',
+    body: JSON.stringify(request),
+  })
+}
+
+export function startProjectApplication(request: StartProjectApplicationRequest) {
+  return apiRequest<StartProjectApplicationResponse>('/project-applications/start', {
     method: 'POST',
     body: JSON.stringify(request),
   })
