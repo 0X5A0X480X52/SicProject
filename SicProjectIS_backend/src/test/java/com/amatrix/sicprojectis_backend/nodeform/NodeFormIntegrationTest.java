@@ -31,9 +31,11 @@ import com.amatrix.sicprojectis_backend.structured.entity.ArchiveRecord;
 import com.amatrix.sicprojectis_backend.structured.entity.ExternalResultRecord;
 import com.amatrix.sicprojectis_backend.structured.entity.ProjectApplicationDetail;
 import com.amatrix.sicprojectis_backend.structured.entity.ProjectApplicationExt;
+import com.amatrix.sicprojectis_backend.structured.entity.ProjectApplicationPublicity;
 import com.amatrix.sicprojectis_backend.structured.entity.SealRecord;
 import com.amatrix.sicprojectis_backend.structured.entity.StateRecordCheckItem;
 import com.amatrix.sicprojectis_backend.structured.entity.SubmissionRecord;
+import com.amatrix.sicprojectis_backend.structured.entity.SurplusFundsReturnRecord;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -150,6 +152,34 @@ class NodeFormIntegrationTest {
                 new NodeFormSaveRequest(1L, 1L, 1L, null, null, null, null,
                         new NodeFormRuntimeRecordRequest(null, null, null, null, archiveRecord()),
                         null, null, null)).recordId()).isNotNull();
+    }
+
+    @Test
+    void runtimeHistoryFormsShouldDefaultRequiredFieldsForSimplifiedPayload() {
+        assertThat(nodeFormService.createRecord(leader, "APPLICATION_AUTHORITY_RESULT_FORM",
+                new NodeFormSaveRequest(1L, 1L, 1L, null, null, null, null,
+                        new NodeFormRuntimeRecordRequest(null, new ExternalResultRecord(), null, null, null),
+                        null, null, null)).recordId()).isNotNull();
+        assertThat(nodeFormService.createRecord(leader, "APPLICATION_SEAL_FORM",
+                new NodeFormSaveRequest(1L, 1L, 1L, null, null, null, null,
+                        new NodeFormRuntimeRecordRequest(null, null, new SealRecord(), null, null),
+                        null, null, null)).recordId()).isNotNull();
+        assertThat(nodeFormService.createRecord(leader, "APPLICATION_FINAL_SUBMISSION_FORM",
+                new NodeFormSaveRequest(1L, 1L, 1L, null, null, null, null,
+                        new NodeFormRuntimeRecordRequest(null, null, null, new SubmissionRecord(), null),
+                        null, null, null)).recordId()).isNotNull();
+        assertThat(nodeFormService.createRecord(leader, "CONTRACT_ARCHIVE_FORM",
+                new NodeFormSaveRequest(1L, 1L, 1L, null, null, null, null,
+                        new NodeFormRuntimeRecordRequest(null, null, null, null, new ArchiveRecord()),
+                        null, null, null)).recordId()).isNotNull();
+        assertThat(nodeFormService.createRecord(leader, "APPLICATION_PUBLICITY_FORM",
+                new NodeFormSaveRequest(1L, 1L, 1L, null, null, null, null, null,
+                        new NodeFormProjectRecordRequest(new ProjectApplicationPublicity(), null, null, null),
+                        null, null)).recordId()).isNotNull();
+        assertThat(nodeFormService.createRecord(leader, "SURPLUS_FUNDS_RETURN_FORM",
+                new NodeFormSaveRequest(1L, 1L, 1L, null, null, null, null, null,
+                        new NodeFormProjectRecordRequest(null, null, null, new SurplusFundsReturnRecord()),
+                        null, null)).recordId()).isNotNull();
     }
 
     @Test

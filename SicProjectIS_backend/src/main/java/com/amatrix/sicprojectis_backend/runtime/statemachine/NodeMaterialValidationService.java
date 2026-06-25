@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.amatrix.sicprojectis_backend.material.dao.MaterialContextViewDao;
 import com.amatrix.sicprojectis_backend.material.dao.MaterialTypeDao;
+import com.amatrix.sicprojectis_backend.material.entity.MaterialContextView;
 import com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeMaterialRequirementDao;
 import com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNode;
 import com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNodeMaterialRequirement;
@@ -42,9 +43,11 @@ public class NodeMaterialValidationService {
             if (materialType == null) {
                 continue;
             }
-            long count = submittedIds.stream()
+            List<MaterialContextView> submittedMaterials = submittedIds.stream()
                     .map(materialContextViewDao::selectByMaterialVersionId)
                     .filter(Objects::nonNull)
+                    .toList();
+            long count = submittedMaterials.stream()
                     .filter(version -> Objects.equals(version.getProjectId(), projectId))
                     .filter(version -> Objects.equals(version.getMaterialTypeId(), requirement.getMaterialTypeId()))
                     .filter(version -> Boolean.TRUE.equals(version.getIsCurrent()))
@@ -52,7 +55,8 @@ public class NodeMaterialValidationService {
             int minCount = requirement.getMinCount() == null ? 0 : requirement.getMinCount();
             if (Boolean.TRUE.equals(requirement.getRequired()) && count < Math.max(1, minCount)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Material is required: " + materialType.getMaterialTypeCode());
+                        buildRequiredMaterialMessage(projectId, materialType.getMaterialTypeCode(), submittedIds,
+                                submittedMaterials));
             }
             if (requirement.getMaxCount() != null && count > requirement.getMaxCount()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -67,6 +71,25 @@ public class NodeMaterialValidationService {
                 validator.validate(projectId, workflowNode, requirement, submittedIds);
             }
         }
+    }
+
+    private String buildRequiredMaterialMessage(Long projectId, String materialTypeCode, List<Long> submittedIds,
+            List<MaterialContextView> submittedMaterials) {
+        if (submittedIds.isEmpty()) {
+            return "Material is required: " + materialTypeCode + " (no materialVersionIds submitted)";
+        }
+        String submittedSummary = submittedIds.stream()
+                .map(id -> submittedMaterials.stream()
+                        .filter(item -> Objects.equals(item.getMaterialVersionId(), id))
+                        .findFirst()
+                        .map(item -> id + "=" + item.getMaterialTypeCode() + "/project=" + item.getProjectId()
+                                + "/current=" + item.getIsCurrent())
+                        .orElse(id + "=not-found"))
+                .toList()
+                .toString();
+        return "Material is required: " + materialTypeCode
+                + " (submitted versions must belong to project " + projectId
+                + ", match this material type, and be current; submitted=" + submittedSummary + ")";
     }
 
     private boolean appliesBeforeSubmit(WorkflowNodeMaterialRequirement requirement) {

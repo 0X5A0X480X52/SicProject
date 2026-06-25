@@ -17,6 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.amatrix.sicprojectis_backend.material.MaterialService;
 import com.amatrix.sicprojectis_backend.nodeform.common.NodeFormRuntimeRecordRequest;
 import com.amatrix.sicprojectis_backend.nodeform.common.NodeFormSaveRequest;
+import com.amatrix.sicprojectis_backend.project.ProjectApplicationStartService;
+import com.amatrix.sicprojectis_backend.project.dto.StartProjectApplicationRequest;
 import com.amatrix.sicprojectis_backend.runtime.dao.ModuleStateRecordDao;
 import com.amatrix.sicprojectis_backend.runtime.dao.ProjectModuleInstanceDao;
 import com.amatrix.sicprojectis_backend.runtime.statemachine.dto.StartModuleInstanceRequest;
@@ -38,6 +40,9 @@ class StateMachineRuntimeIntegrationTest {
 
     @Autowired
     private WorkflowDefinitionService workflowDefinitionService;
+
+    @Autowired
+    private ProjectApplicationStartService applicationStartService;
 
     @Autowired
     private MaterialService materialService;
@@ -79,7 +84,7 @@ class StateMachineRuntimeIntegrationTest {
     @Test
     void shouldStartValidateMaterialTransitionThroughGatewayAndGenerateDocument() {
         publishContractWorkflow();
-        var started = runtimeService.startModule(leader, 1L, new StartModuleInstanceRequest("CONTRACT"));
+        var started = runtimeService.startModule(systemAdmin, 1L, new StartModuleInstanceRequest("CONTRACT"));
         Long moduleInstanceId = started.stateRecord().getModuleInstanceId();
         assertThat(started.currentState()).isEqualTo("CONTRACT_DRAFT");
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM task_instance WHERE module_instance_id=? AND task_status='OPEN'",
@@ -142,20 +147,35 @@ class StateMachineRuntimeIntegrationTest {
     void bundledWorkflowsShouldStartToFirstRealTask() {
         for (var asset : workflowAssetService.listAssets()) {
             workflowDefinitionService.publishAsset(asset.assetName());
-            var started = runtimeService.startModule(systemAdmin, 2L, new StartModuleInstanceRequest(asset.moduleType()));
+            Long moduleInstanceId;
+            String currentState;
+            boolean finished;
+            if ("APPLICATION".equals(asset.moduleType())) {
+                var started = applicationStartService.start(leader,
+                        new StartProjectApplicationRequest(null, "Runtime application", null, null, null,
+                                null, null, "Runtime application", false, null));
+                moduleInstanceId = started.moduleInstanceId();
+                currentState = started.transition().currentState();
+                finished = started.transition().finished();
+            } else {
+                var started = runtimeService.startModule(systemAdmin, 2L, new StartModuleInstanceRequest(asset.moduleType()));
+                moduleInstanceId = started.stateRecord().getModuleInstanceId();
+                currentState = started.currentState();
+                finished = started.finished();
+            }
 
-            assertThat(started.finished()).as(asset.assetName()).isFalse();
-            assertThat(started.currentState()).as(asset.assetName()).isNotBlank();
+            assertThat(finished).as(asset.assetName()).isFalse();
+            assertThat(currentState).as(asset.assetName()).isNotBlank();
             assertThat(jdbcTemplate.queryForObject(
                     "SELECT COUNT(*) FROM task_instance WHERE module_instance_id=? AND task_status='OPEN'",
-                    Integer.class, started.stateRecord().getModuleInstanceId())).as(asset.assetName()).isEqualTo(1);
+                    Integer.class, moduleInstanceId)).as(asset.assetName()).isEqualTo(1);
         }
     }
 
     @Test
     void runtimeViewShouldExposeAvailableTransitionsRequirementsAndExtensionKeys() {
         publishContractWorkflow();
-        var started = runtimeService.startModule(leader, 1L, new StartModuleInstanceRequest("CONTRACT"));
+        var started = runtimeService.startModule(systemAdmin, 1L, new StartModuleInstanceRequest("CONTRACT"));
         var view = runtimeService.runtimeView(leader, started.stateRecord().getModuleInstanceId());
 
         assertThat(view.context().getCurrentState()).isEqualTo("CONTRACT_DRAFT");

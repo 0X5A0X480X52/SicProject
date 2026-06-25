@@ -97,7 +97,7 @@ public class StructuredTransitionConditionEvaluator {
             return latestExternalResultApproved(context) || currentRemarkApproved(context);
         }
         if (normalized.endsWith("approved") || normalized.contains("publicity")) {
-            return currentRemarkApproved(context) || currentCheckItemsPassed(context);
+            return currentRemarkApproved(context) || currentCheckItemsPassed(context) || latestPublicityApproved(context);
         }
         throw new IllegalArgumentException("Unknown conditionKey: " + key);
     }
@@ -106,6 +106,13 @@ public class StructuredTransitionConditionEvaluator {
         return runtimeDao.selectExternalResultsByModuleInstanceId(context.moduleInstance().getModuleInstanceId()).stream()
                 .max(Comparator.comparing(ExternalResultRecord::getExternalResultId))
                 .map(row -> approved(row.getExternalResult()))
+                .orElse(false);
+    }
+
+    private boolean latestPublicityApproved(TransitionContext context) {
+        return projectStructuredDao.selectPublicitiesByProjectId(context.moduleInstance().getProjectId()).stream()
+                .max(Comparator.comparing(row -> row.getPublicityId()))
+                .map(row -> approved(row.getPublicityResult()))
                 .orElse(false);
     }
 

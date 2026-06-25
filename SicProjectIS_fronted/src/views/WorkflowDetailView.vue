@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElNotification } from 'element-plus'
@@ -364,14 +364,14 @@ function validateRequiredMaterials() {
   if (!view) return true
   const selectedTypes = new Set(
     materials.value
-      .filter((item) => workflowDraft.value.selectedMaterialVersionIds.includes(item.materialVersionId))
+      .filter((item) => workflowDraft.value.selectedMaterialVersionIds.includes(item.materialVersionId) && item.isCurrent)
       .map((item) => item.materialTypeCode),
   )
   const missing = view.materialRequirements.filter((requirement) =>
     Boolean(requirement.required && requirement.materialTypeCode && !selectedTypes.has(requirement.materialTypeCode)),
   )
   if (missing.length) {
-    ElMessage.warning(`请先选择或上传必填材料：${missing.map((item) => item.materialTypeName || item.materialTypeCode).join('、')}`)
+    ElMessage.warning(`请先选择或上传必填材料的当前版本：${missing.map((item) => item.materialTypeName || item.materialTypeCode).join('、')}`)
     return false
   }
   return true
@@ -388,7 +388,7 @@ async function submitCurrentDraft() {
   const request: StateTransitionRequest = {
     eventType: transition.eventType,
     expectedSeq: view.context.currentSeq,
-    result: transition.result || payload.result,
+    result: payload.result || transition.result,
     remark: workflowDraft.value.remark || payload.remark,
     materialVersionIds: Array.from(new Set(workflowDraft.value.selectedMaterialVersionIds)),
     formCode: payload.formCode,

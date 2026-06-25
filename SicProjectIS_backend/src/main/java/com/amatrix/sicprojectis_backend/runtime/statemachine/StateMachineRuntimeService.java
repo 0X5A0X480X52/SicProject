@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.amatrix.sicprojectis_backend.expert.dao.ExpertReviewAssignmentDao;
+import com.amatrix.sicprojectis_backend.expert.dao.ExpertReviewBatchDao;
+import com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewBatch;
 import com.amatrix.sicprojectis_backend.material.dao.MaterialTypeDao;
 import com.amatrix.sicprojectis_backend.material.dao.MaterialVersionDao;
 import com.amatrix.sicprojectis_backend.nodeform.NodeFormService;
@@ -65,6 +68,8 @@ public class StateMachineRuntimeService {
     private final ProcessDocumentGenerationService documentGenerationService;
     private final StateMachineExtensionRegistry extensionRegistry;
     private final ApplicationEventPublisher eventPublisher;
+    private final ExpertReviewBatchDao expertReviewBatchDao;
+    private final ExpertReviewAssignmentDao expertReviewAssignmentDao;
 
     public StateMachineRuntimeService(ProjectDao projectDao, ProjectModuleInstanceDao moduleDao,
             ModuleStateRecordDao stateRecordDao, StateRecordRemarkDao remarkDao,
@@ -76,7 +81,8 @@ public class StateMachineRuntimeService {
             NodeMaterialValidationService materialValidationService,
             StructuredTransitionConditionEvaluator conditionEvaluator,
             ProcessDocumentGenerationService documentGenerationService,
-            StateMachineExtensionRegistry extensionRegistry, ApplicationEventPublisher eventPublisher) {
+            StateMachineExtensionRegistry extensionRegistry, ApplicationEventPublisher eventPublisher,
+            ExpertReviewBatchDao expertReviewBatchDao, ExpertReviewAssignmentDao expertReviewAssignmentDao) {
         this.projectDao = projectDao;
         this.moduleDao = moduleDao;
         this.stateRecordDao = stateRecordDao;
@@ -97,6 +103,8 @@ public class StateMachineRuntimeService {
         this.documentGenerationService = documentGenerationService;
         this.extensionRegistry = extensionRegistry;
         this.eventPublisher = eventPublisher;
+        this.expertReviewBatchDao = expertReviewBatchDao;
+        this.expertReviewAssignmentDao = expertReviewAssignmentDao;
     }
 
     @Transactional
@@ -184,6 +192,8 @@ public class StateMachineRuntimeService {
         WorkflowNode currentWorkflowNode = workflowNodeDao.selectByWorkflowDefinitionIdAndNodeId(
                 module.getWorkflowDefinitionId(), current.getToNodeId());
         materialValidationService.validateBeforeSubmit(module.getProjectId(), currentWorkflowNode, request.materialVersionIds());
+        validateExpertAssignmentTransition(moduleInstanceId, currentWorkflowNode, initial);
+        validateExpertReviewSubmittedTransition(moduleInstanceId, currentWorkflowNode, initial);
 
         LocalDateTime now = LocalDateTime.now();
         int roundNo = current.getRoundNo() == null ? 1 : current.getRoundNo();
@@ -210,7 +220,7 @@ public class StateMachineRuntimeService {
 
         ResolvedTarget resolvedTarget = resolveTarget(model, module, record, initial.targetRef(), initial);
         NodeConfig target = resolvedTarget.node();
-        record.setRoundNo(nextRoundNo(roundNo, target, initial));
+        record.setRoundNo(nextRoundNo(roundNo, target, resolvedTarget.transitions()));
         record.setToNodeId(target.nodeId());
         record.setToState(target.stateCode());
         stateRecordDao.updateById(record);
@@ -231,6 +241,47 @@ public class StateMachineRuntimeService {
         }
         publishStateChanged(module, record);
         return new StateTransitionResponse(record, target.nodeId(), target.stateCode(), finished);
+    }
+
+
+    private void validateExpertAssignmentTransition(Long moduleInstanceId, WorkflowNode currentWorkflowNode,
+            TransitionConfig transition) {
+        String eventType = transition.eventType();
+        if (!"DEPT_EXPERT_ASSIGNED".equals(eventType)
+                && !"SCIENCE_EXPERT_ASSIGNED".equals(eventType)
+                && !"EXPERT_ACCEPTANCE_ASSIGNED".equals(eventType)) {
+            return;
+        }
+        Long workflowNodeId = currentWorkflowNode == null ? null : currentWorkflowNode.getWorkflowNodeId();
+        boolean hasAssignedExpert = expertReviewBatchDao.selectByModuleInstanceId(moduleInstanceId).stream()
+                .filter(batch -> workflowNodeId == null || Objects.equals(batch.getWorkflowNodeId(), workflowNodeId))
+                .anyMatch(batch -> !expertReviewAssignmentDao.selectByBatchId(batch.getBatchId()).isEmpty());
+        if (!hasAssignedExpert) {
+            throw badRequest("At least one expert must be assigned before submitting this node");
+        }
+    }
+
+    private void validateExpertReviewSubmittedTransition(Long moduleInstanceId,
+            WorkflowNode currentWorkflowNode, TransitionConfig transition) {
+        String eventType = transition.eventType();
+        if (!"DEPT_EXPERT_REVIEW_SUBMITTED".equals(eventType)
+                && !"SCIENCE_EXPERT_REVIEW_SUBMITTED".equals(eventType)) {
+            return;
+        }
+        Long workflowNodeId = currentWorkflowNode == null ? null : currentWorkflowNode.getWorkflowNodeId();
+        List<ExpertReviewBatch> batches = expertReviewBatchDao.selectByModuleInstanceId(moduleInstanceId).stream()
+                .filter(b -> workflowNodeId == null || Objects.equals(b.getWorkflowNodeId(), workflowNodeId))
+                .toList();
+        if (batches.isEmpty()) {
+            return;
+        }
+        for (ExpertReviewBatch batch : batches) {
+            int submitted = batch.getSubmittedExpertCount() == null ? 0 : batch.getSubmittedExpertCount();
+            int expected = batch.getExpectedExpertCount() == null ? 0 : batch.getExpectedExpertCount();
+            if (submitted < expected) {
+                throw badRequest("Not all experts have submitted (" + submitted + "/" + expected + ")");
+            }
+        }
     }
 
     public RuntimeViewResponse runtimeView(AuthenticatedUser user, Long moduleInstanceId) {
@@ -378,11 +429,13 @@ public class StateMachineRuntimeService {
         taskDao.insert(task);
     }
 
-    private int nextRoundNo(int currentRoundNo, NodeConfig target, TransitionConfig transition) {
-        String event = transition.eventType() == null ? "" : transition.eventType();
-        String result = transition.result() == null ? "" : transition.result();
-        if (event.contains("RETURN") || event.contains("REJECT") || result.contains("RETURN")) {
-            return currentRoundNo + 1;
+    private int nextRoundNo(int currentRoundNo, NodeConfig target, List<TransitionConfig> transitions) {
+        for (TransitionConfig transition : transitions) {
+            String event = transition.eventType() == null ? "" : transition.eventType();
+            String result = transition.result() == null ? "" : transition.result();
+            if (event.contains("RETURN") || event.contains("REJECT") || result.contains("RETURN")) {
+                return currentRoundNo + 1;
+            }
         }
         return currentRoundNo;
     }

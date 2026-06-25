@@ -20,13 +20,26 @@ import com.amatrix.sicprojectis_backend.expert.dto.SubmitExpertScoreRequest;
 import com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewAssignment;
 import com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewBatch;
 import com.amatrix.sicprojectis_backend.expert.entity.ExpertReviewScore;
+import com.amatrix.sicprojectis_backend.project.dao.ProjectRoleGrantDao;
+import com.amatrix.sicprojectis_backend.project.entity.ProjectRoleGrant;
+import com.amatrix.sicprojectis_backend.runtime.dao.ModuleRuntimeContextViewDao;
+import com.amatrix.sicprojectis_backend.runtime.dao.ProjectModuleInstanceDao;
+import com.amatrix.sicprojectis_backend.runtime.entity.ModuleRuntimeContextView;
+import com.amatrix.sicprojectis_backend.runtime.entity.ProjectModuleInstance;
 import com.amatrix.sicprojectis_backend.security.AuthenticatedUser;
 import com.amatrix.sicprojectis_backend.structured.dto.ExpertReviewData.ExpertReviewAssignmentData;
+import com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeDao;
+import com.amatrix.sicprojectis_backend.workflow.entity.WorkflowNode;
 
 @Service
 public class ExpertReviewService {
     private final ExpertReviewBatchDao batchDao; private final ExpertReviewAssignmentDao assignmentDao; private final ExpertReviewScoreDao scoreDao;
-    public ExpertReviewService(ExpertReviewBatchDao batchDao, ExpertReviewAssignmentDao assignmentDao, ExpertReviewScoreDao scoreDao) { this.batchDao=batchDao; this.assignmentDao=assignmentDao; this.scoreDao=scoreDao; }
+    private final ProjectRoleGrantDao projectRoleGrantDao; private final ProjectModuleInstanceDao moduleDao; private final WorkflowNodeDao workflowNodeDao; private final ModuleRuntimeContextViewDao runtimeContextViewDao;
+    public ExpertReviewService(ExpertReviewBatchDao batchDao, ExpertReviewAssignmentDao assignmentDao, ExpertReviewScoreDao scoreDao,
+            ProjectRoleGrantDao projectRoleGrantDao, ProjectModuleInstanceDao moduleDao, WorkflowNodeDao workflowNodeDao, ModuleRuntimeContextViewDao runtimeContextViewDao) {
+        this.batchDao=batchDao; this.assignmentDao=assignmentDao; this.scoreDao=scoreDao;
+        this.projectRoleGrantDao=projectRoleGrantDao; this.moduleDao=moduleDao; this.workflowNodeDao=workflowNodeDao; this.runtimeContextViewDao=runtimeContextViewDao;
+    }
 
     @Transactional
     public ExpertReviewBatchDetailResponse create(AuthenticatedUser user, CreateExpertReviewBatchRequest request) {
@@ -35,14 +48,47 @@ public class ExpertReviewService {
     }
 
     @Transactional
-    public ExpertReviewBatchDetailResponse assign(Long batchId, AssignExpertRequest request) {
-        requireBatch(batchId); if(request==null || request.expertUserId()==null) throw badRequest("Expert user is required");
-        LocalDateTime now=LocalDateTime.now(); ExpertReviewAssignment row=new ExpertReviewAssignment(); row.setBatchId(batchId); row.setExpertUserId(request.expertUserId()); row.setExpertName(request.expertName()); row.setExpertOrg(request.expertOrg()); row.setExpertTitle(request.expertTitle()); row.setAssignedAt(now); row.setReviewStatus("ASSIGNED"); row.setConflictOfInterest(false); row.setIsValid(true); row.setCreatedAt(now); row.setUpdatedAt(now); assignmentDao.insert(row); return detail(batchId);
+    public ExpertReviewBatchDetailResponse assign(AuthenticatedUser user, Long batchId, AssignExpertRequest request) {
+        ExpertReviewBatch batch=requireBatch(batchId); if(request==null || request.expertUserId()==null) throw badRequest("Expert user is required");
+        LocalDateTime now=LocalDateTime.now(); ExpertReviewAssignment row=new ExpertReviewAssignment(); row.setBatchId(batchId); row.setExpertUserId(request.expertUserId()); row.setExpertName(request.expertName()); row.setExpertOrg(request.expertOrg()); row.setExpertTitle(request.expertTitle()); row.setAssignedAt(now); row.setReviewStatus("ASSIGNED"); row.setConflictOfInterest(false); row.setIsValid(true); row.setCreatedAt(now); row.setUpdatedAt(now); assignmentDao.insert(row);
+        // auto-create project-level expert grant so the assigned expert can operate the review node
+        ProjectModuleInstance module = moduleDao.selectById(batch.getModuleInstanceId());
+        if (module != null) {
+            ModuleRuntimeContextView ctx = runtimeContextViewDao.selectByModuleInstanceId(batch.getModuleInstanceId());
+            Integer roundNo = ctx == null ? null : ctx.getCurrentRoundNo();
+            String reviewTaskNodeId = null;
+            if (batch.getWorkflowNodeId() != null) {
+                WorkflowNode wnode = workflowNodeDao.selectById(batch.getWorkflowNodeId());
+                reviewTaskNodeId = toReviewTaskNodeId(wnode == null ? null : wnode.getNodeId());
+            }
+            List<ProjectRoleGrant> existingGrants = projectRoleGrantDao.selectMatchingActiveGrant(
+                    module.getProjectId(), module.getModuleType(), "PROJECT_MODULE_EXPERT_ASSIGNMENT",
+                    request.expertUserId(), roundNo, reviewTaskNodeId);
+            if (existingGrants.isEmpty()) {
+                ProjectRoleGrant grant = new ProjectRoleGrant();
+                grant.setProjectId(module.getProjectId());
+                grant.setModuleType(module.getModuleType());
+                grant.setGrantRoleCode("PROJECT_MODULE_EXPERT_ASSIGNMENT");
+                grant.setGranteeUserId(request.expertUserId());
+                grant.setGrantedByUserId(user.userId());
+                grant.setGrantScope("MODULE");
+                grant.setRoundNo(roundNo);
+                grant.setTaskNodeId(reviewTaskNodeId);
+                grant.setStatus("ACTIVE");
+                grant.setEffectiveFrom(now);
+                grant.setGrantReason("自动分配-专家评审批次");
+                grant.setCreatedAt(now);
+                grant.setUpdatedAt(now);
+                projectRoleGrantDao.insert(grant);
+            }
+        }
+        return detail(batchId);
     }
 
     @Transactional
     public ExpertReviewBatchDetailResponse submit(Long assignmentId, SubmitExpertScoreRequest request) {
         ExpertReviewAssignment assignment=assignmentDao.selectById(assignmentId); if(assignment==null) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Expert assignment not found");
+        if("SUBMITTED".equals(assignment.getReviewStatus())) throw new ResponseStatusException(HttpStatus.CONFLICT, "已提交，不能重复提交");
         if(request==null || request.scores()==null || request.scores().isEmpty()) throw badRequest("At least one score item is required");
         LocalDateTime now=LocalDateTime.now(); BigDecimal total=BigDecimal.ZERO;
         for(var item:request.scores()) { if(item.scoreValue()==null) throw badRequest("Score value is required"); BigDecimal weight=item.weight()==null?BigDecimal.ONE:item.weight(); total=total.add(item.scoreValue().multiply(weight)); ExpertReviewScore score=new ExpertReviewScore(); score.setAssignmentId(assignmentId); score.setScoreItemCode(item.itemCode()); score.setScoreItemName(item.itemName()); score.setWeight(weight); score.setMaxScore(item.maxScore()==null?new BigDecimal("100"):item.maxScore()); score.setScoreValue(item.scoreValue()); score.setComment(item.comment()); score.setCreatedAt(now); scoreDao.insert(score); }
@@ -59,6 +105,7 @@ public class ExpertReviewService {
         if(scores.size()>=batch.getMinExpertCount()) { batch.setStatus("COMPLETED"); batch.setCompletedAt(now); } batch.setUpdatedAt(now); batchDao.updateById(batch);
     }
     private String result(ExpertReviewBatch batch, BigDecimal score) { if(batch.getRecommendScore()!=null&&score.compareTo(batch.getRecommendScore())>=0)return "RECOMMENDED"; if(batch.getPassScore()!=null&&score.compareTo(batch.getPassScore())>=0)return "PASSED"; return "REJECTED"; }
+    private String toReviewTaskNodeId(String nodeId) { if(nodeId==null)return null; return nodeId.replace("ExpertAssignTask","ExpertReviewTask").replace("ExpertSummaryTask","ExpertReviewTask"); }
     private ExpertReviewBatch requireBatch(Long id){ExpertReviewBatch b=batchDao.selectById(id);if(b==null)throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Expert review batch not found");return b;}
     private boolean blank(String value){return value==null||value.isBlank();} private ResponseStatusException badRequest(String message){return new ResponseStatusException(HttpStatus.BAD_REQUEST,message);}
 }

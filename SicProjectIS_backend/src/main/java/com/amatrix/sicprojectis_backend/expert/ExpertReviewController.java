@@ -20,6 +20,6 @@ public class ExpertReviewController {
     private final ExpertReviewService service; public ExpertReviewController(ExpertReviewService service){this.service=service;}
     @PostMapping("/batches") public ApiResponse<ExpertReviewBatchDetailResponse> create(@AuthenticationPrincipal AuthenticatedUser user,@RequestBody CreateExpertReviewBatchRequest request){return ApiResponse.ok(service.create(user,request));}
     @GetMapping("/batches/{batchId}") public ApiResponse<ExpertReviewBatchDetailResponse> detail(@PathVariable Long batchId){return ApiResponse.ok(service.detail(batchId));}
-    @PostMapping("/batches/{batchId}/assignments") public ApiResponse<ExpertReviewBatchDetailResponse> assign(@PathVariable Long batchId,@RequestBody AssignExpertRequest request){return ApiResponse.ok(service.assign(batchId,request));}
+    @PostMapping("/batches/{batchId}/assignments") public ApiResponse<ExpertReviewBatchDetailResponse> assign(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable Long batchId,@RequestBody AssignExpertRequest request){return ApiResponse.ok(service.assign(user,batchId,request));}
     @PostMapping("/assignments/{assignmentId}/scores") public ApiResponse<ExpertReviewBatchDetailResponse> submit(@PathVariable Long assignmentId,@RequestBody SubmitExpertScoreRequest request){return ApiResponse.ok(service.submit(assignmentId,request));}
 }

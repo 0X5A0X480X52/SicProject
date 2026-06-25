@@ -1,10 +1,13 @@
 package com.amatrix.sicprojectis_backend.structured;
 
 import java.time.LocalDateTime;
+import java.beans.PropertyDescriptor;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,14 +77,16 @@ public class StructuredBusinessService {
         application.setProjectId(projectId);
         if (existing == null) {
             application.setApplicationId(null);
+            application.setIsLimitedProject(Boolean.TRUE.equals(application.getIsLimitedProject()));
             application.setCreatedAt(now);
             application.setUpdatedAt(now);
             applicationDao.insert(application);
         } else {
-            application.setApplicationId(existing.getApplicationId());
-            application.setCreatedAt(existing.getCreatedAt());
-            application.setUpdatedAt(now);
-            applicationDao.updateById(application);
+            copyNonNullProperties(application, existing, "applicationId", "projectId", "createdAt", "updatedAt");
+            existing.setProjectId(projectId);
+            existing.setUpdatedAt(now);
+            applicationDao.updateById(existing);
+            application = existing;
         }
         upsertApplicationExt(projectId, application.getApplicationId(), request.extension(), now);
         upsertApplicationDetail(projectId, application.getApplicationId(), request.detail(), now);
@@ -106,13 +111,18 @@ public class StructuredBusinessService {
         if (existing == null) {
             contract.setContractId(null); contract.setCreatedAt(now); contract.setUpdatedAt(now); contractDao.insert(contract);
         } else {
-            contract.setContractId(existing.getContractId()); contract.setCreatedAt(existing.getCreatedAt()); contract.setUpdatedAt(now); contractDao.updateById(contract);
+            copyNonNullProperties(contract, existing, "contractId", "projectId", "createdAt", "updatedAt");
+            existing.setProjectId(projectId); existing.setUpdatedAt(now); contractDao.updateById(existing); contract = existing;
         }
         ProjectContractExt ext = request.extension();
         if (ext != null) {
-            ext.setContractId(contract.getContractId()); ext.setProjectId(projectId); ext.setUpdatedAt(now);
-            if (structuredDao.selectContractExtByContractId(contract.getContractId()) == null) { ext.setContractExtId(null); ext.setCreatedAt(now); structuredDao.insertContractExt(ext); }
-            else structuredDao.updateContractExt(ext);
+            ProjectContractExt existingExt = structuredDao.selectContractExtByContractId(contract.getContractId());
+            if (existingExt == null) {
+                ext.setContractId(contract.getContractId()); ext.setProjectId(projectId); ext.setContractExtId(null); ext.setCreatedAt(now); ext.setUpdatedAt(now); structuredDao.insertContractExt(ext);
+            } else {
+                copyNonNullProperties(ext, existingExt, "contractExtId", "contractId", "projectId", "createdAt", "updatedAt");
+                existingExt.setContractId(contract.getContractId()); existingExt.setProjectId(projectId); existingExt.setUpdatedAt(now); structuredDao.updateContractExt(existingExt);
+            }
         }
         return getContract(user, projectId);
     }
@@ -135,13 +145,18 @@ public class StructuredBusinessService {
         if (existing == null) {
             acceptance.setAcceptanceId(null); acceptance.setCreatedAt(now); acceptance.setUpdatedAt(now); acceptanceDao.insert(acceptance);
         } else {
-            acceptance.setAcceptanceId(existing.getAcceptanceId()); acceptance.setCreatedAt(existing.getCreatedAt()); acceptance.setUpdatedAt(now); acceptanceDao.updateById(acceptance);
+            copyNonNullProperties(acceptance, existing, "acceptanceId", "projectId", "createdAt", "updatedAt");
+            existing.setProjectId(projectId); existing.setUpdatedAt(now); acceptanceDao.updateById(existing); acceptance = existing;
         }
         ProjectAcceptanceExt ext = request.extension();
         if (ext != null) {
-            ext.setAcceptanceId(acceptance.getAcceptanceId()); ext.setProjectId(projectId); ext.setUpdatedAt(now);
-            if (structuredDao.selectAcceptanceExtByAcceptanceId(acceptance.getAcceptanceId()) == null) { ext.setAcceptanceExtId(null); ext.setCreatedAt(now); structuredDao.insertAcceptanceExt(ext); }
-            else structuredDao.updateAcceptanceExt(ext);
+            ProjectAcceptanceExt existingExt = structuredDao.selectAcceptanceExtByAcceptanceId(acceptance.getAcceptanceId());
+            if (existingExt == null) {
+                ext.setAcceptanceId(acceptance.getAcceptanceId()); ext.setProjectId(projectId); ext.setAcceptanceExtId(null); ext.setCreatedAt(now); ext.setUpdatedAt(now); structuredDao.insertAcceptanceExt(ext);
+            } else {
+                copyNonNullProperties(ext, existingExt, "acceptanceExtId", "acceptanceId", "projectId", "createdAt", "updatedAt");
+                existingExt.setAcceptanceId(acceptance.getAcceptanceId()); existingExt.setProjectId(projectId); existingExt.setUpdatedAt(now); structuredDao.updateAcceptanceExt(existingExt);
+            }
         }
         return getAcceptance(user, projectId);
     }
@@ -181,18 +196,43 @@ public class StructuredBusinessService {
 
     private void upsertApplicationExt(Long projectId, Long applicationId, ProjectApplicationExt ext, LocalDateTime now) {
         if (ext == null) return;
-        ext.setApplicationId(applicationId); ext.setProjectId(projectId); ext.setUpdatedAt(now);
-        if (structuredDao.selectApplicationExtByApplicationId(applicationId) == null) { ext.setApplicationExtId(null); ext.setCreatedAt(now); structuredDao.insertApplicationExt(ext); }
-        else structuredDao.updateApplicationExt(ext);
+        ProjectApplicationExt existing = structuredDao.selectApplicationExtByApplicationId(applicationId);
+        if (existing == null) {
+            ext.setApplicationId(applicationId); ext.setProjectId(projectId); ext.setApplicationExtId(null); ext.setCreatedAt(now); ext.setUpdatedAt(now); structuredDao.insertApplicationExt(ext);
+        } else {
+            copyNonNullProperties(ext, existing, "applicationExtId", "applicationId", "projectId", "createdAt", "updatedAt");
+            existing.setApplicationId(applicationId); existing.setProjectId(projectId); existing.setUpdatedAt(now); structuredDao.updateApplicationExt(existing);
+        }
     }
 
     private void upsertApplicationDetail(Long projectId, Long applicationId, ProjectApplicationDetail detail, LocalDateTime now) {
         if (detail == null) return;
-        detail.setApplicationId(applicationId); detail.setProjectId(projectId); detail.setUpdatedAt(now);
-        if (structuredDao.selectApplicationDetailByApplicationId(applicationId) == null) { detail.setApplicationDetailId(null); detail.setCreatedAt(now); structuredDao.insertApplicationDetail(detail); }
-        else structuredDao.updateApplicationDetail(detail);
+        ProjectApplicationDetail existing = structuredDao.selectApplicationDetailByApplicationId(applicationId);
+        if (existing == null) {
+            detail.setApplicationId(applicationId); detail.setProjectId(projectId); detail.setApplicationDetailId(null); detail.setCreatedAt(now); detail.setUpdatedAt(now); structuredDao.insertApplicationDetail(detail);
+        } else {
+            copyNonNullProperties(detail, existing, "applicationDetailId", "applicationId", "projectId", "createdAt", "updatedAt");
+            existing.setApplicationId(applicationId); existing.setProjectId(projectId); existing.setUpdatedAt(now); structuredDao.updateApplicationDetail(existing);
+        }
     }
 
+
+    private void copyNonNullProperties(Object source, Object target, String... excludedProperties) {
+        Set<String> excluded = Set.of(excludedProperties);
+        for (PropertyDescriptor descriptor : BeanUtils.getPropertyDescriptors(source.getClass())) {
+            if (descriptor.getReadMethod() == null || descriptor.getWriteMethod() == null || excluded.contains(descriptor.getName())) {
+                continue;
+            }
+            try {
+                Object value = descriptor.getReadMethod().invoke(source);
+                if (value != null) {
+                    descriptor.getWriteMethod().invoke(target, value);
+                }
+            } catch (ReflectiveOperationException ex) {
+                throw new IllegalStateException("Failed to merge structured business field: " + descriptor.getName(), ex);
+            }
+        }
+    }
     private void requireAccess(AuthenticatedUser user, Long projectId) {
         if (projectDao.selectById(projectId) == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
         if (user == null || !permissionService.canAccessProject(user.userId(), projectId)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Project access denied");

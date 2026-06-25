@@ -2,6 +2,7 @@ package com.amatrix.sicprojectis_backend.nodeform;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -329,6 +330,8 @@ public class NodeFormService {
         ExternalResultRecord row = requireRuntime(request).externalResult();
         applyRuntime(definition, request, row);
         LocalDateTime now = LocalDateTime.now();
+        row.setResultType(defaultText(row.getResultType(), definition.formCode()));
+        row.setExternalResult(defaultText(row.getExternalResult(), "APPROVED"));
         row.setRegisteredBy(user.userId());
         row.setRegisteredAt(row.getRegisteredAt() == null ? now : row.getRegisteredAt());
         row.setCreatedAt(now);
@@ -341,6 +344,11 @@ public class NodeFormService {
         SealRecord row = requireRuntime(request).sealRecord();
         applyRuntime(definition, request, row);
         LocalDateTime now = LocalDateTime.now();
+        row.setSealSubject(defaultText(row.getSealSubject(), definition.title()));
+        row.setLeaderSigned(Boolean.TRUE.equals(row.getLeaderSigned()));
+        row.setSchoolSealed(Boolean.TRUE.equals(row.getSchoolSealed()));
+        row.setExternalSealed(Boolean.TRUE.equals(row.getExternalSealed()));
+        row.setSealStatus(defaultText(row.getSealStatus(), "PENDING"));
         row.setHandledBy(user.userId());
         row.setCreatedAt(now);
         row.setUpdatedAt(now);
@@ -353,6 +361,7 @@ public class NodeFormService {
         SubmissionRecord row = requireRuntime(request).submissionRecord();
         applyRuntime(definition, request, row);
         LocalDateTime now = LocalDateTime.now();
+        row.setSubmissionType(defaultText(row.getSubmissionType(), definition.formCode()));
         row.setSubmittedBy(user.userId());
         row.setSubmittedAt(row.getSubmittedAt() == null ? now : row.getSubmittedAt());
         row.setCreatedAt(now);
@@ -366,6 +375,8 @@ public class NodeFormService {
         ArchiveRecord row = requireRuntime(request).archiveRecord();
         applyRuntime(definition, request, row);
         LocalDateTime now = LocalDateTime.now();
+        row.setArchiveType(defaultText(row.getArchiveType(), definition.formCode()));
+        row.setArchiveStatus(defaultText(row.getArchiveStatus(), "ARCHIVED"));
         row.setArchivedBy(user.userId());
         row.setArchivedAt(row.getArchivedAt() == null ? now : row.getArchivedAt());
         row.setCreatedAt(now);
@@ -378,11 +389,19 @@ public class NodeFormService {
         ProjectApplicationPublicity row = requireProjectRecord(request).publicity();
         Long projectId = requireProjectId(request);
         ProjectApplication application = applicationDao.selectByProjectId(projectId);
+        LocalDateTime now = LocalDateTime.now();
         row.setProjectId(projectId);
         row.setApplicationId(application == null ? row.getApplicationId() : application.getApplicationId());
+        row.setModuleInstanceId(row.getModuleInstanceId() == null ? request.moduleInstanceId() : row.getModuleInstanceId());
+        row.setStateRecordId(row.getStateRecordId() == null ? request.stateRecordId() : row.getStateRecordId());
+        row.setPublicityTitle(defaultText(row.getPublicityTitle(), "项目公示"));
+        row.setPublicityStartDate(row.getPublicityStartDate() == null ? LocalDate.now() : row.getPublicityStartDate());
+        row.setPublicityEndDate(row.getPublicityEndDate() == null ? row.getPublicityStartDate().plusDays(5) : row.getPublicityEndDate());
+        row.setHasObjection(Boolean.TRUE.equals(row.getHasObjection()));
+        row.setPublicityResult(defaultText(row.getPublicityResult(), "APPROVED"));
         row.setConfirmedBy(user.userId());
-        row.setCreatedAt(LocalDateTime.now());
-        row.setUpdatedAt(LocalDateTime.now());
+        row.setCreatedAt(now);
+        row.setUpdatedAt(now);
         projectStructuredDao.insertPublicity(row);
         return row.getPublicityId();
     }
@@ -391,11 +410,17 @@ public class NodeFormService {
         SurplusFundsReturnRecord row = requireProjectRecord(request).surplusReturn();
         Long projectId = requireProjectId(request);
         ProjectAcceptance acceptance = acceptanceDao.selectByProjectId(projectId);
+        LocalDateTime now = LocalDateTime.now();
         row.setProjectId(projectId);
         row.setAcceptanceId(acceptance == null ? row.getAcceptanceId() : acceptance.getAcceptanceId());
+        row.setModuleInstanceId(row.getModuleInstanceId() == null ? request.moduleInstanceId() : row.getModuleInstanceId());
+        row.setStateRecordId(row.getStateRecordId() == null ? request.stateRecordId() : row.getStateRecordId());
+        row.setSurplusAmount(row.getSurplusAmount() == null ? BigDecimal.ZERO : row.getSurplusAmount());
+        row.setReturnRequired(row.getReturnRequired() == null ? Boolean.TRUE : row.getReturnRequired());
+        row.setReturnStatus(defaultText(row.getReturnStatus(), "PENDING"));
         row.setFinanceOperatorId(user.userId());
-        row.setCreatedAt(LocalDateTime.now());
-        row.setUpdatedAt(LocalDateTime.now());
+        row.setCreatedAt(now);
+        row.setUpdatedAt(now);
         projectStructuredDao.insertSurplusReturn(row);
         return row.getReturnId();
     }
@@ -409,7 +434,7 @@ public class NodeFormService {
             return expertReviewService.create(user, expert.createBatch()).batch().getBatchId();
         }
         if (expert.batchId() != null && expert.assignExpert() != null) {
-            expertReviewService.assign(expert.batchId(), expert.assignExpert());
+            expertReviewService.assign(user, expert.batchId(), expert.assignExpert());
             return expert.batchId();
         }
         if (expert.assignmentId() != null && expert.submitScore() != null) {
@@ -594,6 +619,9 @@ public class NodeFormService {
                 fields + verb + "required for " + definition.formCode());
     }
 
+    private String defaultText(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
     private Long requireProjectId(NodeFormSaveRequest request) {
         if (request == null || request.projectId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Project id is required");

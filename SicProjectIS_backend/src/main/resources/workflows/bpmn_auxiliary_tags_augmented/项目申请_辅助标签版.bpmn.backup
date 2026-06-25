@@ -1,0 +1,404 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:flowable="http://flowable.org/bpmn" xmlns:rm="http://example.com/research-management" id="Definitions_ResearchProjectApply_Lanes" targetNamespace="http://www.example.com/research-project" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2"><process id="researchProjectApplyProcess" name="高校科研项目申报审批流程" isExecutable="true">
+    <extensionElements><rm:processConfig processKey="APPLICATION_PROCESS" moduleType="APPLICATION" versionNo="1" status="ACTIVE" currentStateView="v_module_runtime_context" runtimeContextView="v_module_runtime_context" taskTable="task_instance" stateRecordTable="module_state_record" remarkTable="state_record_remark" materialLinkTable="state_record_material" sseEventType="MODULE_STATE_CHANGED" viewModelRefreshMode="RELOAD_AFTER_SSE"/></extensionElements><laneSet id="LaneSet_ResearchProjectApply">
+      <lane id="Lane_Authority" name="科技主管部门/第三方机构">
+        <flowNodeRef>AuthorityReviewTask</flowNodeRef>
+        <flowNodeRef>AuthorityReviewGateway</flowNodeRef>
+      </lane>
+      <lane id="Lane_Expert" name="评审专家">
+        <flowNodeRef>DeptExpertReviewTask</flowNodeRef>
+        <flowNodeRef>ScienceExpertReviewTask</flowNodeRef>
+      </lane>
+      <lane id="Lane_Department" name="二级单位">
+        <flowNodeRef>DeptReviewTask</flowNodeRef>
+        <flowNodeRef>LimitProjectGateway</flowNodeRef>
+        <flowNodeRef>DeptExpertAssignTask</flowNodeRef>
+        <flowNodeRef>DeptExpertSummaryTask</flowNodeRef>
+        <flowNodeRef>DeptExpertReviewGateway</flowNodeRef>
+        <flowNodeRef>DeptReviewGateway</flowNodeRef>
+      </lane>
+      <lane id="Lane_ProjectLeader" name="项目负责人">
+        <flowNodeRef>SubmitApplicationTask</flowNodeRef>
+        <flowNodeRef>SignAndSealTask</flowNodeRef>
+      </lane>
+      <lane id="Lane_ScienceOffice" name="科技处">
+        <flowNodeRef>StartEvent</flowNodeRef>
+        <flowNodeRef>PublishNoticeTask</flowNodeRef>
+        <flowNodeRef>ScienceOfficePublicityTask</flowNodeRef>
+        <flowNodeRef>SubmitFinalMaterialsTask</flowNodeRef>
+        <flowNodeRef>ApprovedEndEvent</flowNodeRef>
+        <flowNodeRef>ScienceOfficeInitialReviewTask</flowNodeRef>
+        <flowNodeRef>ScienceExpertAssignTask</flowNodeRef>
+        <flowNodeRef>ScienceExpertSummaryTask</flowNodeRef>
+        <flowNodeRef>ScienceExpertReviewGateway</flowNodeRef>
+        <flowNodeRef>ScienceOfficeSubmitTask</flowNodeRef>
+        <flowNodeRef>ScienceOfficePublicityGateway</flowNodeRef>
+        <flowNodeRef>ScienceOfficeInitialGateway</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="StartEvent" name="开始"><extensionElements><rm:workflowNode stateCode="APPLICATION_START" nodeType="START_EVENT" laneName="科技处" responsibleActorCode="SYSTEM" responsibleActorName="系统" operationMode="SYSTEM_AUTO" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/></extensionElements></startEvent>
+    <userTask id="PublishNoticeTask" name="发布申报通知" flowable:candidateGroups="SCIENCE_OFFICE_ADMIN"><extensionElements><rm:workflowNode stateCode="APPLICATION_NOTICE_PUBLISHING" nodeType="USER_TASK" laneName="科技处" responsibleActorCode="SCIENCE_OFFICE" responsibleActorName="科技处" candidateRoleCode="SCIENCE_ADMIN" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="APPLICATION_NOTICE" materialTypeName="项目申报通知" requirementTiming="AFTER_COMPLETE" required="false" minCount="0" usageType="PROOF_FILE" allowedFileTypes="pdf,doc,docx" maxFileSizeMb="20"/></extensionElements></userTask>
+    <userTask id="SubmitApplicationTask" name="填报并提交项目申请书" flowable:assignee="${projectLeader}"><extensionElements><rm:workflowNode stateCode="APPLICATION_DRAFT" nodeType="USER_TASK" laneName="项目负责人" responsibleActorCode="PROJECT_LEADER" responsibleActorName="项目负责人" candidateRoleCode="PROJECT_LEADER" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="PROJECT_APPLICATION_FORM" materialTypeName="项目申请书" requirementTiming="BEFORE_SUBMIT" required="true" minCount="1" usageType="SUBMITTED_FILE" allowedFileTypes="pdf,doc,docx" maxFileSizeMb="50"/><rm:materialRequirement materialTypeCode="APPLICATION_SUPPORTING_MATERIAL" materialTypeName="申报佐证材料" requirementTiming="BEFORE_SUBMIT" required="false" minCount="0" usageType="SUBMITTED_FILE" allowedFileTypes="pdf,doc,docx,jpg,png,zip" maxFileSizeMb="100"/></extensionElements></userTask>
+    <userTask id="DeptReviewTask" name="二级单位形式审核" flowable:candidateGroups="DEPT_REVIEWER"><extensionElements><rm:workflowNode stateCode="APPLICATION_DEPT_REVIEWING" nodeType="USER_TASK" laneName="二级单位" responsibleActorCode="DEPARTMENT" responsibleActorName="二级单位" candidateRoleCode="DEPT_ADMIN" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="DEPT_REVIEW_OPINION" materialTypeName="二级单位审核意见" requirementTiming="BEFORE_SUBMIT" required="false" minCount="0" usageType="REVIEW_ATTACHMENT" allowedFileTypes="pdf,doc,docx,jpg,png" maxFileSizeMb="20"/></extensionElements></userTask>
+    <exclusiveGateway id="DeptReviewGateway" name="二级单位审核结果"><extensionElements><rm:workflowNode nodeType="GATEWAY" laneName="二级单位" responsibleActorCode="SYSTEM" responsibleActorName="系统" operationMode="SYSTEM_AUTO" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/></extensionElements></exclusiveGateway>
+    <exclusiveGateway id="LimitProjectGateway" name="是否限项项目"><extensionElements><rm:workflowNode nodeType="GATEWAY" laneName="二级单位" responsibleActorCode="SYSTEM" responsibleActorName="系统" operationMode="SYSTEM_AUTO" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/></extensionElements></exclusiveGateway>
+    <userTask id="DeptExpertAssignTask" name="二级单位分配评审专家" flowable:candidateGroups="DEPT_REVIEWER"><extensionElements><rm:workflowNode stateCode="APPLICATION_DEPT_EXPERT_ASSIGNING" nodeType="USER_TASK" laneName="二级单位" responsibleActorCode="DEPARTMENT" responsibleActorName="二级单位" candidateRoleCode="DEPT_ADMIN" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/></extensionElements></userTask>
+    <userTask id="DeptExpertReviewTask" name="二级单位专家审核提交" flowable:candidateGroups="PROJECT_EXPERT"><extensionElements><rm:workflowNode stateCode="APPLICATION_DEPT_EXPERT_REVIEWING" nodeType="USER_TASK" laneName="评审专家" responsibleActorCode="EXPERT_PANEL" responsibleActorName="评审专家" candidateRoleCode="EXPERT" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="DEPT_EXPERT_REVIEW_RECORD" materialTypeName="二级单位专家评审记录" requirementTiming="BEFORE_SUBMIT" required="false" minCount="0" usageType="REVIEW_ATTACHMENT" allowedFileTypes="pdf,doc,docx,xls,xlsx" maxFileSizeMb="30"/></extensionElements></userTask>
+    <userTask id="DeptExpertSummaryTask" name="二级单位汇总提交专家评审结果" flowable:candidateGroups="DEPT_REVIEWER"><extensionElements><rm:workflowNode stateCode="APPLICATION_DEPT_EXPERT_SUMMARIZING" nodeType="USER_TASK" laneName="二级单位" responsibleActorCode="DEPARTMENT" responsibleActorName="二级单位" candidateRoleCode="DEPT_ADMIN" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="DEPT_EXPERT_REVIEW_SUMMARY" materialTypeName="二级单位专家评审汇总" requirementTiming="BEFORE_SUBMIT" required="false" minCount="0" usageType="REVIEW_ATTACHMENT" allowedFileTypes="pdf,doc,docx,xls,xlsx" maxFileSizeMb="30"/></extensionElements></userTask>
+    <exclusiveGateway id="DeptExpertReviewGateway" name="院级专家评审结果"><extensionElements><rm:workflowNode nodeType="GATEWAY" laneName="二级单位" responsibleActorCode="SYSTEM" responsibleActorName="系统" operationMode="SYSTEM_AUTO" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/></extensionElements></exclusiveGateway>
+    <userTask id="ScienceOfficeInitialReviewTask" name="科技处初审" flowable:candidateGroups="SCIENCE_OFFICE_ADMIN"><extensionElements><rm:workflowNode stateCode="APPLICATION_SCIENCE_INITIAL_REVIEWING" nodeType="USER_TASK" laneName="科技处" responsibleActorCode="SCIENCE_OFFICE" responsibleActorName="科技处" candidateRoleCode="SCIENCE_ADMIN" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="SCIENCE_INITIAL_REVIEW_OPINION" materialTypeName="科技处初审意见" requirementTiming="BEFORE_SUBMIT" required="false" minCount="0" usageType="REVIEW_ATTACHMENT" allowedFileTypes="pdf,doc,docx,jpg,png" maxFileSizeMb="20"/></extensionElements></userTask>
+    <exclusiveGateway id="ScienceOfficeInitialGateway" name="科技处初审结果"><extensionElements><rm:workflowNode nodeType="GATEWAY" laneName="科技处" responsibleActorCode="SYSTEM" responsibleActorName="系统" operationMode="SYSTEM_AUTO" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/></extensionElements></exclusiveGateway>
+    <userTask id="ScienceExpertAssignTask" name="科技处分配评审专家" flowable:candidateGroups="SCIENCE_OFFICE_ADMIN"><extensionElements><rm:workflowNode stateCode="APPLICATION_SCIENCE_EXPERT_ASSIGNING" nodeType="USER_TASK" laneName="科技处" responsibleActorCode="SCIENCE_OFFICE" responsibleActorName="科技处" candidateRoleCode="SCIENCE_ADMIN" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/></extensionElements></userTask>
+    <userTask id="ScienceExpertReviewTask" name="科技处专家审核提交" flowable:candidateGroups="PROJECT_EXPERT"><extensionElements><rm:workflowNode stateCode="APPLICATION_SCIENCE_EXPERT_REVIEWING" nodeType="USER_TASK" laneName="评审专家" responsibleActorCode="EXPERT_PANEL" responsibleActorName="评审专家" candidateRoleCode="EXPERT" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="SCIENCE_EXPERT_REVIEW_RECORD" materialTypeName="科技处专家评审记录" requirementTiming="BEFORE_SUBMIT" required="false" minCount="0" usageType="REVIEW_ATTACHMENT" allowedFileTypes="pdf,doc,docx,xls,xlsx" maxFileSizeMb="30"/></extensionElements></userTask>
+    <userTask id="ScienceExpertSummaryTask" name="科技处汇总提交专家评审结果" flowable:candidateGroups="SCIENCE_OFFICE_ADMIN"><extensionElements><rm:workflowNode stateCode="APPLICATION_SCIENCE_EXPERT_SUMMARIZING" nodeType="USER_TASK" laneName="科技处" responsibleActorCode="SCIENCE_OFFICE" responsibleActorName="科技处" candidateRoleCode="SCIENCE_ADMIN" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="SCIENCE_EXPERT_REVIEW_SUMMARY" materialTypeName="科技处专家评审汇总" requirementTiming="BEFORE_SUBMIT" required="false" minCount="0" usageType="REVIEW_ATTACHMENT" allowedFileTypes="pdf,doc,docx,xls,xlsx" maxFileSizeMb="30"/></extensionElements></userTask>
+    <exclusiveGateway id="ScienceExpertReviewGateway" name="专家评审结果"><extensionElements><rm:workflowNode nodeType="GATEWAY" laneName="科技处" responsibleActorCode="SYSTEM" responsibleActorName="系统" operationMode="SYSTEM_AUTO" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/></extensionElements></exclusiveGateway>
+    <userTask id="ScienceOfficePublicityTask" name="科技处择优推荐并公示" flowable:candidateGroups="SCIENCE_OFFICE_ADMIN"><extensionElements><rm:workflowNode stateCode="APPLICATION_PUBLICITY" nodeType="USER_TASK" laneName="科技处" responsibleActorCode="SCIENCE_OFFICE" responsibleActorName="科技处" candidateRoleCode="SCIENCE_ADMIN" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="PUBLICITY_MATERIAL" materialTypeName="项目公示材料" requirementTiming="BEFORE_SUBMIT" required="false" minCount="0" usageType="PROOF_FILE" allowedFileTypes="pdf,doc,docx,jpg,png" maxFileSizeMb="20"/></extensionElements></userTask>
+    <exclusiveGateway id="ScienceOfficePublicityGateway" name="公示结果"><extensionElements><rm:workflowNode nodeType="GATEWAY" laneName="科技处" responsibleActorCode="SYSTEM" responsibleActorName="系统" operationMode="SYSTEM_AUTO" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/></extensionElements></exclusiveGateway>
+    <userTask id="ScienceOfficeSubmitTask" name="科技处审核上报" flowable:candidateGroups="SCIENCE_OFFICE_ADMIN"><extensionElements><rm:workflowNode stateCode="APPLICATION_SCIENCE_SUBMITTING" nodeType="USER_TASK" laneName="科技处" responsibleActorCode="SCIENCE_OFFICE" responsibleActorName="科技处" candidateRoleCode="SCIENCE_ADMIN" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="AUTHORITY_SUBMISSION_FILE" materialTypeName="上报主管部门材料" requirementTiming="BEFORE_SUBMIT" required="false" minCount="0" usageType="SUBMITTED_FILE" allowedFileTypes="pdf,doc,docx,zip" maxFileSizeMb="100"/></extensionElements></userTask>
+    <userTask id="AuthorityReviewTask" name="主管部门或第三方机构审核结果登记" flowable:candidateGroups="SCIENCE_OFFICE_ADMIN"><extensionElements><rm:workflowNode stateCode="APPLICATION_AUTHORITY_REVIEWING" nodeType="USER_TASK" laneName="科技主管部门/第三方机构" responsibleActorCode="AUTHORITY_OR_THIRD_PARTY" responsibleActorName="科技主管部门/第三方机构" candidateRoleCode="SCIENCE_ADMIN" operationMode="PROXY_INPUT" representedActorCode="AUTHORITY_OR_THIRD_PARTY" representedActorName="科技主管部门/第三方机构" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="AUTHORITY_APPROVAL_FILE" materialTypeName="主管部门批复文件" requirementTiming="BEFORE_SUBMIT" required="true" minCount="1" usageType="PROOF_FILE" allowedFileTypes="pdf,jpg,png" maxFileSizeMb="20"/></extensionElements></userTask>
+    <exclusiveGateway id="AuthorityReviewGateway" name="主管部门审核结果"><extensionElements><rm:workflowNode nodeType="GATEWAY" laneName="科技主管部门/第三方机构" responsibleActorCode="SYSTEM" responsibleActorName="系统" operationMode="SYSTEM_AUTO" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/></extensionElements></exclusiveGateway>
+    <userTask id="SignAndSealTask" name="打印申请书、签字并申请用章" flowable:assignee="${projectLeader}"><extensionElements><rm:workflowNode stateCode="APPLICATION_SIGN_SEALING" nodeType="USER_TASK" laneName="项目负责人" responsibleActorCode="PROJECT_LEADER" responsibleActorName="项目负责人" candidateRoleCode="PROJECT_LEADER" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="SIGNED_APPLICATION_FORM" materialTypeName="签字盖章后的项目申请书" requirementTiming="BEFORE_SUBMIT" required="true" minCount="1" usageType="SIGNED_FILE" allowedFileTypes="pdf,jpg,png" maxFileSizeMb="50"/></extensionElements></userTask>
+    <userTask id="SubmitFinalMaterialsTask" name="报送主管部门或第三方机构" flowable:candidateGroups="SCIENCE_OFFICE_ADMIN"><extensionElements><rm:workflowNode stateCode="APPLICATION_FINAL_MATERIAL_SUBMITTING" nodeType="USER_TASK" laneName="科技处" responsibleActorCode="SCIENCE_OFFICE" responsibleActorName="科技处" candidateRoleCode="SCIENCE_ADMIN" operationMode="SELF_OPERATE" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:materialRequirement materialTypeCode="FINAL_APPLICATION_MATERIALS" materialTypeName="最终报送材料" requirementTiming="BEFORE_SUBMIT" required="true" minCount="1" usageType="SUBMITTED_FILE" allowedFileTypes="pdf,doc,docx,zip" maxFileSizeMb="100"/><rm:documentConfig documentTypeCode="APPLICATION_APPROVAL_FORM" documentTypeName="项目申报审批单" generateTiming="ON_PROCESS_END" templateCode="tpl_application_approval_form" outputMaterialTypeCode="APPLICATION_APPROVAL_FORM_PDF" outputMaterialTypeName="项目申报审批单PDF" required="true"/></extensionElements></userTask>
+    <endEvent id="ApprovedEndEvent" name="申报流程完成"><extensionElements><rm:workflowNode stateCode="APPLICATION_APPROVED" nodeType="END_EVENT" laneName="科技处" responsibleActorCode="SYSTEM" responsibleActorName="系统" operationMode="SYSTEM_AUTO" processKey="APPLICATION_PROCESS" moduleType="APPLICATION"/><rm:documentConfig documentTypeCode="APPLICATION_APPROVED_NOTICE" documentTypeName="项目申报完成通知" generateTiming="ON_PROCESS_END" templateCode="tpl_application_approved_notice" outputMaterialTypeCode="APPLICATION_APPROVED_NOTICE_PDF" outputMaterialTypeName="项目申报完成通知PDF" required="false"/></extensionElements></endEvent>
+    <sequenceFlow id="Flow_Start_Submit" sourceRef="StartEvent" targetRef="SubmitApplicationTask"><extensionElements><rm:transition eventType="APPLICATION_SELF_STARTED" result="STARTED" conditionType="NONE" actionKeys="SYSTEM_AUTO" sourceRef="StartEvent" targetRef="SubmitApplicationTask" sourceStateCode="APPLICATION_START" targetStateCode="APPLICATION_DRAFT"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_Publish_Submit" sourceRef="PublishNoticeTask" targetRef="SubmitApplicationTask"><extensionElements><rm:transition eventType="APPLICATION_NOTICE_PUBLISHED" result="NOTICE_PUBLISHED" conditionType="NONE" actionKeys="CREATE_APPLICATION_DRAFT_TASK" sourceRef="PublishNoticeTask" targetRef="SubmitApplicationTask" sourceStateCode="APPLICATION_NOTICE_PUBLISHING" targetStateCode="APPLICATION_DRAFT"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_DeptReject_Return" name="不通过，退回修改" sourceRef="DeptReviewGateway" targetRef="SubmitApplicationTask">
+      <extensionElements><rm:transition eventType="DEPT_REJECT" result="RETURNED" conditionType="SIMPLE_BOOL" conditionKey="deptApproved" conditionValue="false" actionKeys="RETURN_TO_APPLICANT" sourceRef="DeptReviewGateway" targetRef="SubmitApplicationTask" targetStateCode="APPLICATION_DRAFT"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${deptApproved == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_DeptExpertReject_Return" name="不通过，退回修改" sourceRef="DeptExpertReviewGateway" targetRef="SubmitApplicationTask">
+      <extensionElements><rm:transition eventType="DEPT_EXPERT_REJECT" result="RETURNED" conditionType="SIMPLE_BOOL" conditionKey="deptExpertApproved" conditionValue="false" actionKeys="RETURN_TO_APPLICANT" sourceRef="DeptExpertReviewGateway" targetRef="SubmitApplicationTask" targetStateCode="APPLICATION_DRAFT"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${deptExpertApproved == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_ScienceInitialReject_Return" name="不通过，退回修改" sourceRef="ScienceOfficeInitialGateway" targetRef="SubmitApplicationTask">
+      <extensionElements><rm:transition eventType="SCIENCE_INITIAL_REJECT" result="RETURNED" conditionType="SIMPLE_BOOL" conditionKey="scienceInitialApproved" conditionValue="false" actionKeys="RETURN_TO_APPLICANT" sourceRef="ScienceOfficeInitialGateway" targetRef="SubmitApplicationTask" targetStateCode="APPLICATION_DRAFT"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${scienceInitialApproved == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_ScienceExpertReject_Return" name="不通过，退回修改" sourceRef="ScienceExpertReviewGateway" targetRef="SubmitApplicationTask">
+      <extensionElements><rm:transition eventType="SCIENCE_EXPERT_REJECT" result="RETURNED" conditionType="SIMPLE_BOOL" conditionKey="scienceExpertApproved" conditionValue="false" actionKeys="RETURN_TO_APPLICANT" sourceRef="ScienceExpertReviewGateway" targetRef="SubmitApplicationTask" targetStateCode="APPLICATION_DRAFT"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${scienceExpertApproved == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_PublicityReject_Return" name="不通过，退回修改" sourceRef="ScienceOfficePublicityGateway" targetRef="SubmitApplicationTask">
+      <extensionElements><rm:transition eventType="PUBLICITY_REJECT" result="RETURNED" conditionType="SIMPLE_BOOL" conditionKey="publicityApproved" conditionValue="false" actionKeys="RETURN_TO_APPLICANT" sourceRef="ScienceOfficePublicityGateway" targetRef="SubmitApplicationTask" targetStateCode="APPLICATION_DRAFT"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${publicityApproved == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_AuthorityReject_Return" name="不通过，退回修改" sourceRef="AuthorityReviewGateway" targetRef="SubmitApplicationTask">
+      <extensionElements><rm:transition eventType="AUTHORITY_REJECT" result="RETURNED" conditionType="SIMPLE_BOOL" conditionKey="authorityApproved" conditionValue="false" actionKeys="RETURN_TO_APPLICANT" sourceRef="AuthorityReviewGateway" targetRef="SubmitApplicationTask" targetStateCode="APPLICATION_DRAFT"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${authorityApproved == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_Submit_DeptReview" sourceRef="SubmitApplicationTask" targetRef="DeptReviewTask"><extensionElements><rm:transition eventType="USER_CONFIRMED_SUBMIT" result="SUBMITTED" conditionType="NONE" actionKeys="CREATE_DEPT_REVIEW_TASK" sourceRef="SubmitApplicationTask" targetRef="DeptReviewTask" sourceStateCode="APPLICATION_DRAFT" targetStateCode="APPLICATION_DEPT_REVIEWING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_DeptReview_Gateway" sourceRef="DeptReviewTask" targetRef="DeptReviewGateway"><extensionElements><rm:transition eventType="DEPT_REVIEW_FINISHED" result="REVIEW_FINISHED" conditionType="NONE" actionKeys="EVALUATE_DEPT_REVIEW_RESULT" sourceRef="DeptReviewTask" targetRef="DeptReviewGateway" sourceStateCode="APPLICATION_DEPT_REVIEWING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_DeptPass_LimitGateway" name="通过" sourceRef="DeptReviewGateway" targetRef="LimitProjectGateway">
+      <extensionElements><rm:transition eventType="DEPT_APPROVE" result="APPROVED" conditionType="SIMPLE_BOOL" conditionKey="deptApproved" conditionValue="true" actionKeys="CHECK_LIMITED_PROJECT" sourceRef="DeptReviewGateway" targetRef="LimitProjectGateway"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${deptApproved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_Limited_DeptExpert" name="限项项目" sourceRef="LimitProjectGateway" targetRef="DeptExpertAssignTask">
+      <extensionElements><rm:transition eventType="LIMITED_PROJECT_SELECTED" result="LIMITED" conditionType="SIMPLE_BOOL" conditionKey="isLimitedProject" conditionValue="true" actionKeys="CREATE_DEPT_EXPERT_REVIEW_TASK" sourceRef="LimitProjectGateway" targetRef="DeptExpertAssignTask" targetStateCode="APPLICATION_DEPT_EXPERT_ASSIGNING"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${isLimitedProject == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_NonLimited_ScienceInitial" name="非限项项目" sourceRef="LimitProjectGateway" targetRef="ScienceOfficeInitialReviewTask">
+      <extensionElements><rm:transition eventType="NON_LIMITED_PROJECT_SELECTED" result="NON_LIMITED" conditionType="SIMPLE_BOOL" conditionKey="isLimitedProject" conditionValue="false" actionKeys="CREATE_SCIENCE_INITIAL_REVIEW_TASK" sourceRef="LimitProjectGateway" targetRef="ScienceOfficeInitialReviewTask" targetStateCode="APPLICATION_SCIENCE_INITIAL_REVIEWING"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${isLimitedProject == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_DeptExpertAssign_Review" sourceRef="DeptExpertAssignTask" targetRef="DeptExpertReviewTask"><extensionElements><rm:transition eventType="DEPT_EXPERT_ASSIGNED" result="ASSIGNED" conditionType="NONE" actionKeys="CREATE_DEPT_EXPERT_REVIEW_TASK" sourceRef="DeptExpertAssignTask" targetRef="DeptExpertReviewTask" sourceStateCode="APPLICATION_DEPT_EXPERT_ASSIGNING" targetStateCode="APPLICATION_DEPT_EXPERT_REVIEWING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_DeptExpertReview_Summary" sourceRef="DeptExpertReviewTask" targetRef="DeptExpertSummaryTask"><extensionElements><rm:transition eventType="DEPT_EXPERT_REVIEW_SUBMITTED" result="REVIEW_SUBMITTED" conditionType="NONE" actionKeys="CREATE_DEPT_EXPERT_SUMMARY_TASK" sourceRef="DeptExpertReviewTask" targetRef="DeptExpertSummaryTask" sourceStateCode="APPLICATION_DEPT_EXPERT_REVIEWING" targetStateCode="APPLICATION_DEPT_EXPERT_SUMMARIZING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_DeptExpertSummary_Gateway" sourceRef="DeptExpertSummaryTask" targetRef="DeptExpertReviewGateway"><extensionElements><rm:transition eventType="DEPT_EXPERT_REVIEW_FINISHED" result="REVIEW_FINISHED" conditionType="NONE" actionKeys="EVALUATE_DEPT_EXPERT_REVIEW_RESULT" sourceRef="DeptExpertSummaryTask" targetRef="DeptExpertReviewGateway" sourceStateCode="APPLICATION_DEPT_EXPERT_SUMMARIZING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_DeptExpertPass_ScienceInitial" name="通过" sourceRef="DeptExpertReviewGateway" targetRef="ScienceOfficeInitialReviewTask">
+      <extensionElements><rm:transition eventType="DEPT_EXPERT_APPROVE" result="APPROVED" conditionType="SIMPLE_BOOL" conditionKey="deptExpertApproved" conditionValue="true" actionKeys="CREATE_SCIENCE_INITIAL_REVIEW_TASK" sourceRef="DeptExpertReviewGateway" targetRef="ScienceOfficeInitialReviewTask" targetStateCode="APPLICATION_SCIENCE_INITIAL_REVIEWING"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${deptExpertApproved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_ScienceInitial_Gateway" sourceRef="ScienceOfficeInitialReviewTask" targetRef="ScienceOfficeInitialGateway"><extensionElements><rm:transition eventType="SCIENCE_INITIAL_REVIEW_FINISHED" result="REVIEW_FINISHED" conditionType="NONE" actionKeys="EVALUATE_SCIENCE_INITIAL_REVIEW_RESULT" sourceRef="ScienceOfficeInitialReviewTask" targetRef="ScienceOfficeInitialGateway" sourceStateCode="APPLICATION_SCIENCE_INITIAL_REVIEWING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_ScienceInitialPass_ExpertReview" name="通过" sourceRef="ScienceOfficeInitialGateway" targetRef="ScienceExpertAssignTask">
+      <extensionElements><rm:transition eventType="SCIENCE_INITIAL_APPROVE" result="APPROVED" conditionType="SIMPLE_BOOL" conditionKey="scienceInitialApproved" conditionValue="true" actionKeys="CREATE_SCIENCE_EXPERT_REVIEW_TASK" sourceRef="ScienceOfficeInitialGateway" targetRef="ScienceExpertAssignTask" targetStateCode="APPLICATION_SCIENCE_EXPERT_ASSIGNING"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${scienceInitialApproved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_ScienceExpertAssign_Review" sourceRef="ScienceExpertAssignTask" targetRef="ScienceExpertReviewTask"><extensionElements><rm:transition eventType="SCIENCE_EXPERT_ASSIGNED" result="ASSIGNED" conditionType="NONE" actionKeys="CREATE_SCIENCE_EXPERT_REVIEW_TASK" sourceRef="ScienceExpertAssignTask" targetRef="ScienceExpertReviewTask" sourceStateCode="APPLICATION_SCIENCE_EXPERT_ASSIGNING" targetStateCode="APPLICATION_SCIENCE_EXPERT_REVIEWING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_ScienceExpertReview_Summary" sourceRef="ScienceExpertReviewTask" targetRef="ScienceExpertSummaryTask"><extensionElements><rm:transition eventType="SCIENCE_EXPERT_REVIEW_SUBMITTED" result="REVIEW_SUBMITTED" conditionType="NONE" actionKeys="CREATE_SCIENCE_EXPERT_SUMMARY_TASK" sourceRef="ScienceExpertReviewTask" targetRef="ScienceExpertSummaryTask" sourceStateCode="APPLICATION_SCIENCE_EXPERT_REVIEWING" targetStateCode="APPLICATION_SCIENCE_EXPERT_SUMMARIZING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_ScienceExpertSummary_Gateway" sourceRef="ScienceExpertSummaryTask" targetRef="ScienceExpertReviewGateway"><extensionElements><rm:transition eventType="SCIENCE_EXPERT_REVIEW_FINISHED" result="REVIEW_FINISHED" conditionType="NONE" actionKeys="EVALUATE_SCIENCE_EXPERT_REVIEW_RESULT" sourceRef="ScienceExpertSummaryTask" targetRef="ScienceExpertReviewGateway" sourceStateCode="APPLICATION_SCIENCE_EXPERT_SUMMARIZING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_ScienceExpertPass_Publicity" name="通过" sourceRef="ScienceExpertReviewGateway" targetRef="ScienceOfficePublicityTask">
+      <extensionElements><rm:transition eventType="SCIENCE_EXPERT_APPROVE" result="APPROVED" conditionType="SIMPLE_BOOL" conditionKey="scienceExpertApproved" conditionValue="true" actionKeys="CREATE_PUBLICITY_TASK" sourceRef="ScienceExpertReviewGateway" targetRef="ScienceOfficePublicityTask" targetStateCode="APPLICATION_PUBLICITY"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${scienceExpertApproved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_Publicity_Gateway" sourceRef="ScienceOfficePublicityTask" targetRef="ScienceOfficePublicityGateway"><extensionElements><rm:transition eventType="PUBLICITY_FINISHED" result="PUBLICITY_FINISHED" conditionType="NONE" actionKeys="EVALUATE_PUBLICITY_RESULT" sourceRef="ScienceOfficePublicityTask" targetRef="ScienceOfficePublicityGateway" sourceStateCode="APPLICATION_PUBLICITY"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_PublicityPass_Submit" name="通过" sourceRef="ScienceOfficePublicityGateway" targetRef="ScienceOfficeSubmitTask">
+      <extensionElements><rm:transition eventType="PUBLICITY_APPROVE" result="APPROVED" conditionType="SIMPLE_BOOL" conditionKey="publicityApproved" conditionValue="true" actionKeys="CREATE_AUTHORITY_SUBMISSION_TASK" sourceRef="ScienceOfficePublicityGateway" targetRef="ScienceOfficeSubmitTask" targetStateCode="APPLICATION_SCIENCE_SUBMITTING"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${publicityApproved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_ScienceSubmit_AuthorityReview" sourceRef="ScienceOfficeSubmitTask" targetRef="AuthorityReviewTask"><extensionElements><rm:transition eventType="SCIENCE_SUBMIT_TO_AUTHORITY" result="SUBMITTED" conditionType="NONE" actionKeys="CREATE_AUTHORITY_REVIEW_RESULT_TASK" sourceRef="ScienceOfficeSubmitTask" targetRef="AuthorityReviewTask" sourceStateCode="APPLICATION_SCIENCE_SUBMITTING" targetStateCode="APPLICATION_AUTHORITY_REVIEWING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_AuthorityReview_Gateway" sourceRef="AuthorityReviewTask" targetRef="AuthorityReviewGateway"><extensionElements><rm:transition eventType="AUTHORITY_REVIEW_FINISHED" result="REVIEW_FINISHED" conditionType="NONE" actionKeys="EVALUATE_AUTHORITY_REVIEW_RESULT" sourceRef="AuthorityReviewTask" targetRef="AuthorityReviewGateway" sourceStateCode="APPLICATION_AUTHORITY_REVIEWING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_AuthorityPass_SignSeal" name="通过" sourceRef="AuthorityReviewGateway" targetRef="SignAndSealTask">
+      <extensionElements><rm:transition eventType="AUTHORITY_APPROVE" result="APPROVED" conditionType="SIMPLE_BOOL" conditionKey="authorityApproved" conditionValue="true" actionKeys="CREATE_SIGN_AND_SEAL_TASK" sourceRef="AuthorityReviewGateway" targetRef="SignAndSealTask" targetStateCode="APPLICATION_SIGN_SEALING"/></extensionElements><conditionExpression xsi:type="tFormalExpression">${authorityApproved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_SignSeal_SubmitFinal" sourceRef="SignAndSealTask" targetRef="SubmitFinalMaterialsTask"><extensionElements><rm:transition eventType="SIGN_AND_SEAL_COMPLETED" result="SIGNED" conditionType="NONE" actionKeys="CREATE_FINAL_MATERIAL_SUBMIT_TASK" sourceRef="SignAndSealTask" targetRef="SubmitFinalMaterialsTask" sourceStateCode="APPLICATION_SIGN_SEALING" targetStateCode="APPLICATION_FINAL_MATERIAL_SUBMITTING"/></extensionElements></sequenceFlow>
+    <sequenceFlow id="Flow_SubmitFinal_End" sourceRef="SubmitFinalMaterialsTask" targetRef="ApprovedEndEvent"><extensionElements><rm:transition eventType="FINAL_MATERIALS_SUBMITTED" result="PROCESS_COMPLETED" conditionType="NONE" actionKeys="GENERATE_APPLICATION_DOCUMENTS" sourceRef="SubmitFinalMaterialsTask" targetRef="ApprovedEndEvent" sourceStateCode="APPLICATION_FINAL_MATERIAL_SUBMITTING" targetStateCode="APPLICATION_APPROVED"/></extensionElements></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_ResearchProjectApply_Lanes">
+    <bpmndi:BPMNPlane id="BPMNPlane_ResearchProjectApply_Lanes" bpmnElement="researchProjectApplyProcess">
+      <bpmndi:BPMNShape id="Lane_ScienceOffice_di" bpmnElement="Lane_ScienceOffice" isHorizontal="true">
+        <omgdc:Bounds x="160" y="40" width="3350" height="120"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_ProjectLeader_di" bpmnElement="Lane_ProjectLeader" isHorizontal="true">
+        <omgdc:Bounds x="160" y="160" width="3350" height="120"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Department_di" bpmnElement="Lane_Department" isHorizontal="true">
+        <omgdc:Bounds x="160" y="280" width="3350" height="120"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Expert_di" bpmnElement="Lane_Expert" isHorizontal="true">
+        <omgdc:Bounds x="160" y="400" width="3350" height="120"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Authority_di" bpmnElement="Lane_Authority" isHorizontal="true">
+        <omgdc:Bounds x="160" y="520" width="3350" height="140"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_di" bpmnElement="StartEvent">
+        <omgdc:Bounds x="210" y="82" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="216" y="125" width="23" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="PublishNoticeTask_di" bpmnElement="PublishNoticeTask">
+        <omgdc:Bounds x="280" y="65" width="150" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SubmitApplicationTask_di" bpmnElement="SubmitApplicationTask">
+        <omgdc:Bounds x="480" y="185" width="170" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DeptReviewTask_di" bpmnElement="DeptReviewTask">
+        <omgdc:Bounds x="700" y="305" width="150" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DeptReviewGateway_di" bpmnElement="DeptReviewGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="900" y="315" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="880" y="291" width="89" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="LimitProjectGateway_di" bpmnElement="LimitProjectGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="1020" y="315" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1012" y="365" width="66" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DeptExpertReviewTask_di" bpmnElement="DeptExpertReviewTask">
+        <omgdc:Bounds x="1130" y="305" width="190" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DeptExpertReviewGateway_di" bpmnElement="DeptExpertReviewGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="1370" y="315" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1350" y="291" width="89" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceExpertReviewGateway_di" bpmnElement="ScienceExpertReviewGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="1970" y="435" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1961" y="411" width="67" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceOfficePublicityTask_di" bpmnElement="ScienceOfficePublicityTask">
+        <omgdc:Bounds x="2070" y="65" width="190" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceOfficePublicityGateway_di" bpmnElement="ScienceOfficePublicityGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="2310" y="75" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2312" y="51" width="45" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="AuthorityReviewTask_di" bpmnElement="AuthorityReviewTask">
+        <omgdc:Bounds x="2610" y="545" width="200" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="AuthorityReviewGateway_di" bpmnElement="AuthorityReviewGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="2860" y="555" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2840" y="531" width="89" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SignAndSealTask_di" bpmnElement="SignAndSealTask">
+        <omgdc:Bounds x="2960" y="185" width="190" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SubmitFinalMaterialsTask_di" bpmnElement="SubmitFinalMaterialsTask">
+        <omgdc:Bounds x="3200" y="65" width="190" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ApprovedEndEvent_di" bpmnElement="ApprovedEndEvent">
+        <omgdc:Bounds x="3440" y="82" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="3424" y="123" width="67" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceExpertReviewTask_di" bpmnElement="ScienceExpertReviewTask">
+        <omgdc:Bounds x="1795" y="425" width="150" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceOfficeInitialReviewTask_di" bpmnElement="ScienceOfficeInitialReviewTask">
+        <omgdc:Bounds x="1475" y="65" width="150" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceOfficeInitialGateway_di" bpmnElement="ScienceOfficeInitialGateway" isMarkerVisible="true">
+        <omgdc:Bounds x="1695" y="75" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1681" y="51" width="78" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ScienceOfficeSubmitTask_di" bpmnElement="ScienceOfficeSubmitTask">
+        <omgdc:Bounds x="2395" y="65" width="150" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_Submit_di" bpmnElement="Flow_Start_Submit">
+        <omgdi:waypoint x="246" y="100"/>
+        <omgdi:waypoint x="280" y="100"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Publish_Submit_di" bpmnElement="Flow_Publish_Submit">
+        <omgdi:waypoint x="430" y="100"/>
+        <omgdi:waypoint x="455" y="100"/>
+        <omgdi:waypoint x="455" y="220"/>
+        <omgdi:waypoint x="480" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DeptReject_Return_di" bpmnElement="Flow_DeptReject_Return">
+        <omgdi:waypoint x="925" y="365"/>
+        <omgdi:waypoint x="925" y="630"/>
+        <omgdi:waypoint x="565" y="630"/>
+        <omgdi:waypoint x="565" y="255"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="825" y="603" width="89" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DeptExpertReject_Return_di" bpmnElement="Flow_DeptExpertReject_Return">
+        <omgdi:waypoint x="1395" y="365"/>
+        <omgdi:waypoint x="1395" y="630"/>
+        <omgdi:waypoint x="565" y="630"/>
+        <omgdi:waypoint x="565" y="255"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1295" y="603" width="89" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceInitialReject_Return_di" bpmnElement="Flow_ScienceInitialReject_Return">
+        <omgdi:waypoint x="1720" y="125"/>
+        <omgdi:waypoint x="1720" y="630"/>
+        <omgdi:waypoint x="565" y="630"/>
+        <omgdi:waypoint x="565" y="255"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1895" y="603" width="89" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceExpertReject_Return_di" bpmnElement="Flow_ScienceExpertReject_Return">
+        <omgdi:waypoint x="1995" y="485"/>
+        <omgdi:waypoint x="1995" y="630"/>
+        <omgdi:waypoint x="565" y="630"/>
+        <omgdi:waypoint x="565" y="255"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2895" y="612.9999999999974" width="89" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PublicityReject_Return_di" bpmnElement="Flow_PublicityReject_Return">
+        <omgdi:waypoint x="2335" y="125"/>
+        <omgdi:waypoint x="2335" y="630"/>
+        <omgdi:waypoint x="565" y="630"/>
+        <omgdi:waypoint x="565" y="255"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1625" y="603" width="89" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AuthorityReject_Return_di" bpmnElement="Flow_AuthorityReject_Return">
+        <omgdi:waypoint x="2885" y="605"/>
+        <omgdi:waypoint x="2885" y="630"/>
+        <omgdi:waypoint x="565" y="630"/>
+        <omgdi:waypoint x="565" y="255"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2245" y="603" width="89" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Submit_DeptReview_di" bpmnElement="Flow_Submit_DeptReview">
+        <omgdi:waypoint x="650" y="220"/>
+        <omgdi:waypoint x="670" y="220"/>
+        <omgdi:waypoint x="670" y="340"/>
+        <omgdi:waypoint x="700" y="340"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DeptReview_Gateway_di" bpmnElement="Flow_DeptReview_Gateway">
+        <omgdi:waypoint x="850" y="340"/>
+        <omgdi:waypoint x="900" y="340"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DeptPass_LimitGateway_di" bpmnElement="Flow_DeptPass_LimitGateway">
+        <omgdi:waypoint x="950" y="340"/>
+        <omgdi:waypoint x="1020" y="340"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="974" y="315" width="23" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Limited_DeptExpert_di" bpmnElement="Flow_Limited_DeptExpert">
+        <omgdi:waypoint x="1070" y="340"/>
+        <omgdi:waypoint x="1130" y="340"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1078" y="315" width="44" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NonLimited_ScienceInitial_di" bpmnElement="Flow_NonLimited_ScienceInitial">
+        <omgdi:waypoint x="1045" y="315"/>
+        <omgdi:waypoint x="1045" y="100"/>
+        <omgdi:waypoint x="1475" y="100"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1052" y="75" width="55" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DeptExpertSummary_Gateway_di" bpmnElement="Flow_DeptExpertSummary_Gateway">
+        <omgdi:waypoint x="1320" y="340"/>
+        <omgdi:waypoint x="1370" y="340"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DeptExpertPass_ScienceInitial_di" bpmnElement="Flow_DeptExpertPass_ScienceInitial">
+        <omgdi:waypoint x="1420" y="340"/>
+        <omgdi:waypoint x="1440" y="340"/>
+        <omgdi:waypoint x="1440" y="100"/>
+        <omgdi:waypoint x="1475" y="100"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1428" y="353" width="23" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceInitial_Gateway_di" bpmnElement="Flow_ScienceInitial_Gateway">
+        <omgdi:waypoint x="1625" y="100"/>
+        <omgdi:waypoint x="1695" y="100"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceInitialPass_ExpertReview_di" bpmnElement="Flow_ScienceInitialPass_ExpertReview">
+        <omgdi:waypoint x="1745" y="100"/>
+        <omgdi:waypoint x="1770" y="100"/>
+        <omgdi:waypoint x="1770" y="460"/>
+        <omgdi:waypoint x="1795" y="460"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="1776" y="433" width="23" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceExpertSummary_Gateway_di" bpmnElement="Flow_ScienceExpertSummary_Gateway">
+        <omgdi:waypoint x="1945" y="460"/>
+        <omgdi:waypoint x="1970" y="460"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceExpertPass_Publicity_di" bpmnElement="Flow_ScienceExpertPass_Publicity">
+        <omgdi:waypoint x="2020" y="460"/>
+        <omgdi:waypoint x="2040" y="460"/>
+        <omgdi:waypoint x="2040" y="100"/>
+        <omgdi:waypoint x="2070" y="100"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2028" y="473" width="23" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Publicity_Gateway_di" bpmnElement="Flow_Publicity_Gateway">
+        <omgdi:waypoint x="2260" y="100"/>
+        <omgdi:waypoint x="2310" y="100"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PublicityPass_Submit_di" bpmnElement="Flow_PublicityPass_Submit">
+        <omgdi:waypoint x="2360" y="100"/>
+        <omgdi:waypoint x="2395" y="100"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2366" y="75" width="23" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScienceSubmit_AuthorityReview_di" bpmnElement="Flow_ScienceSubmit_AuthorityReview">
+        <omgdi:waypoint x="2545" y="100"/>
+        <omgdi:waypoint x="2578" y="100"/>
+        <omgdi:waypoint x="2578" y="580"/>
+        <omgdi:waypoint x="2610" y="580"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AuthorityReview_Gateway_di" bpmnElement="Flow_AuthorityReview_Gateway">
+        <omgdi:waypoint x="2810" y="580"/>
+        <omgdi:waypoint x="2860" y="580"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AuthorityPass_SignSeal_di" bpmnElement="Flow_AuthorityPass_SignSeal">
+        <omgdi:waypoint x="2910" y="580"/>
+        <omgdi:waypoint x="2930" y="580"/>
+        <omgdi:waypoint x="2930" y="220"/>
+        <omgdi:waypoint x="2960" y="220"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2918" y="193" width="23" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SignSeal_SubmitFinal_di" bpmnElement="Flow_SignSeal_SubmitFinal">
+        <omgdi:waypoint x="3150" y="220"/>
+        <omgdi:waypoint x="3175" y="220"/>
+        <omgdi:waypoint x="3175" y="100"/>
+        <omgdi:waypoint x="3200" y="100"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SubmitFinal_End_di" bpmnElement="Flow_SubmitFinal_End">
+        <omgdi:waypoint x="3390" y="100"/>
+        <omgdi:waypoint x="3440" y="100"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
+

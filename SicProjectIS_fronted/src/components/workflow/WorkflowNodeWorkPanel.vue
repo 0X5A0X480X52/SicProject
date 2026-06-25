@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
 import ExpertReviewPanel from './ExpertReviewPanel.vue'
 import MaterialRequirementPanel from './MaterialRequirementPanel.vue'
 import type {
@@ -25,6 +24,7 @@ interface WorkflowNodeFormModel {
   settlementAmount?: number | null
   scoreValue?: number | null
   reviewResult?: string
+  isLimitedProject?: boolean
 }
 
 interface WorkflowNodeSubmitPayload {
@@ -113,6 +113,9 @@ function updateExternalActorName(value: string | number) {
 function updateResultDocumentNo(value: string | number) {
   updateTextField('resultDocumentNo', value)
 }
+function updateLimitedProject(value: string | number | boolean) {
+  patchModel({ isLimitedProject: value === true || value === 'true' })
+}
 function updateApproved(value: string | number | boolean) {
   patchModel({ approved: value === true || value === 'true' })
 }
@@ -200,9 +203,10 @@ function buildRequest(): WorkflowNodeSubmitPayload {
     }
   } else if (definition.dataKind === 'NOTICE') {
     base.notice = {
-      noticeTitle: props.formModel.title || definition.title,
-      noticeContent: props.formModel.summary || remark,
       moduleType: definition.moduleType,
+      noticeType: (definition.moduleType ?? 'NOTICE') + '_NOTICE',
+      noticeTitle: props.formModel.title || definition.title,
+      contentSummary: props.formModel.summary || remark,
     } as any
   } else if (definition.dataKind === 'PUBLICITY') {
     base.projectRecord = {
@@ -215,7 +219,9 @@ function buildRequest(): WorkflowNodeSubmitPayload {
   } else if (definition.dataKind === 'FINANCIAL_SETTLEMENT') {
     base.projectRecord = {
       financialSettlement: {
-        settlementAmount: props.formModel.settlementAmount,
+        moduleInstanceId: props.view.context.moduleInstanceId,
+        receivedAmount: props.formModel.settlementAmount ?? 0,
+        spentAmount: 0,
         settlementResult: result,
         financeReviewComment: remark,
       },
@@ -238,22 +244,39 @@ function buildRequest(): WorkflowNodeSubmitPayload {
     } as any
   } else if (definition.dataKind === 'APPLICATION_DRAFT') {
     base.applicationDraft = {
-      projectName: props.formModel.title,
-      applicationTitle: props.formModel.title,
-      applicationSummary: props.formModel.summary,
-      remark,
-    } as any
-  } else if (definition.dataKind === 'CONTRACT_DRAFT') {
+      application: {
+        projectId: props.view.context.projectId,
+        applicationTitle: props.formModel.title || definition.title,
+        applicationSummary: props.formModel.summary || remark,
+        isLimitedProject: props.formModel.isLimitedProject === true,
+      },
+      extension: {
+        isLimitedProject: props.formModel.isLimitedProject === true,
+      },
+      detail: {
+        researchObjective: props.formModel.summary || remark,
+        applicantCommitment: remark,
+      },
+    } as any  } else if (definition.dataKind === 'CONTRACT_DRAFT') {
     base.contractDraft = {
-      contractName: props.formModel.title,
-      contractSummary: props.formModel.summary,
-      remark,
+      contract: {
+        projectId: props.view.context.projectId,
+        contractName: props.formModel.title || definition.title,
+      },
+      extension: {
+        contractSummary: props.formModel.summary || remark,
+      },
     } as any
   } else if (definition.dataKind === 'ACCEPTANCE_DRAFT') {
     base.acceptanceDraft = {
-      acceptanceTitle: props.formModel.title,
-      acceptanceSummary: props.formModel.summary,
-      remark,
+      acceptance: {
+        projectId: props.view.context.projectId,
+        conclusion: props.formModel.summary || remark,
+      },
+      extension: {
+        acceptanceTitle: props.formModel.title || definition.title,
+        acceptanceSummary: props.formModel.summary || remark,
+      },
     } as any
   }
 
@@ -266,16 +289,6 @@ function buildRequest(): WorkflowNodeSubmitPayload {
 }
 
 function validateAndSubmit() {
-  const missing = props.view.materialRequirements
-    .filter((requirement) => requirement.required)
-    .filter((requirement) => {
-      if (!requirement.materialTypeCode) return false
-      return !props.selectedMaterialIds.some((id) => Number.isFinite(id))
-    })
-  if (missing.length) {
-    ElMessage.warning(`请先选择或上传必填材料：${missing.map((item) => item.materialTypeName || item.materialTypeCode).join('、')}`)
-    return
-  }
   emit('submit')
 }
 
@@ -328,6 +341,12 @@ watch(
                 placeholder="填写摘要或补充说明"
                 @update:model-value="updateSummary"
               />
+            </el-form-item>
+            <el-form-item v-if="dataKind === 'APPLICATION_DRAFT'" label="是否限项项目">
+              <el-radio-group :model-value="formModel.isLimitedProject === true" @update:model-value="updateLimitedProject">
+                <el-radio-button :label="true">是</el-radio-button>
+                <el-radio-button :label="false">否</el-radio-button>
+              </el-radio-group>
             </el-form-item>
             <el-form-item v-if="isReviewLike || isExternalResult || isOperationRecord || isProjectRecord" label="办理结果">
               <el-radio-group :model-value="formModel.approved !== false" @update:model-value="updateApproved">

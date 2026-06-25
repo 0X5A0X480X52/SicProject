@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { UploadRawFile } from 'element-plus'
@@ -18,7 +18,8 @@ const emit = defineEmits<{
 const loading = ref(false)
 const uploadingCode = ref('')
 const materials = ref<MaterialContextView[]>([])
-const selectedIds = ref<number[]>(props.selectedIds ?? [])
+
+const selectedIds = computed(() => props.selectedIds ?? [])
 
 const materialsByType = computed(() => {
   const map = new Map<string, MaterialContextView[]>()
@@ -32,6 +33,30 @@ const materialsByType = computed(() => {
   }
   return map
 })
+
+function materialVersionIdsForType(materialTypeCode?: string) {
+  if (!materialTypeCode) return new Set<number>()
+  return new Set((materialsByType.value.get(materialTypeCode) ?? []).map((item) => item.materialVersionId))
+}
+
+function currentMaterialVersionIdsForType(materialTypeCode?: string) {
+  if (!materialTypeCode) return new Set<number>()
+  return new Set((materialsByType.value.get(materialTypeCode) ?? [])
+    .filter((item) => item.isCurrent)
+    .map((item) => item.materialVersionId))
+}
+
+function selectedIdsFor(requirement: MaterialRequirementView) {
+  const idsForType = currentMaterialVersionIdsForType(requirement.materialTypeCode)
+  return selectedIds.value.filter((id) => idsForType.has(id))
+}
+
+function updateSelectedFor(requirement: MaterialRequirementView, value: unknown) {
+  const nextForType = Array.isArray(value) ? value.map(Number).filter(Number.isFinite) : []
+  const idsForType = materialVersionIdsForType(requirement.materialTypeCode)
+  const keptOtherTypes = selectedIds.value.filter((id) => !idsForType.has(id))
+  emit('update:selectedIds', Array.from(new Set([...keptOtherTypes, ...nextForType])))
+}
 
 async function loadMaterials() {
   loading.value = true
@@ -49,10 +74,12 @@ async function upload(requirement: MaterialRequirementView, file: File) {
   uploadingCode.value = requirement.materialTypeCode
   try {
     const response = await uploadMaterialVersion(props.projectId, requirement.materialTypeCode, file)
-    selectedIds.value = Array.from(new Set([...selectedIds.value, response.context.materialVersionId]))
     await loadMaterials()
+    const idsForType = materialVersionIdsForType(requirement.materialTypeCode)
+    const keptOtherTypes = selectedIds.value.filter((id) => !idsForType.has(id))
+    emit('update:selectedIds', Array.from(new Set([...keptOtherTypes, response.context.materialVersionId])))
     emit('materials-changed')
-    ElMessage.success('材料已上传')
+    ElMessage.success('材料已上传并选中新版本')
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '材料上传失败')
   } finally {
@@ -61,10 +88,6 @@ async function upload(requirement: MaterialRequirementView, file: File) {
   return false
 }
 
-watch(() => props.selectedIds, (ids) => {
-  selectedIds.value = [...(ids ?? [])]
-}, { deep: true })
-watch(selectedIds, (ids) => emit('update:selectedIds', [...ids]), { deep: true })
 watch(() => props.projectId, loadMaterials)
 
 onMounted(loadMaterials)
@@ -90,12 +113,21 @@ onMounted(loadMaterials)
       </el-table-column>
       <el-table-column label="选择材料版本" min-width="220">
         <template #default="{ row }">
-          <el-select v-model="selectedIds" multiple collapse-tags collapse-tags-tooltip placeholder="选择版本" style="width: 100%">
+          <el-select
+            :model-value="selectedIdsFor(row)"
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
+            placeholder="选择版本"
+            style="width: 100%"
+            @update:model-value="updateSelectedFor(row, $event)"
+          >
             <el-option
               v-for="item in materialsByType.get(row.materialTypeCode) || []"
               :key="item.materialVersionId"
-              :label="`${item.fileName} #${item.versionNo}${item.isCurrent ? '（当前）' : ''}`"
+              :label="`${item.fileName} #${item.versionNo}${item.isCurrent ? '（当前）' : '（旧版本不可提交）'}`"
               :value="item.materialVersionId"
+              :disabled="!item.isCurrent"
             />
           </el-select>
         </template>

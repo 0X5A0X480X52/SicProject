@@ -1,4 +1,4 @@
-﻿import { apiRequest } from './client'
+import { apiRequest } from './client'
 
 export interface CreateExpertReviewBatchRequest {
   moduleInstanceId: number
@@ -63,4 +63,8 @@ export function submitExpertScore(assignmentId: number, request: SubmitExpertSco
     method: 'POST',
     body: JSON.stringify(request),
   })
+}
+
+export function getModuleBusinessData(moduleInstanceId: number) {
+  return apiRequest<any>(`/module-instances/${moduleInstanceId}/business-data`)
 }

@@ -78,11 +78,11 @@ class WorkflowDefinitionIntegrationTest {
                 .andExpect(jsonPath("$.data[*].moduleType", hasItem("CONTRACT")))
                 .andExpect(jsonPath("$.data[*].moduleType", hasItem("ACCEPTANCE")));
 
-        assertPublishedAsset(scienceAdminToken, APPLICATION_ASSET, "APPLICATION", 20, 12, 2, 26,
+        assertPublishedAsset(scienceAdminToken, APPLICATION_ASSET, "APPLICATION", 24, 14, 2, 30,
                 "APPLICATION_APPROVAL_FORM");
         assertPublishedAsset(scienceAdminToken, CONTRACT_ASSET, "CONTRACT", 15, 10, 2, 17,
                 "CONTRACT_ARCHIVE_FORM", "SIGNED_CONTRACT_DOCUMENT");
-        assertPublishedAsset(scienceAdminToken, ACCEPTANCE_ASSET, "ACCEPTANCE", 21, 14, 3, 24,
+        assertPublishedAsset(scienceAdminToken, ACCEPTANCE_ASSET, "ACCEPTANCE", 23, 15, 3, 26,
                 "ACCEPTANCE_CERTIFICATE_DOCUMENT", "ACCEPTANCE_FAIL_DOCUMENT", "ACCEPTANCE_SUMMARY_FORM");
     }
 
