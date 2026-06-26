@@ -84,6 +84,7 @@ class StateMachineRuntimeIntegrationTest {
     @Test
     void shouldStartValidateMaterialTransitionThroughGatewayAndGenerateDocument() {
         publishContractWorkflow();
+        workflowDefinitionService.publishAsset("项目结题_辅助标签版.bpmn");
         var started = runtimeService.startModule(systemAdmin, 1L, new StartModuleInstanceRequest("CONTRACT"));
         Long moduleInstanceId = started.stateRecord().getModuleInstanceId();
         assertThat(started.currentState()).isEqualTo("CONTRACT_DRAFT");
@@ -129,6 +130,10 @@ class StateMachineRuntimeIntegrationTest {
                 Integer.class, finished.stateRecord().getStateRecordId())).isEqualTo(2);
         assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM task_instance WHERE module_instance_id=? AND task_status='OPEN'",
                 Integer.class, moduleInstanceId)).isZero();
+        var acceptanceModule = moduleDao.selectByProjectIdAndModuleType(1L, "ACCEPTANCE");
+        assertThat(acceptanceModule).isNotNull();
+        assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM task_instance WHERE module_instance_id=? AND task_status='OPEN'",
+                Integer.class, acceptanceModule.getModuleInstanceId())).isEqualTo(1);
     }
 
     @Test

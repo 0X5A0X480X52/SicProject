@@ -1,4 +1,5 @@
 ﻿<script setup lang="ts">
+import { eventLabel, stateLabel } from '../../utils/displayLabels'
 import type { ModuleStateRecord } from '../../types/nodeForms'
 
 defineProps<{ history: ModuleStateRecord[] }>()
@@ -23,9 +24,9 @@ function itemType(result?: string | null) {
         :timestamp="record.createdAt"
         :type="itemType(record.result)"
       >
-        <div class="timeline-title">{{ record.toState || record.toNodeId }}</div>
+        <div class="timeline-title">{{ stateLabel(record.toState) || record.toNodeId }}</div>
         <div class="timeline-meta">
-          #{{ record.seq }} · 第 {{ record.roundNo || 1 }} 轮 · {{ record.eventType }}
+          #{{ record.seq }} · 第 {{ record.roundNo || 1 }} 轮 · {{ eventLabel(record.eventType) }}
         </div>
         <p v-if="record.summary" class="timeline-summary">{{ record.summary }}</p>
       </el-timeline-item>

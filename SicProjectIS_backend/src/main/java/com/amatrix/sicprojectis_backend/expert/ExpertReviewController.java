@@ -1,6 +1,7 @@
-package com.amatrix.sicprojectis_backend.expert;
+﻿package com.amatrix.sicprojectis_backend.expert;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,4 +23,7 @@ public class ExpertReviewController {
     @GetMapping("/batches/{batchId}") public ApiResponse<ExpertReviewBatchDetailResponse> detail(@PathVariable Long batchId){return ApiResponse.ok(service.detail(batchId));}
     @PostMapping("/batches/{batchId}/assignments") public ApiResponse<ExpertReviewBatchDetailResponse> assign(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable Long batchId,@RequestBody AssignExpertRequest request){return ApiResponse.ok(service.assign(user,batchId,request));}
     @PostMapping("/assignments/{assignmentId}/scores") public ApiResponse<ExpertReviewBatchDetailResponse> submit(@PathVariable Long assignmentId,@RequestBody SubmitExpertScoreRequest request){return ApiResponse.ok(service.submit(assignmentId,request));}
+    @DeleteMapping("/assignments/{assignmentId}") public ApiResponse<ExpertReviewBatchDetailResponse> removeAssignment(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable Long assignmentId){return ApiResponse.ok(service.removeAssignment(user,assignmentId));}
+    @PostMapping("/assignments/{assignmentId}/remove") public ApiResponse<ExpertReviewBatchDetailResponse> removeAssignmentByPost(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable Long assignmentId){return ApiResponse.ok(service.removeAssignment(user,assignmentId));}
 }
+

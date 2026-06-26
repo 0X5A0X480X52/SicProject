@@ -13,7 +13,7 @@ import {
   revokeProjectGrant,
   upsertProjectMember,
 } from '../api/projects'
-import { moduleTypeLabel } from '../utils/displayLabels'
+import { lifecycleLabel, moduleTypeLabel } from '../utils/displayLabels'
 import type { ProjectAuthorizationDetail, ProjectGrantRecord, UserSummary } from '../types/project'
 
 const route = useRoute()
@@ -211,7 +211,7 @@ onMounted(loadDetail)
             </div>
             <div>
               <dt>Stage</dt>
-              <dd>{{ detail.project.lifecycleStage ?? '-' }}</dd>
+              <dd>{{ lifecycleLabel(detail.project.lifecycleStage) }}</dd>
             </div>
           </dl>
         </article>

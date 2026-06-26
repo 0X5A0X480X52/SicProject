@@ -1,6 +1,7 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
+import { buildRequestFromFlatForm } from '../../composables/useNodeFormHelpers'
 import type { NodeFormDefinition, NodeFormSaveRequest, RuntimeViewResponse } from '../../types/nodeForms'
 
 const props = defineProps<{ view: RuntimeViewResponse }>()
@@ -29,62 +30,25 @@ function parseJson() {
 function buildRequest(): NodeFormSaveRequest | undefined {
   const definition = selectedForm.value
   if (!definition) return undefined
-  const base: NodeFormSaveRequest = {
-    projectId: props.view.context.projectId,
-    moduleInstanceId: props.view.context.moduleInstanceId,
-  }
   const extra = parseJson()
   const passed = form.approved
-  const resultText = passed ? 'APPROVED' : 'REJECTED'
-
-  if (definition.dataKind === 'CHECK_ITEM') {
-    base.runtimeRecord = {
-      checkItem: {
-        itemCode: extra.itemCode || definition.formCode,
-        itemName: extra.itemName || definition.title,
-        itemType: extra.itemType || 'REVIEW_RESULT',
-        itemValue: String(passed),
-        itemResult: resultText,
-        required: true,
-        passed,
-        remark: form.remark,
-        sortNo: 1,
-      },
-    }
-  } else if (definition.dataKind === 'EXTERNAL_RESULT') {
-    base.runtimeRecord = {
-      externalResult: {
-        externalActorCode: extra.externalActorCode || 'EXTERNAL_ACTOR',
-        externalActorName: extra.externalActorName || '主管部门/第三方机构',
-        externalResult: resultText,
-        resultDocumentNo: extra.resultDocumentNo,
-        remark: form.remark,
-      },
-    }
-  } else if (definition.dataKind === 'SEAL') {
-    base.runtimeRecord = { sealRecord: { sealType: extra.sealType || 'OFFICIAL_SEAL', sealResult: resultText, remark: form.remark } }
-  } else if (definition.dataKind === 'SUBMISSION') {
-    base.runtimeRecord = { submissionRecord: { submitTarget: extra.submitTarget || '主管部门/第三方机构', submissionResult: resultText, remark: form.remark } }
-  } else if (definition.dataKind === 'ARCHIVE') {
-    base.runtimeRecord = { archiveRecord: { archiveType: extra.archiveType || 'PROCESS_ARCHIVE', archiveResult: resultText, remark: form.remark } }
-  } else if (definition.dataKind === 'NOTICE') {
-    base.notice = { noticeTitle: form.title || definition.title, noticeContent: form.remark, moduleType: definition.moduleType } as any
-  } else if (definition.dataKind === 'PUBLICITY') {
-    base.projectRecord = { publicity: { publicityTitle: form.title || definition.title, publicityResult: resultText, remark: form.remark, ...extra } } as any
-  } else if (definition.dataKind === 'FINANCIAL_SETTLEMENT') {
-    base.projectRecord = { financialSettlement: { settlementResult: resultText, financeReviewComment: form.remark, ...extra } } as any
-  } else if (definition.dataKind === 'SURPLUS_RETURN') {
-    base.projectRecord = { surplusReturn: { returnResult: resultText, remark: form.remark, ...extra } } as any
-  } else if (definition.dataKind === 'APPLICATION_DRAFT') {
-    base.applicationDraft = { projectName: form.title, remark: form.remark, ...extra } as any
-  } else if (definition.dataKind === 'CONTRACT_DRAFT') {
-    base.contractDraft = { contractName: form.title, remark: form.remark, ...extra } as any
-  } else if (definition.dataKind === 'ACCEPTANCE_DRAFT') {
-    base.acceptanceDraft = { acceptanceTitle: form.title, remark: form.remark, ...extra } as any
-  } else if (definition.dataKind === 'EXPERT_REVIEW') {
-    base.expertReview = extra.expertReview || extra
-  }
-  return base
+  return buildRequestFromFlatForm(
+    definition.dataKind,
+    {
+      ...extra,
+      approved: passed,
+      remark: form.remark,
+      noticeTitle: extra.noticeTitle || form.title || definition.title,
+      applicationTitle: extra.applicationTitle || form.title,
+      contractName: extra.contractName || form.title,
+      acceptanceTitle: extra.acceptanceTitle || form.title,
+    },
+    {
+      projectId: props.view.context.projectId,
+      moduleInstanceId: props.view.context.moduleInstanceId,
+    },
+    definition,
+  )
 }
 
 function notify() {
@@ -137,3 +101,4 @@ watch(selectedFormCode, notify)
     </el-form>
   </el-card>
 </template>
+

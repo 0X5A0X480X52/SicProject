@@ -1,4 +1,4 @@
-package com.amatrix.sicprojectis_backend.expert;
+﻿package com.amatrix.sicprojectis_backend.expert;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -50,6 +50,8 @@ public class ExpertReviewService {
     @Transactional
     public ExpertReviewBatchDetailResponse assign(AuthenticatedUser user, Long batchId, AssignExpertRequest request) {
         ExpertReviewBatch batch=requireBatch(batchId); if(request==null || request.expertUserId()==null) throw badRequest("Expert user is required");
+        boolean alreadyAssigned = assignmentDao.selectByBatchId(batchId).stream().anyMatch(a -> java.util.Objects.equals(a.getExpertUserId(), request.expertUserId()));
+        if (alreadyAssigned) throw new ResponseStatusException(HttpStatus.CONFLICT, "该专家已在当前评审批次中");
         LocalDateTime now=LocalDateTime.now(); ExpertReviewAssignment row=new ExpertReviewAssignment(); row.setBatchId(batchId); row.setExpertUserId(request.expertUserId()); row.setExpertName(request.expertName()); row.setExpertOrg(request.expertOrg()); row.setExpertTitle(request.expertTitle()); row.setAssignedAt(now); row.setReviewStatus("ASSIGNED"); row.setConflictOfInterest(false); row.setIsValid(true); row.setCreatedAt(now); row.setUpdatedAt(now); assignmentDao.insert(row);
         // auto-create project-level expert grant so the assigned expert can operate the review node
         ProjectModuleInstance module = moduleDao.selectById(batch.getModuleInstanceId());
@@ -82,6 +84,12 @@ public class ExpertReviewService {
                 projectRoleGrantDao.insert(grant);
             }
         }
+        int assignedCount = assignmentDao.selectByBatchId(batchId).size();
+        batch.setExpectedExpertCount(assignedCount);
+        batch.setMinExpertCount(assignedCount);
+        batch.setStatus("IN_PROGRESS");
+        batch.setUpdatedAt(now);
+        batchDao.updateById(batch);
         return detail(batchId);
     }
 
@@ -96,6 +104,43 @@ public class ExpertReviewService {
         aggregate(assignment.getBatchId(), now); return detail(assignment.getBatchId());
     }
 
+    @Transactional
+    public ExpertReviewBatchDetailResponse removeAssignment(AuthenticatedUser user, Long assignmentId) {
+        ExpertReviewAssignment assignment = assignmentDao.selectById(assignmentId);
+        if (assignment == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Expert assignment not found");
+        if ("SUBMITTED".equals(assignment.getReviewStatus())) throw new ResponseStatusException(HttpStatus.CONFLICT, "已提交评分的专家不能移除");
+        if (!scoreDao.selectByAssignmentId(assignmentId).isEmpty()) throw new ResponseStatusException(HttpStatus.CONFLICT, "已有评分记录的专家不能移除");
+        ExpertReviewBatch batch = requireBatch(assignment.getBatchId());
+        ProjectModuleInstance module = moduleDao.selectById(batch.getModuleInstanceId());
+        if (module != null) {
+            ModuleRuntimeContextView ctx = runtimeContextViewDao.selectByModuleInstanceId(batch.getModuleInstanceId());
+            Integer roundNo = ctx == null ? null : ctx.getCurrentRoundNo();
+            String reviewTaskNodeId = null;
+            if (batch.getWorkflowNodeId() != null) {
+                WorkflowNode wnode = workflowNodeDao.selectById(batch.getWorkflowNodeId());
+                reviewTaskNodeId = toReviewTaskNodeId(wnode == null ? null : wnode.getNodeId());
+            }
+            projectRoleGrantDao.selectMatchingActiveGrant(module.getProjectId(), module.getModuleType(), "PROJECT_MODULE_EXPERT_ASSIGNMENT", assignment.getExpertUserId(), roundNo, reviewTaskNodeId)
+                    .forEach(grant -> projectRoleGrantDao.deleteById(grant.getProjectRoleGrantId()));
+        }
+        assignmentDao.deleteById(assignmentId);
+        var remainingAssignments = assignmentDao.selectByBatchId(batch.getBatchId());
+        int remaining = remainingAssignments.size();
+        int submitted = (int) remainingAssignments.stream().filter(a -> "SUBMITTED".equals(a.getReviewStatus())).count();
+        batch.setExpectedExpertCount(remaining);
+        batch.setMinExpertCount(Math.min(batch.getMinExpertCount() == null ? remaining : batch.getMinExpertCount(), remaining));
+        batch.setSubmittedExpertCount(submitted);
+        if (remaining > 0 && submitted >= batch.getMinExpertCount()) {
+            batch.setStatus("COMPLETED");
+            batch.setCompletedAt(LocalDateTime.now());
+        } else {
+            batch.setStatus("IN_PROGRESS");
+            batch.setCompletedAt(null);
+        }
+        batch.setUpdatedAt(LocalDateTime.now());
+        batchDao.updateById(batch);
+        return detail(batch.getBatchId());
+    }
     public ExpertReviewBatchDetailResponse detail(Long batchId) { ExpertReviewBatch batch=requireBatch(batchId); return new ExpertReviewBatchDetailResponse(batch, assignmentDao.selectByBatchId(batchId).stream().map(a->new ExpertReviewAssignmentData(a,scoreDao.selectByAssignmentId(a.getAssignmentId()))).toList()); }
 
     private void aggregate(Long batchId, LocalDateTime now) {
@@ -109,3 +154,4 @@ public class ExpertReviewService {
     private ExpertReviewBatch requireBatch(Long id){ExpertReviewBatch b=batchDao.selectById(id);if(b==null)throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Expert review batch not found");return b;}
     private boolean blank(String value){return value==null||value.isBlank();} private ResponseStatusException badRequest(String message){return new ResponseStatusException(HttpStatus.BAD_REQUEST,message);}
 }
+

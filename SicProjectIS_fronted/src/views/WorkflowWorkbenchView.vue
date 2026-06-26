@@ -1,33 +1,24 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { DocumentAdd, Plus, Refresh } from '@element-plus/icons-vue'
+import { DocumentAdd, Refresh } from '@element-plus/icons-vue'
 import AppShell from '../layouts/AppShell.vue'
-import { listProjects, startProjectApplication } from '../api/projects'
-import { startModuleInstance } from '../api/stateMachine'
+import { startProjectApplication } from '../api/projects'
 import { listWorkflowWorkbenchItems } from '../api/workflowWorkbench'
 import { useWorkflowEvents } from '../composables/useWorkflowEvents'
-import { useAuthStore } from '../stores/auth'
-import type { ProjectSummary, StartProjectApplicationRequest } from '../types/project'
+import type { StartProjectApplicationRequest } from '../types/project'
 import type { WorkflowWorkbenchItem } from '../types/workflow'
 import { moduleTypeLabel, roleLabel } from '../utils/displayLabels'
 
 const router = useRouter()
-const auth = useAuthStore()
 const loading = ref(false)
-const starting = ref(false)
 const applying = ref(false)
-const startDialogOpen = ref(false)
 const applicationDialogOpen = ref(false)
 const items = ref<WorkflowWorkbenchItem[]>([])
-const projects = ref<ProjectSummary[]>([])
 const filters = reactive({ moduleType: 'ALL', keyword: '', status: 'ALL' })
 const page = reactive({ current: 1, size: 10 })
-const startForm = reactive<{ projectId: number | null; moduleType: string }>({
-  projectId: null,
-  moduleType: 'CONTRACT',
-})
+
 const applicationForm = reactive<StartProjectApplicationRequest>({
   projectCode: '',
   projectName: '',
@@ -48,16 +39,7 @@ const moduleOptions = [
   { label: '项目结题', value: 'ACCEPTANCE' },
 ]
 
-const startModuleOptions = [
-  { label: '纵向合同', value: 'CONTRACT' },
-  { label: '项目结题', value: 'ACCEPTANCE' },
-]
 
-
-const canStartWorkflow = computed(() => {
-  const roles = auth.user?.roleCodes || []
-  return roles.includes('SCIENCE_ADMIN') || roles.includes('SYSTEM_ADMIN')
-})
 
 const filteredItems = computed(() => {
   const keyword = filters.keyword.trim().toLowerCase()
@@ -107,25 +89,11 @@ async function loadItems(showMessage = false) {
   }
 }
 
-async function loadProjects() {
-  try {
-    projects.value = await listProjects()
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '项目列表加载失败')
-  }
-}
 
 function openApplicationDialog() {
   applicationDialogOpen.value = true
 }
 
-function openStartDialog() {
-  if (!canStartWorkflow.value) {
-    ElMessage.warning('只有科技处管理员可以发起合同或结题流程')
-    return
-  }
-  startDialogOpen.value = true
-}
 
 function cleanApplicationRequest(): StartProjectApplicationRequest {
   return {
@@ -152,7 +120,6 @@ async function submitApplicationStart() {
     applicationDialogOpen.value = false
     ElMessage.success('项目申请已创建')
     await loadItems()
-    await loadProjects()
     router.push({ name: 'workflow-detail', params: { moduleInstanceId: response.moduleInstanceId } })
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '项目申请创建失败')
@@ -161,24 +128,6 @@ async function submitApplicationStart() {
   }
 }
 
-async function submitStart() {
-  if (!startForm.projectId) {
-    ElMessage.warning('请选择项目')
-    return
-  }
-  starting.value = true
-  try {
-    const response = await startModuleInstance(startForm.projectId, startForm.moduleType)
-    startDialogOpen.value = false
-    ElMessage.success('流程已发起')
-    await loadItems()
-    router.push({ name: 'workflow-detail', params: { moduleInstanceId: response.stateRecord.moduleInstanceId } })
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '流程发起失败')
-  } finally {
-    starting.value = false
-  }
-}
 
 function openDetail(item: WorkflowWorkbenchItem) {
   router.push({ name: 'workflow-detail', params: { moduleInstanceId: item.moduleInstanceId } })
@@ -188,7 +137,6 @@ const workflowEvents = useWorkflowEvents(() => loadItems())
 
 onMounted(() => {
   loadItems()
-  loadProjects()
   workflowEvents.connect()
 })
 </script>
@@ -205,9 +153,7 @@ onMounted(() => {
         <el-button type="primary" :icon="DocumentAdd" @click="openApplicationDialog">
           发起项目申请
         </el-button>
-        <el-button :icon="Plus" :disabled="!canStartWorkflow" @click="openStartDialog">
-          发起合同/结题
-        </el-button>
+
         <el-button :icon="Refresh" :loading="loading" @click="loadItems(true)">刷新</el-button>
       </div>
     </section>
@@ -325,34 +271,8 @@ onMounted(() => {
       </template>
     </el-dialog>
 
-    <el-dialog v-model="startDialogOpen" title="发起合同/结题流程" width="520px">
-      <el-form label-width="96px">
-        <el-form-item label="项目">
-          <el-select v-model="startForm.projectId" filterable clearable placeholder="请选择已有项目" style="width: 100%">
-            <el-option
-              v-for="project in projects"
-              :key="project.projectId"
-              :label="`${project.projectCode} · ${project.projectName}`"
-              :value="project.projectId"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="模块类型">
-          <el-segmented v-model="startForm.moduleType" :options="startModuleOptions" />
-        </el-form-item>
-        <el-alert
-          title="项目申报请使用“发起项目申请”；此入口仅用于已有项目的合同或结题流程。"
-          type="info"
-          show-icon
-          :closable="false"
-        />
-      </el-form>
-      <template #footer>
-        <el-button @click="startDialogOpen = false">取消</el-button>
-        <el-button type="primary" :loading="starting" @click="submitStart">发起</el-button>
-      </template>
-    </el-dialog>
   </AppShell>
 </template>
+
 
 

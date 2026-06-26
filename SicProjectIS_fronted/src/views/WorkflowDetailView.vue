@@ -8,18 +8,22 @@ import { listProjectMaterials } from '../api/materials'
 import { listProjects } from '../api/projects'
 import { getRuntimeView, getWorkflowBpmn, getWorkflowNodes, submitStateTransition } from '../api/stateMachine'
 import { useWorkflowEvents } from '../composables/useWorkflowEvents'
+import { buildRequestFromFlatForm, quickActionConfig, detectExpertSubType } from '../composables/useNodeFormHelpers'
+import { defaultsForKind, requiredFieldsForKind } from '../utils/nodeFormFields'
+import MaterialRequirementPanel from '../components/workflow/MaterialRequirementPanel.vue'
 import BpmnViewerPanel from '../components/workflow/BpmnViewerPanel.vue'
 import ProcessSteps, { type WorkflowProcessStep } from '../components/workflow/ProcessSteps.vue'
 import RecordTimeline, { type WorkflowDisplayRecord } from '../components/workflow/RecordTimeline.vue'
 import WorkflowNodeWorkPanel from '../components/workflow/WorkflowNodeWorkPanel.vue'
+import ExpertReviewPanel from '../components/workflow/ExpertReviewPanel.vue'
 import type { AvailableTransition, MaterialContextView, MaterialRequirementView, ModuleStateRecord, NodeFormSaveRequest, RuntimeViewResponse, StateTransitionRequest } from '../types/nodeForms'
 import type { ProjectSummary } from '../types/project'
 import type { WorkflowNodeDefinition } from '../types/workflow'
-import { eventLabel, lifecycleLabel, moduleTypeLabel, operationModeLabel, resultLabel, roleLabel } from '../utils/displayLabels'
+import { eventLabel, lifecycleLabel, moduleTypeLabel, operationModeLabel, resultLabel, roleLabel, stateLabel } from '../utils/displayLabels'
 
 type DraftKey = string
 interface MaterialSummaryItem { key: string; name: string; required: boolean; count: number; latest?: MaterialContextView; requirement: MaterialRequirementView; missing: boolean }
-interface WorkflowNodeFormModel { approved?: boolean; title?: string; summary?: string; remark?: string; externalActorCode?: string; externalActorName?: string; resultDocumentNo?: string; operationType?: string; operationTarget?: string; archiveType?: string; settlementAmount?: number | null; scoreValue?: number | null; reviewResult?: string; isLimitedProject?: boolean }
+interface WorkflowNodeFormModel { approved?: boolean; title?: string; summary?: string; remark?: string; externalActorCode?: string; externalActorName?: string; resultDocumentNo?: string; operationType?: string; operationTarget?: string; archiveType?: string; approvedAmount?: number | null; receivedAmount?: number | null; spentAmount?: number | null; settlementResult?: string; financeReviewComment?: string; settlementAmount?: number | null; scoreValue?: number | null; reviewResult?: string; isLimitedProject?: boolean }
 interface WorkflowNodeSubmitPayload { formCode?: string; data?: NodeFormSaveRequest; result?: string; remark?: string }
 interface WorkflowNodeDraft { key: DraftKey; transitionKey: string; remark: string; formModel: WorkflowNodeFormModel; selectedMaterialVersionIds: number[]; payload: WorkflowNodeSubmitPayload }
 interface RoundGroup { roundNo: number | string; resultText: string; summary: string; startAt: string; endAt: string; records: WorkflowDisplayRecord[] }
@@ -39,7 +43,7 @@ const formDrawerOpen = ref(false)
 const selectedNodeId = ref('')
 const openedDetailPanels = ref(['base'])
 const helperPanels = ref<string[]>([])
-const workbenchTab = ref('materials')
+const materialsOpinionsCollapse = ref<string[]>(['materials'])
 const bpmnPanelRef = ref<InstanceType<typeof BpmnViewerPanel> | null>(null)
 const draftCache = new Map<DraftKey, WorkflowNodeDraft>()
 const workflowDraft = ref<WorkflowNodeDraft>(createEmptyDraft('__empty__'))
@@ -54,6 +58,17 @@ const statusTag = computed(() => {
   if (runtimeView.value?.canOperate) return { text: '待我办理', type: 'warning' as const }
   return { text: '流转中', type: 'primary' as const }
 })
+const currentDataKind = computed(() => {
+  const form = runtimeView.value?.nodeForms?.find((item) => item.writeMode !== 'READ_ONLY')
+    ?? runtimeView.value?.nodeForms?.[0]
+  return form?.dataKind
+})
+const expertSubType = computed(() =>
+  detectExpertSubType(context.value?.currentNodeId, context.value?.currentCandidateRoleCode),
+)
+const quickAction = computed(() => quickActionConfig(currentDataKind.value, expertSubType.value))
+const isExpertNode = computed(() => quickAction.value.category === 'expert')
+const isFinancialSettlementNode = computed(() => currentDataKind.value === 'FINANCIAL_SETTLEMENT')
 const currentTask = computed(() => {
   const ctx = context.value
   if (!ctx) return null
@@ -107,7 +122,7 @@ const processNodes = computed<WorkflowProcessStep[]>(() => {
         name: node.nodeName || node.nodeId,
         status,
         statusText: stepStatusText(status, latest?.source),
-        desc: latest?.remark || node.stateCode || node.nodeType || '待流程流转至该节点',
+        desc: latest?.remark || stateLabel(node.stateCode) || node.nodeType || '待流程流转至该节点',
         actor: node.responsibleActorName || node.representedActorName || roleLabel(node.candidateRoleCode),
         finishedAt: status === 'done' || status === 'returned' || status === 'rejected' ? latest?.time : '',
         roundCount: (roundCounts.get(node.nodeId) ?? 0) > 1 ? roundCounts.get(node.nodeId) : undefined,
@@ -115,8 +130,6 @@ const processNodes = computed<WorkflowProcessStep[]>(() => {
     })
 })
 const selectedNode = computed(() => processNodes.value.find((node) => node.id === selectedNodeId.value) ?? processNodes.value.find((node) => node.status === 'current') ?? processNodes.value[processNodes.value.length - 1] ?? null)
-const recentRecords = computed(() => [...(runtimeView.value?.history ?? [])].reverse().slice(0, 4))
-const returnedRecords = computed(() => (runtimeView.value?.history ?? []).filter(isReturnedRecord).slice(-3).reverse())
 const materialSummaries = computed<MaterialSummaryItem[]>(() => (runtimeView.value?.materialRequirements ?? []).map((requirement) => {
   const code = requirement.materialTypeCode ?? `requirement-${requirement.requirementId}`
   const versions = materials.value.filter((item) => item.materialTypeCode === requirement.materialTypeCode)
@@ -133,13 +146,14 @@ const materialChecks = computed(() => {
     { label: '当前版本', value: `${materials.value.filter((item) => item.isCurrent).length} 份`, type: 'primary' as const },
   ]
 })
+const returnedRecordsInline = computed(() => (runtimeView.value?.history ?? []).filter(isReturnedRecord).slice(-3).reverse())
 const riskItems = computed(() => {
   const risks: Array<{ id: string; type: 'success' | 'warning' | 'info' | 'error'; title: string; desc: string }> = []
   const missing = materialSummaries.value.filter((item) => item.missing)
   if (missing.length) risks.push({ id: 'missing-materials', type: 'warning', title: '存在必填材料缺失', desc: missing.map((item) => item.name).join('、') })
   if (runtimeView.value && !runtimeView.value.canOperate) risks.push({ id: 'readonly', type: 'info', title: '当前用户不可办理此节点', desc: '页面仅展示运行时状态和历史记录。' })
   if (runtimeView.value && !transitionOptions.value.length) risks.push({ id: 'no-action', type: 'info', title: '当前节点暂无可执行动作', desc: '请等待流程状态更新或检查节点配置。' })
-  if (returnedRecords.value.length) risks.push({ id: 'returned', type: 'warning', title: '存在退回或驳回记录', desc: '建议展开历史轮次查看退回原因。' })
+  if (returnedRecordsInline.value.length) risks.push({ id: 'returned', type: 'warning', title: '存在退回或驳回记录', desc: '建议展开历史轮次查看退回原因。' })
   if (!risks.length) risks.push({ id: 'ok', type: 'success', title: '暂无突出风险', desc: '材料、权限和流转记录未发现明显阻塞项。' })
   return risks
 })
@@ -164,7 +178,26 @@ function transitionKey(transition: AvailableTransition) { return `${transition.t
 function createEmptyDraft(key: DraftKey, view?: RuntimeViewResponse): WorkflowNodeDraft {
   const firstTransition = view?.availableTransitions?.[0]
   const firstForm = view?.nodeForms?.find((item) => item.writeMode !== 'READ_ONLY') ?? view?.nodeForms?.[0]
-  return { key, transitionKey: firstTransition ? transitionKey(firstTransition) : '', remark: '', formModel: { approved: true, title: firstForm?.title || view?.context.currentNodeName || '', summary: '', externalActorName: '主管部门/第三方机构', reviewResult: 'PASSED', settlementAmount: null }, selectedMaterialVersionIds: [], payload: {} }
+  const baseFormModel = defaultsForKind(firstForm?.dataKind)
+  return {
+    key,
+    transitionKey: firstTransition ? transitionKey(firstTransition) : '',
+    remark: '',
+    formModel: {
+      ...baseFormModel,
+      approved: true,
+      title: firstForm?.title || view?.context.currentNodeName || '',
+      summary: '',
+      externalActorName: '主管部门/第三方机构',
+      reviewResult: 'PASSED',
+      settlementAmount: null,
+      receivedAmount: null,
+      spentAmount: null,
+      settlementResult: 'APPROVED',
+    },
+    selectedMaterialVersionIds: [],
+    payload: {},
+  }
 }
 function buildDraftKey(view: RuntimeViewResponse): DraftKey { const ctx = view.context; return [ctx.moduleInstanceId, ctx.currentSeq ?? 'seq', ctx.currentNodeId || ctx.currentState || 'node'].join(':') }
 function ensureDraft(view: RuntimeViewResponse, reset = false) {
@@ -192,7 +225,7 @@ function fallbackProcessNodes(view: RuntimeViewResponse): WorkflowProcessStep[] 
       name: record.nodeName,
       status: record.statusKind,
       statusText: record.actionText,
-      desc: record.remark || eventLabel(record.source.eventType) || record.source.toState,
+      desc: record.remark || eventLabel(record.source.eventType) || stateLabel(record.source.toState),
       actor: eventLabel(record.source.eventType),
       finishedAt: record.time,
       roundCount: counts.get(id),
@@ -235,12 +268,12 @@ function toDisplayHistoryRecord(record: ModuleStateRecord): WorkflowDisplayHisto
     actionText: recordStatusText(record),
     operator: eventLabel(record.eventType),
     role: `第 ${displayRoundNo} 轮`,
-    remark: record.summary || record.toState,
+    remark: record.summary || stateLabel(record.toState),
   }
 }
 function workflowNodeName(nodeId: string, record?: ModuleStateRecord) {
   const node = workflowNodes.value.find((item) => item.nodeId === nodeId)
-  return node?.nodeName || nodeId || record?.toState || eventLabel(record?.eventType) || `记录 ${record?.seq ?? '-'}`
+  return node?.nodeName || nodeId || stateLabel(record?.toState) || eventLabel(record?.eventType) || `记录 ${record?.seq ?? '-'}`
 }
 function isActionReturned(value?: string) { const text = String(value ?? '').toUpperCase(); return text.includes('RETURN') || text.includes('REJECT') || text.includes('FAIL') || text.includes('退回') || text.includes('驳回') }
 function isActionRejected(value?: string) { const text = String(value ?? '').toUpperCase(); return text.includes('REJECT') || text.includes('FAIL') || text.includes('驳回') }
@@ -256,6 +289,103 @@ async function loadWorkflowNodes(workflowDefinitionId: number) {
     workflowNodes.value = []
   }
 }
+function isBlankFormValue(value: unknown) {
+  return value === undefined || value === null || value === ''
+}
+
+function validateRequiredNodeFormFields() {
+  const kind = currentDataKind.value
+  const missing = requiredFieldsForKind(kind).filter((key) => isBlankFormValue((workflowDraft.value.formModel as Record<string, unknown>)[key]))
+  if (missing.length) {
+    const labels: Record<string, string> = {
+      receivedAmount: '到账经费',
+      spentAmount: '支出经费',
+      noticeType: '通知类型',
+      noticeTitle: '通知标题',
+      achievementType: '成果类型',
+      achievementTitle: '成果名称',
+    }
+    ElMessage.warning(`请先填写必填业务字段：${missing.map((key) => labels[key] || key).join('、')}`)
+    return false
+  }
+  return true
+}
+
+function buildCurrentFormPayload(result?: string): WorkflowNodeSubmitPayload {
+  const view = runtimeView.value
+  if (!view) return {}
+  const form = view.nodeForms?.find((item) => item.writeMode !== 'READ_ONLY') ?? view.nodeForms?.[0]
+  const kind = form?.dataKind
+  const data = buildRequestFromFlatForm(
+    kind,
+    {
+      ...defaultsForKind(kind),
+      ...workflowDraft.value.formModel,
+      approved: result ? result === 'APPROVED' : workflowDraft.value.formModel.approved !== false,
+      remark: workflowDraft.value.remark,
+      financeReviewComment: workflowDraft.value.formModel.financeReviewComment || workflowDraft.value.remark,
+    },
+    { projectId: view.context.projectId, moduleInstanceId: view.context.moduleInstanceId },
+    form,
+  )
+  return {
+    formCode: form?.formCode,
+    data,
+    result: result || (workflowDraft.value.formModel.approved !== false ? 'APPROVED' : 'REJECTED'),
+    remark: workflowDraft.value.remark,
+  }
+}
+
+function buildQuickPayload(approved: boolean): WorkflowNodeSubmitPayload {
+  const view = runtimeView.value
+  if (!view) return {}
+  const form = view.nodeForms?.find((item) => item.writeMode !== 'READ_ONLY') ?? view.nodeForms?.[0]
+  const kind = form?.dataKind
+  const baseDefaults = defaultsForKind(kind)
+  const flatForm = {
+    ...baseDefaults,
+    ...workflowDraft.value.formModel,
+    approved,
+    remark: workflowDraft.value.remark,
+  }
+  const data = buildRequestFromFlatForm(
+    kind,
+    flatForm,
+    { projectId: view.context.projectId, moduleInstanceId: view.context.moduleInstanceId },
+    form,
+  )
+  return {
+    formCode: form?.formCode,
+    data,
+    result: approved ? 'APPROVED' : 'REJECTED',
+    remark: workflowDraft.value.remark,
+  }
+}
+
+async function quickApprove() {
+  if (!canSubmit.value) return
+  workflowDraft.value.payload = buildQuickPayload(true)
+  await submitCurrentDraft()
+}
+
+async function quickReject() {
+  if (!canSubmit.value) return
+  workflowDraft.value.payload = buildQuickPayload(false)
+  await submitCurrentDraft()
+}
+
+async function quickSubmitGeneric() {
+  if (!canSubmit.value || !validateRequiredNodeFormFields()) return
+  workflowDraft.value.payload = buildCurrentFormPayload()
+  await submitCurrentDraft()
+}
+
+async function quickSubmitFinancialSettlement() {
+  if (!canSubmit.value || !validateRequiredNodeFormFields()) return
+  workflowDraft.value.payload = buildCurrentFormPayload('APPROVED')
+  await submitCurrentDraft()
+}
+
 async function loadDetail(showMessage = false) {
   if (!Number.isFinite(moduleInstanceId.value)) { ElMessage.error('模块实例 ID 无效'); return }
   loading.value = true
@@ -284,7 +414,7 @@ function validateRequiredMaterials() {
 async function submitCurrentDraft() {
   const view = runtimeView.value
   const transition = selectedTransition.value
-  if (!view || !transition || !validateRequiredMaterials()) return
+  if (!view || !transition || !validateRequiredMaterials() || !validateRequiredNodeFormFields()) return
   const payload = workflowDraft.value.payload
   const currentDraftKey = workflowDraft.value.key
   const request: StateTransitionRequest = { eventType: transition.eventType, expectedSeq: view.context.currentSeq, result: payload.result || transition.result, remark: workflowDraft.value.remark || payload.remark, materialVersionIds: Array.from(new Set(workflowDraft.value.selectedMaterialVersionIds)), formCode: payload.formCode, nodeFormData: payload.data }
@@ -357,7 +487,7 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
                 <el-descriptions-item label="项目类型">{{ projectSummary?.projectType || '-' }}</el-descriptions-item>
                 <el-descriptions-item label="项目级别">{{ projectSummary?.projectLevel || '-' }}</el-descriptions-item>
                 <el-descriptions-item label="模块类型">{{ moduleTypeLabel(runtimeView.context.moduleType) }}</el-descriptions-item>
-                <el-descriptions-item label="当前状态">{{ runtimeView.context.currentState || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="当前状态">{{ stateLabel(runtimeView.context.currentState) }}</el-descriptions-item>
                 <el-descriptions-item label="当前序号">{{ runtimeView.context.currentSeq ?? '-' }}</el-descriptions-item>
                 <el-descriptions-item label="最近更新">{{ formatDateTime(runtimeView.context.lastTransitionTime) }}</el-descriptions-item>
               </el-descriptions>
@@ -373,8 +503,8 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
               <div class="workflow-detail-stack-tag-block">
                 <span>最近结果</span>
                 <div>
-                  <el-tag :type="resultType(runtimeView.context.lastResult)" effect="light">{{ runtimeView.context.lastResult || '-' }}</el-tag>
-                  <el-tag type="info" effect="plain">{{ runtimeView.context.lastEventType || '-' }}</el-tag>
+                  <el-tag :type="resultType(runtimeView.context.lastResult)" effect="light">{{ resultLabel(runtimeView.context.lastResult) }}</el-tag>
+                  <el-tag type="info" effect="plain">{{ eventLabel(runtimeView.context.lastEventType) }}</el-tag>
                 </div>
               </div>
             </el-collapse-item>
@@ -411,10 +541,11 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
         </el-card>
 
         <section class="workflow-detail-stack-workbench-grid">
+          <!-- ===== 当前办理任务 ===== -->
           <el-card shadow="never" class="workflow-detail-stack-section-card">
             <template #header>
               <div class="workflow-detail-stack-card-title-row compact">
-                <div><h2>当前办理任务</h2><p>核心操作入口保留在当前任务附近。</p></div>
+                <div><h2>当前办理任务</h2><p>{{ quickAction.category === 'approval' ? '审批结点：请选择通过或不通过后提交。' : quickAction.category === 'draft' ? '草稿结点：可保存草稿或直接提交。' : '办理当前结点任务。' }}</p></div>
                 <el-tag type="primary" effect="plain">{{ operationModeLabel(runtimeView.context.currentOperationMode) }}</el-tag>
               </div>
             </template>
@@ -424,37 +555,134 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
             <el-alert class="workflow-detail-stack-task-alert" :type="runtimeView.canOperate ? 'success' : 'info'" :closable="false" show-icon>
               {{ runtimeView.canOperate ? '当前用户具备该节点办理权限。' : '当前用户不可办理此节点，仅可查看运行时状态。' }}
             </el-alert>
-            <div class="workflow-detail-stack-action-row">
+
+            <!-- Transition selector -->
+            <div v-if="transitionOptions.length" class="workflow-detail-stack-action-row">
               <el-button v-for="transition in transitionOptions" :key="transitionKey(transition)" :type="workflowDraft.transitionKey === transitionKey(transition) ? 'primary' : ''" @click="workflowDraft.transitionKey = transitionKey(transition)">
                 {{ resultLabel(transition.result) !== '-' ? resultLabel(transition.result) : eventLabel(transition.eventType) }}
               </el-button>
-              <el-button v-if="!transitionOptions.length" disabled>暂无可执行动作</el-button>
             </div>
-            <el-input v-model="workflowDraft.remark" class="workflow-detail-stack-remark" type="textarea" :rows="4" maxlength="500" show-word-limit placeholder="填写审批意见或办理说明" />
-            <div class="workflow-detail-stack-submit-row">
-              <el-button @click="formDrawerOpen = true">打开办理面板</el-button>
-              <el-button type="primary" :loading="submitting" :disabled="!canSubmit" @click="submitCurrentDraft">提交办理</el-button>
+            <div v-else class="workflow-detail-stack-action-row">
+              <el-button disabled>暂无可执行动作</el-button>
+            </div>
+
+            <!-- Quick action area: different layouts per node type -->
+            <div v-if="quickAction.supportsQuickAction && runtimeView.canOperate" class="workflow-detail-stack-quick-actions">
+              <!-- Approval nodes: 通过/不通过 -->
+              <template v-if="quickAction.category === 'approval'">
+                <el-input v-model="workflowDraft.remark" class="workflow-detail-stack-remark" type="textarea" :rows="3" maxlength="500" show-word-limit :placeholder="quickAction.remarkPlaceholder || '填写审批意见'" />
+                <div class="workflow-detail-stack-submit-row">
+                  <el-button @click="formDrawerOpen = true">打开办理面板</el-button>
+                  <el-button type="success" :loading="submitting" :disabled="!canSubmit" @click="quickApprove">{{ quickAction.primaryLabel }}</el-button>
+                  <el-button type="danger" :loading="submitting" :disabled="!canSubmit" @click="quickReject">{{ quickAction.secondaryLabel }}</el-button>
+                </div>
+              </template>
+
+              <!-- Draft nodes: 保存草稿/提交草稿 -->
+              <template v-else-if="quickAction.category === 'draft'">
+                <el-input v-model="workflowDraft.remark" class="workflow-detail-stack-remark" type="textarea" :rows="2" maxlength="500" show-word-limit :placeholder="quickAction.remarkPlaceholder || '填写办理说明'" />
+                <div class="workflow-detail-stack-submit-row">
+                  <el-button @click="formDrawerOpen = true">打开办理面板</el-button>
+                  <el-button plain :loading="submitting" :disabled="!canSubmit" @click="saveDraft">{{ quickAction.secondaryLabel }}</el-button>
+                  <el-button type="primary" :loading="submitting" :disabled="!canSubmit" @click="quickSubmitGeneric">{{ quickAction.primaryLabel }}</el-button>
+                </div>
+              </template>
+
+              <!-- Financial settlement node: core amount fields first -->
+              <template v-else-if="isFinancialSettlementNode">
+                <el-alert
+                  title="请填写到账经费和支出经费，并上传经费决算与报销清单后提交。"
+                  type="info"
+                  :closable="false"
+                  show-icon
+                  class="workflow-detail-stack-quick-hint"
+                />
+                <el-form label-position="top" class="workflow-detail-stack-finance-form">
+                  <el-row :gutter="12">
+                    <el-col :xs="24" :sm="8">
+                      <el-form-item label="批准经费">
+                        <el-input-number v-model="workflowDraft.formModel.approvedAmount" :min="0" :precision="2" controls-position="right" class="wide-control" />
+                      </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="8">
+                      <el-form-item label="到账经费" required>
+                        <el-input-number v-model="workflowDraft.formModel.receivedAmount" :min="0" :precision="2" controls-position="right" class="wide-control" />
+                      </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="8">
+                      <el-form-item label="支出经费" required>
+                        <el-input-number v-model="workflowDraft.formModel.spentAmount" :min="0" :precision="2" controls-position="right" class="wide-control" />
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <el-form-item label="财务意见 / 办理说明">
+                    <el-input v-model="workflowDraft.remark" class="workflow-detail-stack-remark" type="textarea" :rows="2" maxlength="500" show-word-limit placeholder="填写经费决算说明，可留空" />
+                  </el-form-item>
+                </el-form>
+                <div class="workflow-detail-stack-submit-row">
+                  <el-button @click="formDrawerOpen = true">打开完整办理面板</el-button>
+                  <el-button type="primary" :loading="submitting" :disabled="!canSubmit" @click="quickSubmitFinancialSettlement">完成决算并流转</el-button>
+                </div>
+              </template>
+
+              <!-- Operation / Project record / Notice nodes: single submit -->
+              <template v-else>
+                <el-input v-model="workflowDraft.remark" class="workflow-detail-stack-remark" type="textarea" :rows="2" maxlength="500" show-word-limit :placeholder="quickAction.remarkPlaceholder || '填写办理说明'" />
+                <div class="workflow-detail-stack-submit-row">
+                  <el-button @click="formDrawerOpen = true">打开办理面板</el-button>
+                  <el-button type="primary" :loading="submitting" :disabled="!canSubmit" @click="quickSubmitGeneric">{{ quickAction.primaryLabel }}</el-button>
+                </div>
+              </template>
+            </div>
+
+            <!-- Expert review nodes: show core expert workflow directly -->
+            <div v-else-if="isExpertNode && runtimeView.canOperate" class="workflow-detail-stack-quick-actions">
+              <el-alert
+                :title="quickAction.description"
+                type="info"
+                :closable="false"
+                show-icon
+                class="workflow-detail-stack-quick-hint"
+              />
+              <ExpertReviewPanel :view="runtimeView" embedded @changed="loadDetail()" />
+              <div class="workflow-detail-stack-submit-row">
+                <el-button :icon="EditPen" :disabled="!runtimeView.canOperate" @click="formDrawerOpen = true">打开完整办理面板</el-button>
+                <el-button type="primary" :loading="submitting" :disabled="!canSubmit" @click="submitCurrentDraft">完成并流转</el-button>
+              </div>
+            </div>
+
+            <!-- Fallback when no quick action is supported -->
+            <div v-else class="workflow-detail-stack-quick-actions">
+              <el-input v-model="workflowDraft.remark" class="workflow-detail-stack-remark" type="textarea" :rows="4" maxlength="500" show-word-limit :placeholder="quickAction.remarkPlaceholder || '填写审批意见或办理说明'" />
+              <div class="workflow-detail-stack-submit-row">
+                <el-button @click="formDrawerOpen = true">打开办理面板</el-button>
+                <el-button type="primary" :loading="submitting" :disabled="!canSubmit" @click="submitCurrentDraft">提交办理</el-button>
+              </div>
             </div>
           </el-card>
 
+          <!-- ===== 材料与意见 ===== -->
           <el-card shadow="never" class="workflow-detail-stack-section-card">
             <template #header>
-              <div class="workflow-detail-stack-card-title-row compact"><div><h2>材料与意见</h2><p>材料清单、审批意见和风险提示统一放在办理辅助面板。</p></div></div>
+              <div class="workflow-detail-stack-card-title-row compact"><div><h2>材料与意见</h2><p>材料上传、审批意见和风险提示。</p></div></div>
             </template>
-            <el-tabs v-model="workbenchTab" class="workflow-detail-stack-clean-tabs">
-              <el-tab-pane label="材料" name="materials">
+            <el-collapse v-model="materialsOpinionsCollapse" class="workflow-detail-stack-clean-collapse">
+              <!-- 材料附件 — 可交互上传/选择 -->
+              <el-collapse-item title="📎 材料附件" name="materials">
                 <div class="workflow-detail-stack-check-row">
                   <el-tag v-for="check in materialChecks" :key="check.label" :type="check.type" effect="light">{{ check.label }}：{{ check.value }}</el-tag>
                 </div>
-                <el-empty v-if="!materialSummaries.length" description="当前节点暂无材料要求" />
-                <div v-else class="workflow-detail-stack-material-list">
-                  <div v-for="material in materialSummaries" :key="material.key" class="workflow-detail-stack-material-item">
-                    <div><strong>{{ material.name }}</strong> <span>{{ material.latest?.fileName || material.requirement.description || '尚未上传当前版本' }}</span></div>
-                    <el-tag size="small" :type="material.missing ? 'warning' : 'success'" effect="light">{{ material.missing ? '待补齐' : `${material.count} 份` }}</el-tag>
-                  </div>
-                </div>
-              </el-tab-pane>
-              <el-tab-pane label="意见" name="opinions">
+                <MaterialRequirementPanel
+                  :project-id="runtimeView.context.projectId"
+                  :requirements="runtimeView.materialRequirements"
+                  :selected-ids="workflowDraft.selectedMaterialVersionIds"
+                  @update:selected-ids="ids => workflowDraft.selectedMaterialVersionIds = ids"
+                  @materials-changed="loadMaterials(runtimeView.context.projectId)"
+                />
+              </el-collapse-item>
+
+              <!-- 审批意见 — 折叠 -->
+              <el-collapse-item title="💬 审批意见" name="opinions">
                 <el-empty v-if="!displayRecords.length" description="暂无审批意见" />
                 <div v-else class="workflow-detail-stack-opinion-list">
                   <div v-for="record in displayRecords.slice().reverse().slice(0, 5)" :key="record.id" class="workflow-detail-stack-opinion-item">
@@ -463,13 +691,15 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
                     <p>{{ record.remark || '暂无说明' }}</p>
                   </div>
                 </div>
-              </el-tab-pane>
-              <el-tab-pane label="风险" name="risks">
+              </el-collapse-item>
+
+              <!-- 风险提示 — 折叠 -->
+              <el-collapse-item title="⚠️ 风险提示" name="risks">
                 <div class="workflow-detail-stack-risk-list">
                   <el-alert v-for="risk in riskItems" :key="risk.id" :type="risk.type" :title="risk.title" :description="risk.desc" :closable="false" show-icon />
                 </div>
-              </el-tab-pane>
-            </el-tabs>
+              </el-collapse-item>
+            </el-collapse>
           </el-card>
         </section>
 
@@ -540,8 +770,6 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
           :view="runtimeView"
           :transitions="transitionOptions"
           :submitting="submitting"
-          :recent-records="recentRecords"
-          :returned-records="returnedRecords"
           @payload-change="updateDraftPayload"
           @materials-changed="loadMaterials(runtimeView.context.projectId)"
           @save-draft="saveDraft"

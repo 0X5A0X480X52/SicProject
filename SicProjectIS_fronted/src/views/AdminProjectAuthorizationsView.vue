@@ -13,7 +13,7 @@ import {
   revokeProjectGrants,
   upsertProjectMembers,
 } from '../api/projects'
-import { moduleTypeLabel } from '../utils/displayLabels'
+import { lifecycleLabel, moduleTypeLabel } from '../utils/displayLabels'
 import type { AdminProjectAuthorizationIndex } from '../types/admin'
 import type {
   BatchProjectGrantRequest,
@@ -353,7 +353,7 @@ onMounted(loadIndex)
           <el-descriptions-item label="Department">{{ detail.project.deptName || '-' }}</el-descriptions-item>
           <el-descriptions-item label="Leader">{{ detail.leader?.realName || '-' }}</el-descriptions-item>
           <el-descriptions-item label="Type">{{ detail.project.projectType || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="Stage">{{ detail.project.lifecycleStage || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="Stage">{{ lifecycleLabel(detail.project.lifecycleStage) }}</el-descriptions-item>
         </el-descriptions>
 
         <div class="inline-tag-list">

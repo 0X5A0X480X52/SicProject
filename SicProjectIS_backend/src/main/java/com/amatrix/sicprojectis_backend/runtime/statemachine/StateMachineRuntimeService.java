@@ -449,13 +449,27 @@ public class StateMachineRuntimeService {
     }
 
     private void createFollowUpModuleIfNeeded(ProjectModuleInstance completedModule, LocalDateTime now) {
-        if (!"APPLICATION".equals(completedModule.getModuleType())) {
+        String nextModuleType = switch (completedModule.getModuleType()) {
+            case "APPLICATION" -> "CONTRACT";
+            case "CONTRACT" -> "ACCEPTANCE";
+            default -> null;
+        };
+        if (nextModuleType == null) {
             return;
         }
-        if (moduleDao.selectByProjectIdAndModuleType(completedModule.getProjectId(), "CONTRACT") != null) {
+        String summary = switch (completedModule.getModuleType()) {
+            case "APPLICATION" -> "Created after application completion";
+            case "CONTRACT" -> "Created after contract completion";
+            default -> "Created after previous module completion";
+        };
+        createFollowUpModule(completedModule.getProjectId(), nextModuleType, summary, now);
+    }
+
+    private void createFollowUpModule(Long projectId, String moduleType, String summary, LocalDateTime now) {
+        if (moduleDao.selectByProjectIdAndModuleType(projectId, moduleType) != null) {
             return;
         }
-        WorkflowDefinition definition = workflowDefinitionDao.selectLatestActiveByModuleType("CONTRACT");
+        WorkflowDefinition definition = workflowDefinitionDao.selectLatestActiveByModuleType(moduleType);
         if (definition == null) {
             return;
         }
@@ -470,8 +484,8 @@ public class StateMachineRuntimeService {
         }
         NodeConfig target = resolveTarget(model, null, null, startTransition.targetRef(), null).node();
         ProjectModuleInstance module = new ProjectModuleInstance();
-        module.setProjectId(completedModule.getProjectId());
-        module.setModuleType("CONTRACT");
+        module.setProjectId(projectId);
+        module.setModuleType(moduleType);
         module.setWorkflowDefinitionId(definition.getWorkflowDefinitionId());
         module.setStartedAt(now);
         moduleDao.insert(module);
@@ -486,15 +500,17 @@ public class StateMachineRuntimeService {
         record.setFromNodeId(start.nodeId());
         record.setToNodeId(target.nodeId());
         record.setResult(startTransition.result());
-        record.setSummary("Created after application completion");
+        record.setSummary(summary);
         record.setCreatedAt(now);
         stateRecordDao.insert(record);
         if (!"END_EVENT".equals(target.nodeType())) {
             createTask(module.getModuleInstanceId(), target, 1, now);
+        } else {
+            module.setFinishedAt(now);
+            moduleDao.updateById(module);
         }
         publishStateChanged(module, record);
     }
-
     private void publishStateChanged(ProjectModuleInstance module, ModuleStateRecord record) {
         eventPublisher.publishEvent(new ModuleStateChangedEvent(
                 module.getProjectId(),
@@ -565,5 +581,6 @@ public class StateMachineRuntimeService {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
     }
 }
+
 
 

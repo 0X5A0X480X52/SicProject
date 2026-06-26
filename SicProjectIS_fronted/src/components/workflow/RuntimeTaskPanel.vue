@@ -1,5 +1,6 @@
 ﻿<script setup lang="ts">
 import { computed } from 'vue'
+import { eventLabel, resultLabel, roleLabel, stateLabel } from '../../utils/displayLabels'
 import type { AvailableTransition, RuntimeViewResponse } from '../../types/nodeForms'
 
 const props = defineProps<{ view: RuntimeViewResponse }>()
@@ -29,8 +30,8 @@ const canOperate = computed(() => props.view.canOperate && props.view.availableT
 
     <el-descriptions class="node-descriptions" :column="1" border size="small">
       <el-descriptions-item label="节点">{{ context.currentNodeName || context.currentNodeId || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="状态">{{ context.currentState || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="候选角色">{{ context.currentCandidateRoleCode || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="状态">{{ stateLabel(context.currentState) }}</el-descriptions-item>
+      <el-descriptions-item label="候选角色">{{ roleLabel(context.currentCandidateRoleCode) }}</el-descriptions-item>
       <el-descriptions-item label="轮次">第 {{ context.currentRoundNo || 1 }} 轮</el-descriptions-item>
       <el-descriptions-item label="序号">{{ context.currentSeq ?? '-' }}</el-descriptions-item>
     </el-descriptions>
@@ -44,7 +45,7 @@ const canOperate = computed(() => props.view.canOperate && props.view.availableT
         :disabled="!canOperate"
         @click="emit('action', transition)"
       >
-        {{ transition.result || transition.eventType }}
+        {{ resultLabel(transition.result) !== '-' ? resultLabel(transition.result) : eventLabel(transition.eventType) }}
       </el-button>
     </div>
   </el-card>

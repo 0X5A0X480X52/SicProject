@@ -1,4 +1,4 @@
-import { apiRequest } from './client'
+﻿import { ApiError, apiRequest } from './client'
 
 export interface CreateExpertReviewBatchRequest {
   moduleInstanceId: number
@@ -64,7 +64,22 @@ export function submitExpertScore(assignmentId: number, request: SubmitExpertSco
     body: JSON.stringify(request),
   })
 }
+export async function removeExpertAssignment(assignmentId: number) {
+  try {
+    return await apiRequest<ExpertReviewBatchDetailResponse>(`/expert-reviews/assignments/${assignmentId}`, {
+      method: 'DELETE',
+    })
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return apiRequest<ExpertReviewBatchDetailResponse>(`/expert-reviews/assignments/${assignmentId}/remove`, {
+        method: 'POST',
+      })
+    }
+    throw error
+  }
+}
 
 export function getModuleBusinessData(moduleInstanceId: number) {
   return apiRequest<any>(`/module-instances/${moduleInstanceId}/business-data`)
 }
+

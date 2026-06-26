@@ -5,6 +5,7 @@ import AppShell from '../layouts/AppShell.vue'
 import { listProjects } from '../api/projects'
 import type { ProjectSummary } from '../types/project'
 import { ApiError } from '../api/client'
+import { lifecycleLabel } from '../utils/displayLabels'
 
 const loading = ref(false)
 const error = ref('')
@@ -52,7 +53,7 @@ onMounted(() => {
           </div>
           <div class="project-badges">
             <span class="tag muted">{{ project.deptName ?? 'No Department' }}</span>
-            <span class="tag">{{ project.lifecycleStage ?? 'Unknown Stage' }}</span>
+            <span class="tag">{{ lifecycleLabel(project.lifecycleStage) }}</span>
           </div>
         </div>
 
