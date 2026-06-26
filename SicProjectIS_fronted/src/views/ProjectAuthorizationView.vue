@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import AppShell from '../layouts/AppShell.vue'
@@ -13,6 +13,7 @@ import {
   revokeProjectGrant,
   upsertProjectMember,
 } from '../api/projects'
+import { moduleTypeLabel } from '../utils/displayLabels'
 import type { ProjectAuthorizationDetail, ProjectGrantRecord, UserSummary } from '../types/project'
 
 const route = useRoute()
@@ -300,7 +301,7 @@ onMounted(loadDetail)
           <article v-for="grant in currentGrants" :key="grant.projectRoleGrantId" class="record-row">
             <div>
               <strong>{{ grant.grantee.realName }}</strong>
-              <p>{{ grant.moduleType || 'Project-wide' }} · Round {{ grant.roundNo ?? '-' }} · {{ grant.taskNodeId || 'No node' }}</p>
+              <p>{{ moduleTypeLabel(grant.moduleType) === '-' ? '项目级' : moduleTypeLabel(grant.moduleType) }} · Round {{ grant.roundNo ?? '-' }} · {{ grant.taskNodeId || 'No node' }}</p>
               <p>{{ grant.grantReason || 'No reason provided' }}</p>
             </div>
             <button
@@ -405,3 +406,4 @@ onMounted(loadDetail)
     </template>
   </AppShell>
 </template>
+

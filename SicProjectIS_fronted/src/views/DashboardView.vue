@@ -1,8 +1,9 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppShell from '../layouts/AppShell.vue'
 import { useAuthStore } from '../stores/auth'
+import { roleLabel } from '../utils/displayLabels'
 
 const auth = useAuthStore()
 
@@ -20,7 +21,7 @@ const summaryCards = computed(() => [
   {
     label: 'Roles',
     value: String(auth.user?.roleCodes.length ?? 0),
-    note: (auth.user?.roleCodes ?? []).join(', ') || 'No system roles',
+    note: (auth.user?.roleCodes ?? []).map(roleLabel).join(', ') || 'No system roles',
   },
   {
     label: 'Permissions',
@@ -80,7 +81,7 @@ onMounted(() => {
           <span class="helper-text">{{ auth.user?.roleCodes.length ?? 0 }} assigned</span>
         </div>
         <div class="tag-list">
-          <span v-for="role in auth.user?.roleCodes" :key="role" class="tag">{{ role }}</span>
+          <span v-for="role in auth.user?.roleCodes" :key="role" class="tag">{{ roleLabel(role) }}</span>
         </div>
       </article>
 
@@ -102,3 +103,4 @@ onMounted(() => {
     </section>
   </AppShell>
 </template>
+

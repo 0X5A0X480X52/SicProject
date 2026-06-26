@@ -1,10 +1,10 @@
-import { apiRequest } from './client'
+﻿import { apiRequest } from './client'
 import type {
   RuntimeViewResponse,
   StateTransitionRequest,
   StateTransitionResponse,
 } from '../types/nodeForms'
-import type { WorkflowBpmnResponse } from '../types/workflow'
+import type { WorkflowBpmnResponse, WorkflowNodeDefinition } from '../types/workflow'
 
 export function startModuleInstance(projectId: number, moduleType: string) {
   return apiRequest<StateTransitionResponse>(`/projects/${projectId}/module-instances`, {
@@ -26,5 +26,9 @@ export function submitStateTransition(moduleInstanceId: number, request: StateTr
 
 export function getWorkflowBpmn(workflowDefinitionId: number) {
   return apiRequest<WorkflowBpmnResponse>(`/workflow-definitions/${workflowDefinitionId}/bpmn`)
+}
+
+export function getWorkflowNodes(workflowDefinitionId: number) {
+  return apiRequest<WorkflowNodeDefinition[]>(`/workflow-definitions/${workflowDefinitionId}/nodes`)
 }
 

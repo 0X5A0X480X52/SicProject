@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'
@@ -13,6 +13,7 @@ import {
   revokeProjectGrants,
   upsertProjectMembers,
 } from '../api/projects'
+import { moduleTypeLabel } from '../utils/displayLabels'
 import type { AdminProjectAuthorizationIndex } from '../types/admin'
 import type {
   BatchProjectGrantRequest,
@@ -208,7 +209,7 @@ async function submitGrantBatch() {
       `项目：${detail.value?.project.projectName}`,
       `授权类型：${activeTab.value}`,
       `人员：${names.join(', ')}`,
-      `模块：${grantDraft.moduleType || '项目级'}`,
+      `${moduleTypeLabel(grantDraft.moduleType) === '-' ? '项目级' : moduleTypeLabel(grantDraft.moduleType)}`,
       `轮次：${grantDraft.roundNo ?? '-'}`,
       `节点：${grantDraft.taskNodeId || '-'}`,
       `原因：${grantDraft.reason || '无'}`,
@@ -285,7 +286,7 @@ function filterGrants(grants: ProjectGrantRecord[]) {
       grant.grantee.username,
       grant.grantee.deptName,
       grant.grantRoleCode,
-      grant.moduleType,
+      moduleTypeLabel(grant.moduleType),
       grant.taskNodeId,
       grant.grantReason,
       grant.status,
@@ -417,7 +418,9 @@ onMounted(loadIndex)
               <el-table-column label="Expert" min-width="160">
                 <template #default="{ row }">{{ row.grantee.realName }}</template>
               </el-table-column>
-              <el-table-column label="Module" prop="moduleType" min-width="120" />
+              <el-table-column label="Module" min-width="120">
+                <template #default="{ row }">{{ moduleTypeLabel(row.moduleType) }}</template>
+              </el-table-column>
               <el-table-column label="Round" prop="roundNo" width="90" />
               <el-table-column label="Node" prop="taskNodeId" min-width="140" />
               <el-table-column label="Reason" prop="grantReason" min-width="200" />
@@ -436,7 +439,9 @@ onMounted(loadIndex)
               <el-table-column label="User" min-width="160">
                 <template #default="{ row }">{{ row.grantee.realName }}</template>
               </el-table-column>
-              <el-table-column label="Module" prop="moduleType" min-width="120" />
+              <el-table-column label="Module" min-width="120">
+                <template #default="{ row }">{{ moduleTypeLabel(row.moduleType) }}</template>
+              </el-table-column>
               <el-table-column label="Round" prop="roundNo" width="90" />
               <el-table-column label="Node" prop="taskNodeId" min-width="140" />
               <el-table-column label="Reason" prop="grantReason" min-width="200" />
@@ -455,7 +460,9 @@ onMounted(loadIndex)
               <el-table-column label="User" min-width="160">
                 <template #default="{ row }">{{ row.grantee.realName }}</template>
               </el-table-column>
-              <el-table-column label="Module" prop="moduleType" min-width="120" />
+              <el-table-column label="Module" min-width="120">
+                <template #default="{ row }">{{ moduleTypeLabel(row.moduleType) }}</template>
+              </el-table-column>
               <el-table-column label="Round" prop="roundNo" width="90" />
               <el-table-column label="Node" prop="taskNodeId" min-width="140" />
               <el-table-column label="Reason" prop="grantReason" min-width="200" />
@@ -530,3 +537,5 @@ onMounted(loadIndex)
     </el-dialog>
   </PermissionWorkbenchLayout>
 </template>
+
+

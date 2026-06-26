@@ -11,6 +11,7 @@ import { useWorkflowEvents } from '../composables/useWorkflowEvents'
 import { useAuthStore } from '../stores/auth'
 import type { ProjectSummary, StartProjectApplicationRequest } from '../types/project'
 import type { WorkflowWorkbenchItem } from '../types/workflow'
+import { moduleTypeLabel, roleLabel } from '../utils/displayLabels'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -52,11 +53,6 @@ const startModuleOptions = [
   { label: '项目结题', value: 'ACCEPTANCE' },
 ]
 
-const moduleLabels: Record<string, string> = {
-  APPLICATION: '项目申报',
-  CONTRACT: '纵向合同',
-  ACCEPTANCE: '项目结题',
-}
 
 const canStartWorkflow = computed(() => {
   const roles = auth.user?.roleCodes || []
@@ -90,7 +86,7 @@ const stats = computed(() => [
 ])
 
 function moduleLabel(moduleType: string) {
-  return moduleLabels[moduleType] || moduleType
+  return moduleTypeLabel(moduleType)
 }
 
 function statusTag(item: WorkflowWorkbenchItem) {
@@ -261,7 +257,9 @@ onMounted(() => {
             <el-tag :type="statusTag(row).type">{{ statusTag(row).label }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="候选角色" width="150" prop="candidateRoleCode" />
+        <el-table-column label="候选角色" width="150">
+          <template #default="{ row }">{{ roleLabel(row.candidateRoleCode) }}</template>
+        </el-table-column>
         <el-table-column label="轮次" width="80" align="center">
           <template #default="{ row }">{{ row.currentRoundNo || 1 }}</template>
         </el-table-column>
@@ -356,3 +354,5 @@ onMounted(() => {
     </el-dialog>
   </AppShell>
 </template>
+
+

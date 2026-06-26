@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "latest",
+    "vite": "latest",
+    "vue": "latest",
+    "element-plus": "latest",
+    "@element-plus/icons-vue": "latest"
+  },
+  "devDependencies": {}
+}

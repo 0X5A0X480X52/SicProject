@@ -1,9 +1,10 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { Connection, FolderOpened, House, Lock, SwitchButton, Tickets } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
+import { roleLabel } from '../utils/displayLabels'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -82,7 +83,7 @@ function handleTabSelect(index: string) {
         <div class="shell-user-summary">
           <strong>{{ auth.user?.realName }}</strong>
           <div class="shell-role-tags">
-            <el-tag v-for="role in roles" :key="role" size="small" type="info">{{ role }}</el-tag>
+            <el-tag v-for="role in roles" :key="role" size="small" type="info">{{ roleLabel(role) }}</el-tag>
           </div>
         </div>
         <el-button type="danger" plain @click="handleLogout">
@@ -121,3 +122,4 @@ function handleTabSelect(index: string) {
     </main>
   </div>
 </template>
+

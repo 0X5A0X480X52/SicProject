@@ -1,10 +1,11 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'
 import { ApiError } from '../api/client'
 import { getAdminUserDetail, getAdminUsers, updateUserRoles, updateUserStatus } from '../api/admin'
 import type { AdminUserDetail, AdminUserListItem, AdminUserQueryResponse, ChangeDiffSummary } from '../types/admin'
+import { roleLabel } from '../utils/displayLabels'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -74,8 +75,8 @@ async function saveRoles() {
   await ElMessageBox.confirm(
     [
       `用户：${selectedUser.value.realName} (${selectedUser.value.username})`,
-      `新增角色：${pendingDiff.value.added.join(', ') || '无'}`,
-      `移除角色：${pendingDiff.value.removed.join(', ') || '无'}`,
+      `新增角色：${pendingDiff.value.added.map(roleLabel).join(', ') || '无'}`,
+      `移除角色：${pendingDiff.value.removed.map(roleLabel).join(', ') || '无'}`,
     ].join('\n'),
     '确认提交角色变更',
     {
@@ -162,7 +163,7 @@ onMounted(loadUsers)
         </el-form-item>
         <el-form-item label="Role">
           <el-select v-model="filters.roleCode" placeholder="All roles" clearable style="width: 180px">
-            <el-option v-for="role in roles" :key="role.roleId" :label="role.roleCode" :value="role.roleCode" />
+            <el-option v-for="role in roles" :key="role.roleId" :label="roleLabel(role.roleCode)" :value="role.roleCode" />
           </el-select>
         </el-form-item>
         <el-form-item label="Status">
@@ -198,7 +199,7 @@ onMounted(loadUsers)
         <el-table-column label="Roles" min-width="240">
           <template #default="{ row }">
             <div class="inline-tag-list">
-              <el-tag v-for="roleCode in row.roleCodes" :key="roleCode" size="small">{{ roleCode }}</el-tag>
+              <el-tag v-for="roleCode in row.roleCodes" :key="roleCode" size="small">{{ roleLabel(roleCode) }}</el-tag>
             </div>
           </template>
         </el-table-column>
@@ -262,7 +263,7 @@ onMounted(loadUsers)
                 <el-checkbox
                   v-for="role in roles"
                   :key="role.roleId"
-                  :label="role.roleCode"
+                  :label="roleLabel(role.roleCode)"
                   :disabled="saving || !selectedUser.canEditRoles || !role.enabled"
                   border
                 >
@@ -286,3 +287,5 @@ onMounted(loadUsers)
     </el-dialog>
   </PermissionWorkbenchLayout>
 </template>
+
+

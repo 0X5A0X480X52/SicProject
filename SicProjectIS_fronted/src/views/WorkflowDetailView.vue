@@ -1,85 +1,29 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElNotification } from 'element-plus'
-import { ArrowLeft, Document, FullScreen, Refresh } from '@element-plus/icons-vue'
+import { ArrowLeft, Document, EditPen, FullScreen, Refresh } from '@element-plus/icons-vue'
 import AppShell from '../layouts/AppShell.vue'
 import { listProjectMaterials } from '../api/materials'
 import { listProjects } from '../api/projects'
-import { getRuntimeView, getWorkflowBpmn, submitStateTransition } from '../api/stateMachine'
+import { getRuntimeView, getWorkflowBpmn, getWorkflowNodes, submitStateTransition } from '../api/stateMachine'
 import { useWorkflowEvents } from '../composables/useWorkflowEvents'
 import BpmnViewerPanel from '../components/workflow/BpmnViewerPanel.vue'
+import ProcessSteps, { type WorkflowProcessStep } from '../components/workflow/ProcessSteps.vue'
+import RecordTimeline, { type WorkflowDisplayRecord } from '../components/workflow/RecordTimeline.vue'
 import WorkflowNodeWorkPanel from '../components/workflow/WorkflowNodeWorkPanel.vue'
-import type {
-  AvailableTransition,
-  MaterialContextView,
-  MaterialRequirementView,
-  ModuleStateRecord,
-  NodeFormSaveRequest,
-  RuntimeViewResponse,
-  StateTransitionRequest,
-} from '../types/nodeForms'
+import type { AvailableTransition, MaterialContextView, MaterialRequirementView, ModuleStateRecord, NodeFormSaveRequest, RuntimeViewResponse, StateTransitionRequest } from '../types/nodeForms'
 import type { ProjectSummary } from '../types/project'
+import type { WorkflowNodeDefinition } from '../types/workflow'
+import { eventLabel, lifecycleLabel, moduleTypeLabel, operationModeLabel, resultLabel, roleLabel } from '../utils/displayLabels'
 
-type WorkflowTimelineStatus = 'completed' | 'current' | 'returned'
-
-type WorkflowNodeDraftKey = string
-
-interface WorkflowTimelineStep {
-  id: string
-  nodeId?: string
-  state?: string
-  name: string
-  status: WorkflowTimelineStatus
-  seq?: number
-  roundNo?: number
-  actor?: string
-  time?: string
-  eventType?: string
-  result?: string
-  summary?: string
-}
-
-interface MaterialSummaryItem {
-  key: string
-  name: string
-  required: boolean
-  count: number
-  latest?: MaterialContextView
-  requirement: MaterialRequirementView
-}
-
-interface WorkflowNodeFormModel {
-  approved?: boolean
-  title?: string
-  summary?: string
-  remark?: string
-  externalActorCode?: string
-  externalActorName?: string
-  resultDocumentNo?: string
-  operationType?: string
-  operationTarget?: string
-  archiveType?: string
-  settlementAmount?: number | null
-  scoreValue?: number | null
-  reviewResult?: string
-}
-
-interface WorkflowNodeSubmitPayload {
-  formCode?: string
-  data?: NodeFormSaveRequest
-  result?: string
-  remark?: string
-}
-
-interface WorkflowNodeDraft {
-  key: WorkflowNodeDraftKey
-  transitionKey: string
-  remark: string
-  formModel: WorkflowNodeFormModel
-  selectedMaterialVersionIds: number[]
-  payload: WorkflowNodeSubmitPayload
-}
+type DraftKey = string
+interface MaterialSummaryItem { key: string; name: string; required: boolean; count: number; latest?: MaterialContextView; requirement: MaterialRequirementView; missing: boolean }
+interface WorkflowNodeFormModel { approved?: boolean; title?: string; summary?: string; remark?: string; externalActorCode?: string; externalActorName?: string; resultDocumentNo?: string; operationType?: string; operationTarget?: string; archiveType?: string; settlementAmount?: number | null; scoreValue?: number | null; reviewResult?: string; isLimitedProject?: boolean }
+interface WorkflowNodeSubmitPayload { formCode?: string; data?: NodeFormSaveRequest; result?: string; remark?: string }
+interface WorkflowNodeDraft { key: DraftKey; transitionKey: string; remark: string; formModel: WorkflowNodeFormModel; selectedMaterialVersionIds: number[]; payload: WorkflowNodeSubmitPayload }
+interface RoundGroup { roundNo: number | string; resultText: string; summary: string; startAt: string; endAt: string; records: WorkflowDisplayRecord[] }
+interface WorkflowDisplayHistoryRecord extends WorkflowDisplayRecord { source: ModuleStateRecord; displayRoundNo: number | string; displayNodeId: string; statusKind: WorkflowProcessStep['status'] }
 
 const route = useRoute()
 const router = useRouter()
@@ -89,28 +33,20 @@ const submitting = ref(false)
 const runtimeView = ref<RuntimeViewResponse | null>(null)
 const projectSummary = ref<ProjectSummary | null>(null)
 const materials = ref<MaterialContextView[]>([])
+const workflowNodes = ref<WorkflowNodeDefinition[]>([])
 const bpmnXml = ref('')
 const formDrawerOpen = ref(false)
-const selectedStepId = ref('')
+const selectedNodeId = ref('')
+const openedDetailPanels = ref(['base'])
+const helperPanels = ref<string[]>([])
+const workbenchTab = ref('materials')
 const bpmnPanelRef = ref<InstanceType<typeof BpmnViewerPanel> | null>(null)
-const draftCache = new Map<WorkflowNodeDraftKey, WorkflowNodeDraft>()
+const draftCache = new Map<DraftKey, WorkflowNodeDraft>()
 const workflowDraft = ref<WorkflowNodeDraft>(createEmptyDraft('__empty__'))
 
 const context = computed(() => runtimeView.value?.context)
-
-const pageTitle = computed(() => {
-  if (projectSummary.value?.projectName) return projectSummary.value.projectName
-  const ctx = context.value
-  if (!ctx) return '流程办理详情'
-  return `项目 ${ctx.projectId}`
-})
-
-const moduleTitle = computed(() => {
-  const ctx = context.value
-  if (!ctx) return '流程模块'
-  return `${ctx.moduleType} · ${ctx.currentNodeName || ctx.currentNodeId || '当前节点'}`
-})
-
+const pageTitle = computed(() => projectSummary.value?.projectName || (context.value ? `项目 ${context.value.projectId}` : '流程办理详情'))
+const moduleTitle = computed(() => context.value ? `${moduleTypeLabel(context.value.moduleType)} · ${context.value.currentNodeName || context.value.currentNodeId || '当前节点'}` : '流程模块')
 const statusTag = computed(() => {
   const ctx = context.value
   if (!ctx) return { text: '加载中', type: 'info' as const }
@@ -118,308 +54,248 @@ const statusTag = computed(() => {
   if (runtimeView.value?.canOperate) return { text: '待我办理', type: 'warning' as const }
   return { text: '流转中', type: 'primary' as const }
 })
-
 const currentTask = computed(() => {
   const ctx = context.value
   if (!ctx) return null
   return runtimeView.value?.openTasks.find((task) => task.nodeId === ctx.currentNodeId) ?? runtimeView.value?.openTasks[0] ?? null
 })
-
 const transitionOptions = computed(() => runtimeView.value?.availableTransitions ?? [])
-
-const selectedTransition = computed(() => {
-  const transitions = transitionOptions.value
-  if (!transitions.length) return null
-  return transitions.find((transition) => transitionKey(transition) === workflowDraft.value.transitionKey) ?? transitions[0]
-})
-
+const selectedTransition = computed(() => transitionOptions.value.find((item) => transitionKey(item) === workflowDraft.value.transitionKey) ?? transitionOptions.value[0] ?? null)
 const canSubmit = computed(() => Boolean(runtimeView.value?.canOperate && selectedTransition.value))
-
-const timelineSteps = computed<WorkflowTimelineStep[]>(() => {
-  const view = runtimeView.value
-  if (!view) return []
-
-  const steps = view.history.map((record) => historyToStep(record))
-  const ctx = view.context
-  const currentId = ctx.currentNodeId || ctx.currentState || 'current'
-  const alreadyCurrent = steps.some((step) => step.nodeId === ctx.currentNodeId && step.state === ctx.currentState)
-
-  if (!ctx.finishedAt && !alreadyCurrent) {
-    steps.push({
-      id: `current-${currentId}`,
-      nodeId: ctx.currentNodeId ?? undefined,
-      state: ctx.currentState ?? undefined,
-      name: ctx.currentNodeName || ctx.currentNodeId || ctx.currentState || '当前办理节点',
-      status: 'current',
-      seq: ctx.currentSeq,
-      roundNo: ctx.currentRoundNo,
-      actor: ctx.currentResponsibleActorName || ctx.currentCandidateRoleCode || undefined,
-      time: ctx.lastTransitionTime,
-      eventType: ctx.lastEventType,
-      result: ctx.lastResult,
-      summary: ctx.lastSummary,
-    })
-  }
-
-  if (!steps.length) {
-    steps.push({
-      id: 'current-empty',
-      nodeId: ctx.currentNodeId ?? undefined,
-      state: ctx.currentState ?? undefined,
-      name: ctx.currentNodeName || '当前办理节点',
-      status: ctx.finishedAt ? 'completed' : 'current',
-      seq: ctx.currentSeq,
-      roundNo: ctx.currentRoundNo,
-    })
-  }
-
-  return steps.sort((a, b) => (a.seq ?? 9999) - (b.seq ?? 9999))
-})
-
-const selectedStep = computed(() => {
-  const steps = timelineSteps.value
-  return steps.find((step) => step.id === selectedStepId.value) ?? steps[steps.length - 1] ?? null
-})
-
-const recentRecords = computed(() => [...(runtimeView.value?.history ?? [])].reverse().slice(0, 4))
-
-const returnedRecords = computed(() => (runtimeView.value?.history ?? []).filter(isReturnedRecord).slice(-3).reverse())
-
-const materialSummaries = computed<MaterialSummaryItem[]>(() => {
-  const requirements = runtimeView.value?.materialRequirements ?? []
-  return requirements.map((requirement) => {
-    const code = requirement.materialTypeCode ?? `requirement-${requirement.requirementId}`
-    const versions = materials.value.filter((item) => item.materialTypeCode === requirement.materialTypeCode)
-    const selected = versions.find((item) => workflowDraft.value.selectedMaterialVersionIds.includes(item.materialVersionId))
-    const latest = selected ?? versions.find((item) => item.isCurrent) ?? versions[0]
-    return {
-      key: code,
-      name: requirement.materialTypeName || requirement.materialTypeCode || '材料',
-      required: Boolean(requirement.required),
-      count: versions.length,
-      latest,
-      requirement,
-    }
-  })
-})
-
+const summaryItems = computed(() => [
+  { label: '项目编号', value: projectSummary.value?.projectCode || '-' },
+  { label: '负责人', value: projectSummary.value?.leaderRealName || '-' },
+  { label: '所属单位', value: projectSummary.value?.deptName || '-' },
+  { label: '当前节点', value: context.value?.currentNodeName || context.value?.currentNodeId || '-' },
+  { label: '最近更新', value: formatDateTime(context.value?.lastTransitionTime || context.value?.startedAt) },
+])
 const currentNodeMeta = computed(() => {
   const ctx = context.value
   if (!ctx) return []
   return [
-    { label: '当前状态', value: ctx.currentState || '-' },
-    { label: '候选角色', value: ctx.currentCandidateRoleCode || currentTask.value?.candidateRoleCode || '-' },
-    { label: '办理模式', value: ctx.currentOperationMode || '-' },
-    { label: '责任人', value: ctx.currentResponsibleActorName || ctx.currentRepresentedActorName || '-' },
-    { label: '当前序号', value: ctx.currentSeq ?? '-' },
-    { label: '当前轮次', value: ctx.currentRoundNo ?? '-' },
+    { label: '当前节点', value: ctx.currentNodeName || ctx.currentNodeId || '-' },
+    { label: '处理角色', value: roleLabel(ctx.currentCandidateRoleCode || currentTask.value?.candidateRoleCode) },
+    { label: '处理人', value: ctx.currentResponsibleActorName || ctx.currentRepresentedActorName || '-' },
+    { label: '办理模式', value: operationModeLabel(ctx.currentOperationMode) },
   ]
 })
+const displayHistoryRecords = computed<WorkflowDisplayHistoryRecord[]>(() => (runtimeView.value?.history ?? []).map(toDisplayHistoryRecord))
+const processNodes = computed<WorkflowProcessStep[]>(() => {
+  const view = runtimeView.value
+  if (!view) return []
+  if (!workflowNodes.value.length) return fallbackProcessNodes(view)
 
-function transitionKey(transition: AvailableTransition) {
-  return `${transition.transitionId || transition.eventType}-${transition.result || ''}-${transition.targetRef}`
-}
+  const currentRoundNo = view.context.currentRoundNo
+  const historyByNode = new Map<string, WorkflowDisplayHistoryRecord[]>()
+  const roundCounts = new Map<string, number>()
+  displayHistoryRecords.value.forEach((record) => {
+    if (!record.displayNodeId) return
+    roundCounts.set(record.displayNodeId, (roundCounts.get(record.displayNodeId) ?? 0) + 1)
+    if (record.displayRoundNo !== currentRoundNo) return
+    historyByNode.set(record.displayNodeId, [...(historyByNode.get(record.displayNodeId) ?? []), record])
+  })
 
-function createEmptyDraft(key: WorkflowNodeDraftKey, view?: RuntimeViewResponse): WorkflowNodeDraft {
+  return workflowNodes.value
+    .filter(isVisibleProcessNode)
+    .map((node) => {
+      const records = historyByNode.get(node.nodeId) ?? []
+      const latest = records[records.length - 1]
+      const isCurrent = !view.context.finishedAt && node.nodeId === view.context.currentNodeId
+      const status = isCurrent ? 'current' : latest?.statusKind ?? 'waiting'
+      return {
+        id: `node-${node.nodeId}`,
+        name: node.nodeName || node.nodeId,
+        status,
+        statusText: stepStatusText(status, latest?.source),
+        desc: latest?.remark || node.stateCode || node.nodeType || '待流程流转至该节点',
+        actor: node.responsibleActorName || node.representedActorName || roleLabel(node.candidateRoleCode),
+        finishedAt: status === 'done' || status === 'returned' || status === 'rejected' ? latest?.time : '',
+        roundCount: (roundCounts.get(node.nodeId) ?? 0) > 1 ? roundCounts.get(node.nodeId) : undefined,
+      } satisfies WorkflowProcessStep
+    })
+})
+const selectedNode = computed(() => processNodes.value.find((node) => node.id === selectedNodeId.value) ?? processNodes.value.find((node) => node.status === 'current') ?? processNodes.value[processNodes.value.length - 1] ?? null)
+const recentRecords = computed(() => [...(runtimeView.value?.history ?? [])].reverse().slice(0, 4))
+const returnedRecords = computed(() => (runtimeView.value?.history ?? []).filter(isReturnedRecord).slice(-3).reverse())
+const materialSummaries = computed<MaterialSummaryItem[]>(() => (runtimeView.value?.materialRequirements ?? []).map((requirement) => {
+  const code = requirement.materialTypeCode ?? `requirement-${requirement.requirementId}`
+  const versions = materials.value.filter((item) => item.materialTypeCode === requirement.materialTypeCode)
+  const selected = versions.find((item) => workflowDraft.value.selectedMaterialVersionIds.includes(item.materialVersionId))
+  const latest = selected ?? versions.find((item) => item.isCurrent) ?? versions[0]
+  return { key: code, name: requirement.materialTypeName || requirement.materialTypeCode || '材料', required: Boolean(requirement.required), count: versions.length, latest, requirement, missing: Boolean(requirement.required && !versions.some((item) => item.isCurrent)) }
+}))
+const materialChecks = computed(() => {
+  const required = materialSummaries.value.filter((item) => item.required)
+  const missing = required.filter((item) => item.missing)
+  return [
+    { label: '材料要求', value: `${materialSummaries.value.length} 项`, type: 'info' as const },
+    { label: '必填材料', value: `${required.length} 项`, type: missing.length ? ('warning' as const) : ('success' as const) },
+    { label: '当前版本', value: `${materials.value.filter((item) => item.isCurrent).length} 份`, type: 'primary' as const },
+  ]
+})
+const riskItems = computed(() => {
+  const risks: Array<{ id: string; type: 'success' | 'warning' | 'info' | 'error'; title: string; desc: string }> = []
+  const missing = materialSummaries.value.filter((item) => item.missing)
+  if (missing.length) risks.push({ id: 'missing-materials', type: 'warning', title: '存在必填材料缺失', desc: missing.map((item) => item.name).join('、') })
+  if (runtimeView.value && !runtimeView.value.canOperate) risks.push({ id: 'readonly', type: 'info', title: '当前用户不可办理此节点', desc: '页面仅展示运行时状态和历史记录。' })
+  if (runtimeView.value && !transitionOptions.value.length) risks.push({ id: 'no-action', type: 'info', title: '当前节点暂无可执行动作', desc: '请等待流程状态更新或检查节点配置。' })
+  if (returnedRecords.value.length) risks.push({ id: 'returned', type: 'warning', title: '存在退回或驳回记录', desc: '建议展开历史轮次查看退回原因。' })
+  if (!risks.length) risks.push({ id: 'ok', type: 'success', title: '暂无突出风险', desc: '材料、权限和流转记录未发现明显阻塞项。' })
+  return risks
+})
+const displayRecords = computed(() => displayHistoryRecords.value)
+const currentRound = computed<RoundGroup>(() => {
+  const ctxRound = context.value?.currentRoundNo
+  const records = displayHistoryRecords.value.filter((record) => record.displayRoundNo === ctxRound)
+  return buildRoundGroup(ctxRound ?? '-', records)
+})
+const historyRounds = computed<RoundGroup[]>(() => {
+  const currentRoundNo = context.value?.currentRoundNo
+  const groups = new Map<number | string, WorkflowDisplayRecord[]>()
+  displayHistoryRecords.value.forEach((record) => {
+    const roundNo = record.displayRoundNo
+    if (roundNo === currentRoundNo) return
+    groups.set(roundNo, [...(groups.get(roundNo) ?? []), record])
+  })
+  return [...groups.entries()].sort(([a], [b]) => Number(b) - Number(a)).map(([roundNo, records]) => buildRoundGroup(roundNo, records))
+})
+
+function transitionKey(transition: AvailableTransition) { return `${transition.transitionId || transition.eventType}-${transition.result || ''}-${transition.targetRef}` }
+function createEmptyDraft(key: DraftKey, view?: RuntimeViewResponse): WorkflowNodeDraft {
   const firstTransition = view?.availableTransitions?.[0]
   const firstForm = view?.nodeForms?.find((item) => item.writeMode !== 'READ_ONLY') ?? view?.nodeForms?.[0]
-  return {
-    key,
-    transitionKey: firstTransition ? transitionKey(firstTransition) : '',
-    remark: '',
-    formModel: {
-      approved: true,
-      title: firstForm?.title || view?.context.currentNodeName || '',
-      summary: '',
-      externalActorName: '主管部门/第三方机构',
-      reviewResult: 'PASSED',
-      settlementAmount: null,
-    },
-    selectedMaterialVersionIds: [],
-    payload: {},
-  }
+  return { key, transitionKey: firstTransition ? transitionKey(firstTransition) : '', remark: '', formModel: { approved: true, title: firstForm?.title || view?.context.currentNodeName || '', summary: '', externalActorName: '主管部门/第三方机构', reviewResult: 'PASSED', settlementAmount: null }, selectedMaterialVersionIds: [], payload: {} }
 }
-
-function buildDraftKey(view: RuntimeViewResponse): WorkflowNodeDraftKey {
-  const ctx = view.context
-  return [ctx.moduleInstanceId, ctx.currentSeq ?? 'seq', ctx.currentNodeId || ctx.currentState || 'node'].join(':')
-}
-
+function buildDraftKey(view: RuntimeViewResponse): DraftKey { const ctx = view.context; return [ctx.moduleInstanceId, ctx.currentSeq ?? 'seq', ctx.currentNodeId || ctx.currentState || 'node'].join(':') }
 function ensureDraft(view: RuntimeViewResponse, reset = false) {
   const key = buildDraftKey(view)
-  if (reset || !draftCache.has(key)) {
-    draftCache.set(key, createEmptyDraft(key, view))
-  }
+  if (reset || !draftCache.has(key)) draftCache.set(key, createEmptyDraft(key, view))
   const draft = draftCache.get(key)!
-  if (!draft.transitionKey && view.availableTransitions[0]) {
-    draft.transitionKey = transitionKey(view.availableTransitions[0])
-  }
+  if (!draft.transitionKey && view.availableTransitions[0]) draft.transitionKey = transitionKey(view.availableTransitions[0])
   workflowDraft.value = draft
 }
-
-function updateDraftPayload(payload: WorkflowNodeSubmitPayload) {
-  workflowDraft.value.payload = payload
+function updateDraftPayload(payload: WorkflowNodeSubmitPayload) { workflowDraft.value.payload = payload }
+function saveDraft() { draftCache.set(workflowDraft.value.key, workflowDraft.value); ElMessage.success('本页草稿已保留') }
+function discardDraft() { if (!runtimeView.value) return; ensureDraft(runtimeView.value, true); ElMessage.success('已放弃当前节点未提交修改') }
+function fallbackProcessNodes(view: RuntimeViewResponse): WorkflowProcessStep[] {
+  const byId = new Map<string, WorkflowProcessStep & { seq: number }>()
+  const counts = new Map<string, number>()
+  const currentRoundNo = view.context.currentRoundNo
+  displayHistoryRecords.value.forEach((record, index) => {
+    const nodeId = record.displayNodeId || record.source.toState || record.source.eventType || String(record.source.stateRecordId)
+    const id = `node-${nodeId}`
+    counts.set(id, (counts.get(id) ?? 0) + 1)
+    if (record.displayRoundNo !== currentRoundNo) return
+    byId.set(id, {
+      id,
+      seq: record.source.seq ?? index + 1,
+      name: record.nodeName,
+      status: record.statusKind,
+      statusText: record.actionText,
+      desc: record.remark || eventLabel(record.source.eventType) || record.source.toState,
+      actor: eventLabel(record.source.eventType),
+      finishedAt: record.time,
+      roundCount: counts.get(id),
+    })
+  })
+  const ctx = view.context
+  const currentId = `node-${ctx.currentNodeId || ctx.currentState || ctx.moduleInstanceId}`
+  if (!ctx.finishedAt) byId.set(currentId, { id: currentId, seq: ctx.currentSeq ?? 9999, name: ctx.currentNodeName || ctx.currentNodeId || ctx.currentState || '当前办理节点', status: 'current', statusText: view.canOperate ? '待我办理' : '流转中', desc: ctx.lastSummary || ctx.currentState || '等待当前节点办理', actor: ctx.currentResponsibleActorName || roleLabel(ctx.currentCandidateRoleCode || currentTask.value?.candidateRoleCode), finishedAt: '', roundCount: Math.max(1, counts.get(currentId) ?? 1) })
+  if (!byId.size) byId.set(currentId, { id: currentId, seq: 1, name: ctx.currentNodeName || '当前办理节点', status: ctx.finishedAt ? 'done' : 'current', statusText: ctx.finishedAt ? '已完成' : '当前节点', desc: ctx.lastSummary || '-', actor: roleLabel(ctx.currentCandidateRoleCode), finishedAt: formatDateTime(ctx.finishedAt), roundCount: 1 })
+  return [...byId.values()].sort((a, b) => a.seq - b.seq).map(({ seq: _seq, ...node }) => node)
 }
-
-function saveDraft() {
-  draftCache.set(workflowDraft.value.key, workflowDraft.value)
-  ElMessage.success('本页草稿已保留')
-}
-
-function discardDraft() {
-  const view = runtimeView.value
-  if (!view) return
-  ensureDraft(view, true)
-  ElMessage.success('已放弃当前节点未提交修改')
-}
-
-function historyToStep(record: ModuleStateRecord): WorkflowTimelineStep {
-  const returned = isReturnedRecord(record)
+function stepStatusText(status: WorkflowProcessStep['status'], record?: ModuleStateRecord) {
+  if (status === 'current') return runtimeView.value?.canOperate ? '待我办理' : '处理中'
+  if (status === 'waiting') return '待进行'
+  if (status === 'returned') return '已退回'
+  if (status === 'rejected') return '已驳回'
+  return resultLabel(record?.result) || '已完成'
+}function recordStepStatus(record: ModuleStateRecord): WorkflowProcessStep['status'] { if (isRejectedRecord(record)) return 'rejected'; if (isReturnedRecord(record)) return 'returned'; return 'done' }
+function recordStatusText(record: ModuleStateRecord) { if (isRejectedRecord(record)) return '已驳回'; if (isReturnedRecord(record)) return '已退回'; return resultLabel(record.result) || '已完成' }
+function isReturnedRecord(record: ModuleStateRecord) { const text = `${record.eventType ?? ''} ${record.result ?? ''} ${record.summary ?? ''}`.toUpperCase(); return text.includes('RETURN') || text.includes('退回') }
+function isRejectedRecord(record: ModuleStateRecord) { const text = `${record.eventType ?? ''} ${record.result ?? ''} ${record.summary ?? ''}`.toUpperCase(); return text.includes('REJECT') || text.includes('FAIL') || text.includes('驳回') }
+function formatDateTime(value?: string) { return value ? value.replace('T', ' ').slice(0, 19) : '-' }
+function resultType(value?: string) { const text = String(value ?? '').toUpperCase(); if (text.includes('PASS') || text.includes('APPROVE')) return 'success'; if (text.includes('RETURN') || text.includes('REJECT') || text.includes('FAIL')) return 'warning'; return 'info' }
+function statusTagType(status: string) { if (status === 'done') return 'success'; if (status === 'current') return 'primary'; if (status === 'returned') return 'warning'; if (status === 'rejected') return 'danger'; return 'info' }
+function isVisibleProcessNode(node: WorkflowNodeDefinition) { const nodeType = String(node.nodeType ?? '').toUpperCase(); return nodeType !== 'START_EVENT' && nodeType !== 'GATEWAY' }
+function toDisplayHistoryRecord(record: ModuleStateRecord): WorkflowDisplayHistoryRecord {
+  const statusKind = recordStepStatus(record)
+  const isRoundEndingRecord = statusKind === 'returned' || statusKind === 'rejected'
+  const displayRoundNo = isRoundEndingRecord && typeof record.roundNo === 'number' ? Math.max(1, record.roundNo - 1) : record.roundNo ?? '-'
+  const displayNodeId = record.fromNodeId || record.toNodeId || record.toState || record.eventType || String(record.stateRecordId)
   return {
-    id: `history-${record.stateRecordId}`,
-    nodeId: record.toNodeId || record.fromNodeId,
-    state: record.toState,
-    name: record.toNodeId || record.toState || record.eventType || `记录 ${record.seq}`,
-    status: returned ? 'returned' : 'completed',
-    seq: record.seq,
-    roundNo: record.roundNo,
-    time: record.createdAt,
-    eventType: record.eventType,
-    result: record.result,
-    summary: record.summary,
+    id: record.stateRecordId,
+    source: record,
+    displayRoundNo,
+    displayNodeId,
+    statusKind,
+    time: formatDateTime(record.createdAt),
+    nodeName: workflowNodeName(displayNodeId, record),
+    action: record.result || record.eventType || '',
+    actionText: recordStatusText(record),
+    operator: eventLabel(record.eventType),
+    role: `第 ${displayRoundNo} 轮`,
+    remark: record.summary || record.toState,
   }
 }
-
-function isReturnedRecord(record: ModuleStateRecord) {
-  const text = `${record.eventType ?? ''} ${record.result ?? ''} ${record.summary ?? ''}`.toUpperCase()
-  return text.includes('RETURN') || text.includes('REJECT') || text.includes('退回') || text.includes('驳回')
+function workflowNodeName(nodeId: string, record?: ModuleStateRecord) {
+  const node = workflowNodes.value.find((item) => item.nodeId === nodeId)
+  return node?.nodeName || nodeId || record?.toState || eventLabel(record?.eventType) || `记录 ${record?.seq ?? '-'}`
 }
-
-function formatDateTime(value?: string) {
-  if (!value) return '-'
-  return value.replace('T', ' ').slice(0, 19)
-}
-
-function resultType(value?: string) {
-  if (!value) return 'info'
-  const text = value.toUpperCase()
-  if (text.includes('PASS') || text.includes('APPROVE')) return 'success'
-  if (text.includes('RETURN') || text.includes('REJECT') || text.includes('FAIL')) return 'warning'
-  return 'info'
-}
-
-function openBpmnLarge() {
-  bpmnPanelRef.value?.openLarge()
-}
-
-function selectStep(step: WorkflowTimelineStep) {
-  selectedStepId.value = step.id
-}
-
-async function loadProjectSummary(projectId: number) {
+function isActionReturned(value?: string) { const text = String(value ?? '').toUpperCase(); return text.includes('RETURN') || text.includes('REJECT') || text.includes('FAIL') || text.includes('退回') || text.includes('驳回') }
+function isActionRejected(value?: string) { const text = String(value ?? '').toUpperCase(); return text.includes('REJECT') || text.includes('FAIL') || text.includes('驳回') }
+function buildRoundGroup(roundNo: number | string, records: WorkflowDisplayRecord[]): RoundGroup { const first = records[0]; const last = records[records.length - 1]; const hasRejected = records.some((record) => isActionRejected(record.action) || isActionRejected(record.remark) || record.actionText === '已驳回'); const hasReturned = records.some((record) => isActionReturned(record.action) || isActionReturned(record.remark) || record.actionText === '已退回'); return { roundNo, resultText: hasRejected ? '已驳回' : hasReturned ? '已退回' : '正常流转', summary: last?.remark || '暂无摘要', startAt: first?.time || '-', endAt: last?.time || '-', records } }
+function selectNode(node: WorkflowProcessStep) { selectedNodeId.value = node.id }
+function openBpmnLarge() { bpmnPanelRef.value?.openLarge() }
+async function loadProjectSummary(projectId: number) { try { const projects = await listProjects(); projectSummary.value = projects.find((project) => project.projectId === projectId) ?? null } catch { projectSummary.value = null } }
+async function loadMaterials(projectId: number) { try { materials.value = await listProjectMaterials(projectId) } catch { materials.value = [] } }
+async function loadWorkflowNodes(workflowDefinitionId: number) {
   try {
-    const projects = await listProjects()
-    projectSummary.value = projects.find((project) => project.projectId === projectId) ?? null
+    workflowNodes.value = await getWorkflowNodes(workflowDefinitionId)
   } catch {
-    projectSummary.value = null
+    workflowNodes.value = []
   }
 }
-
-async function loadMaterials(projectId: number) {
-  try {
-    materials.value = await listProjectMaterials(projectId)
-  } catch {
-    materials.value = []
-  }
-}
-
 async function loadDetail(showMessage = false) {
-  if (!Number.isFinite(moduleInstanceId.value)) {
-    ElMessage.error('模块实例 ID 无效')
-    return
-  }
+  if (!Number.isFinite(moduleInstanceId.value)) { ElMessage.error('模块实例 ID 无效'); return }
   loading.value = true
   try {
     const view = await getRuntimeView(moduleInstanceId.value)
     runtimeView.value = view
     ensureDraft(view)
-    selectedStepId.value = `current-${view.context.currentNodeId || view.context.currentState || 'current'}`
-
     await Promise.all([loadProjectSummary(view.context.projectId), loadMaterials(view.context.projectId)])
-
     if (view.context.workflowDefinitionId) {
-      const bpmn = await getWorkflowBpmn(view.context.workflowDefinitionId)
-      bpmnXml.value = bpmn.bpmnXml
+      await Promise.all([
+        loadWorkflowNodes(view.context.workflowDefinitionId),
+        getWorkflowBpmn(view.context.workflowDefinitionId).then((bpmn) => { bpmnXml.value = bpmn.bpmnXml }),
+      ])
     }
     if (showMessage) ElMessage.success('流程详情已刷新，当前节点草稿已保留')
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '流程详情加载失败')
-  } finally {
-    loading.value = false
-  }
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '流程详情加载失败') } finally { loading.value = false }
 }
-
 function validateRequiredMaterials() {
   const view = runtimeView.value
   if (!view) return true
-  const selectedTypes = new Set(
-    materials.value
-      .filter((item) => workflowDraft.value.selectedMaterialVersionIds.includes(item.materialVersionId) && item.isCurrent)
-      .map((item) => item.materialTypeCode),
-  )
-  const missing = view.materialRequirements.filter((requirement) =>
-    Boolean(requirement.required && requirement.materialTypeCode && !selectedTypes.has(requirement.materialTypeCode)),
-  )
-  if (missing.length) {
-    ElMessage.warning(`请先选择或上传必填材料的当前版本：${missing.map((item) => item.materialTypeName || item.materialTypeCode).join('、')}`)
-    return false
-  }
+  const selectedTypes = new Set(materials.value.filter((item) => workflowDraft.value.selectedMaterialVersionIds.includes(item.materialVersionId) && item.isCurrent).map((item) => item.materialTypeCode))
+  const missing = view.materialRequirements.filter((requirement) => Boolean(requirement.required && requirement.materialTypeCode && !selectedTypes.has(requirement.materialTypeCode)))
+  if (missing.length) { ElMessage.warning(`请先选择或上传必填材料的当前版本：${missing.map((item) => item.materialTypeName || item.materialTypeCode).join('、')}`); return false }
   return true
 }
-
 async function submitCurrentDraft() {
   const view = runtimeView.value
   const transition = selectedTransition.value
-  if (!view || !transition) return
-  if (!validateRequiredMaterials()) return
-
+  if (!view || !transition || !validateRequiredMaterials()) return
   const payload = workflowDraft.value.payload
   const currentDraftKey = workflowDraft.value.key
-  const request: StateTransitionRequest = {
-    eventType: transition.eventType,
-    expectedSeq: view.context.currentSeq,
-    result: payload.result || transition.result,
-    remark: workflowDraft.value.remark || payload.remark,
-    materialVersionIds: Array.from(new Set(workflowDraft.value.selectedMaterialVersionIds)),
-    formCode: payload.formCode,
-    nodeFormData: payload.data,
-  }
-
+  const request: StateTransitionRequest = { eventType: transition.eventType, expectedSeq: view.context.currentSeq, result: payload.result || transition.result, remark: workflowDraft.value.remark || payload.remark, materialVersionIds: Array.from(new Set(workflowDraft.value.selectedMaterialVersionIds)), formCode: payload.formCode, nodeFormData: payload.data }
   submitting.value = true
-  try {
-    await submitStateTransition(moduleInstanceId.value, request)
-    draftCache.delete(currentDraftKey)
-    formDrawerOpen.value = false
-    ElNotification.success({ title: '提交成功', message: '已根据后端最新运行时视图刷新页面。' })
-    await loadDetail()
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '流程提交失败')
-    await loadDetail()
-  } finally {
-    submitting.value = false
-  }
+  try { await submitStateTransition(moduleInstanceId.value, request); draftCache.delete(currentDraftKey); formDrawerOpen.value = false; ElNotification.success({ title: '提交成功', message: '已根据后端最新运行时视图刷新页面。' }); await loadDetail() }
+  catch (error) { ElMessage.error(error instanceof Error ? error.message : '流程提交失败'); await loadDetail() }
+  finally { submitting.value = false }
 }
-
-const workflowEvents = useWorkflowEvents((event) => {
-  if (!event.moduleInstanceId || event.moduleInstanceId === moduleInstanceId.value) {
-    loadDetail()
-  }
-})
-
-onMounted(() => {
-  loadDetail()
-  workflowEvents.connect()
-})
+watch(processNodes, (nodes) => { if (nodes.length && (!selectedNodeId.value || !nodes.some((node) => node.id === selectedNodeId.value))) selectedNodeId.value = nodes.find((node) => node.status === 'current')?.id ?? nodes[nodes.length - 1].id })
+const workflowEvents = useWorkflowEvents((event) => { if (!event.moduleInstanceId || event.moduleInstanceId === moduleInstanceId.value) loadDetail() })
+onMounted(() => { loadDetail(); workflowEvents.connect() })
 </script>
 
 <template>
@@ -427,200 +303,232 @@ onMounted(() => {
     <el-skeleton v-if="loading && !runtimeView" animated :rows="10" />
     <el-empty v-else-if="!runtimeView" description="未加载到流程详情" />
 
-    <template v-else>
-      <section class="workflow-detail-v01-topbar">
-        <div class="workflow-detail-v01-topbar-main">
-          <el-button link class="workflow-detail-v01-back" :icon="ArrowLeft" @click="router.push({ name: 'workflow' })">
-            返回工作台
-          </el-button>
-          <div>
-            <h2>{{ pageTitle }}</h2>
-            <p>{{ moduleTitle }}</p>
+    <main v-else class="workflow-detail-stack-page">
+      <section class="workflow-detail-stack-hero">
+        <div class="workflow-detail-stack-hero-main">
+          <el-button class="workflow-detail-stack-back-button" text :icon="ArrowLeft" @click="router.push({ name: 'workflow' })">返回</el-button>
+          <div class="workflow-detail-stack-hero-text">
+            <div class="workflow-detail-stack-title-line">
+              <h1>{{ moduleTitle }}</h1>
+              <el-tag :type="statusTag.type" effect="light">{{ statusTag.text }}</el-tag>
+              <el-tag type="warning" effect="light">第 {{ runtimeView.context.currentRoundNo ?? '-' }} 轮</el-tag>
+            </div>
+            <p>{{ pageTitle }}</p>
           </div>
         </div>
-        <div class="workflow-detail-v01-topbar-meta">
-          <el-tag effect="dark" :type="statusTag.type">{{ statusTag.text }}</el-tag>
-          <span>轮次 {{ runtimeView.context.currentRoundNo ?? '-' }}</span>
-          <span>节点 {{ runtimeView.context.currentNodeName || runtimeView.context.currentNodeId || '-' }}</span>
-          <el-button :icon="FullScreen" plain @click="openBpmnLarge">展开 BPMN</el-button>
-          <el-button :icon="Refresh" :loading="loading" plain @click="loadDetail(true)">刷新</el-button>
+        <div class="workflow-detail-stack-hero-actions">
+          <el-button :icon="Refresh" :loading="loading" @click="loadDetail(true)">刷新</el-button>
+          <el-button :icon="Document" @click="formDrawerOpen = true">查看材料</el-button>
+          <el-button type="primary" :icon="EditPen" :disabled="!runtimeView.canOperate" @click="formDrawerOpen = true">办理当前节点</el-button>
         </div>
       </section>
 
-      <section class="workflow-detail-v01-page">
-        <aside class="workflow-detail-v01-column">
-          <el-card class="workflow-detail-v01-card" shadow="never">
-            <template #header>
-              <div class="workflow-detail-v01-card-title">
-                <span>项目概览</span>
-                <el-tag size="small" type="info">{{ runtimeView.context.moduleType }}</el-tag>
-              </div>
-            </template>
-            <div class="workflow-detail-v01-overview-title">{{ projectSummary?.projectName || pageTitle }}</div>
-            <div class="workflow-detail-v01-kv-list">
-              <div class="workflow-detail-v01-kv"><span>项目编号</span><strong>{{ projectSummary?.projectCode || '-' }}</strong></div>
-              <div class="workflow-detail-v01-kv"><span>负责人</span><strong>{{ projectSummary?.leaderRealName || '-' }}</strong></div>
-              <div class="workflow-detail-v01-kv"><span>所属部门</span><strong>{{ projectSummary?.deptName || '-' }}</strong></div>
-              <div class="workflow-detail-v01-kv"><span>项目类型</span><strong>{{ projectSummary?.projectType || '-' }}</strong></div>
-              <div class="workflow-detail-v01-kv"><span>项目级别</span><strong>{{ projectSummary?.projectLevel || '-' }}</strong></div>
-              <div class="workflow-detail-v01-kv"><span>生命周期</span><strong>{{ projectSummary?.lifecycleStage || '-' }}</strong></div>
-            </div>
-          </el-card>
+      <section class="workflow-detail-stack-summary-strip">
+        <div v-for="item in summaryItems" :key="item.label" class="workflow-detail-stack-summary-item">
+          <span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+        </div>
+      </section>
 
-          <el-card class="workflow-detail-v01-card" shadow="never">
-            <template #header>
-              <div class="workflow-detail-v01-card-title">
-                <span>申报/流程材料</span>
-                <el-button link type="primary" :icon="Document" @click="formDrawerOpen = true">办理材料</el-button>
+      <section class="workflow-detail-stack-content">
+        <el-card shadow="never" class="workflow-detail-stack-section-card workflow-detail-stack-detail-card">
+          <template #header>
+            <div class="workflow-detail-stack-card-title-row compact">
+              <div>
+                <h2>项目详细信息</h2>
+                <p>保留项目详情，以堆叠折叠方式收纳。</p>
               </div>
-            </template>
-            <el-empty v-if="!materialSummaries.length" description="当前节点暂无材料要求" />
-            <div v-else class="workflow-detail-v01-material-list">
-              <div v-for="item in materialSummaries" :key="item.key" class="workflow-detail-v01-material-item">
+              <el-tag type="info" effect="plain">{{ moduleTypeLabel(runtimeView.context.moduleType) }}</el-tag>
+            </div>
+          </template>
+          <el-collapse v-model="openedDetailPanels" class="workflow-detail-stack-detail-collapse">
+            <el-collapse-item title="基础信息" name="base">
+              <el-descriptions :column="3" border>
+                <el-descriptions-item label="项目编号">{{ projectSummary?.projectCode || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="项目名称">{{ projectSummary?.projectName || pageTitle }}</el-descriptions-item>
+                <el-descriptions-item label="生命周期">{{ lifecycleLabel(projectSummary?.lifecycleStage) }}</el-descriptions-item>
+                <el-descriptions-item label="负责人">{{ projectSummary?.leaderRealName || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="所属单位">{{ projectSummary?.deptName || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="模块实例">{{ runtimeView.context.moduleInstanceId }}</el-descriptions-item>
+              </el-descriptions>
+            </el-collapse-item>
+            <el-collapse-item title="项目属性与流程状态" name="attribute">
+              <el-descriptions :column="3" border>
+                <el-descriptions-item label="项目类型">{{ projectSummary?.projectType || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="项目级别">{{ projectSummary?.projectLevel || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="模块类型">{{ moduleTypeLabel(runtimeView.context.moduleType) }}</el-descriptions-item>
+                <el-descriptions-item label="当前状态">{{ runtimeView.context.currentState || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="当前序号">{{ runtimeView.context.currentSeq ?? '-' }}</el-descriptions-item>
+                <el-descriptions-item label="最近更新">{{ formatDateTime(runtimeView.context.lastTransitionTime) }}</el-descriptions-item>
+              </el-descriptions>
+            </el-collapse-item>
+            <el-collapse-item title="参与角色与补充信息" name="extra">
+              <div class="workflow-detail-stack-tag-block">
+                <span>候选角色</span>
                 <div>
-                  <div class="workflow-detail-v01-material-name">
-                    {{ item.name }}
-                    <el-tag v-if="item.required" size="small" type="danger">必填</el-tag>
-                  </div>
-                  <p>{{ item.latest?.fileName || item.requirement.description || '尚未选择或上传材料' }}</p>
+                  <el-tag effect="plain">{{ roleLabel(runtimeView.context.currentCandidateRoleCode) }}</el-tag>
+                  <el-tag v-if="runtimeView.context.currentLaneName" type="primary" effect="light">{{ runtimeView.context.currentLaneName }}</el-tag>
                 </div>
-                <el-badge :value="item.count" type="primary" />
               </div>
-            </div>
-          </el-card>
-
-          <el-card class="workflow-detail-v01-card" shadow="never">
-            <template #header>历史退回/最近记录</template>
-            <el-empty v-if="!returnedRecords.length && !recentRecords.length" description="暂无历史记录" />
-            <div v-else class="workflow-detail-v01-record-list">
-              <div
-                v-for="record in (returnedRecords.length ? returnedRecords : recentRecords)"
-                :key="record.stateRecordId"
-                class="workflow-detail-v01-record-item"
-              >
-                <el-tag size="small" :type="resultType(record.result)">{{ record.result || record.eventType }}</el-tag>
-                <strong>{{ record.toNodeId || record.toState }}</strong>
-                <p>{{ record.summary || '暂无摘要' }}</p>
-                <span>{{ formatDateTime(record.createdAt) }}</span>
+              <div class="workflow-detail-stack-tag-block">
+                <span>最近结果</span>
+                <div>
+                  <el-tag :type="resultType(runtimeView.context.lastResult)" effect="light">{{ runtimeView.context.lastResult || '-' }}</el-tag>
+                  <el-tag type="info" effect="plain">{{ runtimeView.context.lastEventType || '-' }}</el-tag>
+                </div>
               </div>
+            </el-collapse-item>
+          </el-collapse>
+        </el-card>
+
+        <el-card shadow="never" class="workflow-detail-stack-section-card workflow-detail-stack-process-card">
+          <template #header>
+            <div class="workflow-detail-stack-card-title-row">
+              <div>
+                <h2>流程办理进度</h2>
+                <p>点击节点查看该节点状态与处理说明。</p>
+              </div>
+              <el-tag type="info" effect="plain">{{ processNodes.length }} 步</el-tag>
             </div>
-          </el-card>
-        </aside>
+          </template>
+          <ProcessSteps :nodes="processNodes" :selected-node-id="selectedNodeId" @select-node="selectNode" />
+          <div v-if="selectedNode" class="workflow-detail-stack-selected-node-panel">
+            <div class="workflow-detail-stack-selected-main">
+              <span class="workflow-detail-stack-eyebrow">选中节点详情</span>
+              <strong>{{ selectedNode.name }}</strong>
+              <p>{{ selectedNode.desc || '暂无说明' }}</p>
+            </div>
+            <div class="workflow-detail-stack-selected-meta-row">
+              <div class="workflow-detail-stack-selected-meta"><span>责任角色</span><strong>{{ selectedNode.actor || '-' }}</strong></div>
+              <div class="workflow-detail-stack-selected-meta">
+                <span>节点状态</span>
+                <strong><el-tag :type="statusTagType(selectedNode.status)" size="small" effect="light">{{ selectedNode.statusText }}</el-tag></strong>
+              </div>
+              <div class="workflow-detail-stack-selected-meta"><span>完成时间</span><strong>{{ selectedNode.finishedAt || '未完成' }}</strong></div>
+              <div class="workflow-detail-stack-selected-meta"><span>办理轮次</span><strong>{{ selectedNode.roundCount && selectedNode.roundCount > 1 ? `第 ${selectedNode.roundCount} 轮` : '首轮' }}</strong></div>
+            </div>
+          </div>
+        </el-card>
 
-        <main class="workflow-detail-v01-center">
-          <BpmnViewerPanel
-            ref="bpmnPanelRef"
-            :bpmn-xml="bpmnXml"
-            :current-node-id="runtimeView.context.currentNodeId"
-            :history="runtimeView.history"
-            :open-tasks="runtimeView.openTasks"
-          />
-
-          <el-card class="workflow-detail-v01-card workflow-detail-v01-timeline-card" shadow="never">
+        <section class="workflow-detail-stack-workbench-grid">
+          <el-card shadow="never" class="workflow-detail-stack-section-card">
             <template #header>
-              <div class="workflow-detail-v01-card-title">
-                <span>流程办理时间线</span>
-                <el-tag size="small" type="info">{{ timelineSteps.length }} 步</el-tag>
+              <div class="workflow-detail-stack-card-title-row compact">
+                <div><h2>当前办理任务</h2><p>核心操作入口保留在当前任务附近。</p></div>
+                <el-tag type="primary" effect="plain">{{ operationModeLabel(runtimeView.context.currentOperationMode) }}</el-tag>
               </div>
             </template>
-            <div class="workflow-detail-v01-timeline-scroll">
-              <div class="workflow-detail-v01-timeline-line" />
-              <button
-                v-for="step in timelineSteps"
-                :key="step.id"
-                type="button"
-                :class="['workflow-detail-v01-step', `is-${step.status}`, { 'is-selected': selectedStep?.id === step.id }]"
-                @click="selectStep(step)"
-              >
-                <span class="workflow-detail-v01-step-dot">{{ step.seq ?? '' }}</span>
-                <strong>{{ step.name }}</strong>
-                <small>{{ formatDateTime(step.time) }}</small>
-                <em>{{ step.summary || step.eventType || step.state || '等待办理' }}</em>
-              </button>
+            <div class="workflow-detail-stack-task-grid">
+              <div v-for="item in currentNodeMeta" :key="item.label"><span>{{ item.label }}</span><strong>{{ item.value }}</strong></div>
+            </div>
+            <el-alert class="workflow-detail-stack-task-alert" :type="runtimeView.canOperate ? 'success' : 'info'" :closable="false" show-icon>
+              {{ runtimeView.canOperate ? '当前用户具备该节点办理权限。' : '当前用户不可办理此节点，仅可查看运行时状态。' }}
+            </el-alert>
+            <div class="workflow-detail-stack-action-row">
+              <el-button v-for="transition in transitionOptions" :key="transitionKey(transition)" :type="workflowDraft.transitionKey === transitionKey(transition) ? 'primary' : ''" @click="workflowDraft.transitionKey = transitionKey(transition)">
+                {{ resultLabel(transition.result) !== '-' ? resultLabel(transition.result) : eventLabel(transition.eventType) }}
+              </el-button>
+              <el-button v-if="!transitionOptions.length" disabled>暂无可执行动作</el-button>
+            </div>
+            <el-input v-model="workflowDraft.remark" class="workflow-detail-stack-remark" type="textarea" :rows="4" maxlength="500" show-word-limit placeholder="填写审批意见或办理说明" />
+            <div class="workflow-detail-stack-submit-row">
+              <el-button @click="formDrawerOpen = true">打开办理面板</el-button>
+              <el-button type="primary" :loading="submitting" :disabled="!canSubmit" @click="submitCurrentDraft">提交办理</el-button>
             </div>
           </el-card>
-        </main>
 
-        <aside class="workflow-detail-v01-column workflow-detail-v01-right">
-          <el-card class="workflow-detail-v01-card" shadow="never">
+          <el-card shadow="never" class="workflow-detail-stack-section-card">
             <template #header>
-              <div class="workflow-detail-v01-card-title">
-                <span>当前办理任务</span>
-                <el-tag size="small" :type="runtimeView.canOperate ? 'success' : 'info'">
-                  {{ runtimeView.canOperate ? '可办理' : '只读' }}
-                </el-tag>
-              </div>
+              <div class="workflow-detail-stack-card-title-row compact"><div><h2>材料与意见</h2><p>材料清单、审批意见和风险提示统一放在办理辅助面板。</p></div></div>
             </template>
-            <el-alert
-              :title="runtimeView.canOperate ? '当前用户具备该节点办理权限' : '当前用户不可办理此节点，仅可查看运行时状态'"
-              :type="runtimeView.canOperate ? 'success' : 'info'"
-              :closable="false"
-              show-icon
-            />
-            <div class="workflow-detail-v01-meta-grid">
-              <div v-for="item in currentNodeMeta" :key="item.label">
-                <span>{{ item.label }}</span>
-                <strong>{{ item.value }}</strong>
-              </div>
+            <el-tabs v-model="workbenchTab" class="workflow-detail-stack-clean-tabs">
+              <el-tab-pane label="材料" name="materials">
+                <div class="workflow-detail-stack-check-row">
+                  <el-tag v-for="check in materialChecks" :key="check.label" :type="check.type" effect="light">{{ check.label }}：{{ check.value }}</el-tag>
+                </div>
+                <el-empty v-if="!materialSummaries.length" description="当前节点暂无材料要求" />
+                <div v-else class="workflow-detail-stack-material-list">
+                  <div v-for="material in materialSummaries" :key="material.key" class="workflow-detail-stack-material-item">
+                    <div><strong>{{ material.name }}</strong> <span>{{ material.latest?.fileName || material.requirement.description || '尚未上传当前版本' }}</span></div>
+                    <el-tag size="small" :type="material.missing ? 'warning' : 'success'" effect="light">{{ material.missing ? '待补齐' : `${material.count} 份` }}</el-tag>
+                  </div>
+                </div>
+              </el-tab-pane>
+              <el-tab-pane label="意见" name="opinions">
+                <el-empty v-if="!displayRecords.length" description="暂无审批意见" />
+                <div v-else class="workflow-detail-stack-opinion-list">
+                  <div v-for="record in displayRecords.slice().reverse().slice(0, 5)" :key="record.id" class="workflow-detail-stack-opinion-item">
+                    <div><strong>{{ record.nodeName }} · {{ record.operator || '-' }}</strong><span>{{ record.time }}</span></div>
+                    <el-tag size="small" :type="resultType(record.action)" effect="light">{{ record.actionText }}</el-tag>
+                    <p>{{ record.remark || '暂无说明' }}</p>
+                  </div>
+                </div>
+              </el-tab-pane>
+              <el-tab-pane label="风险" name="risks">
+                <div class="workflow-detail-stack-risk-list">
+                  <el-alert v-for="risk in riskItems" :key="risk.id" :type="risk.type" :title="risk.title" :description="risk.desc" :closable="false" show-icon />
+                </div>
+              </el-tab-pane>
+            </el-tabs>
+          </el-card>
+        </section>
+
+        <el-card shadow="never" class="workflow-detail-stack-section-card">
+          <template #header>
+            <div class="workflow-detail-stack-card-title-row compact">
+              <div><h2>本轮流转记录</h2><p>展示当前第 {{ currentRound.roundNo }} 轮，历史轮次默认折叠。</p></div>
+              <el-tag type="primary" effect="plain">{{ currentRound.records.length }} 条</el-tag>
             </div>
+          </template>
+          <el-empty v-if="!currentRound.records.length" description="本轮暂无流转记录" />
+          <RecordTimeline v-else :records="currentRound.records" />
+        </el-card>
 
-            <template v-if="transitionOptions.length">
-              <div class="workflow-detail-v01-section-title">可执行动作</div>
-              <el-radio-group v-model="workflowDraft.transitionKey" class="workflow-detail-v01-action-group">
-                <el-radio-button
-                  v-for="transition in transitionOptions"
-                  :key="transitionKey(transition)"
-                  :label="transitionKey(transition)"
-                >
-                  {{ transition.result || transition.eventType }}
-                </el-radio-button>
-              </el-radio-group>
-              <el-input
-                v-model="workflowDraft.remark"
-                class="workflow-detail-v01-remark"
-                type="textarea"
-                :rows="4"
-                placeholder="填写审批意见或办理说明"
-              />
-              <div class="workflow-detail-v01-submit-row">
-                <el-button @click="formDrawerOpen = true">办理当前节点</el-button>
-                <el-button type="primary" :loading="submitting" :disabled="!canSubmit" @click="submitCurrentDraft">
-                  提交办理
-                </el-button>
-              </div>
-            </template>
-            <el-empty v-else description="当前节点暂无可执行动作" />
-          </el-card>
+        <el-card shadow="never" class="workflow-detail-stack-section-card">
+          <template #header>
+            <div class="workflow-detail-stack-card-title-row compact">
+              <div><h2>历史轮次</h2><p>默认折叠，仅在排查退回原因时展开。</p></div>
+              <el-tag type="warning" effect="plain">{{ historyRounds.length }} 轮</el-tag>
+            </div>
+          </template>
+          <el-empty v-if="!historyRounds.length" description="暂无历史轮次" />
+          <el-collapse v-else accordion>
+            <el-collapse-item v-for="round in historyRounds" :key="round.roundNo" :name="round.roundNo">
+              <template #title>
+                <div class="workflow-detail-stack-round-title">
+                  <strong>第 {{ round.roundNo }} 轮</strong>
+                  <el-tag size="small" type="warning" effect="light">{{ round.resultText }}</el-tag>
+                  <span>{{ round.summary }}</span>
+                  <em>{{ round.startAt }} ~ {{ round.endAt }}</em>
+                </div>
+              </template>
+              <RecordTimeline :records="round.records" />
+            </el-collapse-item>
+          </el-collapse>
+        </el-card>
 
-          <el-card class="workflow-detail-v01-card" shadow="never">
-            <template #header>选中节点详情</template>
-            <el-descriptions v-if="selectedStep" :column="1" size="small" border>
-              <el-descriptions-item label="节点">{{ selectedStep.name }}</el-descriptions-item>
-              <el-descriptions-item label="状态">{{ selectedStep.state || '-' }}</el-descriptions-item>
-              <el-descriptions-item label="事件">{{ selectedStep.eventType || '-' }}</el-descriptions-item>
-              <el-descriptions-item label="结果">{{ selectedStep.result || '-' }}</el-descriptions-item>
-              <el-descriptions-item label="摘要">{{ selectedStep.summary || '-' }}</el-descriptions-item>
-              <el-descriptions-item label="时间">{{ formatDateTime(selectedStep.time) }}</el-descriptions-item>
-            </el-descriptions>
-            <el-empty v-else description="请选择时间线节点" />
-          </el-card>
-
-          <el-card class="workflow-detail-v01-card" shadow="never">
-            <template #header>最近审批记录</template>
-            <el-timeline v-if="recentRecords.length">
-              <el-timeline-item
-                v-for="record in recentRecords"
-                :key="record.stateRecordId"
-                :timestamp="formatDateTime(record.createdAt)"
-                :type="resultType(record.result)"
-              >
-                <div class="workflow-detail-v01-timeline-mini-title">{{ record.eventType }} · {{ record.result || '-' }}</div>
-                <p>{{ record.summary || record.toState }}</p>
-              </el-timeline-item>
-            </el-timeline>
-            <el-empty v-else description="暂无审批记录" />
-          </el-card>
-        </aside>
+        <el-card shadow="never" class="workflow-detail-stack-section-card workflow-detail-stack-helper-card">
+          <template #header>
+            <div class="workflow-detail-stack-card-title-row compact">
+              <div><h2>辅助查看</h2><p>BPMN 与原始运行时信息按需展开。</p></div>
+              <el-button :icon="FullScreen" plain @click="openBpmnLarge">展开 BPMN</el-button>
+            </div>
+          </template>
+          <el-collapse v-model="helperPanels">
+            <el-collapse-item title="BPMN 流程图预览" name="bpmn">
+              <BpmnViewerPanel ref="bpmnPanelRef" :bpmn-xml="bpmnXml" :current-node-id="runtimeView.context.currentNodeId" :history="runtimeView.history" :open-tasks="runtimeView.openTasks" />
+            </el-collapse-item>
+            <el-collapse-item title="原始流程信息" name="runtime">
+              <el-descriptions :column="2" border>
+                <el-descriptions-item label="流程定义">{{ runtimeView.context.workflowDefinitionId }}</el-descriptions-item>
+                <el-descriptions-item label="当前 BPMN 节点">{{ runtimeView.context.currentNodeId || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="开始时间">{{ formatDateTime(runtimeView.context.startedAt) }}</el-descriptions-item>
+                <el-descriptions-item label="完成时间">{{ formatDateTime(runtimeView.context.finishedAt) }}</el-descriptions-item>
+                <el-descriptions-item label="最近摘要">{{ runtimeView.context.lastSummary || '-' }}</el-descriptions-item>
+              </el-descriptions>
+            </el-collapse-item>
+          </el-collapse>
+        </el-card>
       </section>
 
       <el-drawer v-model="formDrawerOpen" title="办理当前节点" size="62%">
@@ -642,6 +550,14 @@ onMounted(() => {
           @close="formDrawerOpen = false"
         />
       </el-drawer>
-    </template>
+    </main>
   </AppShell>
 </template>
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getProjectAuthorization } from '../../api/projects'
@@ -24,18 +24,7 @@ const isAssignNode = computed(() => String(props.view.context.currentNodeId || '
 const isSummaryNode = computed(() => String(props.view.context.currentNodeId || '').includes('ExpertSummary'))
 const isScienceAdmin = computed(() => auth.user?.roleCodes.includes('SCIENCE_ADMIN') || auth.user?.roleCodes.includes('SYSTEM_ADMIN'))
 const canManageExperts = computed(() => isScienceAdmin.value || props.view.context.currentCandidateRoleCode === 'DEPT_ADMIN')
-const targetReviewNodeId = computed(() => {
-  const nodeId = props.view.context.currentNodeId
-  if (nodeId === 'DeptExpertAssignTask' || nodeId === 'DeptExpertSummaryTask') return 'DeptExpertReviewTask'
-  if (nodeId === 'ScienceExpertAssignTask' || nodeId === 'ScienceExpertSummaryTask') return 'ScienceExpertReviewTask'
-  if (nodeId === 'ExpertAssignTask' || nodeId === 'ExpertSummaryTask') return 'ExpertReviewTask'
-  return nodeId || null
-})
-const expertGrants = computed(() => (detail.value?.expertGrants ?? []).filter((grant) =>
-  grant.moduleType === props.view.context.moduleType &&
-  (!grant.roundNo || grant.roundNo === props.view.context.currentRoundNo) &&
-  (!grant.taskNodeId || grant.taskNodeId === targetReviewNodeId.value || grant.taskNodeId === 'expert_review'),
-))
+
 const availableExperts = computed(() => {
   if (!detail.value?.users) return []
   return detail.value.users.filter(
@@ -212,3 +201,4 @@ watch(() => [props.view.context.moduleInstanceId, props.view.context.currentNode
     <el-alert v-if="isSummaryNode && batch && batch.status !== 'COMPLETED'" title="评审批次尚未达到最少有效专家数，请等待专家提交评分后再汇总。" type="warning" :closable="false" />
   </el-card>
 </template>
+

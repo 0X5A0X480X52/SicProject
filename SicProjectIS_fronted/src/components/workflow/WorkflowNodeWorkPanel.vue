@@ -1,7 +1,8 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, watch } from 'vue'
 import ExpertReviewPanel from './ExpertReviewPanel.vue'
 import MaterialRequirementPanel from './MaterialRequirementPanel.vue'
+import { eventLabel, resultLabel, roleLabel } from '../../utils/displayLabels'
 import type {
   AvailableTransition,
   ModuleStateRecord,
@@ -75,7 +76,7 @@ const hasWritableFields = computed(() => Boolean(selectedForm.value && !isReadOn
 
 const selectedTransitionLabel = computed(() => {
   const item = props.transitions.find((transition) => keyOf(transition) === props.transitionKey) ?? props.transitions[0]
-  return item ? item.result || item.eventType : '无可执行动作'
+  return item ? (resultLabel(item.result) !== '-' ? resultLabel(item.result) : eventLabel(item.eventType)) : '无可执行动作'
 })
 
 function keyOf(transition: AvailableTransition) {
@@ -310,7 +311,7 @@ watch(
 
     <el-descriptions class="workflow-node-work-summary" :column="2" size="small" border>
       <el-descriptions-item label="当前节点">{{ view.context.currentNodeName || view.context.currentNodeId || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="候选角色">{{ view.context.currentCandidateRoleCode || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="候选角色">{{ roleLabel(view.context.currentCandidateRoleCode) }}</el-descriptions-item>
       <el-descriptions-item label="当前动作">{{ selectedTransitionLabel }}</el-descriptions-item>
       <el-descriptions-item label="轮次/序号">{{ view.context.currentRoundNo ?? '-' }} / {{ view.context.currentSeq ?? '-' }}</el-descriptions-item>
     </el-descriptions>
@@ -321,7 +322,7 @@ watch(
           <el-form-item v-if="transitions.length" label="办理动作">
             <el-radio-group :model-value="transitionKey" @update:model-value="updateTransitionKey">
               <el-radio-button v-for="transition in transitions" :key="keyOf(transition)" :label="keyOf(transition)">
-                {{ transition.result || transition.eventType }}
+                {{ resultLabel(transition.result) !== '-' ? resultLabel(transition.result) : eventLabel(transition.eventType) }}
               </el-radio-button>
             </el-radio-group>
           </el-form-item>
@@ -427,7 +428,7 @@ watch(
             :timestamp="record.createdAt?.replace('T', ' ').slice(0, 19)"
             :type="String(record.result || record.eventType).includes('RETURN') ? 'warning' : 'primary'"
           >
-            <strong>{{ record.eventType }} · {{ record.result || '-' }}</strong>
+            <strong>{{ eventLabel(record.eventType) }} · {{ resultLabel(record.result) }}</strong>
             <p>{{ record.summary || record.toState }}</p>
           </el-timeline-item>
         </el-timeline>
@@ -444,3 +445,4 @@ watch(
     </div>
   </section>
 </template>
+

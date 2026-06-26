@@ -1,4 +1,4 @@
-export type ModuleType = 'APPLICATION' | 'CONTRACT' | 'ACCEPTANCE' | string
+﻿export type ModuleType = 'APPLICATION' | 'CONTRACT' | 'ACCEPTANCE' | string
 
 export interface WorkflowWorkbenchItem {
   moduleInstanceId: number
@@ -25,6 +25,22 @@ export interface WorkflowBpmnResponse {
   bpmnXml: string
 }
 
+export interface WorkflowNodeDefinition {
+  nodeId: string
+  nodeName?: string | null
+  nodeType?: string | null
+  stateCode?: string | null
+  laneName?: string | null
+  responsibleActorCode?: string | null
+  responsibleActorName?: string | null
+  candidateRoleCode?: string | null
+  operationMode?: string | null
+  representedActorCode?: string | null
+  representedActorName?: string | null
+  materialRequirements?: unknown[]
+  documentConfigs?: unknown[]
+}
+
 export interface ModuleStateChangedEvent {
   type: 'MODULE_STATE_CHANGED'
   projectId?: number
@@ -36,3 +52,4 @@ export interface ModuleStateChangedEvent {
   eventType?: string
   occurredAt?: string
 }
+
