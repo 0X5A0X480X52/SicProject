@@ -53,7 +53,9 @@ public class CommonTransitionConditionHandler implements TransitionConditionHand
     public boolean matches(TransitionContext context) {
         String key = context.transition().conditionHandlerKey();
         if ("EXPERT_REVIEW_PASS_CONDITION".equals(key)) {
+            Integer roundNo = context.stateRecord() == null ? null : context.stateRecord().getRoundNo();
             return expertBatchDao.selectByModuleInstanceId(context.moduleInstance().getModuleInstanceId()).stream()
+                    .filter(batch -> roundNo == null || batch.getRoundNo() == null || java.util.Objects.equals(batch.getRoundNo(), roundNo))
                     .max(Comparator.comparing(batch -> batch.getBatchId()))
                     .map(batch -> approved(batch.getFinalResult()))
                     .orElse(false);

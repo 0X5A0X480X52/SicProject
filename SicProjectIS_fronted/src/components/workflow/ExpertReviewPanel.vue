@@ -52,10 +52,11 @@ const isAssignNode = computed(() =>
 const isSummaryNode = computed(() =>
   String(props.view.context.currentNodeId || "").includes("ExpertSummary"),
 );
+const isSystemAdmin = computed(
+  () => auth.user?.roleCodes.includes("SYSTEM_ADMIN") ?? false,
+);
 const isScienceAdmin = computed(
-  () =>
-    auth.user?.roleCodes.includes("SCIENCE_ADMIN") ||
-    auth.user?.roleCodes.includes("SYSTEM_ADMIN"),
+  () => auth.user?.roleCodes.includes("SCIENCE_ADMIN") || isSystemAdmin.value,
 );
 const canManageExperts = computed(
   () =>
@@ -109,10 +110,16 @@ const myAssignments = computed(() =>
     (item: any) => item.assignment?.expertUserId === auth.user?.userId,
   ),
 );
-const unsubmittedMyAssignments = computed(() =>
-  myAssignments.value.filter(
+const scoreAssignments = computed(() =>
+  isSystemAdmin.value ? assignments.value : myAssignments.value,
+);
+const unsubmittedScoreAssignments = computed(() =>
+  scoreAssignments.value.filter(
     (a: any) => a.assignment.reviewStatus !== "SUBMITTED",
   ),
+);
+const canViewExpertPanel = computed(
+  () => !isExpertNode.value || isSystemAdmin.value || myAssignments.value.length > 0,
 );
 function reviewStatusText(status?: string) {
   switch (status) {
@@ -132,17 +139,43 @@ const submissionProgress = computed(() => {
   return { submitted, expected, allDone: submitted >= expected };
 });
 
+function syncScoreDraftAssignment() {
+  const available = unsubmittedScoreAssignments.value;
+  if (!available.some((item: any) => String(item.assignment.assignmentId) === scoreDraft.assignmentId)) {
+    scoreDraft.assignmentId = available[0]?.assignment?.assignmentId
+      ? String(available[0].assignment.assignmentId)
+      : "";
+  }
+}
+
+function toReviewTaskNodeId(nodeId?: string | null) {
+  return String(nodeId ?? "")
+    .replace("ExpertAssignTask", "ExpertReviewTask")
+    .replace("ExpertSummaryTask", "ExpertReviewTask");
+}
+
 function applyLatestBatch(businessData: any) {
   const reviews = [...(businessData?.expertReviews ?? [])];
+  const currentRoundNo = props.view.context.currentRoundNo;
+  const currentReviewNodeId = toReviewTaskNodeId(props.view.context.currentNodeId);
   const latest = reviews
     .reverse()
     .find(
       (item: any) =>
-        item.batch?.moduleInstanceId === props.view.context.moduleInstanceId,
+        item.batch?.moduleInstanceId === props.view.context.moduleInstanceId &&
+        (item.batch?.roundNo === currentRoundNo || item.batch?.roundNo == null) &&
+        (!item.reviewNodeId || item.reviewNodeId === currentReviewNodeId),
     );
-  if (!latest) return;
+  if (!latest) {
+    batch.value = null;
+    assignments.value = [];
+    selectedExpertIds.value = [];
+    scoreDraft.assignmentId = "";
+    return;
+  }
   batch.value = latest.batch;
   assignments.value = latest.assignments ?? [];
+  syncScoreDraftAssignment();
 }
 
 async function loadExpertData() {
@@ -251,6 +284,7 @@ async function removeAssignedExpert(item: any) {
     );
     batch.value = response.batch;
     assignments.value = response.assignments;
+    syncScoreDraftAssignment();
     ElMessage.success("已移除专家邀请");
     emit("changed");
   } catch (error) {
@@ -261,7 +295,7 @@ async function removeAssignedExpert(item: any) {
 }
 async function submitScore() {
   if (!scoreDraft.assignmentId) return;
-  const alreadySubmitted = myAssignments.value.find(
+  const alreadySubmitted = scoreAssignments.value.find(
     (a: any) => String(a.assignment.assignmentId) === scoreDraft.assignmentId,
   );
   if (alreadySubmitted?.assignment?.reviewStatus === "SUBMITTED") {
@@ -308,7 +342,7 @@ watch(
 <template>
   <component
     :is="embedded ? 'section' : 'el-card'"
-    v-if="isExpertWorkNode"
+    v-if="isExpertWorkNode && (!isExpertNode || loading || canViewExpertPanel)"
     :class="[
       'workflow-card',
       'workflow-expert-review-panel',
@@ -578,16 +612,14 @@ watch(
     </template>
 
     <template
-      v-if="isExpertNode && (myAssignments.length || assignments.length)"
+      v-if="isExpertNode && scoreAssignments.length"
     >
       <el-divider content-position="left">提交专家评分</el-divider>
       <el-form label-position="top">
         <el-form-item label="评分任务">
           <el-select v-model="scoreDraft.assignmentId" style="width: 100%">
             <el-option
-              v-for="item in unsubmittedMyAssignments.length
-                ? unsubmittedMyAssignments
-                : assignments"
+              v-for="item in unsubmittedScoreAssignments"
               :key="item.assignment.assignmentId"
               :label="`${item.assignment.expertName || item.assignment.expertUserId} · ${reviewStatusText(item.assignment.reviewStatus)}`"
               :value="String(item.assignment.assignmentId)"
@@ -622,8 +654,8 @@ watch(
       <el-alert
         v-if="
           isExpertNode &&
-          myAssignments.length &&
-          !unsubmittedMyAssignments.length
+          scoreAssignments.length &&
+          !unsubmittedScoreAssignments.length
         "
         title="您已完成评分提交"
         type="success"

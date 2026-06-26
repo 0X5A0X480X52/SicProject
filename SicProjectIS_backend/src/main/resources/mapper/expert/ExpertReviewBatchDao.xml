@@ -23,13 +23,14 @@
         <result column="rank_no" property="rankNo" jdbcType="INTEGER" />
         <result column="summary_comment" property="summaryComment" jdbcType="LONGVARCHAR" />
         <result column="status" property="status" jdbcType="VARCHAR" />
+        <result column="round_no" property="roundNo" jdbcType="INTEGER" />
         <result column="created_by" property="createdBy" jdbcType="BIGINT" />
         <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
         <result column="completed_at" property="completedAt" jdbcType="TIMESTAMP" />
         <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
     </resultMap>
 
-    <sql id="BaseColumnList">`batch_id`, `module_instance_id`, `workflow_node_id`, `state_record_id`, `review_type`, `review_title`, `rule_type`, `min_expert_count`, `pass_score`, `recommend_score`, `remove_highest_lowest`, `expected_expert_count`, `submitted_expert_count`, `valid_expert_count`, `highest_score`, `lowest_score`, `final_score`, `final_result`, `rank_no`, `summary_comment`, `status`, `created_by`, `created_at`, `completed_at`, `updated_at`</sql>
+    <sql id="BaseColumnList">`batch_id`, `module_instance_id`, `workflow_node_id`, `state_record_id`, `review_type`, `review_title`, `rule_type`, `min_expert_count`, `pass_score`, `recommend_score`, `remove_highest_lowest`, `expected_expert_count`, `submitted_expert_count`, `valid_expert_count`, `highest_score`, `lowest_score`, `final_score`, `final_result`, `rank_no`, `summary_comment`, `status`, `round_no`, `created_by`, `created_at`, `completed_at`, `updated_at`</sql>
 
     <select id="selectById" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `expert_review_batch` WHERE `batch_id` = #{batchId, jdbcType=BIGINT}
@@ -37,6 +38,10 @@
 
     <select id="selectByModuleInstanceId" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `expert_review_batch` WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByModuleInstanceIdAndRoundNo" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" /> FROM `expert_review_batch` WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT} AND `round_no` = #{roundNo, jdbcType=INTEGER}
     </select>
 
     <select id="selectAll" resultMap="BaseResultMap">
@@ -48,7 +53,7 @@
             `module_instance_id`, `workflow_node_id`, `state_record_id`, `review_type`, `review_title`, `rule_type`,
             `min_expert_count`, `pass_score`, `recommend_score`, `remove_highest_lowest`, `expected_expert_count`,
             `submitted_expert_count`, `valid_expert_count`, `highest_score`, `lowest_score`, `final_score`,
-            `final_result`, `rank_no`, `summary_comment`, `status`, `created_by`, `created_at`, `completed_at`, `updated_at`
+            `final_result`, `rank_no`, `summary_comment`, `status`, `round_no`, `created_by`, `created_at`, `completed_at`, `updated_at`
         ) VALUES (
             #{moduleInstanceId, jdbcType=BIGINT}, #{workflowNodeId, jdbcType=BIGINT}, #{stateRecordId, jdbcType=BIGINT},
             #{reviewType, jdbcType=VARCHAR}, #{reviewTitle, jdbcType=VARCHAR}, #{ruleType, jdbcType=VARCHAR},
@@ -57,6 +62,7 @@
             #{submittedExpertCount, jdbcType=INTEGER}, #{validExpertCount, jdbcType=INTEGER},
             #{highestScore, jdbcType=DECIMAL}, #{lowestScore, jdbcType=DECIMAL}, #{finalScore, jdbcType=DECIMAL},
             #{finalResult, jdbcType=VARCHAR}, #{rankNo, jdbcType=INTEGER}, #{summaryComment, jdbcType=LONGVARCHAR}, #{status, jdbcType=VARCHAR},
+            #{roundNo, jdbcType=INTEGER},
             #{createdBy, jdbcType=BIGINT}, #{createdAt, jdbcType=TIMESTAMP}, #{completedAt, jdbcType=TIMESTAMP},
             #{updatedAt, jdbcType=TIMESTAMP}
         )
@@ -85,6 +91,7 @@
             `rank_no` = #{rankNo, jdbcType=INTEGER},
             `summary_comment` = #{summaryComment, jdbcType=LONGVARCHAR},
             `status` = #{status, jdbcType=VARCHAR},
+            `round_no` = #{roundNo, jdbcType=INTEGER},
             `created_by` = #{createdBy, jdbcType=BIGINT},
             `completed_at` = #{completedAt, jdbcType=TIMESTAMP},
             `updated_at` = #{updatedAt, jdbcType=TIMESTAMP}

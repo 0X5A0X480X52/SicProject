@@ -25,6 +25,7 @@ import com.amatrix.sicprojectis_backend.structured.dao.RuntimeStructuredDataDao;
 import com.amatrix.sicprojectis_backend.structured.dto.ExpertReviewData;
 import com.amatrix.sicprojectis_backend.structured.dto.ExpertReviewData.ExpertReviewAssignmentData;
 import com.amatrix.sicprojectis_backend.structured.dto.ModuleBusinessDataResponse;
+import com.amatrix.sicprojectis_backend.workflow.dao.WorkflowNodeDao;
 
 @Service
 public class ModuleBusinessDataService {
@@ -41,16 +42,18 @@ public class ModuleBusinessDataService {
     private final MaterialContextViewDao materialDao;
     private final ProcessDocumentDao documentDao;
     private final PermissionService permissionService;
+    private final WorkflowNodeDao workflowNodeDao;
 
     public ModuleBusinessDataService(ProjectModuleInstanceDao moduleDao, ProjectDao projectDao,
             StructuredBusinessService draftService, ModuleStateRecordDao stateRecordDao, StateRecordRemarkDao remarkDao,
             RuntimeStructuredDataDao runtimeDao, ProjectStructuredDataDao projectStructuredDao,
             ExpertReviewBatchDao batchDao, ExpertReviewAssignmentDao assignmentDao, ExpertReviewScoreDao scoreDao,
-            MaterialContextViewDao materialDao, ProcessDocumentDao documentDao, PermissionService permissionService) {
+            MaterialContextViewDao materialDao, ProcessDocumentDao documentDao, PermissionService permissionService,
+            WorkflowNodeDao workflowNodeDao) {
         this.moduleDao=moduleDao; this.projectDao=projectDao; this.draftService=draftService; this.stateRecordDao=stateRecordDao;
         this.remarkDao=remarkDao; this.runtimeDao=runtimeDao; this.projectStructuredDao=projectStructuredDao;
         this.batchDao=batchDao; this.assignmentDao=assignmentDao; this.scoreDao=scoreDao; this.materialDao=materialDao;
-        this.documentDao=documentDao; this.permissionService=permissionService;
+        this.documentDao=documentDao; this.permissionService=permissionService; this.workflowNodeDao=workflowNodeDao;
     }
 
     public ModuleBusinessDataResponse get(AuthenticatedUser user, Long moduleInstanceId) {
@@ -67,9 +70,12 @@ public class ModuleBusinessDataService {
             case "ACCEPTANCE" -> draftService.getAcceptance(user, module.getProjectId());
             default -> null;
         };
-        List<ExpertReviewData> expertReviews = batchDao.selectByModuleInstanceId(moduleInstanceId).stream().map(batch ->
-                new ExpertReviewData(batch, assignmentDao.selectByBatchId(batch.getBatchId()).stream()
-                        .map(a -> new ExpertReviewAssignmentData(a, scoreDao.selectByAssignmentId(a.getAssignmentId()))).toList())).toList();
+        List<ExpertReviewData> expertReviews = batchDao.selectByModuleInstanceId(moduleInstanceId).stream().map(batch -> {
+            var workflowNode = batch.getWorkflowNodeId() == null ? null : workflowNodeDao.selectById(batch.getWorkflowNodeId());
+            String reviewNodeId = workflowNode == null ? null : toReviewTaskNodeId(workflowNode.getNodeId());
+            return new ExpertReviewData(batch, reviewNodeId, assignmentDao.selectByBatchId(batch.getBatchId()).stream()
+                    .map(a -> new ExpertReviewAssignmentData(a, scoreDao.selectByAssignmentId(a.getAssignmentId()))).toList());
+        }).toList();
         return new ModuleBusinessDataResponse(module, projectDao.selectById(module.getProjectId()), draft, states, remarks,
                 runtimeDao.selectCheckItemsByModuleInstanceId(moduleInstanceId), runtimeDao.selectExternalResultsByModuleInstanceId(moduleInstanceId),
                 runtimeDao.selectSealRecordsByModuleInstanceId(moduleInstanceId), runtimeDao.selectSubmissionRecordsByModuleInstanceId(moduleInstanceId),
@@ -80,5 +86,10 @@ public class ModuleBusinessDataService {
                 projectStructuredDao.selectSurplusReturnsByProjectId(module.getProjectId()), expertReviews,
                 materialDao.selectAll().stream().filter(m -> module.getProjectId().equals(m.getProjectId())).toList(),
                 documentDao.selectAll().stream().filter(d -> moduleInstanceId.equals(d.getModuleInstanceId())).toList());
+    }
+
+    private String toReviewTaskNodeId(String nodeId) {
+        if (nodeId == null) return null;
+        return nodeId.replace("ExpertAssignTask", "ExpertReviewTask").replace("ExpertSummaryTask", "ExpertReviewTask");
     }
 }

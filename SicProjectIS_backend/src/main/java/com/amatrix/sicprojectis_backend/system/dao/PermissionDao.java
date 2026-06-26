@@ -16,6 +16,8 @@ public interface PermissionDao {
 
     List<String> selectPermissionCodesByUserId(@Param("userId") Long userId);
 
+    int countPermissionByUserId(@Param("userId") Long userId, @Param("permissionCode") String permissionCode);
+
     List<Permission> selectAll();
 
     int updateById(Permission entity);

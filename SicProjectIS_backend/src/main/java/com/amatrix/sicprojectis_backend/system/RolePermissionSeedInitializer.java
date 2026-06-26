@@ -164,10 +164,16 @@ public class RolePermissionSeedInitializer implements ApplicationRunner {
         mapping.put("DEPT_ADMIN", List.of(
                 "project:view",
                 "project:grant:view",
-                "project:grant:member"));
-        mapping.put("PROJECT_LEADER", List.of("project:view"));
-        mapping.put("EXPERT", List.of());
-        mapping.put("FINANCE_ADMIN", List.of("project:view"));
+                "project:grant:member",
+                "workflow:definition:view"));
+        mapping.put("PROJECT_LEADER", List.of(
+                "project:view",
+                "workflow:definition:view"));
+        mapping.put("EXPERT", List.of(
+                "workflow:definition:view"));
+        mapping.put("FINANCE_ADMIN", List.of(
+                "project:view",
+                "workflow:definition:view"));
         return mapping;
     }
 

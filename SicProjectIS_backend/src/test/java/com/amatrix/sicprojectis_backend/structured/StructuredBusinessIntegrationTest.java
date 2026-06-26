@@ -104,8 +104,10 @@ class StructuredBusinessIntegrationTest {
         var batch = expertReviewService.create(leader, new CreateExpertReviewBatchRequest(1L, null, "APPLICATION_SCIENCE_EXPERT", "Review", "REMOVE_HIGHEST_LOWEST_AVERAGE", 3, new BigDecimal("70"), new BigDecimal("85"), true, 5)).batch();
         List<BigDecimal> values = List.of(new BigDecimal("60"), new BigDecimal("70"), new BigDecimal("80"), new BigDecimal("90"), new BigDecimal("100"));
         for (int index=0; index<values.size(); index++) {
-            var assignment = expertReviewService.assign(leader, batch.getBatchId(), new AssignExpertRequest(100L+index, "Expert "+index, "Panel", "Professor")).assignments().getLast().assignment();
-            expertReviewService.submit(assignment.getAssignmentId(), new SubmitExpertScoreRequest(false, true, "PASS", "ok", List.of(new SubmitExpertScoreRequest.ScoreItem("TOTAL", "Total", BigDecimal.ONE, new BigDecimal("100"), values.get(index), null))));
+            long expertUserId = 100L + index;
+            var assignment = expertReviewService.assign(leader, batch.getBatchId(), new AssignExpertRequest(expertUserId, "Expert "+index, "Panel", "Professor")).assignments().getLast().assignment();
+            var expertUser = new AuthenticatedUser(expertUserId, "expert" + index, List.of("EXPERT"));
+            expertReviewService.submit(expertUser, assignment.getAssignmentId(), new SubmitExpertScoreRequest(false, true, "PASS", "ok", List.of(new SubmitExpertScoreRequest.ScoreItem("TOTAL", "Total", BigDecimal.ONE, new BigDecimal("100"), values.get(index), null))));
         }
         var completed = expertReviewService.detail(batch.getBatchId()).batch();
         assertThat(completed.getFinalScore()).isEqualByComparingTo("80.00");

@@ -10,5 +10,7 @@ import java.util.List;
 public interface MaterialContextViewDao {
     MaterialContextView selectByMaterialVersionId(@Param("materialVersionId") Long materialVersionId);
 
+    List<MaterialContextView> selectByProjectId(@Param("projectId") Long projectId);
+
     List<MaterialContextView> selectAll();
 }

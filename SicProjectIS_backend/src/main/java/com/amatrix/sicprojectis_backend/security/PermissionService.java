@@ -1,21 +1,26 @@
 package com.amatrix.sicprojectis_backend.security;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
+import com.amatrix.sicprojectis_backend.project.ProjectGrantRoleCodes;
 import com.amatrix.sicprojectis_backend.project.dao.ProjectDao;
 import com.amatrix.sicprojectis_backend.project.dao.ProjectMemberDao;
 import com.amatrix.sicprojectis_backend.project.dao.ProjectRoleGrantDao;
-import com.amatrix.sicprojectis_backend.project.ProjectGrantRoleCodes;
 import com.amatrix.sicprojectis_backend.project.entity.Project;
 import com.amatrix.sicprojectis_backend.project.entity.ProjectRoleGrant;
 import com.amatrix.sicprojectis_backend.runtime.dao.ModuleRuntimeContextViewDao;
+import com.amatrix.sicprojectis_backend.runtime.dao.ProjectModuleInstanceDao;
 import com.amatrix.sicprojectis_backend.runtime.entity.ModuleRuntimeContextView;
 import com.amatrix.sicprojectis_backend.system.dao.PermissionDao;
 import com.amatrix.sicprojectis_backend.system.dao.UserRoleDetailViewDao;
 import com.amatrix.sicprojectis_backend.system.entity.UserRoleDetailView;
 import com.amatrix.sicprojectis_backend.task.dao.TaskInstanceDao;
 import com.amatrix.sicprojectis_backend.task.entity.TaskInstance;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service("permissionService")
@@ -25,6 +30,7 @@ public class PermissionService {
     private static final String DEPT_ADMIN = "DEPT_ADMIN";
     private static final String PROJECT_LEADER = "PROJECT_LEADER";
     private static final String EXPERT = "EXPERT";
+    private static final String FINANCE_ADMIN = "FINANCE_ADMIN";
 
     private final UserRoleDetailViewDao userRoleDetailViewDao;
     private final PermissionDao permissionDao;
@@ -33,10 +39,12 @@ public class PermissionService {
     private final ProjectRoleGrantDao projectRoleGrantDao;
     private final ModuleRuntimeContextViewDao moduleRuntimeContextViewDao;
     private final TaskInstanceDao taskInstanceDao;
+    private final ProjectModuleInstanceDao projectModuleInstanceDao;
 
     public PermissionService(UserRoleDetailViewDao userRoleDetailViewDao, PermissionDao permissionDao,
             ProjectDao projectDao, ProjectMemberDao projectMemberDao, ProjectRoleGrantDao projectRoleGrantDao,
-            ModuleRuntimeContextViewDao moduleRuntimeContextViewDao, TaskInstanceDao taskInstanceDao) {
+            ModuleRuntimeContextViewDao moduleRuntimeContextViewDao, TaskInstanceDao taskInstanceDao,
+            ProjectModuleInstanceDao projectModuleInstanceDao) {
         this.userRoleDetailViewDao = userRoleDetailViewDao;
         this.permissionDao = permissionDao;
         this.projectDao = projectDao;
@@ -44,6 +52,7 @@ public class PermissionService {
         this.projectRoleGrantDao = projectRoleGrantDao;
         this.moduleRuntimeContextViewDao = moduleRuntimeContextViewDao;
         this.taskInstanceDao = taskInstanceDao;
+        this.projectModuleInstanceDao = projectModuleInstanceDao;
     }
 
     public boolean hasRole(Long userId, String roleCode) {
@@ -51,10 +60,16 @@ public class PermissionService {
     }
 
     public boolean hasPermission(Long userId, String permissionCode) {
-        return permissionDao.selectPermissionCodesByUserId(userId).contains(permissionCode);
+        if (userId == null || permissionCode == null || permissionCode.isBlank()) {
+            return false;
+        }
+        return permissionDao.countPermissionByUserId(userId, permissionCode) > 0;
     }
 
     public boolean canAccessProject(Long userId, Long projectId) {
+        if (userId == null || projectId == null) {
+            return false;
+        }
         Project project = projectDao.selectById(projectId);
         if (project == null) {
             return false;
@@ -63,23 +78,37 @@ public class PermissionService {
         if (roles.contains(SYSTEM_ADMIN) || roles.contains(SCIENCE_ADMIN)) {
             return true;
         }
-        UserRoleDetailView user = firstRoleDetail(userId);
-        if (roles.contains(DEPT_ADMIN) && user != null && Objects.equals(user.getDeptId(), project.getDeptId())) {
+        if (roles.contains(DEPT_ADMIN)) {
+            UserRoleDetailView user = firstRoleDetail(userId);
+            if (user != null && Objects.equals(user.getDeptId(), project.getDeptId())) {
+                return true;
+            }
+        }
+        if (Objects.equals(project.getLeaderUserId(), userId)
+                || projectMemberDao.countByProjectIdAndUserId(projectId, userId) > 0) {
             return true;
         }
-        if (Objects.equals(project.getLeaderUserId(), userId) || projectMemberDao.countByProjectIdAndUserId(projectId, userId) > 0) {
+
+        Set<String> grantRoleCodes = projectRoleGrantDao.selectActiveForUserAndProject(userId, projectId).stream()
+                .map(ProjectRoleGrant::getGrantRoleCode)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+        if (grantRoleCodes.contains(ProjectGrantRoleCodes.PROJECT_LEADER_BINDING)
+                || grantRoleCodes.contains(ProjectGrantRoleCodes.PROJECT_MEMBER_BINDING)
+                || grantRoleCodes.contains(ProjectGrantRoleCodes.PROJECT_FINANCE_HANDLER_ASSIGNMENT)
+                || grantRoleCodes.contains(ProjectGrantRoleCodes.PROJECT_PROXY_RECORDER_ASSIGNMENT)
+                || (roles.contains(EXPERT) && grantRoleCodes.contains(ProjectGrantRoleCodes.PROJECT_MODULE_EXPERT_ASSIGNMENT))) {
             return true;
         }
-        if (hasProjectGrant(userId, projectId, ProjectGrantRoleCodes.PROJECT_LEADER_BINDING)
-                || hasProjectGrant(userId, projectId, ProjectGrantRoleCodes.PROJECT_MEMBER_BINDING)
-                || hasProjectGrant(userId, projectId, ProjectGrantRoleCodes.PROJECT_FINANCE_HANDLER_ASSIGNMENT)
-                || hasProjectGrant(userId, projectId, ProjectGrantRoleCodes.PROJECT_PROXY_RECORDER_ASSIGNMENT)) {
+        if (roles.contains(EXPERT) && hasOpenTaskInProject(userId, projectId)) {
             return true;
         }
-        if (roles.contains(EXPERT) && hasProjectGrant(userId, projectId, ProjectGrantRoleCodes.PROJECT_MODULE_EXPERT_ASSIGNMENT)) {
+        // FINANCE_ADMIN can view all projects that have entered the acceptance stage,
+        // but can only submit (operate) when there is a matching FINANCE_ADMIN task.
+        if (roles.contains(FINANCE_ADMIN) && hasAcceptanceModule(projectId)) {
             return true;
         }
-        return roles.contains(EXPERT) && hasOpenTaskInProject(userId, projectId);
+        return false;
     }
 
     public boolean canOperateModuleNode(Long userId, Long moduleInstanceId) {
@@ -89,7 +118,8 @@ public class PermissionService {
         }
         List<String> roles = roles(userId);
         for (TaskInstance task : taskInstanceDao.selectOpenByModuleInstanceId(moduleInstanceId)) {
-            if (Objects.equals(task.getAssigneeUserId(), userId) || matchesCandidateRole(userId, context, task.getCandidateRoleCode(), roles)) {
+            if (Objects.equals(task.getAssigneeUserId(), userId)
+                    || matchesCandidateRole(userId, context, task.getCandidateRoleCode(), roles)) {
                 return true;
             }
         }
@@ -97,10 +127,11 @@ public class PermissionService {
     }
 
     private boolean hasOpenTaskInProject(Long userId, Long projectId) {
-        return moduleRuntimeContextViewDao.selectAll().stream()
-                .filter(context -> Objects.equals(context.getProjectId(), projectId))
-                .flatMap(context -> taskInstanceDao.selectOpenByModuleInstanceId(context.getModuleInstanceId()).stream())
-                .anyMatch(task -> Objects.equals(task.getAssigneeUserId(), userId));
+        return taskInstanceDao.countOpenAssignedByUserAndProject(userId, projectId) > 0;
+    }
+
+    private boolean hasAcceptanceModule(Long projectId) {
+        return projectModuleInstanceDao.selectByProjectIdAndModuleType(projectId, "ACCEPTANCE") != null;
     }
 
     private boolean hasProjectGrant(Long userId, Long projectId, String grantRoleCode) {
@@ -146,6 +177,17 @@ public class PermissionService {
     }
 
     private List<String> roles(Long userId) {
+        if (userId == null) {
+            return List.of();
+        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof AuthenticatedUser user
+                && Objects.equals(user.userId(), userId) && user.roleCodes() != null) {
+            return user.roleCodes().stream()
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
+        }
         return userRoleDetailViewDao.selectByUserId(userId).stream()
                 .map(UserRoleDetailView::getRoleCode)
                 .filter(Objects::nonNull)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElNotification } from 'element-plus'
 import { ArrowLeft, Document, EditPen, FullScreen, Refresh } from '@element-plus/icons-vue'
@@ -280,11 +280,11 @@ function isActionRejected(value?: string) { const text = String(value ?? '').toU
 function buildRoundGroup(roundNo: number | string, records: WorkflowDisplayRecord[]): RoundGroup { const first = records[0]; const last = records[records.length - 1]; const hasRejected = records.some((record) => isActionRejected(record.action) || isActionRejected(record.remark) || record.actionText === '已驳回'); const hasReturned = records.some((record) => isActionReturned(record.action) || isActionReturned(record.remark) || record.actionText === '已退回'); return { roundNo, resultText: hasRejected ? '已驳回' : hasReturned ? '已退回' : '正常流转', summary: last?.remark || '暂无摘要', startAt: first?.time || '-', endAt: last?.time || '-', records } }
 function selectNode(node: WorkflowProcessStep) { selectedNodeId.value = node.id }
 function openBpmnLarge() { bpmnPanelRef.value?.openLarge() }
-async function loadProjectSummary(projectId: number) { try { const projects = await listProjects(); projectSummary.value = projects.find((project) => project.projectId === projectId) ?? null } catch { projectSummary.value = null } }
-async function loadMaterials(projectId: number) { try { materials.value = await listProjectMaterials(projectId) } catch { materials.value = [] } }
-async function loadWorkflowNodes(workflowDefinitionId: number) {
+async function loadProjectSummary(projectId: number, signal?: AbortSignal) { try { const projects = await listProjects(signal); projectSummary.value = projects.find((project) => project.projectId === projectId) ?? null } catch { projectSummary.value = null } }
+async function loadMaterials(projectId: number, signal?: AbortSignal) { try { materials.value = await listProjectMaterials(projectId, signal) } catch { materials.value = [] } }
+async function loadWorkflowNodes(workflowDefinitionId: number, signal?: AbortSignal) {
   try {
-    workflowNodes.value = await getWorkflowNodes(workflowDefinitionId)
+    workflowNodes.value = await getWorkflowNodes(workflowDefinitionId, signal)
   } catch {
     workflowNodes.value = []
   }
@@ -386,23 +386,48 @@ async function quickSubmitFinancialSettlement() {
   await submitCurrentDraft()
 }
 
+let loadAbortController: AbortController | null = null
+
 async function loadDetail(showMessage = false) {
   if (!Number.isFinite(moduleInstanceId.value)) { ElMessage.error('模块实例 ID 无效'); return }
+  // Cancel any in-flight requests from a previous loadDetail call
+  loadAbortController?.abort()
+  loadAbortController = new AbortController()
+  const signal = loadAbortController.signal
   loading.value = true
   try {
-    const view = await getRuntimeView(moduleInstanceId.value)
+    const view = await getRuntimeView(moduleInstanceId.value, signal)
+    if (signal.aborted) return
     runtimeView.value = view
     ensureDraft(view)
-    await Promise.all([loadProjectSummary(view.context.projectId), loadMaterials(view.context.projectId)])
+
+    // All secondary requests run in parallel — no reason to serialize them.
+    // Previously nodes/bpmn waited for projectSummary + materials, which
+    // delayed them and caused requests to fire after the user left the page.
+    const tasks: Promise<unknown>[] = [
+      loadProjectSummary(view.context.projectId, signal),
+      loadMaterials(view.context.projectId, signal),
+    ]
     if (view.context.workflowDefinitionId) {
-      await Promise.all([
-        loadWorkflowNodes(view.context.workflowDefinitionId),
-        getWorkflowBpmn(view.context.workflowDefinitionId).then((bpmn) => { bpmnXml.value = bpmn.bpmnXml }),
-      ])
+      tasks.push(
+        loadWorkflowNodes(view.context.workflowDefinitionId, signal),
+        getWorkflowBpmn(view.context.workflowDefinitionId, signal)
+          .then((bpmn) => { bpmnXml.value = bpmn.bpmnXml })
+          .catch(() => { bpmnXml.value = '' }),
+      )
     }
+    await Promise.all(tasks)
+
     if (showMessage) ElMessage.success('流程详情已刷新，当前节点草稿已保留')
-  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '流程详情加载失败') } finally { loading.value = false }
+  } catch (error) {
+    if (signal.aborted) return
+    ElMessage.error(error instanceof Error ? error.message : '流程详情加载失败')
+  } finally { loading.value = false }
 }
+
+onBeforeUnmount(() => {
+  loadAbortController?.abort()
+})
 function validateRequiredMaterials() {
   const view = runtimeView.value
   if (!view) return true
@@ -557,7 +582,7 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
             </el-alert>
 
             <!-- Transition selector -->
-            <div v-if="transitionOptions.length" class="workflow-detail-stack-action-row">
+            <div v-if="!isExpertNode && transitionOptions.length" class="workflow-detail-stack-action-row">
               <el-button v-for="transition in transitionOptions" :key="transitionKey(transition)" :type="workflowDraft.transitionKey === transitionKey(transition) ? 'primary' : ''" @click="workflowDraft.transitionKey = transitionKey(transition)">
                 {{ resultLabel(transition.result) !== '-' ? resultLabel(transition.result) : eventLabel(transition.eventType) }}
               </el-button>
@@ -567,7 +592,7 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
             </div>
 
             <!-- Quick action area: different layouts per node type -->
-            <div v-if="quickAction.supportsQuickAction && runtimeView.canOperate" class="workflow-detail-stack-quick-actions">
+            <div v-if="!isExpertNode && quickAction.supportsQuickAction && runtimeView.canOperate" class="workflow-detail-stack-quick-actions">
               <!-- Approval nodes: 通过/不通过 -->
               <template v-if="quickAction.category === 'approval'">
                 <el-input v-model="workflowDraft.remark" class="workflow-detail-stack-remark" type="textarea" :rows="3" maxlength="500" show-word-limit :placeholder="quickAction.remarkPlaceholder || '填写审批意见'" />
@@ -636,7 +661,7 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
             </div>
 
             <!-- Expert review nodes: show core expert workflow directly -->
-            <div v-else-if="isExpertNode && runtimeView.canOperate" class="workflow-detail-stack-quick-actions">
+            <div v-else-if="isExpertNode" class="workflow-detail-stack-quick-actions">
               <el-alert
                 :title="quickAction.description"
                 type="info"
@@ -652,7 +677,7 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
             </div>
 
             <!-- Fallback when no quick action is supported -->
-            <div v-else class="workflow-detail-stack-quick-actions">
+            <div v-else-if="!isExpertNode" class="workflow-detail-stack-quick-actions">
               <el-input v-model="workflowDraft.remark" class="workflow-detail-stack-remark" type="textarea" :rows="4" maxlength="500" show-word-limit :placeholder="quickAction.remarkPlaceholder || '填写审批意见或办理说明'" />
               <div class="workflow-detail-stack-submit-row">
                 <el-button @click="formDrawerOpen = true">打开办理面板</el-button>
@@ -781,11 +806,3 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
     </main>
   </AppShell>
 </template>
-
-
-
-
-
-
-
-

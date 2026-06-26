@@ -14,6 +14,8 @@ public interface ExpertReviewBatchDao {
 
     List<ExpertReviewBatch> selectByModuleInstanceId(@Param("moduleInstanceId") Long moduleInstanceId);
 
+    List<ExpertReviewBatch> selectByModuleInstanceIdAndRoundNo(@Param("moduleInstanceId") Long moduleInstanceId, @Param("roundNo") Integer roundNo);
+
     List<ExpertReviewBatch> selectAll();
 
     int updateById(ExpertReviewBatch entity);

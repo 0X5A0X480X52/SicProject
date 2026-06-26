@@ -1,4 +1,4 @@
-﻿package com.amatrix.sicprojectis_backend.expert;
+package com.amatrix.sicprojectis_backend.expert;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +22,7 @@ public class ExpertReviewController {
     @PostMapping("/batches") public ApiResponse<ExpertReviewBatchDetailResponse> create(@AuthenticationPrincipal AuthenticatedUser user,@RequestBody CreateExpertReviewBatchRequest request){return ApiResponse.ok(service.create(user,request));}
     @GetMapping("/batches/{batchId}") public ApiResponse<ExpertReviewBatchDetailResponse> detail(@PathVariable Long batchId){return ApiResponse.ok(service.detail(batchId));}
     @PostMapping("/batches/{batchId}/assignments") public ApiResponse<ExpertReviewBatchDetailResponse> assign(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable Long batchId,@RequestBody AssignExpertRequest request){return ApiResponse.ok(service.assign(user,batchId,request));}
-    @PostMapping("/assignments/{assignmentId}/scores") public ApiResponse<ExpertReviewBatchDetailResponse> submit(@PathVariable Long assignmentId,@RequestBody SubmitExpertScoreRequest request){return ApiResponse.ok(service.submit(assignmentId,request));}
+    @PostMapping("/assignments/{assignmentId}/scores") public ApiResponse<ExpertReviewBatchDetailResponse> submit(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable Long assignmentId,@RequestBody SubmitExpertScoreRequest request){return ApiResponse.ok(service.submit(user,assignmentId,request));}
     @DeleteMapping("/assignments/{assignmentId}") public ApiResponse<ExpertReviewBatchDetailResponse> removeAssignment(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable Long assignmentId){return ApiResponse.ok(service.removeAssignment(user,assignmentId));}
     @PostMapping("/assignments/{assignmentId}/remove") public ApiResponse<ExpertReviewBatchDetailResponse> removeAssignmentByPost(@AuthenticationPrincipal AuthenticatedUser user,@PathVariable Long assignmentId){return ApiResponse.ok(service.removeAssignment(user,assignmentId));}
 }

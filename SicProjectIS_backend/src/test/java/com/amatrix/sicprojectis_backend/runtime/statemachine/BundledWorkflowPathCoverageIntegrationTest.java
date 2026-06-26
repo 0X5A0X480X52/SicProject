@@ -765,6 +765,7 @@ class BundledWorkflowPathCoverageIntegrationTest {
         RuntimeViewResponse view = runtimeService.runtimeView(scienceAdmin, run.moduleId);
         ExpertReviewBatch batch = new ExpertReviewBatch();
         batch.setModuleInstanceId(run.moduleId);
+        batch.setRoundNo(currentRound(run.moduleId));
         batch.setWorkflowNodeId(view.context().getCurrentWorkflowNodeId());
         batch.setReviewType(reviewType);
         batch.setReviewTitle(reviewType);
@@ -774,8 +775,8 @@ class BundledWorkflowPathCoverageIntegrationTest {
         batch.setRecommendScore(new BigDecimal("85"));
         batch.setRemoveHighestLowest(false);
         batch.setExpectedExpertCount(1);
-        batch.setSubmittedExpertCount(0);
-        batch.setValidExpertCount(0);
+        batch.setSubmittedExpertCount(1);
+        batch.setValidExpertCount(1);
         batch.setStatus("IN_PROGRESS");
         batch.setCreatedBy(scienceAdmin.userId());
         batch.setCreatedAt(LocalDateTime.now());
@@ -788,7 +789,10 @@ class BundledWorkflowPathCoverageIntegrationTest {
         assignment.setExpertName("Whitebox Expert");
         assignment.setExpertOrg("Whitebox Org");
         assignment.setAssignedAt(LocalDateTime.now());
-        assignment.setReviewStatus("ASSIGNED");
+        assignment.setReviewStatus("SUBMITTED");
+        assignment.setTotalScore(new BigDecimal("90"));
+        assignment.setReviewResult("PASSED");
+        assignment.setSubmittedAt(LocalDateTime.now());
         assignment.setConflictOfInterest(false);
         assignment.setIsValid(true);
         assignment.setCreatedAt(LocalDateTime.now());
@@ -798,6 +802,7 @@ class BundledWorkflowPathCoverageIntegrationTest {
     private void createExpertBatchResult(Long moduleId, String reviewType, String finalResult) {
         ExpertReviewBatch batch = new ExpertReviewBatch();
         batch.setModuleInstanceId(moduleId);
+        batch.setRoundNo(currentRound(moduleId));
         batch.setReviewType(reviewType);
         batch.setReviewTitle(reviewType);
         batch.setRuleType("AVERAGE");

@@ -163,6 +163,51 @@ public class StateMachineRuntimeService {
 
     @Transactional
     public StateTransitionResponse transition(AuthenticatedUser user, Long moduleInstanceId, StateTransitionRequest request) {
+        return transitionInternal(user, moduleInstanceId, request, true, "USER");
+    }
+
+    @Transactional
+    public void autoTransitionAfterExpertReviewComplete(Long batchId) {
+        ExpertReviewBatch batch = expertReviewBatchDao.selectById(batchId);
+        if (batch == null || !"COMPLETED".equals(batch.getStatus())) {
+            return;
+        }
+        var context = runtimeContextViewDao.selectByModuleInstanceId(batch.getModuleInstanceId());
+        if (context == null || context.getFinishedAt() != null || context.getCurrentNodeId() == null) {
+            return;
+        }
+        if (batch.getRoundNo() != null && context.getCurrentRoundNo() != null
+                && !Objects.equals(batch.getRoundNo(), context.getCurrentRoundNo())) {
+            return;
+        }
+        WorkflowNode batchWorkflowNode = batch.getWorkflowNodeId() == null ? null : workflowNodeDao.selectById(batch.getWorkflowNodeId());
+        String batchReviewNodeId = toReviewTaskNodeId(batchWorkflowNode == null ? null : batchWorkflowNode.getNodeId());
+        if (batchReviewNodeId != null && !Objects.equals(batchReviewNodeId, context.getCurrentNodeId())) {
+            return;
+        }
+
+        WorkflowBpmnParseResult model = parser.parse(requireDefinition(context.getWorkflowDefinitionId()).getBpmnXml());
+        TransitionConfig transition = model.transitions().stream()
+                .filter(item -> Objects.equals(item.sourceRef(), context.getCurrentNodeId()))
+                .filter(item -> isExpertReviewSubmitEvent(item.eventType()))
+                .findFirst()
+                .orElse(null);
+        if (transition == null) {
+            return;
+        }
+        StateTransitionRequest request = new StateTransitionRequest(
+                transition.eventType(),
+                context.getCurrentSeq(),
+                transition.result(),
+                "???????????????",
+                List.of(),
+                null,
+                null);
+        transitionInternal(null, batch.getModuleInstanceId(), request, false, "SYSTEM");
+    }
+
+    private StateTransitionResponse transitionInternal(AuthenticatedUser user, Long moduleInstanceId,
+            StateTransitionRequest request, boolean enforceUserPermission, String participantType) {
         if (request == null) {
             throw badRequest("Request body is required");
         }
@@ -171,7 +216,11 @@ public class StateMachineRuntimeService {
         if (module.getFinishedAt() != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Module instance is already finished");
         }
-        requireProjectAccess(user, module.getProjectId());
+        if (enforceUserPermission) {
+            requireProjectAccess(user, module.getProjectId());
+        } else if (module.getProjectId() == null || projectDao.selectById(module.getProjectId()) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+        }
         ModuleStateRecord current = stateRecordDao.selectLatestByModuleInstanceId(moduleInstanceId);
         if (current == null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Module instance has not been started");
@@ -180,7 +229,7 @@ public class StateMachineRuntimeService {
         if (expectedSeq != current.getSeq()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Module state sequence has changed");
         }
-        if (!permissionService.canOperateModuleNode(user.userId(), moduleInstanceId)) {
+        if (enforceUserPermission && !permissionService.canOperateModuleNode(user.userId(), moduleInstanceId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Current workflow task cannot be operated by this user");
         }
         WorkflowBpmnParseResult model = parser.parse(requireDefinition(module.getWorkflowDefinitionId()).getBpmnXml());
@@ -192,8 +241,8 @@ public class StateMachineRuntimeService {
         WorkflowNode currentWorkflowNode = workflowNodeDao.selectByWorkflowDefinitionIdAndNodeId(
                 module.getWorkflowDefinitionId(), current.getToNodeId());
         materialValidationService.validateBeforeSubmit(module.getProjectId(), currentWorkflowNode, request.materialVersionIds());
-        validateExpertAssignmentTransition(moduleInstanceId, currentWorkflowNode, initial);
-        validateExpertReviewSubmittedTransition(moduleInstanceId, currentWorkflowNode, initial);
+        validateExpertAssignmentTransition(moduleInstanceId, currentWorkflowNode, initial, current.getRoundNo());
+        validateExpertReviewSubmittedTransition(moduleInstanceId, currentWorkflowNode, initial, current.getRoundNo());
 
         LocalDateTime now = LocalDateTime.now();
         int roundNo = current.getRoundNo() == null ? 1 : current.getRoundNo();
@@ -211,7 +260,7 @@ public class StateMachineRuntimeService {
         record.setCreatedAt(now);
         stateRecordDao.insert(record);
 
-        writeRemark(user, record, request, now);
+        writeRemark(user, record, request, now, participantType);
         if (request.formCode() != null && !request.formCode().isBlank()) {
             nodeFormService.saveForTransition(user, request.formCode(), module.getProjectId(), moduleInstanceId,
                     record.getStateRecordId(), request.nodeFormData());
@@ -245,16 +294,17 @@ public class StateMachineRuntimeService {
 
 
     private void validateExpertAssignmentTransition(Long moduleInstanceId, WorkflowNode currentWorkflowNode,
-            TransitionConfig transition) {
+            TransitionConfig transition, Integer roundNo) {
         String eventType = transition.eventType();
         if (!"DEPT_EXPERT_ASSIGNED".equals(eventType)
                 && !"SCIENCE_EXPERT_ASSIGNED".equals(eventType)
                 && !"EXPERT_ACCEPTANCE_ASSIGNED".equals(eventType)) {
             return;
         }
-        Long workflowNodeId = currentWorkflowNode == null ? null : currentWorkflowNode.getWorkflowNodeId();
+        String currentReviewNodeId = currentWorkflowNode == null ? null : toReviewTaskNodeId(currentWorkflowNode.getNodeId());
         boolean hasAssignedExpert = expertReviewBatchDao.selectByModuleInstanceId(moduleInstanceId).stream()
-                .filter(batch -> workflowNodeId == null || Objects.equals(batch.getWorkflowNodeId(), workflowNodeId))
+                .filter(batch -> batchMatchesReviewNode(batch, currentReviewNodeId))
+                .filter(batch -> roundNo == null || batch.getRoundNo() == null || Objects.equals(batch.getRoundNo(), roundNo))
                 .anyMatch(batch -> !expertReviewAssignmentDao.selectByBatchId(batch.getBatchId()).isEmpty());
         if (!hasAssignedExpert) {
             throw badRequest("At least one expert must be assigned before submitting this node");
@@ -262,15 +312,18 @@ public class StateMachineRuntimeService {
     }
 
     private void validateExpertReviewSubmittedTransition(Long moduleInstanceId,
-            WorkflowNode currentWorkflowNode, TransitionConfig transition) {
+            WorkflowNode currentWorkflowNode, TransitionConfig transition, Integer roundNo) {
         String eventType = transition.eventType();
-        if (!"DEPT_EXPERT_REVIEW_SUBMITTED".equals(eventType)
-                && !"SCIENCE_EXPERT_REVIEW_SUBMITTED".equals(eventType)) {
+        if (!isExpertReviewSubmitEvent(eventType)) {
             return;
         }
-        Long workflowNodeId = currentWorkflowNode == null ? null : currentWorkflowNode.getWorkflowNodeId();
+        if (currentWorkflowNode == null) {
+            return;
+        }
+        String currentNodeBpmnId = currentWorkflowNode.getNodeId();
         List<ExpertReviewBatch> batches = expertReviewBatchDao.selectByModuleInstanceId(moduleInstanceId).stream()
-                .filter(b -> workflowNodeId == null || Objects.equals(b.getWorkflowNodeId(), workflowNodeId))
+                .filter(batch -> batchMatchesReviewNode(batch, currentNodeBpmnId))
+                .filter(b -> roundNo == null || b.getRoundNo() == null || Objects.equals(b.getRoundNo(), roundNo))
                 .toList();
         if (batches.isEmpty()) {
             return;
@@ -282,6 +335,27 @@ public class StateMachineRuntimeService {
                 throw badRequest("Not all experts have submitted (" + submitted + "/" + expected + ")");
             }
         }
+    }
+
+
+    private boolean batchMatchesReviewNode(ExpertReviewBatch batch, String reviewNodeId) {
+        if (reviewNodeId == null) {
+            return true;
+        }
+        if (batch.getWorkflowNodeId() == null) {
+            return false;
+        }
+        WorkflowNode batchNode = workflowNodeDao.selectById(batch.getWorkflowNodeId());
+        if (batchNode == null) {
+            return false;
+        }
+        return Objects.equals(toReviewTaskNodeId(batchNode.getNodeId()), toReviewTaskNodeId(reviewNodeId));
+    }
+
+    private boolean isExpertReviewSubmitEvent(String eventType) {
+        return "DEPT_EXPERT_REVIEW_SUBMITTED".equals(eventType)
+                || "SCIENCE_EXPERT_REVIEW_SUBMITTED".equals(eventType)
+                || "EXPERT_ACCEPTANCE_REVIEW_SUBMITTED".equals(eventType);
     }
 
     public RuntimeViewResponse runtimeView(AuthenticatedUser user, Long moduleInstanceId) {
@@ -384,14 +458,14 @@ public class StateMachineRuntimeService {
         }
     }
 
-    private void writeRemark(AuthenticatedUser user, ModuleStateRecord state, StateTransitionRequest request, LocalDateTime now) {
+    private void writeRemark(AuthenticatedUser user, ModuleStateRecord state, StateTransitionRequest request, LocalDateTime now, String participantType) {
         StateRecordRemark remark = new StateRecordRemark();
         remark.setStateRecordId(state.getStateRecordId());
-        remark.setParticipantUserId(user.userId());
-        remark.setParticipantType("USER");
+        remark.setParticipantUserId(user == null ? null : user.userId());
+        remark.setParticipantType(firstNonBlank(participantType, "USER"));
         remark.setActionType(request.eventType());
         remark.setResult(state.getResult());
-        remark.setIsOperator(true);
+        remark.setIsOperator(user != null);
         remark.setRemarkContent(request.remark());
         remark.setIsFinal(true);
         remark.setSortNo(1);
@@ -575,6 +649,11 @@ public class StateMachineRuntimeService {
             throw badRequest(message);
         }
         return value;
+    }
+
+    private String toReviewTaskNodeId(String nodeId) {
+        if (nodeId == null) return null;
+        return nodeId.replace("ExpertAssignTask", "ExpertReviewTask").replace("ExpertSummaryTask", "ExpertReviewTask");
     }
 
     private ResponseStatusException badRequest(String message) {

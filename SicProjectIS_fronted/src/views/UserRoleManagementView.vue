@@ -263,11 +263,11 @@ onMounted(loadUsers)
                 <el-checkbox
                   v-for="role in roles"
                   :key="role.roleId"
-                  :label="roleLabel(role.roleCode)"
+                  :label="role.roleCode"
                   :disabled="saving || !selectedUser.canEditRoles || !role.enabled"
                   border
                 >
-                  {{ role.roleCode }}
+                  {{ roleLabel(role.roleCode) }}
                 </el-checkbox>
               </el-checkbox-group>
             </section>

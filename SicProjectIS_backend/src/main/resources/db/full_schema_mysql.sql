@@ -538,6 +538,7 @@ CREATE TABLE `expert_review_batch` (
     `rank_no` INT,
     `summary_comment` LONGTEXT,
     `status` VARCHAR(32) NOT NULL,
+    `round_no` INT,
     `created_by` BIGINT,
     `created_at` DATETIME NOT NULL,
     `completed_at` DATETIME,
@@ -721,5 +722,54 @@ FROM `material` m
 JOIN `material_type` mt ON mt.`material_type_id` = m.`material_type_id`
 JOIN `material_version` mv ON mv.`material_id` = m.`material_id`
 LEFT JOIN `app_user` uploader ON uploader.`user_id` = mv.`uploaded_by`;
+
+-- ============================================================
+-- Sample seed data for expert review workflow
+-- ============================================================
+
+-- Expert review batch (with round_no)
+INSERT INTO `expert_review_batch` (
+    `module_instance_id`, `workflow_node_id`, `state_record_id`,
+    `review_type`, `review_title`, `rule_type`,
+    `min_expert_count`, `pass_score`, `recommend_score`,
+    `remove_highest_lowest`, `expected_expert_count`,
+    `submitted_expert_count`, `valid_expert_count`,
+    `highest_score`, `lowest_score`, `final_score`, `final_result`,
+    `rank_no`, `summary_comment`, `status`, `round_no`,
+    `created_by`, `created_at`, `completed_at`, `updated_at`
+) VALUES (
+    1, 1, NULL,
+    'APPLICATION_SCIENCE_EXPERT', '科技处专家评审', 'AVERAGE',
+    3, 60.00, 85.00,
+    FALSE, 5,
+    0, 0,
+    NULL, NULL, NULL, NULL,
+    NULL, NULL, 'IN_PROGRESS', 1,
+    NULL, NOW(), NULL, NOW()
+);
+
+-- Expert review assignment
+INSERT INTO `expert_review_assignment` (
+    `batch_id`, `expert_user_id`, `expert_name`, `expert_org`, `expert_title`,
+    `assigned_at`, `submitted_at`, `review_status`,
+    `conflict_of_interest`, `is_valid`,
+    `total_score`, `review_result`, `review_comment`,
+    `created_at`, `updated_at`
+) VALUES (
+    1, 2, '张三', '信息学院', '教授',
+    NOW(), NULL, 'ASSIGNED',
+    FALSE, TRUE,
+    NULL, NULL, NULL,
+    NOW(), NOW()
+);
+
+-- Expert review score (submitted after assignment)
+INSERT INTO `expert_review_score` (
+    `assignment_id`, `score_item_code`, `score_item_name`,
+    `weight`, `max_score`, `score_value`, `comment`, `created_at`
+) VALUES (
+    1, 'OVERALL', '综合评分',
+    1.00, 100.00, 85.00, '方案可行，建议资助', NOW()
+);
 
 SET FOREIGN_KEY_CHECKS = 1;

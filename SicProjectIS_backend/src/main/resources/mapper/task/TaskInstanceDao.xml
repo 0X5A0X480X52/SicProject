@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sicprojectis_backend.task.dao.TaskInstanceDao">
     <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.task.entity.TaskInstance">
@@ -39,6 +39,25 @@
         WHERE `module_instance_id` = #{moduleInstanceId, jdbcType=BIGINT}
           AND `node_id` = #{nodeId, jdbcType=VARCHAR}
           AND `task_status` = 'OPEN'
+    </select>
+    <select id="countOpenAssignedByUserAndProject" resultType="int">
+        SELECT COUNT(1)
+        FROM `task_instance` t
+        INNER JOIN `project_module_instance` m ON m.`module_instance_id` = t.`module_instance_id`
+        WHERE m.`project_id` = #{projectId, jdbcType=BIGINT}
+          AND t.`assignee_user_id` = #{userId, jdbcType=BIGINT}
+          AND t.`task_status` = 'OPEN'
+        LIMIT 1
+    </select>
+
+    <select id="countOpenByProjectIdAndCandidateRoleCode" resultType="int">
+        SELECT COUNT(1)
+        FROM `task_instance` t
+        INNER JOIN `project_module_instance` m ON m.`module_instance_id` = t.`module_instance_id`
+        WHERE m.`project_id` = #{projectId, jdbcType=BIGINT}
+          AND t.`candidate_role_code` = #{candidateRoleCode, jdbcType=VARCHAR}
+          AND t.`task_status` = 'OPEN'
+        LIMIT 1
     </select>
 
     <update id="closeOpenByModuleInstanceId">

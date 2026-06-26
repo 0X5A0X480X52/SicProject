@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sicprojectis_backend.material.dao.MaterialContextViewDao">
     <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.material.entity.MaterialContextView">
@@ -25,6 +25,12 @@
 
     <select id="selectByMaterialVersionId" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `v_material_context` WHERE `material_version_id` = #{materialVersionId, jdbcType=BIGINT}
+    </select>
+    <select id="selectByProjectId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `v_material_context`
+        WHERE `project_id` = #{projectId, jdbcType=BIGINT}
+        ORDER BY `material_type_code`, `version_no`
     </select>
 
     <select id="selectAll" resultMap="BaseResultMap">

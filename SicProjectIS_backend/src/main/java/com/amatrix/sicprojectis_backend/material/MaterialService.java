@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -107,11 +106,7 @@ public class MaterialService {
 
     public List<MaterialContextView> listProjectMaterials(AuthenticatedUser user, Long projectId) {
         requireAccess(user, projectId);
-        return materialContextViewDao.selectAll().stream()
-                .filter(row -> Objects.equals(row.getProjectId(), projectId))
-                .sorted(Comparator.comparing(MaterialContextView::getMaterialTypeCode, Comparator.nullsLast(String::compareTo))
-                        .thenComparing(MaterialContextView::getVersionNo, Comparator.nullsLast(Integer::compareTo)))
-                .toList();
+        return materialContextViewDao.selectByProjectId(projectId);
     }
 
     public MaterialVersion requireVersion(Long materialVersionId) {

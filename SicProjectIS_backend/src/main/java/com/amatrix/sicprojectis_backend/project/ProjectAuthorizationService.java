@@ -95,8 +95,36 @@ public class ProjectAuthorizationService {
 
     public List<ProjectSummaryResponse> listAccessibleProjects(AuthenticatedUser currentUser) {
         Lookup lookup = buildLookup();
+        List<UserRoleDetailView> currentUserRoles = userRoleDetailViewDao.selectByUserId(currentUser.userId());
+        Set<String> roleCodes = currentUserRoles.stream()
+                .map(UserRoleDetailView::getRoleCode)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+        Long currentUserDeptId = currentUserRoles.stream()
+                .map(UserRoleDetailView::getDeptId)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+
+        if (roleCodes.contains(SYSTEM_ADMIN) || roleCodes.contains(SCIENCE_ADMIN)) {
+            return projectDao.selectAll().stream()
+                    .sorted(Comparator.comparing(Project::getProjectId))
+                    .map(project -> toProjectSummary(project, lookup))
+                    .toList();
+        }
+
+        Set<Long> memberProjectIds = projectMemberDao.selectAll().stream()
+                .filter(member -> Objects.equals(member.getUserId(), currentUser.userId()))
+                .map(ProjectMember::getProjectId)
+                .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+        Set<Long> grantProjectIds = projectRoleGrantDao.selectActiveByGranteeUserId(currentUser.userId()).stream()
+                .map(ProjectRoleGrant::getProjectId)
+                .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+
         return projectDao.selectAll().stream()
-                .filter(project -> permissionService.canAccessProject(currentUser.userId(), project.getProjectId()))
+                .filter(project -> canAccessProjectFromSnapshot(currentUser.userId(), project, roleCodes,
+                        currentUserDeptId, memberProjectIds, grantProjectIds)
+                        || permissionService.canAccessProject(currentUser.userId(), project.getProjectId()))
                 .sorted(Comparator.comparing(Project::getProjectId))
                 .map(project -> toProjectSummary(project, lookup))
                 .toList();
@@ -570,6 +598,20 @@ public class ProjectAuthorizationService {
                 project.getLifecycleStage());
     }
 
+    private boolean canAccessProjectFromSnapshot(
+            Long userId,
+            Project project,
+            Set<String> roleCodes,
+            Long userDeptId,
+            Set<Long> memberProjectIds,
+            Set<Long> grantProjectIds) {
+        if (roleCodes.contains(DEPT_ADMIN) && Objects.equals(userDeptId, project.getDeptId())) {
+            return true;
+        }
+        return Objects.equals(project.getLeaderUserId(), userId)
+                || memberProjectIds.contains(project.getProjectId())
+                || grantProjectIds.contains(project.getProjectId());
+    }
     private ProjectGrantResponse toGrantResponse(ProjectRoleGrant grant, Lookup lookup) {
         return new ProjectGrantResponse(
                 grant.getProjectRoleGrantId(),

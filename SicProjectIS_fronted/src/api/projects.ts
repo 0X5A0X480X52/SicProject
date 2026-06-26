@@ -15,8 +15,8 @@ import type {
   UpsertProjectMemberRequest,
 } from '../types/project'
 
-export function listProjects() {
-  return apiRequest<ProjectSummary[]>('/projects')
+export function listProjects(signal?: AbortSignal) {
+  return apiRequest<ProjectSummary[]>('/projects', { signal })
 }
 
 export function getProjectAuthorization(projectId: number) {

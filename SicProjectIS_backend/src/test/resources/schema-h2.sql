@@ -526,6 +526,7 @@ CREATE TABLE `expert_review_batch` (
     `rank_no` INT,
     `summary_comment` CLOB,
     `status` VARCHAR(32) NOT NULL,
+    `round_no` INT,
     `created_by` BIGINT,
     `created_at` TIMESTAMP NOT NULL,
     `completed_at` TIMESTAMP,

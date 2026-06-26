@@ -4,8 +4,8 @@ import type { MaterialContextView, MaterialUploadResponse } from '../types/nodeF
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
-export function listProjectMaterials(projectId: number) {
-  return apiRequest<MaterialContextView[]>(`/projects/${projectId}/materials`)
+export function listProjectMaterials(projectId: number, signal?: AbortSignal) {
+  return apiRequest<MaterialContextView[]>(`/projects/${projectId}/materials`, { signal })
 }
 
 export function uploadMaterialVersion(projectId: number, materialTypeCode: string, file: File) {

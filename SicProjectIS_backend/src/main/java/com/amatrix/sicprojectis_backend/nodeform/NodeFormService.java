@@ -438,7 +438,7 @@ public class NodeFormService {
             return expert.batchId();
         }
         if (expert.assignmentId() != null && expert.submitScore() != null) {
-            return expertReviewService.submit(expert.assignmentId(), expert.submitScore()).batch().getBatchId();
+            return expertReviewService.submit(user, expert.assignmentId(), expert.submitScore()).batch().getBatchId();
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported expert operation");
     }

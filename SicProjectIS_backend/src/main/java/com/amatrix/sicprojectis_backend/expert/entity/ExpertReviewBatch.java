@@ -10,6 +10,7 @@ public class ExpertReviewBatch {
     private Long batchId;
     private Long moduleInstanceId;
     private Long workflowNodeId;
+    private Integer roundNo;
     private Long stateRecordId;
     private String reviewType;
     private String reviewTitle;

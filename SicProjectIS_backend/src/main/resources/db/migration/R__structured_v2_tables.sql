@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `expert_review_batch` (
   `recommend_score` DECIMAL(5,2), `remove_highest_lowest` BOOLEAN NOT NULL DEFAULT FALSE,
   `expected_expert_count` INT, `submitted_expert_count` INT DEFAULT 0, `valid_expert_count` INT DEFAULT 0,
   `highest_score` DECIMAL(5,2), `lowest_score` DECIMAL(5,2), `final_score` DECIMAL(5,2), `final_result` VARCHAR(64),
-  `rank_no` INT, `summary_comment` TEXT, `status` VARCHAR(32) NOT NULL, `created_by` BIGINT,
+  `rank_no` INT, `summary_comment` TEXT, `status` VARCHAR(32) NOT NULL, `round_no` INT, `created_by` BIGINT,
   `created_at` DATETIME NOT NULL, `completed_at` DATETIME, `updated_at` DATETIME,
   KEY `idx_expert_batch_module` (`module_instance_id`), KEY `idx_expert_batch_state` (`state_record_id`)
 );

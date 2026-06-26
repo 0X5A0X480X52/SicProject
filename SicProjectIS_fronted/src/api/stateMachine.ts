@@ -1,4 +1,4 @@
-﻿import { apiRequest } from './client'
+import { apiRequest } from './client'
 import type {
   RuntimeViewResponse,
   StateTransitionRequest,
@@ -13,8 +13,8 @@ export function startModuleInstance(projectId: number, moduleType: string) {
   })
 }
 
-export function getRuntimeView(moduleInstanceId: number) {
-  return apiRequest<RuntimeViewResponse>(`/module-instances/${moduleInstanceId}/runtime-view`)
+export function getRuntimeView(moduleInstanceId: number, signal?: AbortSignal) {
+  return apiRequest<RuntimeViewResponse>(`/module-instances/${moduleInstanceId}/runtime-view`, { signal })
 }
 
 export function submitStateTransition(moduleInstanceId: number, request: StateTransitionRequest) {
@@ -24,11 +24,10 @@ export function submitStateTransition(moduleInstanceId: number, request: StateTr
   })
 }
 
-export function getWorkflowBpmn(workflowDefinitionId: number) {
-  return apiRequest<WorkflowBpmnResponse>(`/workflow-definitions/${workflowDefinitionId}/bpmn`)
+export function getWorkflowBpmn(workflowDefinitionId: number, signal?: AbortSignal) {
+  return apiRequest<WorkflowBpmnResponse>(`/workflow-definitions/${workflowDefinitionId}/bpmn`, { signal })
 }
 
-export function getWorkflowNodes(workflowDefinitionId: number) {
-  return apiRequest<WorkflowNodeDefinition[]>(`/workflow-definitions/${workflowDefinitionId}/nodes`)
+export function getWorkflowNodes(workflowDefinitionId: number, signal?: AbortSignal) {
+  return apiRequest<WorkflowNodeDefinition[]>(`/workflow-definitions/${workflowDefinitionId}/nodes`, { signal })
 }
-
