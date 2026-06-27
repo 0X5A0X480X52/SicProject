@@ -53,11 +53,11 @@ class AdminWorkbenchIntegrationTest {
 
         mockMvc.perform(get("/api/admin/overview").header("Authorization", "Bearer " + systemAdminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.totalPermissions").value(19));
+                .andExpect(jsonPath("$.data.totalPermissions").value(23));
 
         mockMvc.perform(get("/api/admin/roles/permissions").header("Authorization", "Bearer " + systemAdminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.permissions", hasSize(19)))
+                .andExpect(jsonPath("$.data.permissions", hasSize(23)))
                 .andExpect(jsonPath("$.data.matrix[?(@.roleCode=='SYSTEM_ADMIN')].permissionCodes[*]", hasItem("user:manage")));
 
         mockMvc.perform(put("/api/admin/roles/EXPERT/permissions")

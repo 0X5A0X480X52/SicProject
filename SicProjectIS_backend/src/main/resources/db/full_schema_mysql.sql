@@ -1,4 +1,4 @@
--- Full schema for SicProjectIS backend on MySQL 8+.
+﻿-- Full schema for SicProjectIS backend on MySQL 8+.
 -- This script creates an empty database schema from scratch.
 -- Runtime seed data such as roles, permissions, bootstrap admin, and BPMN workflow assets
 -- is initialized by Spring Boot ApplicationRunner components on first application startup.
@@ -41,6 +41,7 @@ DROP TABLE IF EXISTS `material`;
 DROP TABLE IF EXISTS `project_acceptance`;
 DROP TABLE IF EXISTS `project_contract`;
 DROP TABLE IF EXISTS `project_application`;
+DROP TABLE IF EXISTS `expert_qualification_application`;
 DROP TABLE IF EXISTS `admin_operation_log`;
 DROP TABLE IF EXISTS `project_role_grant_log`;
 DROP TABLE IF EXISTS `project_role_grant`;
@@ -301,6 +302,25 @@ CREATE TABLE `admin_operation_log` (
     `created_at` DATETIME
 );
 
+CREATE TABLE `expert_qualification_application` (
+    `application_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `applicant_user_id` BIGINT NOT NULL,
+    `applicant_dept_id` BIGINT,
+    `specialty` VARCHAR(255) NOT NULL,
+    `professional_title` VARCHAR(128),
+    `application_reason` LONGTEXT NOT NULL,
+    `status` VARCHAR(32) NOT NULL,
+    `dept_reviewer_user_id` BIGINT,
+    `dept_review_opinion` LONGTEXT,
+    `dept_review_remark` LONGTEXT,
+    `dept_reviewed_at` DATETIME,
+    `science_reviewer_user_id` BIGINT,
+    `science_review_opinion` LONGTEXT,
+    `science_review_remark` LONGTEXT,
+    `science_reviewed_at` DATETIME,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME
+);
 CREATE TABLE `project_member` (
     `project_member_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `project_id` BIGINT,
@@ -773,3 +793,4 @@ INSERT INTO `expert_review_score` (
 );
 
 SET FOREIGN_KEY_CHECKS = 1;
+

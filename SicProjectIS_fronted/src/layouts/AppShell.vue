@@ -1,8 +1,8 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
-import { Connection, FolderOpened, House, Lock, SwitchButton, Tickets } from '@element-plus/icons-vue'
+import { Connection, FolderOpened, House, Lock, Medal, SwitchButton } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
 import { roleLabel } from '../utils/displayLabels'
 
@@ -25,8 +25,11 @@ const currentMainTab = computed(() => {
   if (route.path.startsWith('/workflow')) {
     return 'workflow'
   }
-  if (route.path.startsWith('/node-forms')) {
-    return 'node-forms'
+  if (route.path.startsWith('/projects')) {
+    return 'projects'
+  }
+  if (route.path.startsWith('/expert-qualification')) {
+    return 'expert-qualification'
   }
   return 'dashboard'
 })
@@ -54,8 +57,12 @@ function handleTabSelect(index: string) {
     router.push({ name: 'workflow' })
     return
   }
-  if (index === 'node-forms') {
-    router.push({ name: 'node-forms-debug' })
+  if (index === 'projects') {
+    router.push({ name: 'projects' })
+    return
+  }
+  if (index === 'expert-qualification') {
+    router.push({ name: 'expert-qualification' })
     return
   }
   if (roles.value.includes('SYSTEM_ADMIN') || roles.value.includes('SCIENCE_ADMIN')) {
@@ -76,10 +83,6 @@ function handleTabSelect(index: string) {
       </div>
 
       <div class="shell-user-meta">
-        <el-button link type="primary" @click="router.push({ name: 'projects' })">
-          <el-icon><FolderOpened /></el-icon>
-          <span>Projects</span>
-        </el-button>
         <div class="shell-user-summary">
           <strong>{{ auth.user?.realName }}</strong>
           <div class="shell-role-tags">
@@ -107,13 +110,17 @@ function handleTabSelect(index: string) {
         <el-icon><Connection /></el-icon>
         <span>Workflow</span>
       </el-menu-item>
+      <el-menu-item index="projects">
+        <el-icon><FolderOpened /></el-icon>
+        <span>Projects</span>
+      </el-menu-item>
+      <el-menu-item index="expert-qualification">
+        <el-icon><Medal /></el-icon>
+        <span>Expert</span>
+      </el-menu-item>
       <el-menu-item v-if="isAdminWorkspaceVisible" index="admin">
         <el-icon><Lock /></el-icon>
         <span>Permission Center</span>
-      </el-menu-item>
-      <el-menu-item index="node-forms">
-        <el-icon><Tickets /></el-icon>
-        <span>Node Forms</span>
       </el-menu-item>
     </el-menu>
 
@@ -122,4 +129,5 @@ function handleTabSelect(index: string) {
     </main>
   </div>
 </template>
+
 

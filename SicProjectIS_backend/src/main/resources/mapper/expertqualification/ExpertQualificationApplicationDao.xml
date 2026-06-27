@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sicprojectis_backend.expertqualification.dao.ExpertQualificationApplicationDao">
+    <resultMap id="BaseResultMap" type="com.amatrix.sicprojectis_backend.expertqualification.entity.ExpertQualificationApplication">
+        <id column="application_id" property="applicationId" jdbcType="BIGINT" />
+        <result column="applicant_user_id" property="applicantUserId" jdbcType="BIGINT" />
+        <result column="applicant_dept_id" property="applicantDeptId" jdbcType="BIGINT" />
+        <result column="specialty" property="specialty" jdbcType="VARCHAR" />
+        <result column="professional_title" property="professionalTitle" jdbcType="VARCHAR" />
+        <result column="application_reason" property="applicationReason" jdbcType="LONGVARCHAR" />
+        <result column="status" property="status" jdbcType="VARCHAR" />
+        <result column="dept_reviewer_user_id" property="deptReviewerUserId" jdbcType="BIGINT" />
+        <result column="dept_review_opinion" property="deptReviewOpinion" jdbcType="LONGVARCHAR" />
+        <result column="dept_review_remark" property="deptReviewRemark" jdbcType="LONGVARCHAR" />
+        <result column="dept_reviewed_at" property="deptReviewedAt" jdbcType="TIMESTAMP" />
+        <result column="science_reviewer_user_id" property="scienceReviewerUserId" jdbcType="BIGINT" />
+        <result column="science_review_opinion" property="scienceReviewOpinion" jdbcType="LONGVARCHAR" />
+        <result column="science_review_remark" property="scienceReviewRemark" jdbcType="LONGVARCHAR" />
+        <result column="science_reviewed_at" property="scienceReviewedAt" jdbcType="TIMESTAMP" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="BaseColumnList">`application_id`, `applicant_user_id`, `applicant_dept_id`, `specialty`, `professional_title`, `application_reason`, `status`, `dept_reviewer_user_id`, `dept_review_opinion`, `dept_review_remark`, `dept_reviewed_at`, `science_reviewer_user_id`, `science_review_opinion`, `science_review_remark`, `science_reviewed_at`, `created_at`, `updated_at`</sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `expert_qualification_application`
+        WHERE `application_id` = #{applicationId, jdbcType=BIGINT}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `expert_qualification_application`
+        ORDER BY `application_id` DESC
+    </select>
+
+    <select id="selectByApplicantUserId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumnList" />
+        FROM `expert_qualification_application`
+        WHERE `applicant_user_id` = #{applicantUserId, jdbcType=BIGINT}
+        ORDER BY `application_id` DESC
+    </select>
+
+    <select id="countActiveByApplicantUserId" resultType="int">
+        SELECT COUNT(1)
+        FROM `expert_qualification_application`
+        WHERE `applicant_user_id` = #{applicantUserId, jdbcType=BIGINT}
+          AND `status` IN ('PENDING_DEPT_REVIEW', 'PENDING_SCIENCE_REVIEW')
+    </select>
+
+    <insert id="insert" parameterType="com.amatrix.sicprojectis_backend.expertqualification.entity.ExpertQualificationApplication" useGeneratedKeys="true" keyProperty="applicationId" keyColumn="application_id">
+        INSERT INTO `expert_qualification_application` (
+            `applicant_user_id`, `applicant_dept_id`, `specialty`, `professional_title`, `application_reason`, `status`,
+            `dept_reviewer_user_id`, `dept_review_opinion`, `dept_review_remark`, `dept_reviewed_at`, `science_reviewer_user_id`,
+            `science_review_opinion`, `science_review_remark`, `science_reviewed_at`, `created_at`, `updated_at`
+        ) VALUES (
+            #{applicantUserId, jdbcType=BIGINT}, #{applicantDeptId, jdbcType=BIGINT}, #{specialty, jdbcType=VARCHAR},
+            #{professionalTitle, jdbcType=VARCHAR}, #{applicationReason, jdbcType=LONGVARCHAR}, #{status, jdbcType=VARCHAR},
+            #{deptReviewerUserId, jdbcType=BIGINT}, #{deptReviewOpinion, jdbcType=LONGVARCHAR}, #{deptReviewRemark, jdbcType=LONGVARCHAR}, #{deptReviewedAt, jdbcType=TIMESTAMP},
+            #{scienceReviewerUserId, jdbcType=BIGINT}, #{scienceReviewOpinion, jdbcType=LONGVARCHAR}, #{scienceReviewRemark, jdbcType=LONGVARCHAR},
+            #{scienceReviewedAt, jdbcType=TIMESTAMP}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.amatrix.sicprojectis_backend.expertqualification.entity.ExpertQualificationApplication">
+        UPDATE `expert_qualification_application`
+        SET
+            `applicant_user_id` = #{applicantUserId, jdbcType=BIGINT},
+            `applicant_dept_id` = #{applicantDeptId, jdbcType=BIGINT},
+            `specialty` = #{specialty, jdbcType=VARCHAR},
+            `professional_title` = #{professionalTitle, jdbcType=VARCHAR},
+            `application_reason` = #{applicationReason, jdbcType=LONGVARCHAR},
+            `status` = #{status, jdbcType=VARCHAR},
+            `dept_reviewer_user_id` = #{deptReviewerUserId, jdbcType=BIGINT},
+            `dept_review_opinion` = #{deptReviewOpinion, jdbcType=LONGVARCHAR},
+            `dept_review_remark` = #{deptReviewRemark, jdbcType=LONGVARCHAR},
+            `dept_reviewed_at` = #{deptReviewedAt, jdbcType=TIMESTAMP},
+            `science_reviewer_user_id` = #{scienceReviewerUserId, jdbcType=BIGINT},
+            `science_review_opinion` = #{scienceReviewOpinion, jdbcType=LONGVARCHAR},
+            `science_review_remark` = #{scienceReviewRemark, jdbcType=LONGVARCHAR},
+            `science_reviewed_at` = #{scienceReviewedAt, jdbcType=TIMESTAMP},
+            `created_at` = #{createdAt, jdbcType=TIMESTAMP},
+            `updated_at` = #{updatedAt, jdbcType=TIMESTAMP}
+        WHERE `application_id` = #{applicationId, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `expert_qualification_application`
+        WHERE `application_id` = #{applicationId, jdbcType=BIGINT}
+    </delete>
+</mapper>

@@ -127,6 +127,10 @@ public class RolePermissionSeedInitializer implements ApplicationRunner {
         permissions.put("role:manage", new PermissionSeed("Manage Roles", "API", "Manage global role assignments"));
         permissions.put("permission:manage", new PermissionSeed("Manage Permissions", "API", "Manage role permission mappings"));
         permissions.put("audit:read", new PermissionSeed("Read Audit Logs", "API", "Read authorization audit logs"));
+        permissions.put("expert:qualification:apply", new PermissionSeed("Apply Expert Qualification", "API", "Submit expert qualification applications"));
+        permissions.put("expert:qualification:review:dept", new PermissionSeed("Department Expert Qualification Review", "API", "Review expert qualification applications in a department"));
+        permissions.put("expert:qualification:review:science", new PermissionSeed("Science Expert Qualification Review", "API", "Final review of expert qualification applications"));
+        permissions.put("department:member:manage", new PermissionSeed("Manage Department Members", "API", "Assign users to departments and limited roles"));
         permissions.put("project:view", new PermissionSeed("View Project", "API", "View project information"));
         permissions.put("project:grant:view", new PermissionSeed("View Project Grants", "API", "View project-level grants"));
         permissions.put("project:grant:leader", new PermissionSeed("Manage Project Leader", "API", "Change project leaders"));
@@ -157,6 +161,8 @@ public class RolePermissionSeedInitializer implements ApplicationRunner {
                 "project:grant:finance",
                 "project:grant:proxy",
                 "project:grant:revoke",
+                "expert:qualification:review:science",
+                "department:member:manage",
                 "workflow:definition:view",
                 "workflow:definition:upload",
                 "workflow:definition:validate",
@@ -165,21 +171,23 @@ public class RolePermissionSeedInitializer implements ApplicationRunner {
                 "project:view",
                 "project:grant:view",
                 "project:grant:member",
-                "workflow:definition:view"));
+                "expert:qualification:review:dept",
+                "department:member:manage"));
         mapping.put("PROJECT_LEADER", List.of(
-                "project:view",
-                "workflow:definition:view"));
+                "project:view"));
         mapping.put("EXPERT", List.of(
                 "workflow:definition:view"));
         mapping.put("FINANCE_ADMIN", List.of(
-                "project:view",
-                "workflow:definition:view"));
+                "project:view"));
         return mapping;
     }
-
     private record RoleSeed(String roleName, String roleDesc) {
     }
 
     private record PermissionSeed(String permissionName, String permissionType, String permissionDesc) {
     }
 }
+
+
+
+

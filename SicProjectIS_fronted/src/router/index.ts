@@ -10,9 +10,11 @@ import UserRoleManagementView from '../views/UserRoleManagementView.vue'
 import RolePermissionMatrixView from '../views/RolePermissionMatrixView.vue'
 import AdminProjectAuthorizationsView from '../views/AdminProjectAuthorizationsView.vue'
 import AuditLogsView from '../views/AuditLogsView.vue'
-import NodeFormsDebugView from '../features/node-forms/common/NodeFormsDebugView.vue'
 import WorkflowWorkbenchView from '../views/WorkflowWorkbenchView.vue'
 import WorkflowDetailView from '../views/WorkflowDetailView.vue'
+import ExpertQualificationView from '../views/ExpertQualificationView.vue'
+import AdminExpertQualificationView from '../views/AdminExpertQualificationView.vue'
+import DepartmentMembersView from '../views/DepartmentMembersView.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -24,6 +26,7 @@ export const router = createRouter({
     { path: '/projects', name: 'projects', component: ProjectsView },
     { path: '/workflow', name: 'workflow', component: WorkflowWorkbenchView },
     { path: '/workflow/modules/:moduleInstanceId', name: 'workflow-detail', component: WorkflowDetailView },
+    { path: '/expert-qualification', name: 'expert-qualification', component: ExpertQualificationView },
     {
       path: '/projects/:projectId/authorization',
       name: 'project-authorization',
@@ -33,8 +36,9 @@ export const router = createRouter({
     { path: '/admin/users', name: 'admin-users', component: UserRoleManagementView },
     { path: '/admin/roles-permissions', name: 'admin-roles-permissions', component: RolePermissionMatrixView },
     { path: '/admin/project-authorizations', name: 'admin-project-authorizations', component: AdminProjectAuthorizationsView },
+    { path: '/admin/expert-qualification', name: 'admin-expert-qualification', component: AdminExpertQualificationView },
+    { path: '/admin/department-members', name: 'admin-department-members', component: DepartmentMembersView },
     { path: '/admin/audit-logs', name: 'admin-audit-logs', component: AuditLogsView },
-    { path: '/node-forms/debug', name: 'node-forms-debug', component: NodeFormsDebugView },
   ],
 })
 
@@ -48,3 +52,4 @@ router.beforeEach((to) => {
   }
   return true
 })
+
