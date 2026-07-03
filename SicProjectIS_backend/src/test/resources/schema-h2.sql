@@ -300,9 +300,11 @@ CREATE TABLE `expert_qualification_application` (
     `status` VARCHAR(32) NOT NULL,
     `dept_reviewer_user_id` BIGINT,
     `dept_review_opinion` CLOB,
+    `dept_review_remark` CLOB,
     `dept_reviewed_at` TIMESTAMP,
     `science_reviewer_user_id` BIGINT,
     `science_review_opinion` CLOB,
+    `science_review_remark` CLOB,
     `science_reviewed_at` TIMESTAMP,
     `created_at` TIMESTAMP NOT NULL,
     `updated_at` TIMESTAMP
