@@ -50,6 +50,9 @@ HELP.md
 **/dist
 **/dist-ssr
 **/*.local
+**/.env
+!**/.env.example
+**/secrets/
 
 # Editor directories and files
 **/.vscode/*

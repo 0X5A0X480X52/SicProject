@@ -1,0 +1,46 @@
+description: project application start remains synchronous and keeps its nested transition
+name: project_application_start
+request:
+  method: POST
+  url: /api/project-applications/start
+  headers:
+    Content-Type: application/json
+    Authorization: Bearer contract.jwt.token
+  body:
+    projectCode: P-001
+    projectName: Demo
+    projectType: null
+    projectLevel: null
+    approvedAmount: null
+    startDate: null
+    endDate: null
+    applicationTitle: Demo application
+    isLimitedProject: false
+    applicationSummary: null
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      projectId: 10
+      moduleInstanceId: 20
+      transition:
+        stateRecord:
+          stateRecordId: 101
+          moduleInstanceId: 20
+          seq: 1
+          roundNo: 1
+          eventType: START
+          fromState: null
+          toState: DRAFT
+          fromNodeId: null
+          toNodeId: application_draft
+          result: null
+          summary: null
+          createdAt: "2030-01-02T03:04:05"
+        currentNodeId: application_draft
+        currentState: DRAFT
+        finished: false
+    message: OK

@@ -1,0 +1,23 @@
+description: department member removal returns the updated member
+name: admin_department_member_remove
+request:
+  method: DELETE
+  url: /api/admin/departments/members/7
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      userId: 7
+      username: bob
+      realName: Bob
+      deptId: 3
+      deptName: Science
+      phone: "13800000000"
+      email: null
+      enabled: true
+      roleCodes: [PROJECT_LEADER]
+      editableRoleCodes: [PROJECT_LEADER, EXPERT, FINANCE_ADMIN]
+    message: OK

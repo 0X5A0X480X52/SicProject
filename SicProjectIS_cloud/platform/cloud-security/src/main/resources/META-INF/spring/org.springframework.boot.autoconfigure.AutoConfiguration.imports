@@ -1,0 +1,2 @@
+com.amatrix.sic.security.CloudResourceServerAutoConfiguration
+com.amatrix.sic.security.FeignTracePropagationAutoConfiguration

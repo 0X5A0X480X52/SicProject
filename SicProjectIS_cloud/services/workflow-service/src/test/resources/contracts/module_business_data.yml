@@ -1,0 +1,14 @@
+description: module business data remains wrapped and keyed by module instance
+name: module_business_data
+request:
+  method: GET
+  url: /api/module-instances/20/business-data
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      moduleInstanceId: 20
+      applicationDraft: { title: Demo application }
+    message: OK

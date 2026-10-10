@@ -1,0 +1,69 @@
+server:
+  port: 8080
+
+sic:
+  gateway:
+    rate-limit:
+      enabled: ${GATEWAY_RATE_LIMIT_ENABLED:true}
+      requests-per-second: ${GATEWAY_REQUESTS_PER_SECOND:40}
+    public-paths:
+      - /api/auth/login
+      - /api/auth/register
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          httpclient:
+            connect-timeout: 2000
+            response-timeout: 60s
+          metrics:
+            enabled: true
+          streaming-media-types:
+            - text/event-stream
+          routes:
+            - id: iam-auth
+              uri: lb://iam-service
+              predicates:
+                - Path=/api/auth/**
+            - id: iam-expert-qualification
+              uri: lb://iam-service
+              predicates:
+                - Path=/api/expert-qualification/**,/api/admin/expert-qualification/**
+            - id: iam-admin-users
+              uri: lb://iam-service
+              predicates:
+                - Path=/api/admin/users/**,/api/admin/departments/**,/api/admin/roles/**,/api/admin/permissions
+            - id: material-project-routes
+              uri: lb://material-service
+              predicates:
+                - Path=/api/projects/*/materials/**
+            - id: material-version-routes
+              uri: lb://material-service
+              predicates:
+                - Path=/api/material-versions/**
+            - id: workflow-project-subresources
+              uri: lb://workflow-service
+              predicates:
+                - Path=/api/projects/*/module-instances,/api/projects/*/applications/**,/api/projects/*/contracts/**,/api/projects/*/acceptances/**,/api/projects/*/achievements/**,/api/projects/*/acceptance-financial-settlements/**
+            - id: workflow-routes
+              uri: lb://workflow-service
+              predicates:
+                - Path=/api/workflow-definitions/**,/api/module-instances/**,/api/legacy/**,/api/node-forms/**,/api/expert-reviews/**,/api/notices/**,/api/workflow-workbench/**
+            - id: notification-sse
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/sse/**
+            - id: project-application-start
+              uri: lb://project-service
+              predicates:
+                - Path=/api/project-applications/**
+            - id: project-admin
+              uri: lb://project-service
+              predicates:
+                - Path=/api/admin/projects/**,/api/admin/overview,/api/admin/audit-logs
+            - id: project-routes
+              uri: lb://project-service
+              predicates:
+                - Path=/api/projects/**

@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "projectName": "sic-cloud",
+  "checkedAt": "2026-09-08T11:10:03.281453+00:00",
+  "checks": [
+    {
+      "name": "gateway-readiness",
+      "passed": true,
+      "durationMs": 62,
+      "error": null
+    },
+    {
+      "name": "compose-container-health",
+      "passed": true,
+      "durationMs": 359,
+      "error": null
+    },
+    {
+      "name": "config-and-discovery",
+      "passed": true,
+      "durationMs": 22609,
+      "error": null
+    },
+    {
+      "name": "gateway-unauthenticated-wrapper",
+      "passed": true,
+      "durationMs": 30,
+      "error": null
+    },
+    {
+      "name": "admin-login-and-jwt",
+      "passed": true,
+      "durationMs": 890,
+      "error": null
+    },
+    {
+      "name": "authenticated-service-routes",
+      "passed": true,
+      "durationMs": 796,
+      "error": null
+    },
+    {
+      "name": "sse-query-token-relay",
+      "passed": true,
+      "durationMs": 141,
+      "error": null
+    },
+    {
+      "name": "logout-jti-blacklist",
+      "passed": true,
+      "durationMs": 78,
+      "error": null
+    }
+  ],
+  "error": null
+}

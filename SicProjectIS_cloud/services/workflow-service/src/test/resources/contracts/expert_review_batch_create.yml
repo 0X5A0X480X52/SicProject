@@ -1,0 +1,28 @@
+description: expert review batch creation returns batch and assignments
+name: expert_review_batch_create
+request:
+  method: POST
+  url: /api/expert-reviews/batches
+  headers: { Content-Type: application/json }
+  body:
+    moduleInstanceId: 20
+    workflowNodeId: 70
+    reviewType: TECHNICAL
+    reviewTitle: Technical review
+    ruleType: AVERAGE
+    minExpertCount: 1
+    passScore: 60
+    recommendScore: 80
+    removeHighestLowest: false
+    expectedExpertCount: 1
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      batch: { batchId: 30, moduleInstanceId: 20, reviewType: TECHNICAL, reviewTitle: Technical review, status: OPEN }
+      assignments:
+        - assignment: { assignmentId: 40, expertUserId: 7, expertName: Bob, reviewStatus: ASSIGNED }
+          scores: []
+    message: OK

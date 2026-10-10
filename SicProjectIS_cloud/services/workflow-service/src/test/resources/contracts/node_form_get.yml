@@ -1,0 +1,26 @@
+description: node form read preserves definition context collections and nullable sections
+name: node_form_get
+request:
+  method: GET
+  url: /api/node-forms/PROJECT_APPLICATION_FORM
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      definition: { formCode: PROJECT_APPLICATION_FORM, moduleType: APPLICATION, nodeId: SubmitApplicationTask, stateCode: APPLICATION_DRAFT, title: Project application, dataKind: APPLICATION_DRAFT, writeMode: SINGLE_INSTANCE, supportsFiles: true, materialTypeCodes: [] }
+      context: { projectId: 10, moduleInstanceId: 20, stateRecordId: 101 }
+      applicationDraft: { title: Demo application }
+      notices: []
+      checkItems: []
+      externalResults: []
+      sealRecords: []
+      submissionRecords: []
+      archiveRecords: []
+      publicities: []
+      financialSettlements: []
+      achievements: []
+      surplusReturns: []
+      materials: []
+    message: OK

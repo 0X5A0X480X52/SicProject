@@ -1,0 +1,30 @@
+description: node form definitions preserve frontend metadata fields
+name: node_form_definitions
+request:
+  method: GET
+  url: /api/node-forms/definitions
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      - formCode: PROJECT_APPLICATION_FORM
+        moduleType: APPLICATION
+        nodeId: SubmitApplicationTask
+        stateCode: APPLICATION_DRAFT
+        title: Project application
+        dataKind: APPLICATION_DRAFT
+        writeMode: SINGLE_INSTANCE
+        supportsFiles: true
+        materialTypeCodes: []
+      - formCode: APPLICATION_NOTICE_FORM
+        moduleType: APPLICATION
+        nodeId: PublishNoticeTask
+        stateCode: APPLICATION_NOTICE_PUBLISHING
+        title: Application notice
+        dataKind: NOTICE
+        writeMode: HISTORY_RECORD
+        supportsFiles: true
+        materialTypeCodes: []
+    message: OK

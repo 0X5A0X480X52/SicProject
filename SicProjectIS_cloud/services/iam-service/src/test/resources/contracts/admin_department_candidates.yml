@@ -1,0 +1,24 @@
+description: department member candidates preserve complete member fields
+name: admin_department_candidates
+request:
+  method: GET
+  url: /api/admin/departments/candidates
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      users:
+        - userId: 7
+          username: bob
+          realName: Bob
+          deptId: 3
+          deptName: Science
+          phone: "13800000000"
+          email: null
+          enabled: true
+          roleCodes: [PROJECT_LEADER]
+          editableRoleCodes: [PROJECT_LEADER, EXPERT, FINANCE_ADMIN]
+    message: OK

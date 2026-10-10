@@ -1,0 +1,18 @@
+description: department list preserves hierarchy and enabled fields
+name: admin_departments
+request:
+  method: GET
+  url: /api/admin/departments
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      - deptId: 3
+        deptCode: SCI
+        deptName: Science
+        parentDeptId: null
+        enabled: true
+    message: OK

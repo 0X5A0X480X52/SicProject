@@ -1,0 +1,18 @@
+description: invalid login keeps the wrapped 401 contract
+name: auth_login_invalid
+request:
+  method: POST
+  url: /api/auth/login
+  headers:
+    Content-Type: application/json
+  body:
+    username: invalid
+    password: wrong
+response:
+  status: 401
+  headers:
+    Content-Type: application/json
+  body:
+    success: false
+    data: null
+    message: Invalid username or password

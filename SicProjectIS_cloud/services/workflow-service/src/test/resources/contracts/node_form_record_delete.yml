@@ -1,0 +1,11 @@
+description: history node form deletion keeps null data success wrapper
+name: node_form_record_delete
+request:
+  method: DELETE
+  urlPath: /api/node-forms/APPLICATION_NOTICE_FORM/records/5
+  queryParameters:
+    moduleInstanceId: 20
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body: { success: true, data: null, message: OK }

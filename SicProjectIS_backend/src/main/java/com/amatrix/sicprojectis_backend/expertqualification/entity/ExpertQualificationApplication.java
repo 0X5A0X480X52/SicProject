@@ -1,4 +1,4 @@
-﻿package com.amatrix.sicprojectis_backend.expertqualification.entity;
+package com.amatrix.sicprojectis_backend.expertqualification.entity;
 
 import java.time.LocalDateTime;
 
@@ -24,4 +24,3 @@ public class ExpertQualificationApplication {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
-

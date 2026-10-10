@@ -1,0 +1,30 @@
+description: role permission matrix preserves roles permissions and matrix rows
+name: admin_role_permission_matrix
+request:
+  method: GET
+  url: /api/admin/roles/permissions
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      roles:
+        - roleId: 2
+          roleCode: PROJECT_LEADER
+          roleName: Project leader
+          roleDesc: null
+          enabled: true
+      permissions:
+        - permissionId: 5
+          permissionCode: "project:create"
+          permissionName: Create project
+          permissionGroup: API
+          permissionDesc: null
+      matrix:
+        - roleCode: PROJECT_LEADER
+          roleName: Project leader
+          enabled: true
+          permissionCodes: ["project:create"]
+    message: OK

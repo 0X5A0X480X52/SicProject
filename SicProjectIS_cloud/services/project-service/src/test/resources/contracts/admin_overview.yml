@@ -1,0 +1,21 @@
+description: admin overview preserves all counters and distributions
+name: admin_overview
+request:
+  method: GET
+  url: /api/admin/overview
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      totalUsers: 12
+      enabledUsers: 11
+      totalRoles: 6
+      totalPermissions: 20
+      activeProjectGrants: 3
+      auditLogCount: 40
+      grantTypeCounts: []
+      roleCounts: []
+    message: OK

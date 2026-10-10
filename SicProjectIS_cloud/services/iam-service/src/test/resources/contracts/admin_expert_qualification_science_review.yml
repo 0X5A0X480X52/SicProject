@@ -1,0 +1,43 @@
+description: science expert review returns the full application
+name: admin_expert_qualification_science_review
+request:
+  method: POST
+  url: /api/admin/expert-qualification/applications/11/science-review
+  headers:
+    Content-Type: application/json
+  body:
+    approved: true
+    opinion: Approved
+    remark: Complete
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      applicationId: 11
+      applicant:
+        userId: 7
+        username: bob
+        realName: Bob
+        deptId: 3
+        deptName: Science
+        roleCodes: []
+      applicantDeptId: 3
+      applicantDeptName: Science
+      specialty: AI
+      professionalTitle: Engineer
+      applicationReason: Project review
+      status: PENDING_DEPT_REVIEW
+      deptReviewer: null
+      deptReviewOpinion: null
+      deptReviewRemark: null
+      deptReviewedAt: null
+      scienceReviewer: null
+      scienceReviewOpinion: null
+      scienceReviewRemark: null
+      scienceReviewedAt: null
+      createdAt: "2030-01-02T03:04:05"
+      updatedAt: "2030-01-02T03:04:05"
+    message: OK

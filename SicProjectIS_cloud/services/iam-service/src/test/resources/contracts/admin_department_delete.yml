@@ -1,0 +1,13 @@
+description: department deletion keeps the null data success wrapper
+name: admin_department_delete
+request:
+  method: DELETE
+  url: /api/admin/departments/3
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data: null
+    message: OK

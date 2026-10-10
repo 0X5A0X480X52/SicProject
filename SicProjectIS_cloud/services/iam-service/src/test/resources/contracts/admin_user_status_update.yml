@@ -1,0 +1,28 @@
+description: status update returns the complete admin user detail
+name: admin_user_status_update
+request:
+  method: PATCH
+  url: /api/admin/users/7/status
+  headers:
+    Content-Type: application/json
+  body:
+    enabled: false
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      userId: 7
+      username: bob
+      realName: Bob
+      deptId: 3
+      deptName: Science
+      enabled: true
+      roleCodes: [PROJECT_LEADER]
+      canEditRoles: true
+      canToggleStatus: true
+      phone: "13800000000"
+      email: null
+    message: OK

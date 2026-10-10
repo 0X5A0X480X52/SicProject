@@ -1,0 +1,20 @@
+description: state transition remains synchronous and sequence-aware
+name: module_transition
+request:
+  method: POST
+  url: /api/module-instances/20/transitions
+  headers:
+    Content-Type: application/json
+  body:
+    eventType: SUBMIT
+    expectedSeq: 1
+    result: SUBMITTED
+    remark: Ready
+    materialVersionIds: []
+    formCode: null
+    nodeFormData: null
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  bodyFromFile: module-transition-response.json

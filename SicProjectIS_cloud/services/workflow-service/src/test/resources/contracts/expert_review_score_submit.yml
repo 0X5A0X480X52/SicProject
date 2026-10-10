@@ -1,0 +1,24 @@
+description: expert score submission accepts score items and returns refreshed detail
+name: expert_review_score_submit
+request:
+  method: POST
+  url: /api/expert-reviews/assignments/40/scores
+  headers: { Content-Type: application/json }
+  body:
+    conflictOfInterest: false
+    valid: true
+    reviewResult: PASS
+    reviewComment: Approved
+    scores:
+      - { itemCode: QUALITY, itemName: Quality, weight: 1, maxScore: 100, scoreValue: 90, comment: Good }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      batch: { batchId: 30 }
+      assignments:
+        - assignment: { assignmentId: 40, expertUserId: 7, reviewStatus: ASSIGNED }
+          scores: []
+    message: OK

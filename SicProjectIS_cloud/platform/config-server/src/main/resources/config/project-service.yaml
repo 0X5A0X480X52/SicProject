@@ -1,0 +1,16 @@
+server:
+  port: 9002
+spring:
+  datasource:
+    url: ${PROJECT_DB_URL:jdbc:mysql://mysql:3306/sic_project?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${PROJECT_DB_USERNAME:sic_project}
+    password: ${PROJECT_DB_PASSWORD}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration,classpath:db/common
+
+sic:
+  service-client:
+    bootstrap-secret: ${SERVICE_TOKEN_BOOTSTRAP_SECRET}
+  saga:
+    recovery-delay-ms: ${SAGA_RECOVERY_DELAY_MS:30000}

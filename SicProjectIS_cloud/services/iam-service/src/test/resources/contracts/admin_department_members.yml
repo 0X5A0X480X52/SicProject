@@ -1,0 +1,34 @@
+description: department member query preserves management flags and editable roles
+name: admin_department_members
+request:
+  method: GET
+  url: /api/admin/departments/members
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      departments:
+        - deptId: 3
+          deptCode: SCI
+          deptName: Science
+          parentDeptId: null
+          enabled: true
+      assignableRoleCodes: [PROJECT_LEADER, EXPERT, FINANCE_ADMIN]
+      members:
+        - userId: 7
+          username: bob
+          realName: Bob
+          deptId: 3
+          deptName: Science
+          phone: "13800000000"
+          email: null
+          enabled: true
+          roleCodes: [PROJECT_LEADER]
+          editableRoleCodes: [PROJECT_LEADER, EXPERT, FINANCE_ADMIN]
+      canManageDepartments: true
+      memberManagementDisabled: false
+      disabledReason: null
+    message: OK

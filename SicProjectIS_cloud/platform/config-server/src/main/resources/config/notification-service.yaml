@@ -1,0 +1,10 @@
+server:
+  port: 9005
+spring:
+  datasource:
+    url: ${NOTIFICATION_DB_URL:jdbc:mysql://mysql:3306/sic_notification?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${NOTIFICATION_DB_USERNAME:sic_notification}
+    password: ${NOTIFICATION_DB_PASSWORD}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration,classpath:db/common

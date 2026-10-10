@@ -1,0 +1,19 @@
+description: batch member upsert preserves mutation summary and refreshed detail
+name: project_members_batch_upsert
+request:
+  method: PUT
+  url: /api/projects/10/members/batch
+  headers: { Content-Type: application/json }
+  body: { userIds: [7], responsibility: Reviewer }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      detail:
+        project: { projectId: 10 }
+      diff: { added: ["7"], removed: [] }
+      affectedCount: 1
+      summaryMessage: Updated 1 record
+    message: OK

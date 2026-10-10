@@ -1,0 +1,59 @@
+description: material upload keeps the multipart field name and response envelope
+name: material_upload
+request:
+  method: POST
+  url: /api/projects/10/materials/APPLICATION_FORM/versions
+  headers:
+    Content-Type: multipart/form-data;boundary=AaB03x
+  multipart:
+    named:
+      - paramName: file
+        fileName: demo.txt
+        fileContent: hello
+        contentType: text/plain
+  matchers:
+    multipart:
+      named:
+        - paramName: file
+          fileName:
+            predefined: non_empty
+          fileContent:
+            predefined: non_empty
+          contentType:
+            predefined: non_empty
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      version:
+        materialVersionId: 40
+        materialId: 30
+        versionNo: 1
+        fileName: demo.txt
+        fileUrl: /api/material-versions/40/download
+        fileHash: abc123
+        uploadedBy: 1
+        uploadedAt: "2030-01-02T03:04:05"
+        isCurrent: true
+      context:
+        materialId: 30
+        projectId: 10
+        materialTypeId: 3
+        materialTypeCode: APPLICATION_FORM
+        materialTypeName: Application form
+        moduleType: APPLICATION
+        allowedFileTypes: null
+        maxFileSizeMb: 20
+        materialVersionId: 40
+        versionNo: 1
+        fileName: demo.txt
+        fileUrl: /api/material-versions/40/download
+        fileHash: abc123
+        uploadedBy: 1
+        uploadedByName: null
+        uploadedAt: "2030-01-02T03:04:05"
+        isCurrent: true
+    message: OK

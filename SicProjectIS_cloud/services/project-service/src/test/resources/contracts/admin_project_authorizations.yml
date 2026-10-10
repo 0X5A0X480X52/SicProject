@@ -1,0 +1,25 @@
+description: admin project authorization index preserves projects and grant counts
+name: admin_project_authorizations
+request:
+  method: GET
+  url: /api/admin/projects/authorizations
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      projects:
+        - projectId: 10
+          projectCode: P-001
+          projectName: Demo
+          deptId: null
+          deptName: null
+          leaderUserId: 1
+          leaderRealName: Alice
+          projectType: null
+          projectLevel: null
+          lifecycleStage: APPLICATION
+      grantTypeCounts: []
+    message: OK

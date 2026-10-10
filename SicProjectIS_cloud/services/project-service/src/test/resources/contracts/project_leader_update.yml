@@ -1,0 +1,16 @@
+description: leader update returns project authorization detail
+name: project_leader_update
+request:
+  method: PUT
+  url: /api/projects/10/leader
+  headers: { Content-Type: application/json }
+  body: { userId: 7, reason: Handover }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      project: { projectId: 10 }
+      capabilities: { canManageLeader: true, canManageMembers: true, canManageExperts: true, canManageFinance: false, canManageProxy: true }
+    message: OK

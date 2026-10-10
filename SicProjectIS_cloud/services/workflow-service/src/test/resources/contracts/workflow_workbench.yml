@@ -1,0 +1,30 @@
+description: workbench keeps SQL-filtered task summary fields
+name: workflow_workbench
+request:
+  method: GET
+  url: /api/workflow-workbench/items
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      - moduleInstanceId: 20
+        projectId: 10
+        projectCode: P-001
+        projectName: Demo
+        moduleType: APPLICATION
+        lifecycleStage: APPLICATION
+        workflowDefinitionId: 7
+        currentState: DEPT_REVIEW
+        currentNodeId: department_review
+        currentNodeName: Department review
+        candidateRoleCode: DEPT_ADMIN
+        currentSeq: 2
+        currentRoundNo: 1
+        lastTransitionTime: "2030-01-02T03:04:05"
+        finished: false
+        todo: true
+        canOperate: true
+    message: OK
