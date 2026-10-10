@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.iam.dao.QualificationMapper">
+  <select id="lockApplicant" resultType="java.lang.Long">SELECT id FROM app_user WHERE id=#{id} FOR UPDATE</select>
+  <select id="active" resultType="Integer">SELECT COUNT(*) FROM expert_qualification WHERE user_id=#{id}
+    AND status IN ('PENDING_DEPT_REVIEW','PENDING_SCIENCE_REVIEW')</select>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    INSERT INTO expert_qualification(user_id,applicant_dept_id,specialty,professional_title,application_reason,status)
+    VALUES(#{userId},#{departmentId,jdbcType=BIGINT},#{specialty},#{professionalTitle},#{reason},'PENDING_DEPT_REVIEW')
+  </insert>
+  <select id="applications" resultType="java.util.LinkedHashMap">
+    SELECT q.*,d.name applicant_dept_name,au.username applicant_username,au.real_name applicant_real_name,
+      du.username dept_username,du.real_name dept_real_name,su.username science_username,su.real_name science_real_name,
+      (SELECT GROUP_CONCAT(r.code ORDER BY r.code SEPARATOR ',') FROM user_role ur JOIN app_role r ON r.id=ur.role_id WHERE ur.user_id=q.user_id) applicant_roles,
+      (SELECT GROUP_CONCAT(r.code ORDER BY r.code SEPARATOR ',') FROM user_role ur JOIN app_role r ON r.id=ur.role_id WHERE ur.user_id=q.dept_reviewer_user_id) dept_roles,
+      (SELECT GROUP_CONCAT(r.code ORDER BY r.code SEPARATOR ',') FROM user_role ur JOIN app_role r ON r.id=ur.role_id WHERE ur.user_id=q.science_reviewer_user_id) science_roles
+    FROM expert_qualification q LEFT JOIN department d ON d.id=q.applicant_dept_id
+    JOIN app_user au ON au.id=q.user_id LEFT JOIN app_user du ON du.id=q.dept_reviewer_user_id
+    LEFT JOIN app_user su ON su.id=q.science_reviewer_user_id
+    <where>
+      <if test="filter.id != null">q.id=#{filter.id}</if>
+      <if test="filter.userId != null">AND q.user_id=#{filter.userId}</if>
+      <if test="filter.departmentOnly == true">AND q.applicant_dept_id=#{filter.departmentId,jdbcType=BIGINT}</if>
+    </where>
+    ORDER BY q.id DESC
+  </select>
+  <update id="departmentReview">
+    UPDATE expert_qualification SET dept_reviewer_user_id=#{actor},dept_review_opinion=#{opinion},dept_review_remark=#{remark},
+      dept_reviewed_at=CURRENT_TIMESTAMP(6),status=#{status},updated_at=CURRENT_TIMESTAMP(6)
+    WHERE id=#{id} AND status='PENDING_DEPT_REVIEW'
+  </update>
+  <update id="scienceReview">
+    UPDATE expert_qualification SET science_reviewer_user_id=#{actor},science_review_opinion=#{opinion},science_review_remark=#{remark},
+      science_reviewed_at=CURRENT_TIMESTAMP(6),status=#{status},updated_at=CURRENT_TIMESTAMP(6)
+    WHERE id=#{id} AND status='PENDING_SCIENCE_REVIEW'
+  </update>
+  <update id="incrementVersion">UPDATE app_user SET auth_version=auth_version+1 WHERE id=#{id}</update>
+  <select id="version" resultType="java.lang.Long">SELECT auth_version FROM app_user WHERE id=#{id}</select>
+</mapper>

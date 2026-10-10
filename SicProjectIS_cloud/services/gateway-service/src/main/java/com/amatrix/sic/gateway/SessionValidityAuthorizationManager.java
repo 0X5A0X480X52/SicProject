@@ -13,6 +13,14 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class SessionValidityAuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
+    static final String UNAVAILABLE = SessionValidityAuthorizationManager.class.getName() + ".unavailable";
+    static final org.springframework.data.redis.core.script.DefaultRedisScript<Long> CHECK =
+            new org.springframework.data.redis.core.script.DefaultRedisScript<>("""
+                    if redis.call('EXISTS',KEYS[3]) == 1 then return -2 end
+                    if redis.call('EXISTS',KEYS[1]) == 1 then return 0 end
+                    if redis.call('GET',KEYS[2]) == ARGV[1] then return 1 end
+                    return 0
+                    """, Long.class);
     private final ReactiveStringRedisTemplate redis;
 
     public SessionValidityAuthorizationManager(ReactiveStringRedisTemplate redis) {
@@ -33,15 +41,24 @@ public class SessionValidityAuthorizationManager implements ReactiveAuthorizatio
                     if (jti == null || jti.isBlank() || subject == null || subject.isBlank() || tokenVersion <= 0) {
                         return Mono.just(false);
                     }
-                    Mono<Boolean> revoked = redis.hasKey("sic:jwt:revoked:" + jti);
-                    Mono<String> currentVersion = redis.opsForValue().get("sic:jwt:version:" + subject);
-                    return Mono.zip(revoked, currentVersion)
-                            .map(values -> !values.getT1()
-                                    && tokenVersion == parseLong(values.getT2()));
+                    return redis.execute(CHECK, java.util.List.of("sic:jwt:revoked:" + jti,
+                                    "sic:jwt:version:" + subject, "sic:jwt:pending:" + subject),
+                                    java.util.List.of(Long.toString(tokenVersion))).single()
+                            .map(result -> {
+                                if (result == -2) markUnavailable(context);
+                                return result == 1;
+                            });
                 })
                 .map(allowed -> (AuthorizationResult) new AuthorizationDecision(allowed))
                 .defaultIfEmpty(new AuthorizationDecision(false))
-                .onErrorReturn(new AuthorizationDecision(false));
+                .onErrorResume(error -> {
+                    markUnavailable(context);
+                    return Mono.just(new AuthorizationDecision(false));
+                });
+    }
+
+    private static void markUnavailable(AuthorizationContext context) {
+        context.getExchange().getAttributes().put(UNAVAILABLE, true);
     }
 
     private long claimLong(JwtAuthenticationToken token, String claim) {

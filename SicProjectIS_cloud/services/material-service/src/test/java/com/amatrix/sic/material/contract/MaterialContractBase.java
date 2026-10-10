@@ -25,9 +25,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amatrix.sic.contracts.ActorContext;
-import com.amatrix.sic.material.MaterialApplicationService;
-import com.amatrix.sic.material.MaterialApplicationService.Download;
-import com.amatrix.sic.material.MaterialController;
+import com.amatrix.sic.material.service.MaterialApplicationService;
+import com.amatrix.sic.material.service.MaterialApplicationService.Download;
+import com.amatrix.sic.material.controller.MaterialController;
 import com.amatrix.sic.security.ApiExceptionHandler;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;

@@ -10,7 +10,9 @@
 4. 预先构建并测试：
 
    ```powershell
-   mvn clean test
+   mvn verify
+   python scripts/build_full_schema.py --check
+   python scripts/assert_verification_gate.py --gate mysql
    docker compose --env-file .env config --quiet
    docker compose --env-file .env build
    ```
@@ -45,7 +47,7 @@ mysqldump --single-transaction --routines --triggers --no-create-db --default-ch
 
 - 将最终 SQL 和 uploads 压缩包复制到带时间戳的备份目录，并记录 SHA-256；
 - 启动基础设施，把旧库导入隔离的 `sic_legacy`；
-- 启动五服务一次以运行 Flyway，然后停止业务服务；
+- 在空 volume 上由 MySQL 初始化五库完整 SQL；启动业务服务前校验 52 张表的最终结构；
 - 校验旧文件哈希并以确定性对象键上传 MinIO；
 - 在同一 MySQL 实例内事务导入五个 Schema；
 - 比对 35 组行数、19 组孤儿引用以及流程当前序号；
@@ -129,3 +131,31 @@ $adminCredential = Get-Credential -UserName admin
 - 注销后原 JWT 的 jti 立即被 Gateway 通过 Redis 黑名单拒绝。
 
 该检查是上线前自动门禁，不替代第 3 节的多角色、历史流程、真实文件和完整状态迁移人工验收。
+
+
+## 8. 完整 SQL 接管与恢复
+
+五库最终结构位于 `infra/mysql/schema/`，IAM 种子和工作流资产位于 `infra/mysql/seed/`。
+`schema-manifest.json` 固定文件摘要和表清单，`schema-signature.json` 固定真实 MySQL 的列、索引和约束。
+接管前必须通过旧 Flyway 迁移链与完整 SQL 的结构等价测试，业务服务运行时不再执行 Flyway。
+
+只有空 volume 才执行 MySQL 初始化脚本。已有数据库先运行 `verify_schema.py`；结构不同则停止接管，禁止重跑建表、清库或删除历史迁移表。
+旧库导入后仅执行 `workflow-missing-assets.sql` 补齐缺失的流程类型，保留已有定义 ID、版本、发布状态和自定义模型。
+后续变更按 `infra/mysql/patches/README.md` 使用不可变的版本化 SQL 补丁和发布清单。
+
+数据库恢复与应用版本回退分别演练。恢复前停止 Gateway 和所有业务服务，备份五库、Redis 会话版本与 MinIO；恢复到新的隔离库并核对行数、校验和、文件摘要及消息幂等记录。
+以下脚本只允许恢复到新建的隔离辅助库，不覆盖源库。备份含业务数据，保留在受限 `target/` 目录，不上传 CI artifact：
+
+```powershell
+python scripts/verify_backup_restore.py --project-name sic-verification --env-file target/verification.env `
+  --compose-file docker-compose.yml --compose-file target/verification.compose.yaml
+```
+
+数据库恢复可能降低 `auth_version`。禁止降低 Redis 中已发布的权限版本；正式恢复应更换 JWT 签名密钥并让用户重新登录，使用新会话命名空间或经过审计的会话恢复步骤拒绝全部旧 token。
+恢复消息时同时保留 Outbox/Inbox 的事件 ID 和处理记录，避免重复创建材料、通知和后继模块。
+
+应用回退使用 `snapshot_verification_release.py` 冻结八个 JAR 及 SHA-256。`prepare_verification_env.py --release-dir` 校验摘要后挂载该版本。
+仅在对应 SQL 补丁声明兼容且真实回归通过时允许回退应用；旧 Flyway 应用能否直接接管完整 SQL 库不能靠推断认定。
+
+持续验收区分 smoke、完整业务、真实 MySQL 和混合负载/依赖故障。缺少 Docker、强制测试跳过或采样不完整均判为未验收。
+CI 配置存在不代表 CI 已运行；必须归档实际运行报告。

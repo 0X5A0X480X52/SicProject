@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "caseId": "E2E-BIZ-001",
+  "runId": "20261010090546f4ceec",
+  "startedAt": "2026-10-10T09:05:46.103122+00:00",
+  "gateway": "http://127.0.0.1:18080",
+  "overallPassed": false,
+  "workflowTraversalPassed": false,
+  "businessDataPassed": false,
+  "requests": [
+    {
+      "actor": "<redacted>istrator",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 503,
+      "traceId": "c56b6d11-0061-4ad3-91e9-93ed48cb57fa",
+      "expectedStatuses": [
+        200
+      ],
+      "error": "Unable to find instance for iam-service",
+      "durationMs": 141
+    }
+  ],
+  "checks": [
+    {
+      "name": "accounts, roles and qualifications",
+      "passed": false,
+      "error": "POST /api/auth/login: expected (200,), got 503"
+    }
+  ],
+  "fixtures": {
+    "projectId": 0,
+    "modules": {},
+    "materialVersions": {},
+    "batchIds": []
+  },
+  "error": "POST /api/auth/login: expected (200,), got 503",
+  "finishedAt": "2026-10-10T09:05:46.248984+00:00"
+}

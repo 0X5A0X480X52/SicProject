@@ -24,20 +24,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.yaml.snakeyaml.Yaml;
 
-import com.amatrix.sic.iam.AuthController;
-import com.amatrix.sic.iam.ExpertQualificationController;
-import com.amatrix.sic.iam.IamAdminController;
-import com.amatrix.sic.material.MaterialController;
-import com.amatrix.sic.notification.SseController;
-import com.amatrix.sic.project.ProjectAdminController;
-import com.amatrix.sic.project.ProjectAuditController;
-import com.amatrix.sic.project.ProjectAuthorizationController;
-import com.amatrix.sic.project.ProjectController;
-import com.amatrix.sic.workflow.ExpertReviewController;
-import com.amatrix.sic.workflow.ModuleBusinessDataController;
-import com.amatrix.sic.workflow.NodeFormController;
-import com.amatrix.sic.workflow.WorkflowDefinitionController;
-import com.amatrix.sic.workflow.WorkflowRuntimeController;
+import com.amatrix.sic.iam.controller.AuthController;
+import com.amatrix.sic.iam.controller.ExpertQualificationController;
+import com.amatrix.sic.iam.controller.IamAdminController;
+import com.amatrix.sic.material.controller.MaterialController;
+import com.amatrix.sic.notification.controller.SseController;
+import com.amatrix.sic.project.controller.ProjectAdminController;
+import com.amatrix.sic.project.controller.ProjectAuditController;
+import com.amatrix.sic.project.controller.ProjectAuthorizationController;
+import com.amatrix.sic.project.controller.ProjectController;
+import com.amatrix.sic.workflow.controller.ExpertReviewController;
+import com.amatrix.sic.workflow.controller.ModuleBusinessDataController;
+import com.amatrix.sic.workflow.controller.NodeFormController;
+import com.amatrix.sic.workflow.controller.WorkflowDefinitionController;
+import com.amatrix.sic.workflow.controller.WorkflowRuntimeController;
 
 class FrontendApiSurfaceTest {
     private static final List<Class<?>> CONTROLLERS = List.of(

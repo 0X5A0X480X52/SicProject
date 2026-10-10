@@ -27,16 +27,16 @@ import com.amatrix.sic.contracts.ActorContext;
 import com.amatrix.sic.contracts.StateRecordContract;
 import com.amatrix.sic.contracts.StateTransitionContract;
 import com.amatrix.sic.security.ApiExceptionHandler;
-import com.amatrix.sic.workflow.WorkflowDefinitionController;
-import com.amatrix.sic.workflow.WorkflowDefinitionService;
-import com.amatrix.sic.workflow.ExpertReviewController;
-import com.amatrix.sic.workflow.ExpertReviewService;
-import com.amatrix.sic.workflow.ModuleBusinessDataController;
-import com.amatrix.sic.workflow.NodeFormController;
-import com.amatrix.sic.workflow.NodeFormService;
-import com.amatrix.sic.workflow.WorkflowDtos.TransitionRequest;
-import com.amatrix.sic.workflow.WorkflowRuntimeController;
-import com.amatrix.sic.workflow.WorkflowRuntimeService;
+import com.amatrix.sic.workflow.controller.WorkflowDefinitionController;
+import com.amatrix.sic.workflow.service.definition.WorkflowDefinitionService;
+import com.amatrix.sic.workflow.controller.ExpertReviewController;
+import com.amatrix.sic.workflow.service.review.ExpertReviewService;
+import com.amatrix.sic.workflow.controller.ModuleBusinessDataController;
+import com.amatrix.sic.workflow.controller.NodeFormController;
+import com.amatrix.sic.workflow.service.form.NodeFormService;
+import com.amatrix.sic.workflow.dto.WorkflowDtos.TransitionRequest;
+import com.amatrix.sic.workflow.controller.WorkflowRuntimeController;
+import com.amatrix.sic.workflow.service.runtime.WorkflowRuntimeService;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 

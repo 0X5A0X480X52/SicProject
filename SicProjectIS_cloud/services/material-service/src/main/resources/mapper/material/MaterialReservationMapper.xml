@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.material.dao.MaterialReservationMapper">
+  <resultMap id="reservation" type="com.amatrix.sic.material.entity.ReservationRow"><constructor>
+    <arg column="reservation_id" javaType="String"/><arg column="status" javaType="String"/><arg column="expires_at" javaType="java.time.Instant"/>
+  </constructor></resultMap>
+  <resultMap id="item" type="com.amatrix.sic.material.entity.ReservationItemRow"><constructor>
+    <arg column="version_id" javaType="java.lang.Long"/><arg column="project_id" javaType="java.lang.Long"/><arg column="type_code" javaType="String"/>
+  </constructor></resultMap>
+  <select id="byCommand" resultMap="reservation">SELECT reservation_id,status,expires_at FROM material_reservation WHERE command_id=#{id}</select>
+  <select id="reservedItems" resultMap="item">SELECT material_version_id version_id,NULL project_id,material_type_code type_code
+    FROM material_reservation_item WHERE reservation_id=#{id} ORDER BY material_version_id</select>
+  <select id="available" resultMap="item">SELECT v.id version_id,m.project_id,m.material_type_code type_code FROM material_version v JOIN material m ON m.id=v.material_id
+    WHERE v.id IN <foreach collection="ids" item="id" open="(" close=")" separator=",">#{id}</foreach>
+    AND v.file_status&lt;&gt;'DELETED' ORDER BY v.id <if test="lock">FOR UPDATE</if></select>
+  <insert id="insert">INSERT INTO material_reservation(reservation_id,command_id,project_id,module_instance_id,expected_seq,actor_user_id,status,expires_at)
+    VALUES(#{id},#{command.commandId},#{command.projectId},#{command.moduleInstanceId},#{command.expectedSeq},#{command.actorUserId},'RESERVED',#{expires})</insert>
+  <insert id="insertItem">INSERT INTO material_reservation_item(reservation_id,material_version_id,material_type_code) VALUES(#{id},#{item.versionId},#{item.typeCode})</insert>
+  <select id="deleted" resultType="Integer">SELECT COUNT(*) FROM material_reservation_item i JOIN material_version v ON v.id=i.material_version_id WHERE i.reservation_id=#{id} AND v.file_status='DELETED'</select>
+  <update id="confirm">UPDATE material_reservation SET status='CONFIRMED' WHERE reservation_id=#{id} AND status IN ('RESERVED','EXPIRED')</update>
+  <select id="status" resultType="String">SELECT status FROM material_reservation WHERE reservation_id=#{id}</select>
+  <update id="release">UPDATE material_reservation SET status='RELEASED' WHERE reservation_id=#{id} AND status='RESERVED'</update>
+  <update id="expire">UPDATE material_reservation SET status='EXPIRED' WHERE status='RESERVED' AND expires_at&lt;=CURRENT_TIMESTAMP</update>
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.workflow.dao.WorkflowScopeMapper">
+  <resultMap id="task" type="com.amatrix.sic.workflow.entity.WorkflowTaskScope">
+    <constructor>
+      <arg column="id" javaType="java.lang.Long"/><arg column="module_instance_id" javaType="java.lang.Long"/>
+      <arg column="project_id" javaType="java.lang.Long"/><arg column="module_code" javaType="java.lang.String"/>
+      <arg column="node_id" javaType="java.lang.String"/><arg column="assignee_user_id" javaType="java.lang.Long"/>
+      <arg column="candidate_role" javaType="java.lang.String"/><arg column="round_no" javaType="_int"/>
+    </constructor>
+  </resultMap>
+  <resultMap id="grant" type="com.amatrix.sic.workflow.entity.ExpertGrantScope">
+    <constructor>
+      <arg column="project_id" javaType="java.lang.Long"/><arg column="module_code" javaType="java.lang.String"/>
+      <arg column="current_round" javaType="_int"/><arg column="created_by" javaType="java.lang.Long"/>
+      <arg column="node_id" javaType="java.lang.String"/><arg column="expert_name_snapshot" javaType="java.lang.String"/>
+    </constructor>
+  </resultMap>
+  <select id="openTasks" resultMap="task">
+    SELECT t.id,t.module_instance_id,t.node_id,t.assignee_user_id,t.candidate_role,t.round_no,m.project_id,m.module_code
+      FROM workflow_task t JOIN module_instance m ON m.id=t.module_instance_id
+     WHERE m.finished=FALSE AND t.status='OPEN' AND t.node_id=m.current_node_id AND t.module_instance_id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+  </select>
+  <select id="expertModules" resultType="java.lang.Long">
+    SELECT DISTINCT b.module_instance_id FROM expert_review_batch b JOIN expert_review_assignment a ON a.batch_id=b.id
+     WHERE a.expert_user_id=#{userId} AND a.valid=TRUE AND a.review_status='ASSIGNED' AND b.module_instance_id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+  </select>
+  <select id="projectId" resultType="java.lang.Long">SELECT project_id FROM module_instance WHERE id=#{moduleId}</select>
+  <select id="expertGrant" resultMap="grant">
+    SELECT m.project_id,m.module_code,m.current_round,b.created_by,n.node_id,a.expert_name_snapshot FROM module_instance m
+      JOIN workflow_task t ON t.module_instance_id=m.id AND t.status='OPEN' AND t.node_id=m.current_node_id AND t.candidate_role='EXPERT'
+      JOIN expert_review_batch b ON b.module_instance_id=m.id AND b.round_no=m.current_round
+      JOIN expert_review_assignment a ON a.batch_id=b.id AND a.expert_user_id=#{userId}
+      LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id
+     WHERE m.id=#{moduleId} AND m.finished=FALSE AND a.valid=TRUE
+       AND (b.workflow_node_id IS NULL OR n.id IS NULL OR
+         REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask')=t.node_id)
+     ORDER BY b.id DESC LIMIT 1
+  </select>
+</mapper>

@@ -1,0 +1,121 @@
+name: Cloud verification
+on:
+  pull_request:
+    paths: ['SicProjectIS_cloud/**', '.github/workflows/cloud-verification.yml']
+  push:
+    paths: ['SicProjectIS_cloud/**', '.github/workflows/cloud-verification.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: SicProjectIS_cloud
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21', cache: maven}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: mvn -B -pl '!platform/integration-tests' test
+      - run: python scripts/assert_verification_gate.py --gate smoke --report-path verification/runs/ci-smoke.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-results
+          path: |
+            SicProjectIS_cloud/**/target/surefire-reports/TEST-*.xml
+            SicProjectIS_cloud/verification/runs/ci-smoke.json
+  mysql:
+    runs-on: ubuntu-latest
+    needs: smoke
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21', cache: maven}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: docker info >/dev/null
+      - run: mvn -B verify
+      - run: python scripts/build_full_schema.py --check
+      - run: python scripts/assert_verification_gate.py --gate mysql --report-path verification/runs/ci-mysql.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mysql-results
+          path: |
+            SicProjectIS_cloud/**/target/surefire-reports/TEST-*.xml
+            SicProjectIS_cloud/verification/runs/ci-mysql.json
+  business:
+    runs-on: ubuntu-latest
+    needs: mysql
+    timeout-minutes: 30
+    env:
+      COMPOSE_PROJECT_NAME: sic-ci-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21', cache: maven}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: docker info >/dev/null
+      - run: pip install -r scripts/requirements-verification.txt
+      - run: mvn -B -DskipTests package
+      - run: python scripts/prepare_verification_env.py
+      - run: docker compose --env-file target/verification.env -f docker-compose.yml -f target/verification.compose.yaml up -d --wait --wait-timeout 600
+      - run: python scripts/wait_verification_ready.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/ci-readiness.json
+      - run: python scripts/verify_schema.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/ci-schema.json
+      - run: python scripts/verify_business_lifecycle.py --gateway-base-url http://127.0.0.1:18080 --env-file target/verification.env --negative-cases --report-path verification/runs/ci-business.json
+      - run: python scripts/verify_business_db.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --business-report verification/runs/ci-business.json --report-path verification/runs/ci-business-database.json
+      - run: python scripts/verify_business_branches.py --gateway-base-url http://127.0.0.1:18080 --env-file target/verification.env --negative-cases --report-path verification/runs/ci-business-branches.json
+      - run: python scripts/verify_business_db.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --business-report verification/runs/ci-business-branches.json --report-path verification/runs/ci-business-branches-database.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: business-results
+          path: SicProjectIS_cloud/verification/runs/ci-*.json
+      - name: Stop this isolated test project
+        if: always()
+        run: |
+          if [ -f target/verification.env ]; then
+            docker compose --env-file target/verification.env -f docker-compose.yml -f target/verification.compose.yaml stop
+          fi
+  capacity-and-faults:
+    runs-on: ubuntu-latest
+    needs: business
+    timeout-minutes: 30
+    env:
+      COMPOSE_PROJECT_NAME: sic-ci-load-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21', cache: maven}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: docker info >/dev/null
+      - run: pip install -r scripts/requirements-verification.txt
+      - run: mvn -B -DskipTests package
+      - run: python scripts/prepare_verification_env.py
+      - run: docker compose --env-file target/verification.env -f docker-compose.yml -f target/verification.compose.yaml up -d --wait --wait-timeout 600
+      - run: python scripts/wait_verification_ready.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/ci-readiness.json
+      - name: Run mixed authorization and business load
+        run: python scripts/verify_mixed_load.py --gateway-base-url http://127.0.0.1:18080 --env-file target/verification.env --minimum-load-seconds 90 --stability-project-name "$COMPOSE_PROJECT_NAME" --stability-compose-file docker-compose.yml --stability-compose-file target/verification.compose.yaml --report-path verification/runs/ci-load.json >target/ci-load.log 2>&1
+      - run: python scripts/verify_business_db.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --business-report verification/runs/ci-load.json --report-path verification/runs/ci-load-database.json
+      - run: python scripts/verify_dependency_faults.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --gateway-base-url http://127.0.0.1:18080 --business-report verification/runs/ci-load.json --confirm-isolated-faults --require-write-fault --report-path verification/runs/ci-faults.json
+      - run: docker compose --env-file target/verification.env -f docker-compose.yml -f target/verification.compose.yaml stop gateway-service iam-service project-service workflow-service material-service notification-service
+      - run: python scripts/verify_backup_restore.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/ci-backup-restore.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: capacity-fault-results
+          path: |
+            SicProjectIS_cloud/verification/runs/ci-*.json
+            SicProjectIS_cloud/target/ci-load.log
+      - name: Stop this isolated test project
+        if: always()
+        run: |
+          if [ -f target/verification.env ]; then
+            docker compose --env-file target/verification.env -f docker-compose.yml -f target/verification.compose.yaml stop
+          fi

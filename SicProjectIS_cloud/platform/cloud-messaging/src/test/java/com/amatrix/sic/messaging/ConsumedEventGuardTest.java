@@ -31,7 +31,7 @@ class ConsumedEventGuardTest {
                     PRIMARY KEY (event_id, consumer_name)
                 )
                 """);
-        guard = new ConsumedEventGuard(jdbc);
+        guard = new ConsumedEventGuard(MessagingTestMapper.create(jdbc.getDataSource()));
         transactions = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
     }
 

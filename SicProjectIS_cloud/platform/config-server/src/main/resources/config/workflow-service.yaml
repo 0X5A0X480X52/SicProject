@@ -5,9 +5,6 @@ spring:
     url: ${WORKFLOW_DB_URL:jdbc:mysql://mysql:3306/sic_workflow?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
     username: ${WORKFLOW_DB_USERNAME:sic_workflow}
     password: ${WORKFLOW_DB_PASSWORD}
-  flyway:
-    enabled: true
-    locations: classpath:db/migration,classpath:db/common
 
 sic:
   service-client:

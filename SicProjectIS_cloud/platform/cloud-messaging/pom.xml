@@ -12,6 +12,10 @@
     <artifactId>cloud-messaging</artifactId>
     <dependencies>
         <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.amatrix.sic</groupId>
             <artifactId>cloud-contracts</artifactId>
             <version>${project.version}</version>

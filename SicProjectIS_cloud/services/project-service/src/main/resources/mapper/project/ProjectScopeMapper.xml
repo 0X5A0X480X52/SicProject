@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.project.dao.ProjectScopeMapper">
+  <resultMap id="project" type="com.amatrix.sic.project.entity.ProjectScopeRow"><constructor>
+    <arg column="id" javaType="java.lang.Long"/><arg column="version" javaType="_long"/>
+    <arg column="owner_user_id" javaType="java.lang.Long"/><arg column="owner_name_snapshot" javaType="String"/>
+    <arg column="dept_id" javaType="java.lang.Long"/>
+  </constructor></resultMap>
+  <resultMap id="grant" type="com.amatrix.sic.project.entity.ProjectGrantScopeRow"><constructor>
+    <arg column="project_id" javaType="java.lang.Long"/><arg column="grant_role_code" javaType="String"/>
+    <arg column="module_type" javaType="String"/><arg column="round_no" javaType="java.lang.Integer"/>
+    <arg column="task_node_id" javaType="String"/>
+  </constructor></resultMap>
+  <sql id="ids"><foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach></sql>
+  <select id="projects" resultMap="project">SELECT id,version,owner_user_id,owner_name_snapshot,dept_id FROM project
+    WHERE lifecycle_status='ACTIVE' AND id IN <include refid="ids"/></select>
+  <select id="memberships" resultType="Long">SELECT project_id FROM project_member WHERE user_id=#{userId} AND project_id IN <include refid="ids"/></select>
+  <select id="grants" resultMap="grant">SELECT project_id,grant_role_code,module_type,round_no,task_node_id FROM project_access_grant
+    WHERE grantee_user_id=#{userId} AND project_id IN <include refid="ids"/> AND status='ACTIVE'
+    AND (effective_from IS NULL OR effective_from&lt;=CURRENT_TIMESTAMP(6))
+    AND (effective_to IS NULL OR effective_to&gt;CURRENT_TIMESTAMP(6))</select>
+</mapper>

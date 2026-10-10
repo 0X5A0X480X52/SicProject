@@ -1,5 +1,7 @@
 package com.amatrix.sic.project;
 
+import com.amatrix.sic.project.policy.ProjectAccessPolicy;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;

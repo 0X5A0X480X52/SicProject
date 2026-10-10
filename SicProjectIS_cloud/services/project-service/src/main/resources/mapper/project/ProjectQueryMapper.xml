@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.project.dao.ProjectQueryMapper">
+  <resultMap id="project" type="java.util.LinkedHashMap">
+    <result column="projectId" property="projectId" javaType="Long"/>
+    <result column="projectCode" property="projectCode" javaType="String"/>
+    <result column="projectName" property="projectName" javaType="String"/>
+    <result column="deptId" property="deptId" javaType="Long"/>
+    <result column="deptName" property="deptName" javaType="String"/>
+    <result column="leaderUserId" property="leaderUserId" javaType="Long"/>
+    <result column="leaderRealName" property="leaderRealName" javaType="String"/>
+    <result column="projectType" property="projectType" javaType="String"/>
+    <result column="projectLevel" property="projectLevel" javaType="String"/>
+    <result column="lifecycleStage" property="lifecycleStage" javaType="String"/>
+  </resultMap>
+  <select id="accessible" resultMap="project">
+    SELECT p.id projectId,p.project_code projectCode,p.project_name projectName,p.dept_id deptId,p.dept_name_snapshot deptName,
+      p.owner_user_id leaderUserId,p.owner_name_snapshot leaderRealName,p.project_type projectType,p.project_level projectLevel,p.business_status lifecycleStage
+    FROM project p WHERE p.lifecycle_status='ACTIVE' AND (
+      #{global}=TRUE OR p.owner_user_id=#{userId}
+      OR EXISTS(SELECT 1 FROM project_member m WHERE m.project_id=p.id AND m.user_id=#{userId})
+      OR EXISTS(SELECT 1 FROM project_access_grant g WHERE g.project_id=p.id AND g.grantee_user_id=#{userId}
+        AND g.status='ACTIVE' AND (g.effective_from IS NULL OR g.effective_from&lt;=CURRENT_TIMESTAMP(6))
+        AND (g.effective_to IS NULL OR g.effective_to&gt;CURRENT_TIMESTAMP(6))
+        AND (g.grant_role_code='PROJECT_PROXY_RECORDER_ASSIGNMENT'
+          OR (#{expert}=TRUE AND g.grant_role_code='PROJECT_MODULE_EXPERT_ASSIGNMENT')
+          OR (#{finance}=TRUE AND g.grant_role_code='PROJECT_FINANCE_HANDLER_ASSIGNMENT')))
+      OR (#{department}=TRUE AND p.dept_id=#{deptId,jdbcType=BIGINT})) ORDER BY p.id DESC
+  </select>
+</mapper>

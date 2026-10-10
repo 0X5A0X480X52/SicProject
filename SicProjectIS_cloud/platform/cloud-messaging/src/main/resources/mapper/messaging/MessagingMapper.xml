@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.messaging.dao.MessagingMapper">
+  <resultMap id="entry" type="com.amatrix.sic.messaging.entity.OutboxEntry">
+    <constructor>
+      <arg column="event_id" javaType="String"/>
+      <arg column="event_type" javaType="String"/>
+      <arg column="routing_key" javaType="String"/>
+      <arg column="payload_json" javaType="String"/>
+      <arg column="created_at" javaType="java.time.Instant"/>
+      <arg column="attempts" javaType="_int"/>
+    </constructor>
+  </resultMap>
+  <insert id="insertOutbox">
+    INSERT INTO outbox_event(event_id,event_type,routing_key,payload_json,created_at,attempts)
+    VALUES(#{id},#{type},#{route},#{payload},#{now},0)
+  </insert>
+  <select id="candidates" resultMap="entry">
+    SELECT event_id,event_type,routing_key,payload_json,created_at,attempts FROM outbox_event
+    WHERE published_at IS NULL AND (next_attempt_at IS NULL OR next_attempt_at &lt;= #{now})
+      AND (locked_until IS NULL OR locked_until &lt; #{now}) ORDER BY created_at,event_id LIMIT #{limit}
+  </select>
+  <update id="claim">
+    UPDATE outbox_event SET lock_owner=#{owner},locked_until=#{until} WHERE event_id=#{id} AND published_at IS NULL
+      AND (next_attempt_at IS NULL OR next_attempt_at &lt;= #{now}) AND (locked_until IS NULL OR locked_until &lt; #{now})
+  </update>
+  <update id="published">
+    UPDATE outbox_event SET published_at=#{now},last_error=NULL,lock_owner=NULL,locked_until=NULL WHERE event_id=#{id} AND lock_owner=#{owner}
+  </update>
+  <update id="failed">
+    UPDATE outbox_event SET attempts=attempts+1,last_error=#{error},next_attempt_at=#{next},lock_owner=NULL,locked_until=NULL
+    WHERE event_id=#{id} AND lock_owner=#{owner}
+  </update>
+  <insert id="consume">INSERT INTO consumed_event(event_id,consumer_name,consumed_at) VALUES(#{id},#{consumer},#{now})</insert>
+  <select id="pending" resultType="long">SELECT COUNT(*) FROM outbox_event WHERE published_at IS NULL</select>
+  <select id="failedCount" resultType="long">SELECT COUNT(*) FROM outbox_event WHERE published_at IS NULL AND attempts&gt;0</select>
+  <select id="oldestAge" resultType="long">SELECT COALESCE(TIMESTAMPDIFF(SECOND,MIN(created_at),CURRENT_TIMESTAMP),0) FROM outbox_event WHERE published_at IS NULL</select>
+</mapper>

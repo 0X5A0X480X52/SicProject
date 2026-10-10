@@ -1,5 +1,9 @@
 package com.amatrix.sic.material;
 
+import com.amatrix.sic.material.service.MaterialApplicationService;
+import com.amatrix.sic.material.policy.MaterialAccessPolicy;
+import com.amatrix.sic.material.storage.MinioObjectStorage;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +61,7 @@ class MaterialDeletionTransactionTest {
         MaterialAccessPolicy access = mock(MaterialAccessPolicy.class);
         when(access.canAccess(any(), eq(7L), eq("MATERIAL_DELETE"))).thenReturn(true);
         transactions = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
-        service = new MaterialApplicationService(jdbc, storage, access, outbox, transactions);
+        service = new MaterialApplicationService(MaterialTestMapper.create(jdbc.getDataSource(),com.amatrix.sic.material.dao.MaterialMapper.class,"mapper/material/MaterialMapper.xml"),storage, access, outbox, transactions);
     }
 
     @Test

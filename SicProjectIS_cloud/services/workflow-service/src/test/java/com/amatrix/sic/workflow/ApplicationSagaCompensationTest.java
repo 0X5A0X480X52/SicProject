@@ -1,5 +1,9 @@
 package com.amatrix.sic.workflow;
 
+import com.amatrix.sic.workflow.service.saga.ApplicationSagaWorkflowService;
+import com.amatrix.sic.workflow.workflow.definition.WorkflowDefinitionCatalog;
+import com.amatrix.sic.workflow.workflow.definition.WorkflowDefinitionNavigator;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -40,7 +44,8 @@ class ApplicationSagaCompensationTest {
         jdbc.execute("CREATE TABLE expert_review_score(id BIGINT PRIMARY KEY,assignment_id BIGINT)");
 
         outbox = mock(OutboxService.class);
-        service = new ApplicationSagaWorkflowService(jdbc, new ObjectMapper(), outbox,
+        service = new ApplicationSagaWorkflowService(WorkflowTestMapper.create(dataSource,com.amatrix.sic.workflow.dao.WorkflowSagaMapper.class,"mapper/workflow/WorkflowSagaMapper.xml"),
+                WorkflowTestMapper.create(dataSource,com.amatrix.sic.workflow.dao.WorkflowRuntimeMapper.class,"mapper/workflow/WorkflowRuntimeMapper.xml"), new ObjectMapper(), outbox,
                 mock(WorkflowDefinitionCatalog.class), mock(WorkflowDefinitionNavigator.class));
     }
 

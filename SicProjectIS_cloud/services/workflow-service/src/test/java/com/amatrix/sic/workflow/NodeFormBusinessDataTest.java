@@ -1,5 +1,8 @@
 package com.amatrix.sic.workflow;
 
+import com.amatrix.sic.workflow.service.form.NodeFormService;
+import com.amatrix.sic.workflow.dao.review.ExpertReviewViewRepository;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -48,7 +51,7 @@ class NodeFormBusinessDataTest {
                   id BIGINT PRIMARY KEY,assignment_id BIGINT,item_code VARCHAR(64),item_name VARCHAR(200),
                   weight DECIMAL(8,4),max_score DECIMAL(8,2),score_value DECIMAL(8,2),comment VARCHAR(1000))
                 """);
-        service = new NodeFormService(jdbc, new ObjectMapper(), new ExpertReviewViewRepository(jdbc));
+        service = new NodeFormService(WorkflowTestMapper.create(jdbc.getDataSource(),com.amatrix.sic.workflow.dao.NodeFormMapper.class,"mapper/workflow/NodeFormMapper.xml"), new ObjectMapper(), new ExpertReviewViewRepository(WorkflowTestMapper.create(jdbc.getDataSource(),com.amatrix.sic.workflow.dao.ExpertReviewViewMapper.class,"mapper/workflow/ExpertReviewViewMapper.xml")),null);
     }
 
     @Test

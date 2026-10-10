@@ -1,0 +1,254 @@
+{
+  "passed": true,
+  "project": "sic-fullsql-20261010",
+  "checks": [
+    "Redis outage returns bounded 503",
+    "Same JWT works after persistent Redis recovery",
+    "Project outage opens circuit and returns bounded 503",
+    "Workflow pool releases all connections after dependency failures",
+    "Project and public runtime recover through circuit half-open"
+  ],
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "durationMs": 250,
+      "traceId": "cf6b2ad2-66db-4365-ba6d-b89425c6a38f"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "durationMs": 47,
+      "traceId": "293a1c1e-84ea-4153-89fd-0becf7509270"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 503,
+      "durationMs": 4219,
+      "traceId": "6e427be3-66c0-43f0-aaa8-ff1c3b1db3d7"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "durationMs": 32,
+      "traceId": "7013ed7b-b07d-4882-941b-20c3b9a20f2e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 200,
+      "durationMs": 328,
+      "traceId": "01f21a64-abfb-43ec-b2f0-740e3070bae3"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 1062,
+      "traceId": "d846ff54-3fc7-4353-85e3-5f796be12096"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 1031,
+      "traceId": "00c2ba40-bb5c-433c-bf02-0bab7d12a04e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 47,
+      "traceId": "84a928f7-8020-4577-8870-8c35530fbd94"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 32,
+      "traceId": "5db3ad99-76d2-49c3-b6fb-c485df1df222"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 16,
+      "traceId": "486cd1ec-9667-48d3-b029-2ce7081e6f8e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "62278dda-7d2d-4fac-b3db-39dfe3ef8eff"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "2d5ea038-ff1c-4246-88ac-23c25493b435"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "83f74af8-85ab-493d-b831-46c7af70fef8"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 47,
+      "traceId": "4e1bb4c3-f9eb-459a-bfaa-da4eb32fab2b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 62,
+      "traceId": "7cc6d2b4-d738-4173-a053-f9cc32c21372"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 47,
+      "traceId": "39500e85-7b19-4fb5-ba48-029deb4673c2"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 46,
+      "traceId": "a962aa8b-f5ca-4c3c-9424-0a340e9ee448"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "127e3c0e-8edf-4302-b1f7-a3d1bfce7ecf"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "09f95441-a260-460a-bbbc-e9d3674312ba"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "46a87d1b-7b5c-42d8-b215-ef7a674db4fa"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "4ca3528d-29b6-40ed-ae20-dbeafe9fa94c"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "ee78cd46-019c-4e76-8f0e-dbd33d7fc1ca"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "25f1e16c-cbe3-4698-b612-0e7a1ad442b2"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "cb96f1b8-0783-4125-b7d7-6b95e849a434"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 31,
+      "traceId": "9f1489c7-c2aa-459d-b9f7-c9e9ff1ab3f1"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 16,
+      "traceId": "ecb9494e-c766-4769-9747-7274c3290612"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 503,
+      "durationMs": 32,
+      "traceId": "f8b4b168-442c-4371-85c8-480ffa8d087d"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/24/runtime-view",
+      "status": 200,
+      "durationMs": 391,
+      "traceId": "ed1cd145-a0a9-4e3a-be05-00ab1a6fbc71"
+    }
+  ],
+  "circuitStates": [
+    "resilience4j_circuitbreaker_state{group=\"MaterialReservationClientreserveStringMaterialReservationCommand\",name=\"MaterialReservationClientreserveStringMaterialReservationCommand\",state=\"closed\"} 1.0",
+    "resilience4j_circuitbreaker_state{group=\"MaterialReservationClientreserveStringMaterialReservationCommand\",name=\"MaterialReservationClientreserveStringMaterialReservationCommand\",state=\"disabled\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"MaterialReservationClientreserveStringMaterialReservationCommand\",name=\"MaterialReservationClientreserveStringMaterialReservationCommand\",state=\"forced_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"MaterialReservationClientreserveStringMaterialReservationCommand\",name=\"MaterialReservationClientreserveStringMaterialReservationCommand\",state=\"half_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"MaterialReservationClientreserveStringMaterialReservationCommand\",name=\"MaterialReservationClientreserveStringMaterialReservationCommand\",state=\"metrics_only\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"MaterialReservationClientreserveStringMaterialReservationCommand\",name=\"MaterialReservationClientreserveStringMaterialReservationCommand\",state=\"open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",name=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",state=\"closed\"} 1.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",name=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",state=\"disabled\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",name=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",state=\"forced_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",name=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",state=\"half_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",name=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",state=\"metrics_only\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",name=\"ProjectAccessClientdecideBatchStringProjectAccessBatchRequest\",state=\"open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideStringLongLongLongStringList\",name=\"ProjectAccessClientdecideStringLongLongLongStringList\",state=\"closed\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideStringLongLongLongStringList\",name=\"ProjectAccessClientdecideStringLongLongLongStringList\",state=\"disabled\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideStringLongLongLongStringList\",name=\"ProjectAccessClientdecideStringLongLongLongStringList\",state=\"forced_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideStringLongLongLongStringList\",name=\"ProjectAccessClientdecideStringLongLongLongStringList\",state=\"half_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideStringLongLongLongStringList\",name=\"ProjectAccessClientdecideStringLongLongLongStringList\",state=\"metrics_only\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientdecideStringLongLongLongStringList\",name=\"ProjectAccessClientdecideStringLongLongLongStringList\",state=\"open\"} 1.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",name=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",state=\"closed\"} 1.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",name=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",state=\"disabled\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",name=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",state=\"forced_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",name=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",state=\"half_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",name=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",state=\"metrics_only\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",name=\"ProjectAccessClientsyncExpertGrantStringLongExpertProjectGrantCommand\",state=\"open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummariesStringList\",name=\"WorkflowServiceTokenClientsummariesStringList\",state=\"closed\"} 1.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummariesStringList\",name=\"WorkflowServiceTokenClientsummariesStringList\",state=\"disabled\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummariesStringList\",name=\"WorkflowServiceTokenClientsummariesStringList\",state=\"forced_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummariesStringList\",name=\"WorkflowServiceTokenClientsummariesStringList\",state=\"half_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummariesStringList\",name=\"WorkflowServiceTokenClientsummariesStringList\",state=\"metrics_only\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummariesStringList\",name=\"WorkflowServiceTokenClientsummariesStringList\",state=\"open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummaryStringLong\",name=\"WorkflowServiceTokenClientsummaryStringLong\",state=\"closed\"} 1.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummaryStringLong\",name=\"WorkflowServiceTokenClientsummaryStringLong\",state=\"disabled\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummaryStringLong\",name=\"WorkflowServiceTokenClientsummaryStringLong\",state=\"forced_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummaryStringLong\",name=\"WorkflowServiceTokenClientsummaryStringLong\",state=\"half_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummaryStringLong\",name=\"WorkflowServiceTokenClientsummaryStringLong\",state=\"metrics_only\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClientsummaryStringLong\",name=\"WorkflowServiceTokenClientsummaryStringLong\",state=\"open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClienttokenStringString\",name=\"WorkflowServiceTokenClienttokenStringString\",state=\"closed\"} 1.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClienttokenStringString\",name=\"WorkflowServiceTokenClienttokenStringString\",state=\"disabled\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClienttokenStringString\",name=\"WorkflowServiceTokenClienttokenStringString\",state=\"forced_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClienttokenStringString\",name=\"WorkflowServiceTokenClienttokenStringString\",state=\"half_open\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClienttokenStringString\",name=\"WorkflowServiceTokenClienttokenStringString\",state=\"metrics_only\"} 0.0",
+    "resilience4j_circuitbreaker_state{group=\"WorkflowServiceTokenClienttokenStringString\",name=\"WorkflowServiceTokenClienttokenStringString\",state=\"open\"} 0.0"
+  ],
+  "projectRecoveryMs": 391
+}

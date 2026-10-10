@@ -22,3 +22,17 @@ GRANT ALL PRIVILEGES ON sic_material.* TO 'sic_material'@'%';
 GRANT ALL PRIVILEGES ON sic_notification.* TO 'sic_notification'@'%';
 FLUSH PRIVILEGES;
 EOSQL
+
+# Docker calls this only for a new data volume. Existing volumes are never replayed.
+for domain in iam project workflow material notification; do
+    table_count=$(MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" mysql --protocol=socket -uroot -N \
+        -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='sic_${domain}'")
+    if [[ "${table_count}" != "0" ]]; then
+        echo "Refusing full initialization of nonempty schema sic_${domain}" >&2
+        exit 1
+    fi
+    MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" mysql --protocol=socket -uroot "sic_${domain}" \
+        < "/sic-release/schema/${domain}.sql"
+done
+MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" mysql --protocol=socket -uroot sic_iam < /sic-release/seed/iam.sql
+MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" mysql --protocol=socket -uroot sic_workflow < /sic-release/seed/workflow-assets.sql

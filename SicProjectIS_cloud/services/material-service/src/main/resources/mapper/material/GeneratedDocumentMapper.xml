@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.material.dao.GeneratedDocumentMapper">
+  <insert id="insert">INSERT IGNORE INTO generated_document(command_id,project_id,module_instance_id,state_seq,
+    state_record_id,document_type,document_name,template_code,object_key,original_filename,content_type,size_bytes,sha256,snapshot_json)
+    VALUES(#{command.commandId},#{command.projectId},#{command.moduleInstanceId},#{command.stateSeq},#{command.stateRecordId,jdbcType=BIGINT},
+      #{command.documentTypeCode},#{command.documentTypeName},#{command.templateCode},#{key},#{filename},'application/pdf',#{size},#{hash},CAST(#{snapshot} AS JSON))</insert>
+  <update id="materialVersion">UPDATE generated_document SET material_version_id=#{id} WHERE command_id=#{command}</update>
+</mapper>

@@ -1,5 +1,10 @@
 package com.amatrix.sic.workflow;
 
+import com.amatrix.sic.workflow.service.form.NodeFormService;
+import com.amatrix.sic.workflow.workflow.parser.FlowableBpmnDefinitionParser;
+import com.amatrix.sic.workflow.workflow.model.WorkflowBpmnParseResult;
+import com.amatrix.sic.workflow.workflow.definition.WorkflowAssetCatalog;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
@@ -10,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class NodeFormCatalogTest {
     @Test
     void exposesTheCompleteFrontendNodeFormCatalog() {
-        var definitions = new NodeFormService(null, null, null).definitions();
+        var definitions = new NodeFormService(null, null, null,null).definitions();
 
         assertThat(definitions).hasSize(43);
         assertThat(definitions).extracting(item -> item.get("formCode")).doesNotHaveDuplicates()
@@ -26,7 +31,7 @@ class NodeFormCatalogTest {
 
     @Test
     void everyBundledUserTaskHasAtLeastOneFormDefinition() {
-        NodeFormService forms = new NodeFormService(null, null, null);
+        NodeFormService forms = new NodeFormService(null, null, null,null);
         FlowableBpmnDefinitionParser parser = new FlowableBpmnDefinitionParser();
         assertUserTasksCovered(forms, parser, "项目申请_辅助标签版.bpmn", "APPLICATION");
         assertUserTasksCovered(forms, parser, "纵向项目合同_辅助标签版.bpmn", "CONTRACT");
@@ -38,7 +43,7 @@ class NodeFormCatalogTest {
         Set<String> configured = forms.definitions().stream()
                 .filter(item -> moduleType.equals(item.get("moduleType")))
                 .map(item -> String.valueOf(item.get("nodeId"))).collect(Collectors.toSet());
-        Set<String> tasks = parser.parse(WorkflowAssetInitializer.read(asset)).nodes().stream()
+        Set<String> tasks = parser.parse(WorkflowAssetCatalog.read(asset)).nodes().stream()
                 .filter(node -> "USER_TASK".equals(node.nodeType()))
                 .map(WorkflowBpmnParseResult.NodeConfig::nodeId).collect(Collectors.toSet());
         assertThat(configured).as("node form catalog for %s", moduleType).containsAll(tasks);

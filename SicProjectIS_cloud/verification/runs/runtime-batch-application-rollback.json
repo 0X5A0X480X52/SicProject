@@ -1,0 +1,582 @@
+{
+  "passed": false,
+  "project": "sic-perf-runtime-batch-20261010",
+  "changedApplications": [
+    "project-service",
+    "workflow-service"
+  ],
+  "checks": [],
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "8d4fd673-2e0d-4826-bdfb-5ed9be654156"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "65972ffb-7046-4643-8c48-1c5d9557bc87"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 200,
+      "traceId": "448265f3-0c0d-4b46-844f-9378d3ff6fa3"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/9/runtime-view",
+      "status": 200,
+      "traceId": "7898f36b-daae-4bd3-a011-5b6307d618d6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/10/runtime-view",
+      "status": 200,
+      "traceId": "de2bbb86-e773-48e9-9e36-f84cc9fb67f6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/23/download",
+      "status": 200,
+      "traceId": "f0e3ecad-ac13-4daf-98a7-efd4e6a8e226"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/24/download",
+      "status": 200,
+      "traceId": "0779348e-1bdd-4460-9186-6e70027e14f9"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/25/download",
+      "status": 200,
+      "traceId": "b53616a2-ed6f-4481-894e-05a8873799a6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/26/download",
+      "status": 200,
+      "traceId": "9ddf9df3-84c2-4196-a6e5-c5e29d6eb1b6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/27/download",
+      "status": 200,
+      "traceId": "0c79014d-9a53-408e-a12f-91bc474d0775"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/29/download",
+      "status": 200,
+      "traceId": "c4eccc45-47b1-4ff2-be0e-ea6fa2d9a095"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/30/download",
+      "status": 200,
+      "traceId": "179638bf-cbf8-452b-a7bd-ca4255951829"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/31/download",
+      "status": 200,
+      "traceId": "2fa96e0e-1b09-4158-b85c-988fc8fdf39f"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/32/download",
+      "status": 200,
+      "traceId": "c6cce044-4924-47d6-88f7-150a33892cc9"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/33/download",
+      "status": 200,
+      "traceId": "d5a427d6-f597-4bc9-9e89-0326f8c1e678"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/34/download",
+      "status": 200,
+      "traceId": "e14e4e28-e6ca-4e16-930d-cb3a697a45b4"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/37/download",
+      "status": 200,
+      "traceId": "f37746b2-dd6b-4932-b6e4-5a3352505921"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/38/download",
+      "status": 200,
+      "traceId": "8f0d7a6b-c6cd-45db-a0a4-48a289fcf387"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/39/download",
+      "status": 200,
+      "traceId": "90249e08-e13d-44d4-9136-16b4e1b47ef4"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/40/download",
+      "status": 200,
+      "traceId": "b6cd1185-22a8-418b-b779-faf88c0d6dbd"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/41/download",
+      "status": 200,
+      "traceId": "d82ba3be-4b06-4888-b658-32d53ce29504"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/42/download",
+      "status": 200,
+      "traceId": "aa176de3-f65c-4785-a774-110bcb07e908"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "6ace1252-6406-4a9c-b861-f1205c2a8595"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "f2678348-ac0e-4f85-abe9-b6314b57c8bb"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "6b87c9d3-12b9-4293-a3e0-5b41365bd221"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "e206419e-2c46-43ad-bd78-a5216f816592"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "dc3cbafc-d730-4c11-aaed-bc187f110772"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "aca41df6-1963-466b-9b14-1596a7c337e6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "d5d77f2a-cf74-4364-bba5-a6706ce6d85e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "0716fdd6-0191-420e-bb6c-0f49044d71b0"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "340102fa-44db-4ee4-9a00-8ab297e0a0a0"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "eacc56b2-8228-4814-a9f8-2ea88e9eb833"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "e4faf445-755c-4c49-be29-130689af9a8b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "f20a6263-7e63-49a8-b577-7bf642044582"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "fc116ac8-8a53-4777-b1ab-8b6a12a1440d"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "b09d02c3-77a0-488c-948f-99a3d4c032f4"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "92819d5e-f00d-49df-aa49-15911a96d39c"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "f8392891-0f7e-46d2-a261-b6a31ed71304"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "60d425bf-08a0-4e6b-9063-85b0025dd57c"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "a30b17e8-97f3-4daf-88e9-f87b80ef63cd"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "3a146304-53df-4d68-9cc6-e1a1b47da94b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "9e451c45-5530-4000-9d46-db31fa42982d"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "4d44ee47-2287-4f98-8b42-17ef5623fc99"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "72687dff-ae4d-4fc4-94d6-201044d0a0f1"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "5e309d3c-0e86-4c7e-b5a4-3ca4abfe2833"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "91fcea29-eab7-4967-b4a6-253e8e1f5914"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "c4a9106e-3668-46cc-a6f1-336d739af81c"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "8fcbea21-612d-4078-bcb6-d1962308a885"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "1fab15d9-3c0a-47dc-8dba-ee834c1c69c6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "ddba49e6-52b8-4602-b9a5-1e9027daa145"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "3cf0930f-7f06-472d-91ef-27a5d1e5dcaa"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "1330af04-353e-4731-b7fe-06dc9eedcc64"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "654e4735-ac42-4d47-8006-b6aca982c51f"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "93b67aca-56de-4a7c-8dd9-b5666a3c3a14"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "eeb6c1be-511d-406c-9984-c74f03370736"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "029fcc27-bd20-427a-b32e-589753be896b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "3fceb7e9-6e42-4bdd-8892-4bfac007766a"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "8d1bcae2-9c1b-4ed8-b539-4acd21e054eb"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "a3f32f6d-dbf0-4efe-a2cd-d92d202f8d7b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "8ac52400-480c-4cae-ac18-e3386c26a230"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "5fe9fb88-0c2e-4309-bfee-50589191c259"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "5a2056d8-12ca-4a3b-a134-8fc17f576ce7"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "5d0afef4-feb0-4aa9-836e-a7cfbfc384bb"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "e58eb44f-be32-445c-9a6d-5aa34cb3e0e6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "a43e9340-381f-4f6f-9600-7b4d2558cf40"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "2889c8b4-6a36-4ff2-acc4-825f34efda5b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "2a83aa9f-2289-48c0-b890-a93551184a4d"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "a2aae74f-c173-4b2f-af42-b14414a5a36e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "64f41a99-8bc1-4a3f-991b-ed9583bd1cd7"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 503,
+      "traceId": "5fef60f5-1d0d-48fa-90c8-f0b5c20d5db2"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/6/authorization",
+      "status": 200,
+      "traceId": "fa3977b0-1856-4aae-abda-39d003e4b541"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/8/runtime-view",
+      "status": 200,
+      "traceId": "edda427c-0739-4a75-b964-77e9c5566ae9"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/9/runtime-view",
+      "status": 200,
+      "traceId": "cd236bdb-4546-4a2c-8847-4128e9cf9f35"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/10/runtime-view",
+      "status": 200,
+      "traceId": "062a37e5-5b27-4ad1-ac32-9be3bb94499f"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/23/download",
+      "status": 200,
+      "traceId": "4b642fb3-6cf6-4b48-9d76-60d24654871a"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/24/download",
+      "status": 200,
+      "traceId": "a1742b4f-285f-4cce-91c5-455a685030ab"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/25/download",
+      "status": 200,
+      "traceId": "f3ea9a8a-af84-4110-acc2-451667382b39"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/26/download",
+      "status": 200,
+      "traceId": "b3b45ab0-a0a6-4909-928b-a8f15de77540"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/27/download",
+      "status": 200,
+      "traceId": "66534f1b-0775-4345-bb58-0ea30cbbb0d5"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/29/download",
+      "status": 200,
+      "traceId": "d71454fe-ffc1-485a-819e-bcb6faf3837e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/30/download",
+      "status": 200,
+      "traceId": "9a5b2fa3-51bc-4a87-8fa5-88f2cb0888a0"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/31/download",
+      "status": 200,
+      "traceId": "99f5d17c-4d35-47a7-ae26-bbf169145f21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/32/download",
+      "status": 200,
+      "traceId": "124d0602-751a-4e0e-8a73-d7ec4de2e7a6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/33/download",
+      "status": 200,
+      "traceId": "0ad0769d-fc9c-48e4-a33d-3124a37d3b74"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/34/download",
+      "status": 200,
+      "traceId": "01df7c57-5c73-474b-b249-bb960855d4e1"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/37/download",
+      "status": 200,
+      "traceId": "d630ab2e-8ecb-4fa1-b400-eca03191ef20"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/38/download",
+      "status": 200,
+      "traceId": "4011b8aa-8216-4b30-b6f2-621cecb3d83e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/39/download",
+      "status": 200,
+      "traceId": "67fc58a6-3ac6-48ed-89f6-ece43f3ed276"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/40/download",
+      "status": 200,
+      "traceId": "88ae77db-1d8f-40d3-bf5d-c84ecdeb0083"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/41/download",
+      "status": 200,
+      "traceId": "dc426866-3cfc-4d86-a2d8-08ec746824f8"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/42/download",
+      "status": 200,
+      "traceId": "afb55c3e-543b-4f3a-85f9-cc49dd0ee84d"
+    }
+  ],
+  "checksumPolicy": {
+    "excludedMessagingTables": [
+      "outbox_event",
+      "consumed_event"
+    ],
+    "notificationPayloadIncludes": "All pending_notification columns except scheduled retry_count",
+    "operationalCounters": [
+      "sic_notification.pending_notification.retry_count"
+    ]
+  },
+  "notificationRetryCounters": [
+    11938,
+    13438
+  ],
+  "checksumDifferences": [
+    {
+      "table": "sic_workflow.project_snapshot",
+      "before": "801730395",
+      "after": "293348209"
+    }
+  ],
+  "error": {
+    "stage": "baseline rollback",
+    "type": "ValueError"
+  }
+}

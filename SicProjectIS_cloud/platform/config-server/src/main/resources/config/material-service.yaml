@@ -5,9 +5,6 @@ spring:
     url: ${MATERIAL_DB_URL:jdbc:mysql://mysql:3306/sic_material?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
     username: ${MATERIAL_DB_USERNAME:sic_material}
     password: ${MATERIAL_DB_PASSWORD}
-  flyway:
-    enabled: true
-    locations: classpath:db/migration,classpath:db/common
   servlet:
     multipart:
       max-file-size: ${MAX_FILE_SIZE:50MB}

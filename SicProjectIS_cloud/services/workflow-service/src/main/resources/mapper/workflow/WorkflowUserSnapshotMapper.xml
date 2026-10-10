@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.workflow.dao.WorkflowUserSnapshotMapper">
+  <insert id="upsert">
+    INSERT INTO user_snapshot(user_id,username,real_name,enabled,source_version)
+    VALUES(#{userId},#{username},#{realName},#{enabled},#{authVersion}) ON DUPLICATE KEY UPDATE
+      username=IF(VALUES(source_version)&gt;=source_version,VALUES(username),username),
+      real_name=IF(VALUES(source_version)&gt;=source_version,VALUES(real_name),real_name),
+      enabled=IF(VALUES(source_version)&gt;=source_version,VALUES(enabled),enabled),
+      source_version=GREATEST(source_version,VALUES(source_version))
+  </insert>
+</mapper>

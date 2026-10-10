@@ -1,0 +1,324 @@
+{
+  "iam" : {
+    "app_permission" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "code|0|1|code|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "code|UNIQUE", "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "code|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "name|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "permission_group|varchar(64)|NO|API||utf8mb4_0900_ai_ci", "description|varchar(255)|YES|<NULL>||utf8mb4_0900_ai_ci" ]
+    },
+    "app_role" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "code|0|1|code|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "code|UNIQUE", "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "name|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "description|varchar(255)|YES|<NULL>||utf8mb4_0900_ai_ci", "enabled|tinyint(1)|NO|1||<NULL>", "built_in|tinyint(1)|NO|0||<NULL>" ]
+    },
+    "app_user" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_user_dept|1|1|dept_id|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE", "username|0|1|username|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "username|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "username|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "password_hash|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "real_name|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "email|varchar(200)|YES|<NULL>||utf8mb4_0900_ai_ci", "phone|varchar(32)|YES|<NULL>||utf8mb4_0900_ai_ci", "dept_id|bigint|YES|<NULL>||<NULL>", "enabled|tinyint(1)|NO|1||<NULL>", "auth_version|bigint|NO|1||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "consumed_event" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|event_id|-1|BTREE", "PRIMARY|0|2|consumer_name|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "event_id|varchar(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "consumer_name|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "consumed_at|timestamp(6)|NO|<NULL>||<NULL>" ]
+    },
+    "department" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "code|0|1|code|-1|BTREE", "idx_department_parent|1|1|parent_id|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "code|UNIQUE", "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "parent_id|bigint|YES|<NULL>||<NULL>", "name|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "enabled|tinyint(1)|NO|1||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "expert_qualification" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_expert_user_status|1|1|user_id|-1|BTREE", "idx_expert_user_status|1|2|status|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "user_id|bigint|NO|<NULL>||<NULL>", "applicant_dept_id|bigint|YES|<NULL>||<NULL>", "specialty|varchar(200)|NO|<NULL>||utf8mb4_0900_ai_ci", "professional_title|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "application_reason|varchar(2000)|NO|<NULL>||utf8mb4_0900_ai_ci", "status|varchar(32)|NO|<NULL>||utf8mb4_0900_ai_ci", "dept_reviewer_user_id|bigint|YES|<NULL>||<NULL>", "dept_review_opinion|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "dept_review_remark|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "dept_reviewed_at|timestamp(6)|YES|<NULL>||<NULL>", "science_reviewer_user_id|bigint|YES|<NULL>||<NULL>", "science_review_opinion|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "science_review_remark|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "science_reviewed_at|timestamp(6)|YES|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "outbox_event" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_outbox_dispatch|1|1|published_at|-1|BTREE", "idx_outbox_dispatch|1|2|next_attempt_at|-1|BTREE", "idx_outbox_dispatch|1|3|locked_until|-1|BTREE", "idx_outbox_dispatch|1|4|created_at|-1|BTREE", "idx_outbox_pending|1|1|published_at|-1|BTREE", "idx_outbox_pending|1|2|created_at|-1|BTREE", "PRIMARY|0|1|event_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "event_id|varchar(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "event_type|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "routing_key|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "payload_json|json|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|<NULL>||<NULL>", "published_at|timestamp(6)|YES|<NULL>||<NULL>", "attempts|int|NO|0||<NULL>", "next_attempt_at|timestamp(6)|YES|<NULL>||<NULL>", "lock_owner|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "locked_until|timestamp(6)|YES|<NULL>||<NULL>", "last_error|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci" ]
+    },
+    "role_permission" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_role_permission_permission|1|1|permission_id|-1|BTREE", "PRIMARY|0|1|role_id|-1|BTREE", "PRIMARY|0|2|permission_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "role_id|bigint|NO|<NULL>||<NULL>", "permission_id|bigint|NO|<NULL>||<NULL>" ]
+    },
+    "user_role" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_user_role_role|1|1|role_id|-1|BTREE", "PRIMARY|0|1|user_id|-1|BTREE", "PRIMARY|0|2|role_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "user_id|bigint|NO|<NULL>||<NULL>", "role_id|bigint|NO|<NULL>||<NULL>" ]
+    }
+  },
+  "project" : {
+    "admin_operation_log" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_admin_log_operator_time|1|1|operator_user_id|-1|BTREE", "idx_admin_log_operator_time|1|2|created_at|-1|BTREE", "idx_admin_log_project_time|1|1|project_id|-1|BTREE", "idx_admin_log_project_time|1|2|created_at|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|char(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "scope_type|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "action_type|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "project_id|bigint|YES|<NULL>||<NULL>", "project_name_snapshot|varchar(200)|YES|<NULL>||utf8mb4_0900_ai_ci", "operator_user_id|bigint|YES|<NULL>||<NULL>", "operator_name_snapshot|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "target_user_id|bigint|YES|<NULL>||<NULL>", "target_name_snapshot|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "grant_type|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "role_code|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "permission_code|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "before_snapshot|text|YES|<NULL>||utf8mb4_0900_ai_ci", "after_snapshot|text|YES|<NULL>||utf8mb4_0900_ai_ci", "remark|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "application_saga" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_saga_idempotency|1|1|actor_user_id|-1|BTREE", "idx_saga_idempotency|1|2|request_hash|-1|BTREE", "idx_saga_idempotency|1|3|created_at|-1|BTREE", "idx_saga_recovery|1|1|status|-1|BTREE", "idx_saga_recovery|1|2|next_retry_at|-1|BTREE", "PRIMARY|0|1|saga_id|-1|BTREE", "project_id|0|1|project_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "project_id|UNIQUE" ],
+      "columns" : [ "saga_id|char(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "project_id|bigint|NO|<NULL>||<NULL>", "actor_user_id|bigint|NO|<NULL>||<NULL>", "request_hash|char(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "status|varchar(32)|NO|<NULL>||utf8mb4_0900_ai_ci", "module_instance_id|bigint|YES|<NULL>||<NULL>", "response_json|json|YES|<NULL>||<NULL>", "last_error|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "retry_count|int|NO|0||<NULL>", "next_retry_at|timestamp(6)|YES|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "consumed_event" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|event_id|-1|BTREE", "PRIMARY|0|2|consumer_name|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "event_id|varchar(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "consumer_name|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "consumed_at|timestamp(6)|NO|<NULL>||<NULL>" ]
+    },
+    "outbox_event" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_outbox_dispatch|1|1|published_at|-1|BTREE", "idx_outbox_dispatch|1|2|next_attempt_at|-1|BTREE", "idx_outbox_dispatch|1|3|locked_until|-1|BTREE", "idx_outbox_dispatch|1|4|created_at|-1|BTREE", "idx_outbox_pending|1|1|published_at|-1|BTREE", "idx_outbox_pending|1|2|created_at|-1|BTREE", "PRIMARY|0|1|event_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "event_id|varchar(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "event_type|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "routing_key|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "payload_json|json|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|<NULL>||<NULL>", "published_at|timestamp(6)|YES|<NULL>||<NULL>", "attempts|int|NO|0||<NULL>", "next_attempt_at|timestamp(6)|YES|<NULL>||<NULL>", "lock_owner|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "locked_until|timestamp(6)|YES|<NULL>||<NULL>", "last_error|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci" ]
+    },
+    "project" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_project_dept_status|1|1|dept_id|-1|BTREE", "idx_project_dept_status|1|2|lifecycle_status|-1|BTREE", "idx_project_owner_status|1|1|owner_user_id|-1|BTREE", "idx_project_owner_status|1|2|lifecycle_status|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE", "project_code|0|1|project_code|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "project_code|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "project_code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "project_name|varchar(200)|NO|<NULL>||utf8mb4_0900_ai_ci", "project_type|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "project_level|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "approved_amount|decimal(18,2)|YES|<NULL>||<NULL>", "start_date|date|YES|<NULL>||<NULL>", "end_date|date|YES|<NULL>||<NULL>", "owner_user_id|bigint|NO|<NULL>||<NULL>", "owner_name_snapshot|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "dept_id|bigint|YES|<NULL>||<NULL>", "dept_name_snapshot|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "lifecycle_status|varchar(32)|NO|<NULL>||utf8mb4_0900_ai_ci", "business_status|varchar(64)|NO|APPLICATION||utf8mb4_0900_ai_ci", "version|bigint|NO|1||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "project_access_grant" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_grant_decision|1|1|project_id|-1|BTREE", "idx_grant_decision|1|2|grantee_user_id|-1|BTREE", "idx_grant_decision|1|3|status|-1|BTREE", "idx_grant_role_scope|1|1|project_id|-1|BTREE", "idx_grant_role_scope|1|2|grant_role_code|-1|BTREE", "idx_grant_role_scope|1|3|module_type|-1|BTREE", "idx_grant_role_scope|1|4|round_no|-1|BTREE", "idx_grant_role_scope|1|5|task_node_id|-1|BTREE", "idx_grant_role_scope|1|6|status|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "project_id|bigint|NO|<NULL>||<NULL>", "grantee_user_id|bigint|NO|<NULL>||<NULL>", "grantee_name_snapshot|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "grant_role_code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "grant_scope|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "module_type|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "round_no|int|YES|<NULL>||<NULL>", "task_node_id|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "status|varchar(32)|NO|ACTIVE||utf8mb4_0900_ai_ci", "grant_reason|varchar(500)|YES|<NULL>||utf8mb4_0900_ai_ci", "effective_from|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "effective_to|timestamp(6)|YES|<NULL>||<NULL>", "granted_by|bigint|NO|<NULL>||<NULL>", "granted_by_name_snapshot|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "project_access_log" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_access_log_project_time|1|1|project_id|-1|BTREE", "idx_access_log_project_time|1|2|created_at|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "project_id|bigint|NO|<NULL>||<NULL>", "actor_user_id|bigint|NO|<NULL>||<NULL>", "operation_code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "allowed|tinyint(1)|NO|<NULL>||<NULL>", "reason_code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "trace_id|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "project_member" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_project_member_user|1|1|user_id|-1|BTREE", "idx_project_member_user|1|2|project_id|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE", "uk_project_member|0|1|project_id|-1|BTREE", "uk_project_member|0|2|user_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_project_member|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "project_id|bigint|NO|<NULL>||<NULL>", "user_id|bigint|NO|<NULL>||<NULL>", "member_role|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "responsibility|varchar(500)|YES|<NULL>||utf8mb4_0900_ai_ci", "user_name_snapshot|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "user_snapshot" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|user_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "user_id|bigint|NO|<NULL>||<NULL>", "username|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "real_name|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "dept_id|bigint|YES|<NULL>||<NULL>", "dept_name|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "role_codes_json|json|NO|<NULL>||<NULL>", "enabled|tinyint(1)|NO|<NULL>||<NULL>", "source_version|bigint|NO|<NULL>||<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    }
+  },
+  "workflow" : {
+    "acceptance_financial_settlement" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_financial_settlement_project|1|1|project_id|-1|BTREE", "idx_financial_settlement_project|1|2|id|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "acceptance_id|bigint|YES|<NULL>||<NULL>", "project_id|bigint|NO|<NULL>||<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "state_record_id|bigint|YES|<NULL>||<NULL>", "approved_amount|decimal(18,2)|YES|<NULL>||<NULL>", "received_amount|decimal(18,2)|NO|<NULL>||<NULL>", "spent_amount|decimal(18,2)|NO|<NULL>||<NULL>", "surplus_amount|decimal(18,2)|NO|<NULL>||<NULL>", "execution_rate|decimal(8,2)|NO|<NULL>||<NULL>", "settlement_result|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "finance_operator_id|bigint|NO|<NULL>||<NULL>", "finance_review_comment|varchar(2000)|YES|<NULL>||utf8mb4_0900_ai_ci", "settled_at|timestamp(6)|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "acceptance_form" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|id|-1|BTREE", "uk_acceptance_instance_round|0|1|module_instance_id|-1|BTREE", "uk_acceptance_instance_round|0|2|round_no|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_acceptance_instance_round|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "round_no|int|NO|<NULL>||<NULL>", "payload_json|json|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "consumed_event" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|event_id|-1|BTREE", "PRIMARY|0|2|consumer_name|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "event_id|varchar(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "consumer_name|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "consumed_at|timestamp(6)|NO|<NULL>||<NULL>" ]
+    },
+    "contract_form" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|id|-1|BTREE", "uk_contract_instance_round|0|1|module_instance_id|-1|BTREE", "uk_contract_instance_round|0|2|round_no|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_contract_instance_round|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "round_no|int|NO|<NULL>||<NULL>", "payload_json|json|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "expert_review" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|id|-1|BTREE", "uk_review_task_expert|0|1|task_id|-1|BTREE", "uk_review_task_expert|0|2|expert_user_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_review_task_expert|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "task_id|bigint|NO|<NULL>||<NULL>", "expert_user_id|bigint|NO|<NULL>||<NULL>", "round_no|int|NO|<NULL>||<NULL>", "result|varchar(32)|NO|<NULL>||utf8mb4_0900_ai_ci", "score|decimal(5,2)|YES|<NULL>||<NULL>", "comment|varchar(2000)|YES|<NULL>||utf8mb4_0900_ai_ci", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "expert_review_assignment" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_review_assignment_expert|1|1|expert_user_id|-1|BTREE", "idx_review_assignment_expert|1|2|review_status|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE", "uk_review_batch_expert|0|1|batch_id|-1|BTREE", "uk_review_batch_expert|0|2|expert_user_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_review_batch_expert|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "batch_id|bigint|NO|<NULL>||<NULL>", "expert_user_id|bigint|NO|<NULL>||<NULL>", "expert_name_snapshot|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "expert_org_snapshot|varchar(200)|YES|<NULL>||utf8mb4_0900_ai_ci", "expert_title_snapshot|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "review_status|varchar(32)|NO|ASSIGNED||utf8mb4_0900_ai_ci", "conflict_of_interest|tinyint(1)|NO|0||<NULL>", "valid|tinyint(1)|NO|1||<NULL>", "total_score|decimal(8,2)|YES|<NULL>||<NULL>", "review_result|varchar(32)|YES|<NULL>||utf8mb4_0900_ai_ci", "review_comment|varchar(2000)|YES|<NULL>||utf8mb4_0900_ai_ci", "assigned_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "submitted_at|timestamp(6)|YES|<NULL>||<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "expert_review_batch" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_expert_access_recovery|1|1|access_ended_at|-1|BTREE", "idx_expert_access_recovery|1|2|module_instance_id|-1|BTREE", "idx_expert_access_recovery|1|3|round_no|-1|BTREE", "idx_review_batch_module|1|1|module_instance_id|-1|BTREE", "idx_review_batch_module|1|2|round_no|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "workflow_node_id|bigint|YES|<NULL>||<NULL>", "round_no|int|NO|<NULL>||<NULL>", "review_type|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "review_title|varchar(200)|NO|<NULL>||utf8mb4_0900_ai_ci", "rule_type|varchar(32)|NO|AVERAGE||utf8mb4_0900_ai_ci", "min_expert_count|int|NO|3||<NULL>", "pass_score|decimal(8,2)|YES|<NULL>||<NULL>", "recommend_score|decimal(8,2)|YES|<NULL>||<NULL>", "remove_highest_lowest|tinyint(1)|NO|0||<NULL>", "expected_expert_count|int|YES|<NULL>||<NULL>", "submitted_expert_count|int|NO|0||<NULL>", "valid_expert_count|int|NO|0||<NULL>", "lowest_score|decimal(8,2)|YES|<NULL>||<NULL>", "highest_score|decimal(8,2)|YES|<NULL>||<NULL>", "final_score|decimal(8,2)|YES|<NULL>||<NULL>", "final_result|varchar(32)|YES|<NULL>||utf8mb4_0900_ai_ci", "status|varchar(32)|NO|IN_PROGRESS||utf8mb4_0900_ai_ci", "created_by|bigint|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>", "completed_at|timestamp(6)|YES|<NULL>||<NULL>", "access_ended_at|timestamp(6)|YES|<NULL>||<NULL>" ]
+    },
+    "expert_review_score" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|id|-1|BTREE", "uk_review_assignment_item|0|1|assignment_id|-1|BTREE", "uk_review_assignment_item|0|2|item_code|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_review_assignment_item|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "assignment_id|bigint|NO|<NULL>||<NULL>", "item_code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "item_name|varchar(200)|NO|<NULL>||utf8mb4_0900_ai_ci", "weight|decimal(8,4)|NO|1.0000||<NULL>", "max_score|decimal(8,2)|NO|100.00||<NULL>", "score_value|decimal(8,2)|NO|<NULL>||<NULL>", "comment|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "module_instance" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_module_project|1|1|project_id|-1|BTREE", "idx_module_project|1|2|module_code|-1|BTREE", "idx_module_state|1|1|current_state|-1|BTREE", "idx_module_state|1|2|finished|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE", "saga_id|0|1|saga_id|-1|BTREE", "uk_module_instance_project_code|0|1|project_id|-1|BTREE", "uk_module_instance_project_code|0|2|module_code|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "saga_id|UNIQUE", "uk_module_instance_project_code|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "saga_id|char(36)|YES|<NULL>||utf8mb4_0900_ai_ci", "project_id|bigint|NO|<NULL>||<NULL>", "started_by_user_id|bigint|YES|<NULL>||<NULL>", "module_code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "definition_id|bigint|YES|<NULL>||<NULL>", "current_node_id|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "current_state|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "current_seq|int|NO|0||<NULL>", "current_round|int|NO|1||<NULL>", "finished|tinyint(1)|NO|0||<NULL>", "version|bigint|NO|0||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "node_form" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|id|-1|BTREE", "uk_form_instance_node_round|0|1|module_instance_id|-1|BTREE", "uk_form_instance_node_round|0|2|node_id|-1|BTREE", "uk_form_instance_node_round|0|3|round_no|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_form_instance_node_round|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "node_id|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "round_no|int|NO|<NULL>||<NULL>", "form_json|json|NO|<NULL>||<NULL>", "submitted_by|bigint|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "notice_record" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_notice_module_type|1|1|module_type|-1|BTREE", "idx_notice_module_type|1|2|publish_time|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "module_instance_id|bigint|YES|<NULL>||<NULL>", "state_record_id|bigint|YES|<NULL>||<NULL>", "module_type|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "notice_type|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "notice_title|varchar(300)|NO|<NULL>||utf8mb4_0900_ai_ci", "notice_no|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "publish_unit|varchar(200)|YES|<NULL>||utf8mb4_0900_ai_ci", "publish_user_id|bigint|NO|<NULL>||<NULL>", "publish_time|timestamp(6)|YES|<NULL>||<NULL>", "notice_scope|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "target_dept_scope|text|YES|<NULL>||utf8mb4_0900_ai_ci", "target_user_scope|text|YES|<NULL>||utf8mb4_0900_ai_ci", "project_category|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "limited_project|tinyint(1)|YES|<NULL>||<NULL>", "limit_count|int|YES|<NULL>||<NULL>", "start_time|timestamp(6)|YES|<NULL>||<NULL>", "deadline_time|timestamp(6)|YES|<NULL>||<NULL>", "material_requirement_summary|text|YES|<NULL>||utf8mb4_0900_ai_ci", "content_summary|text|YES|<NULL>||utf8mb4_0900_ai_ci", "remark|text|YES|<NULL>||utf8mb4_0900_ai_ci", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "outbox_event" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_outbox_dispatch|1|1|published_at|-1|BTREE", "idx_outbox_dispatch|1|2|next_attempt_at|-1|BTREE", "idx_outbox_dispatch|1|3|locked_until|-1|BTREE", "idx_outbox_dispatch|1|4|created_at|-1|BTREE", "idx_outbox_pending|1|1|published_at|-1|BTREE", "idx_outbox_pending|1|2|created_at|-1|BTREE", "PRIMARY|0|1|event_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "event_id|varchar(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "event_type|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "routing_key|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "payload_json|json|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|<NULL>||<NULL>", "published_at|timestamp(6)|YES|<NULL>||<NULL>", "attempts|int|NO|0||<NULL>", "next_attempt_at|timestamp(6)|YES|<NULL>||<NULL>", "lock_owner|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "locked_until|timestamp(6)|YES|<NULL>||<NULL>", "last_error|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci" ]
+    },
+    "project_achievement" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_achievement_project|1|1|project_id|-1|BTREE", "idx_achievement_project|1|2|id|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "project_id|bigint|NO|<NULL>||<NULL>", "module_instance_id|bigint|YES|<NULL>||<NULL>", "acceptance_id|bigint|YES|<NULL>||<NULL>", "achievement_type|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "achievement_title|varchar(300)|NO|<NULL>||utf8mb4_0900_ai_ci", "author_list|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "achievement_level|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "publish_or_grant_date|date|YES|<NULL>||<NULL>", "proof_material_version_id|bigint|YES|<NULL>||<NULL>", "remark|varchar(2000)|YES|<NULL>||utf8mb4_0900_ai_ci", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "project_application" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "module_instance_id|0|1|module_instance_id|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "module_instance_id|UNIQUE", "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "project_id|bigint|NO|<NULL>||<NULL>", "title|varchar(200)|NO|<NULL>||utf8mb4_0900_ai_ci", "limited_project|tinyint(1)|NO|0||<NULL>", "summary|text|YES|<NULL>||utf8mb4_0900_ai_ci", "payload_json|json|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "project_snapshot" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_project_snapshot_owner|1|1|owner_user_id|-1|BTREE", "PRIMARY|0|1|project_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "project_id|bigint|NO|<NULL>||<NULL>", "project_code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "project_name|varchar(200)|NO|<NULL>||utf8mb4_0900_ai_ci", "owner_user_id|bigint|YES|<NULL>||<NULL>", "owner_name_snapshot|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "dept_id|bigint|YES|<NULL>||<NULL>", "lifecycle_stage|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "source_version|bigint|NO|1||<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "state_record" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|id|-1|BTREE", "uk_state_instance_seq|0|1|module_instance_id|-1|BTREE", "uk_state_instance_seq|0|2|seq|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_state_instance_seq|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "seq|int|NO|<NULL>||<NULL>", "round_no|int|NO|<NULL>||<NULL>", "event_type|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "from_state|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "to_state|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "from_node_id|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "to_node_id|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "result|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "summary|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "actor_user_id|bigint|NO|<NULL>||<NULL>", "actor_name_snapshot|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "user_snapshot" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|user_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "user_id|bigint|NO|<NULL>||<NULL>", "username|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "real_name|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "enabled|tinyint(1)|NO|<NULL>||<NULL>", "source_version|bigint|NO|<NULL>||<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "workflow_definition" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|id|-1|BTREE", "uk_workflow_code_version|0|1|code|-1|BTREE", "uk_workflow_code_version|0|2|version|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_workflow_code_version|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "name|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "version|int|NO|<NULL>||<NULL>", "status|varchar(16)|NO|DRAFT||utf8mb4_0900_ai_ci", "published|tinyint(1)|NO|0||<NULL>", "bpmn_xml|longtext|NO|<NULL>||utf8mb4_0900_ai_ci", "definition_json|json|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "workflow_material_reference" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|module_instance_id|-1|BTREE", "PRIMARY|0|2|seq|-1|BTREE", "PRIMARY|0|3|material_version_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "module_instance_id|bigint|NO|<NULL>||<NULL>", "seq|int|NO|<NULL>||<NULL>", "material_version_id|bigint|NO|<NULL>||<NULL>", "material_type_code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "material_type_snapshot|json|YES|<NULL>||<NULL>" ]
+    },
+    "workflow_node_config" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_workflow_node_state|1|1|workflow_definition_id|-1|BTREE", "idx_workflow_node_state|1|2|state_code|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE", "uk_workflow_node_definition|0|1|workflow_definition_id|-1|BTREE", "uk_workflow_node_definition|0|2|node_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_workflow_node_definition|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "workflow_definition_id|bigint|NO|<NULL>||<NULL>", "node_id|varchar(128)|NO|<NULL>||utf8mb4_0900_ai_ci", "node_name|varchar(200)|NO|<NULL>||utf8mb4_0900_ai_ci", "node_type|varchar(32)|NO|<NULL>||utf8mb4_0900_ai_ci", "state_code|varchar(128)|YES|<NULL>||utf8mb4_0900_ai_ci", "lane_name|varchar(200)|YES|<NULL>||utf8mb4_0900_ai_ci", "responsible_actor_code|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "responsible_actor_name|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "candidate_role_code|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "operation_mode|varchar(32)|YES|<NULL>||utf8mb4_0900_ai_ci", "represented_actor_code|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "represented_actor_name|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "material_requirements_json|json|NO|<NULL>||<NULL>", "document_configs_json|json|NO|<NULL>||<NULL>" ]
+    },
+    "workflow_task" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_task_assignee_status|1|1|assignee_user_id|-1|BTREE", "idx_task_assignee_status|1|2|status|-1|BTREE", "idx_task_role_status|1|1|candidate_role|-1|BTREE", "idx_task_role_status|1|2|status|-1|BTREE", "idx_workflow_task_open_role|1|1|status|-1|BTREE", "idx_workflow_task_open_role|1|2|candidate_role|-1|BTREE", "idx_workflow_task_open_role|1|3|module_instance_id|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "node_id|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "assignee_user_id|bigint|YES|<NULL>||<NULL>", "candidate_role|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "status|varchar(32)|NO|<NULL>||utf8mb4_0900_ai_ci", "round_no|int|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "completed_at|timestamp(6)|YES|<NULL>||<NULL>" ]
+    },
+    "workflow_transition_config" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_workflow_transition_source|1|1|workflow_definition_id|-1|BTREE", "idx_workflow_transition_source|1|2|source_ref|-1|BTREE", "idx_workflow_transition_source|1|3|event_type|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE", "uk_workflow_transition_definition|0|1|workflow_definition_id|-1|BTREE", "uk_workflow_transition_definition|0|2|transition_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_workflow_transition_definition|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "workflow_definition_id|bigint|NO|<NULL>||<NULL>", "transition_id|varchar(128)|NO|<NULL>||utf8mb4_0900_ai_ci", "source_ref|varchar(128)|NO|<NULL>||utf8mb4_0900_ai_ci", "target_ref|varchar(128)|NO|<NULL>||utf8mb4_0900_ai_ci", "source_state_code|varchar(128)|YES|<NULL>||utf8mb4_0900_ai_ci", "target_state_code|varchar(128)|YES|<NULL>||utf8mb4_0900_ai_ci", "event_type|varchar(128)|NO|<NULL>||utf8mb4_0900_ai_ci", "result_code|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "condition_type|varchar(32)|YES|<NULL>||utf8mb4_0900_ai_ci", "condition_key|varchar(128)|YES|<NULL>||utf8mb4_0900_ai_ci", "condition_value|varchar(500)|YES|<NULL>||utf8mb4_0900_ai_ci", "condition_handler_key|varchar(128)|YES|<NULL>||utf8mb4_0900_ai_ci", "condition_expression|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "action_keys_json|json|NO|<NULL>||<NULL>" ]
+    }
+  },
+  "material" : {
+    "consumed_event" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|event_id|-1|BTREE", "PRIMARY|0|2|consumer_name|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "event_id|varchar(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "consumer_name|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "consumed_at|timestamp(6)|NO|<NULL>||<NULL>" ]
+    },
+    "generated_document" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_generated_document_material_version|1|1|material_version_id|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE", "uk_generated_document|0|1|module_instance_id|-1|BTREE", "uk_generated_document|0|2|state_seq|-1|BTREE", "uk_generated_document|0|3|document_type|-1|BTREE", "uk_generated_document_command|0|1|command_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY", "uk_generated_document|UNIQUE", "uk_generated_document_command|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "command_id|varchar(160)|YES|<NULL>||utf8mb4_0900_ai_ci", "project_id|bigint|NO|<NULL>||<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "state_seq|int|NO|<NULL>||<NULL>", "state_record_id|bigint|YES|<NULL>||<NULL>", "document_type|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "document_name|varchar(200)|YES|<NULL>||utf8mb4_0900_ai_ci", "template_code|varchar(100)|YES|<NULL>||utf8mb4_0900_ai_ci", "material_version_id|bigint|YES|<NULL>||<NULL>", "object_key|varchar(500)|NO|<NULL>||utf8mb4_0900_ai_ci", "original_filename|varchar(255)|YES|<NULL>||utf8mb4_0900_ai_ci", "content_type|varchar(128)|YES|<NULL>||utf8mb4_0900_ai_ci", "size_bytes|bigint|YES|<NULL>||<NULL>", "sha256|char(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "snapshot_json|json|YES|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "material" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_material_project_type|1|1|project_id|-1|BTREE", "idx_material_project_type|1|2|material_type_code|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "project_id|bigint|NO|<NULL>||<NULL>", "material_type_code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "title|varchar(200)|NO|<NULL>||utf8mb4_0900_ai_ci", "created_by|bigint|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "material_reservation" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "command_id|0|1|command_id|-1|BTREE", "idx_reservation_cleanup|1|1|status|-1|BTREE", "idx_reservation_cleanup|1|2|expires_at|-1|BTREE", "PRIMARY|0|1|reservation_id|-1|BTREE" ],
+      "constraints" : [ "command_id|UNIQUE", "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "reservation_id|char(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "command_id|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "project_id|bigint|NO|<NULL>||<NULL>", "module_instance_id|bigint|NO|<NULL>||<NULL>", "expected_seq|int|NO|<NULL>||<NULL>", "actor_user_id|bigint|NO|<NULL>||<NULL>", "status|varchar(32)|NO|<NULL>||utf8mb4_0900_ai_ci", "expires_at|timestamp(6)|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "updated_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED on update CURRENT_TIMESTAMP(6)|<NULL>" ]
+    },
+    "material_reservation_item" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_reserved_version|1|1|material_version_id|-1|BTREE", "PRIMARY|0|1|reservation_id|-1|BTREE", "PRIMARY|0|2|material_version_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "reservation_id|char(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "material_version_id|bigint|NO|<NULL>||<NULL>", "material_type_code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci" ]
+    },
+    "material_type" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "code|0|1|code|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "code|UNIQUE", "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "code|varchar(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "name|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "description|varchar(500)|YES|<NULL>||utf8mb4_0900_ai_ci", "module_type|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "allowed_file_types|varchar(255)|YES|<NULL>||utf8mb4_0900_ai_ci", "max_file_size_mb|int|NO|50||<NULL>", "enabled|tinyint(1)|NO|1||<NULL>", "version|bigint|NO|1||<NULL>" ]
+    },
+    "material_version" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "object_key|0|1|object_key|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE", "uk_material_version|0|1|material_id|-1|BTREE", "uk_material_version|0|2|version_no|-1|BTREE" ],
+      "constraints" : [ "object_key|UNIQUE", "PRIMARY|PRIMARY KEY", "uk_material_version|UNIQUE" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "material_id|bigint|NO|<NULL>||<NULL>", "version_no|int|NO|<NULL>||<NULL>", "original_filename|varchar(255)|NO|<NULL>||utf8mb4_0900_ai_ci", "content_type|varchar(128)|YES|<NULL>||utf8mb4_0900_ai_ci", "size_bytes|bigint|NO|<NULL>||<NULL>", "sha256|char(64)|NO|<NULL>||utf8mb4_0900_ai_ci", "object_key|varchar(500)|NO|<NULL>||utf8mb4_0900_ai_ci", "file_status|varchar(32)|NO|<NULL>||utf8mb4_0900_ai_ci", "uploaded_by|bigint|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>" ]
+    },
+    "object_deletion_job" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_object_deletion_dispatch|1|1|status|-1|BTREE", "idx_object_deletion_dispatch|1|2|next_attempt_at|-1|BTREE", "idx_object_deletion_dispatch|1|3|created_at|-1|BTREE", "material_version_id|0|1|material_version_id|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "material_version_id|UNIQUE", "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "material_version_id|bigint|NO|<NULL>||<NULL>", "object_key|varchar(1024)|NO|<NULL>||utf8mb4_0900_ai_ci", "status|varchar(32)|NO|PENDING||utf8mb4_0900_ai_ci", "attempts|int|NO|0||<NULL>", "next_attempt_at|timestamp(6)|YES|<NULL>||<NULL>", "last_error|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "completed_at|timestamp(6)|YES|<NULL>||<NULL>" ]
+    },
+    "outbox_event" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_outbox_dispatch|1|1|published_at|-1|BTREE", "idx_outbox_dispatch|1|2|next_attempt_at|-1|BTREE", "idx_outbox_dispatch|1|3|locked_until|-1|BTREE", "idx_outbox_dispatch|1|4|created_at|-1|BTREE", "idx_outbox_pending|1|1|published_at|-1|BTREE", "idx_outbox_pending|1|2|created_at|-1|BTREE", "PRIMARY|0|1|event_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "event_id|varchar(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "event_type|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "routing_key|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "payload_json|json|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|<NULL>||<NULL>", "published_at|timestamp(6)|YES|<NULL>||<NULL>", "attempts|int|NO|0||<NULL>", "next_attempt_at|timestamp(6)|YES|<NULL>||<NULL>", "lock_owner|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "locked_until|timestamp(6)|YES|<NULL>||<NULL>", "last_error|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci" ]
+    }
+  },
+  "notification" : {
+    "consumed_event" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "PRIMARY|0|1|event_id|-1|BTREE", "PRIMARY|0|2|consumer_name|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "event_id|varchar(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "consumer_name|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "consumed_at|timestamp(6)|NO|<NULL>||<NULL>" ]
+    },
+    "outbox_event" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "idx_outbox_dispatch|1|1|published_at|-1|BTREE", "idx_outbox_dispatch|1|2|next_attempt_at|-1|BTREE", "idx_outbox_dispatch|1|3|locked_until|-1|BTREE", "idx_outbox_dispatch|1|4|created_at|-1|BTREE", "idx_outbox_pending|1|1|published_at|-1|BTREE", "idx_outbox_pending|1|2|created_at|-1|BTREE", "PRIMARY|0|1|event_id|-1|BTREE" ],
+      "constraints" : [ "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "event_id|varchar(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "event_type|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "routing_key|varchar(160)|NO|<NULL>||utf8mb4_0900_ai_ci", "payload_json|json|NO|<NULL>||<NULL>", "created_at|timestamp(6)|NO|<NULL>||<NULL>", "published_at|timestamp(6)|YES|<NULL>||<NULL>", "attempts|int|NO|0||<NULL>", "next_attempt_at|timestamp(6)|YES|<NULL>||<NULL>", "lock_owner|varchar(64)|YES|<NULL>||utf8mb4_0900_ai_ci", "locked_until|timestamp(6)|YES|<NULL>||<NULL>", "last_error|varchar(1000)|YES|<NULL>||utf8mb4_0900_ai_ci" ]
+    },
+    "pending_notification" : {
+      "metadata" : [ "InnoDB|utf8mb4_0900_ai_ci|Dynamic" ],
+      "indices" : [ "event_id|0|1|event_id|-1|BTREE", "idx_notification_delivery|1|1|status|-1|BTREE", "idx_notification_delivery|1|2|created_at|-1|BTREE", "idx_notification_user|1|1|user_id|-1|BTREE", "idx_notification_user|1|2|status|-1|BTREE", "PRIMARY|0|1|id|-1|BTREE" ],
+      "constraints" : [ "event_id|UNIQUE", "PRIMARY|PRIMARY KEY" ],
+      "columns" : [ "id|bigint|NO|<NULL>|auto_increment|<NULL>", "event_id|char(36)|NO|<NULL>||utf8mb4_0900_ai_ci", "user_id|bigint|YES|<NULL>||<NULL>", "event_name|varchar(100)|NO|<NULL>||utf8mb4_0900_ai_ci", "payload_json|json|NO|<NULL>||<NULL>", "status|varchar(32)|NO|<NULL>||utf8mb4_0900_ai_ci", "retry_count|int|NO|0||<NULL>", "created_at|timestamp(6)|NO|CURRENT_TIMESTAMP(6)|DEFAULT_GENERATED|<NULL>", "delivered_at|timestamp(6)|YES|<NULL>||<NULL>" ]
+    }
+  }
+}

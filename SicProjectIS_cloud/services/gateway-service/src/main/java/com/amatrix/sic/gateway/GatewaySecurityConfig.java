@@ -41,6 +41,9 @@ public class GatewaySecurityConfig {
         ServerAuthenticationEntryPoint unauthorized = (exchange, ex) ->
                 writeError(exchange, objectMapper, HttpStatus.UNAUTHORIZED, "Authentication is required");
         ServerAccessDeniedHandler forbidden = (exchange, ex) -> {
+            if (Boolean.TRUE.equals(exchange.getAttribute(SessionValidityAuthorizationManager.UNAVAILABLE)))
+                return writeError(exchange, objectMapper, HttpStatus.SERVICE_UNAVAILABLE,
+                        "Session authorization is temporarily unavailable");
             boolean invalidApiSession = exchange.getRequest().getPath().value().startsWith("/api/");
             return invalidApiSession
                     ? writeError(exchange, objectMapper, HttpStatus.UNAUTHORIZED, "Authentication is required")

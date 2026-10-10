@@ -5,9 +5,6 @@ spring:
     url: ${PROJECT_DB_URL:jdbc:mysql://mysql:3306/sic_project?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
     username: ${PROJECT_DB_USERNAME:sic_project}
     password: ${PROJECT_DB_PASSWORD}
-  flyway:
-    enabled: true
-    locations: classpath:db/migration,classpath:db/common
 
 sic:
   service-client:

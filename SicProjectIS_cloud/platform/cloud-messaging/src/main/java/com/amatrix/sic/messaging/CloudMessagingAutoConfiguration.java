@@ -23,13 +23,31 @@ import io.micrometer.core.instrument.MeterRegistry;
 import tools.jackson.databind.ObjectMapper;
 
 @AutoConfiguration
-@AutoConfigureAfter(JdbcTemplateAutoConfiguration.class)
+@AutoConfigureAfter({JdbcTemplateAutoConfiguration.class,org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration.class})
 @EnableScheduling
 @EnableConfigurationProperties(OutboxProperties.class)
-@ConditionalOnBean(JdbcTemplate.class)
+@ConditionalOnBean(org.mybatis.spring.SqlSessionTemplate.class)
 public class CloudMessagingAutoConfiguration {
     public static final String DEAD_LETTER_EXCHANGE = "sic.events.dlx";
     public static final String DEAD_LETTER_QUEUE = "sic.events.dead.q";
+
+    @Bean
+    @org.springframework.context.annotation.Role(org.springframework.beans.factory.config.BeanDefinition.ROLE_INFRASTRUCTURE)
+    static JdbcLatencyObserver jdbcLatencyObserver(Environment environment,ObjectProvider<MeterRegistry> registries) {
+        return new JdbcLatencyObserver(environment,registries);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    com.amatrix.sic.messaging.dao.MessagingMapper messagingMapper(org.mybatis.spring.SqlSessionTemplate sessions) throws java.io.IOException {
+        var configuration=sessions.getConfiguration();
+        if(!configuration.hasMapper(com.amatrix.sic.messaging.dao.MessagingMapper.class)) {
+            try(var stream=new org.springframework.core.io.ClassPathResource("mapper/messaging/MessagingMapper.xml").getInputStream()) {
+                new org.apache.ibatis.builder.xml.XMLMapperBuilder(stream,configuration,"mapper/messaging/MessagingMapper.xml",configuration.getSqlFragments()).parse();
+            }
+        }
+        return sessions.getMapper(com.amatrix.sic.messaging.dao.MessagingMapper.class);
+    }
 
     @Bean
     @ConditionalOnMissingBean
@@ -57,8 +75,8 @@ public class CloudMessagingAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    OutboxRepository outboxRepository(JdbcTemplate jdbcTemplate) {
-        return new OutboxRepository(jdbcTemplate);
+    OutboxRepository outboxRepository(com.amatrix.sic.messaging.dao.MessagingMapper mapper) {
+        return new OutboxRepository(mapper);
     }
 
     @Bean
@@ -69,8 +87,8 @@ public class CloudMessagingAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    ConsumedEventGuard consumedEventGuard(JdbcTemplate jdbcTemplate) {
-        return new ConsumedEventGuard(jdbcTemplate);
+    ConsumedEventGuard consumedEventGuard(com.amatrix.sic.messaging.dao.MessagingMapper mapper) {
+        return new ConsumedEventGuard(mapper);
     }
 
     @Bean
@@ -85,10 +103,10 @@ public class CloudMessagingAutoConfiguration {
     @Bean
     @ConditionalOnClass(MeterRegistry.class)
     @ConditionalOnMissingBean
-    MessagingMetrics messagingMetrics(JdbcTemplate jdbcTemplate, MeterRegistry meterRegistry,
+    MessagingMetrics messagingMetrics(com.amatrix.sic.messaging.dao.MessagingMapper mapper, MeterRegistry meterRegistry,
             ObjectProvider<org.springframework.amqp.rabbit.core.RabbitAdmin> rabbitAdmin,
             Environment environment) {
-        return new MessagingMetrics(jdbcTemplate, rabbitAdmin.getIfAvailable(), meterRegistry,
+        return new MessagingMetrics(mapper, rabbitAdmin.getIfAvailable(), meterRegistry,
                 environment.getProperty("spring.application.name", "unknown-service"));
     }
 }

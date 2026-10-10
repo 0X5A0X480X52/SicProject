@@ -1,5 +1,19 @@
 package com.amatrix.sic.workflow;
 
+import com.amatrix.sic.workflow.service.runtime.WorkflowRuntimeService;
+import com.amatrix.sic.workflow.service.runtime.WorkflowTransitionActionService;
+import com.amatrix.sic.workflow.service.form.NodeFormService;
+import com.amatrix.sic.workflow.dto.WorkflowDtos;
+import com.amatrix.sic.workflow.workflow.model.WorkflowBpmnParseResult;
+import com.amatrix.sic.workflow.workflow.definition.WorkflowDefinitionCatalog;
+import com.amatrix.sic.workflow.workflow.definition.WorkflowDefinitionNavigator;
+import com.amatrix.sic.workflow.policy.ModuleSuccessorPolicy;
+import com.amatrix.sic.workflow.policy.WorkflowOperationPolicy;
+import com.amatrix.sic.workflow.policy.WorkflowProjectAccessPolicy;
+import com.amatrix.sic.workflow.client.ProjectAccessClient;
+import com.amatrix.sic.workflow.client.MaterialReservationClient;
+import com.amatrix.sic.workflow.client.auth.WorkflowInternalTokenProvider;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -36,10 +50,10 @@ import com.amatrix.sic.contracts.MaterialReservationResult;
 import com.amatrix.sic.contracts.ProjectAccessResult;
 import com.amatrix.sic.contracts.StateTransitionContract;
 import com.amatrix.sic.messaging.OutboxService;
-import com.amatrix.sic.workflow.WorkflowBpmnParseResult.NodeConfig;
-import com.amatrix.sic.workflow.WorkflowBpmnParseResult.ProcessConfig;
-import com.amatrix.sic.workflow.WorkflowBpmnParseResult.TransitionConfig;
-import com.amatrix.sic.workflow.WorkflowDtos.TransitionRequest;
+import com.amatrix.sic.workflow.workflow.model.WorkflowBpmnParseResult.NodeConfig;
+import com.amatrix.sic.workflow.workflow.model.WorkflowBpmnParseResult.ProcessConfig;
+import com.amatrix.sic.workflow.workflow.model.WorkflowBpmnParseResult.TransitionConfig;
+import com.amatrix.sic.workflow.dto.WorkflowDtos.TransitionRequest;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -121,7 +135,9 @@ class WorkflowExpectedSequenceConcurrencyTest {
                     "project-owner", 1L)).toList());
         });
 
-        service = new WorkflowRuntimeService(jdbc,
+        service = new WorkflowRuntimeService(
+                WorkflowTestMapper.create(dataSource,com.amatrix.sic.workflow.dao.WorkflowRuntimeMapper.class,"mapper/workflow/WorkflowRuntimeMapper.xml"),
+                WorkflowTestMapper.create(dataSource,com.amatrix.sic.workflow.dao.ProjectSnapshotMapper.class,"mapper/workflow/ProjectSnapshotMapper.xml"),
                 new TransactionTemplate(new DataSourceTransactionManager(dataSource)),
                 projectAccess, materials, tokens,
                 operationPolicy, definitions, new WorkflowDefinitionNavigator(), actions,

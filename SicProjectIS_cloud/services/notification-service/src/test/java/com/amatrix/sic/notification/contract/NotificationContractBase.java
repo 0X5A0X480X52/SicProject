@@ -22,9 +22,9 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.amatrix.sic.notification.PendingNotificationDeliveryService;
-import com.amatrix.sic.notification.SseConnectionRegistry;
-import com.amatrix.sic.notification.SseController;
+import com.amatrix.sic.notification.service.PendingNotificationDeliveryService;
+import com.amatrix.sic.notification.sse.SseConnectionRegistry;
+import com.amatrix.sic.notification.controller.SseController;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 

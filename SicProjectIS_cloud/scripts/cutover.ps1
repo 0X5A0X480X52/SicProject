@@ -158,18 +158,18 @@ try {
         Invoke-Compose cp $dumpPath mysql:/tmp/sic-legacy.sql
         Invoke-Compose exec -T mysql sh -lc 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" sic_legacy < /tmp/sic-legacy.sql'
 
-        # Start once with bootstrap user disabled so every service applies its Flyway migrations.
-        Invoke-Compose up -d --build iam-service project-service workflow-service material-service notification-service
-        Wait-ServiceHealthy iam-service
-        Wait-ServiceHealthy project-service
-        Wait-ServiceHealthy workflow-service
-        Wait-ServiceHealthy material-service
-        Wait-ServiceHealthy notification-service
         Invoke-Compose stop gateway-service notification-service material-service workflow-service project-service iam-service
+        & python (Join-Path $PSScriptRoot 'verify_schema.py') --env-file $envPath --report-path (Join-Path $backupPath 'schema-before-import.json')
+        if ($LASTEXITCODE -ne 0) { throw 'Destination schema verification failed; import was not started.' }
 
         Invoke-Compose --profile migration run --rm migration-tool prepare-files
         Invoke-Compose cp (Join-Path $projectRoot 'infra/migration/import-legacy.sql') mysql:/tmp/import-legacy.sql
         Invoke-Compose exec -T mysql sh -lc 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" < /tmp/import-legacy.sql'
+
+        Invoke-Compose cp (Join-Path $projectRoot 'infra/mysql/seed/workflow-missing-assets.sql') mysql:/tmp/workflow-missing-assets.sql
+        Invoke-Compose exec -T mysql sh -lc 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot sic_workflow < /tmp/workflow-missing-assets.sql'
+        & python (Join-Path $PSScriptRoot 'verify_schema.py') --env-file $envPath --report-path (Join-Path $backupPath 'schema-after-import.json')
+        if ($LASTEXITCODE -ne 0) { throw 'Destination schema verification failed after import; services remain stopped.' }
 
         Invoke-Compose cp (Join-Path $projectRoot 'infra/migration/verify-legacy-import.sql') mysql:/tmp/verify-legacy-import.sql
         $verificationReport = Join-Path $backupPath "database-verification.txt"

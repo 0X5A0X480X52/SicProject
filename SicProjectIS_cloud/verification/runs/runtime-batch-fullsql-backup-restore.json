@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "runId": "20261010155902129c1f",
+  "project": "sic-perf-runtime-batch-20261010",
+  "restoreSchemas": {
+    "sic_iam": "sic_restore_20261010155902129c1f_iam",
+    "sic_project": "sic_restore_20261010155902129c1f_project",
+    "sic_workflow": "sic_restore_20261010155902129c1f_workflow",
+    "sic_material": "sic_restore_20261010155902129c1f_material",
+    "sic_notification": "sic_restore_20261010155902129c1f_notification"
+  },
+  "tableCount": 52,
+  "differences": [],
+  "backupBytes": 22334226,
+  "backupSha256": "06b3b26b983304214fb87e042971150d2d646d19aa02b857348bda7c1f307acc"
+}

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.iam.dao.SessionMapper">
+  <select id="lockedVersion" resultType="java.lang.Long">SELECT auth_version FROM app_user WHERE id=#{id} FOR UPDATE</select>
+</mapper>

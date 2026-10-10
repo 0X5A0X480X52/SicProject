@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.project.dao.UserSnapshotMapper">
+  <resultMap id="user" type="com.amatrix.sic.project.entity.UserSnapshotRow"><constructor>
+    <arg column="user_id" javaType="java.lang.Long"/><arg column="username" javaType="String"/>
+    <arg column="real_name" javaType="String"/><arg column="dept_id" javaType="java.lang.Long"/>
+    <arg column="dept_name" javaType="String"/><arg column="role_codes_json" javaType="String"/>
+    <arg column="enabled" javaType="_boolean"/><arg column="source_version" javaType="_long"/>
+  </constructor></resultMap>
+  <sql id="columns">SELECT user_id,username,real_name,dept_id,dept_name,role_codes_json,enabled,source_version FROM user_snapshot</sql>
+  <select id="user" resultMap="user"><include refid="columns"/> WHERE user_id=#{id}</select>
+  <select id="users" resultMap="user"><include refid="columns"/> WHERE user_id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach></select>
+  <select id="enabled" resultMap="user"><include refid="columns"/> WHERE enabled=TRUE ORDER BY real_name,user_id</select>
+  <insert id="upsert">
+    INSERT INTO user_snapshot(user_id,username,real_name,dept_id,dept_name,role_codes_json,enabled,source_version)
+    VALUES(#{user.userId},#{user.username},#{user.realName},#{user.deptId,jdbcType=BIGINT},#{user.deptName},#{rolesJson},#{user.enabled},#{user.authVersion})
+    ON DUPLICATE KEY UPDATE username=IF(VALUES(source_version)&gt;=source_version,VALUES(username),username),
+      real_name=IF(VALUES(source_version)&gt;=source_version,VALUES(real_name),real_name),
+      dept_id=IF(VALUES(source_version)&gt;=source_version,VALUES(dept_id),dept_id),
+      dept_name=IF(VALUES(source_version)&gt;=source_version,VALUES(dept_name),dept_name),
+      role_codes_json=IF(VALUES(source_version)&gt;=source_version,VALUES(role_codes_json),role_codes_json),
+      enabled=IF(VALUES(source_version)&gt;=source_version,VALUES(enabled),enabled),
+      source_version=GREATEST(source_version,VALUES(source_version))
+  </insert>
+</mapper>

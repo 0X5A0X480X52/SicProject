@@ -1,0 +1,24 @@
+{
+  "observed": true,
+  "baselineRelease": "mapper-baseline-20261010",
+  "failedRequests": [
+    {
+      "method": "PUT",
+      "path": "/api/projects/4/members/batch",
+      "status": 500,
+      "traceId": "80f72e2b-b5da-4f6b-b180-9c3caabfa264",
+      "error": "BusinessFailure",
+      "durationMs": 512.36
+    }
+  ],
+  "deadlockTraceIds": [
+    "80f72e2b-b5da-4f6b-b180-9c3caabfa264",
+    "95c17d82-a0e4-4e62-b53a-c64813d46437"
+  ],
+  "innodbEvidenceSha256": "a1429f697d8e2917a3cc91372f589626100280f2f6e0d2637553e2b3d2ac63dc",
+  "innodbEvidencePrivatePath": "target\\precision-baseline-deadlock.txt",
+  "diagnosis": "Two member batches retain X locks on the PRIMARY supremum and wait for insert intention",
+  "fixedRelease": "project-lock-candidate-20261010",
+  "fix": "READ_COMMITTED with project row locked before member and grant writes",
+  "regressionTest": "MysqlMapperIntegrationTest.memberBatchesOnDifferentProjectsDoNotDeadlockAtThePrimaryIndexEnd"
+}

@@ -22,6 +22,7 @@ class CloudMessagingAutoConfigurationTest {
         new ApplicationContextRunner()
                 .withConfiguration(AutoConfigurations.of(
                         JdbcTemplateAutoConfiguration.class,
+                        org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration.class,
                         CloudMessagingAutoConfiguration.class))
                 .withBean(DataSource.class, () -> new DriverManagerDataSource(
                         "jdbc:h2:mem:messaging-auto-config;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", ""))

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.workflow.dao.ExpertReviewViewMapper">
+  <resultMap id="batch" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="id" property="batchId" javaType="Long"/>
+    <result column="module_instance_id" property="moduleInstanceId" javaType="Long"/>
+    <result column="workflow_node_id" property="workflowNodeId" javaType="Long"/>
+    <result column="round_no" property="roundNo" javaType="Integer"/>
+    <result column="review_type" property="reviewType" javaType="String"/>
+    <result column="review_title" property="reviewTitle" javaType="String"/>
+    <result column="rule_type" property="ruleType" javaType="String"/>
+    <result column="min_expert_count" property="minExpertCount" javaType="Integer"/>
+    <result column="pass_score" property="passScore" javaType="java.math.BigDecimal"/>
+    <result column="recommend_score" property="recommendScore" javaType="java.math.BigDecimal"/>
+    <result column="remove_highest_lowest" property="removeHighestLowest" javaType="Boolean"/>
+    <result column="expected_expert_count" property="expectedExpertCount" javaType="Integer"/>
+    <result column="submitted_expert_count" property="submittedExpertCount" javaType="Integer"/>
+    <result column="valid_expert_count" property="validExpertCount" javaType="Integer"/>
+    <result column="lowest_score" property="lowestScore" javaType="java.math.BigDecimal"/>
+    <result column="highest_score" property="highestScore" javaType="java.math.BigDecimal"/>
+    <result column="final_score" property="finalScore" javaType="java.math.BigDecimal"/>
+    <result column="final_result" property="finalResult" javaType="String"/>
+    <result column="status" property="status" javaType="String"/>
+    <result column="created_by" property="createdBy" javaType="Long"/>
+    <result column="created_at" property="createdAt" javaType="java.time.LocalDateTime"/>
+    <result column="updated_at" property="updatedAt" javaType="java.time.LocalDateTime"/>
+    <result column="completed_at" property="completedAt" javaType="java.time.LocalDateTime"/>
+  </resultMap>
+  <resultMap id="assignment" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="id" property="assignmentId" javaType="Long"/>
+    <result column="batch_id" property="batchId" javaType="Long"/>
+    <result column="expert_user_id" property="expertUserId" javaType="Long"/>
+    <result column="expert_name_snapshot" property="expertName" javaType="String"/>
+    <result column="expert_org_snapshot" property="expertOrg" javaType="String"/>
+    <result column="expert_title_snapshot" property="expertTitle" javaType="String"/>
+    <result column="review_status" property="reviewStatus" javaType="String"/>
+    <result column="conflict_of_interest" property="conflictOfInterest" javaType="Boolean"/>
+    <result column="valid" property="isValid" javaType="Boolean"/>
+    <result column="total_score" property="totalScore" javaType="java.math.BigDecimal"/>
+    <result column="review_result" property="reviewResult" javaType="String"/>
+    <result column="review_comment" property="reviewComment" javaType="String"/>
+    <result column="assigned_at" property="assignedAt" javaType="java.time.LocalDateTime"/>
+    <result column="submitted_at" property="submittedAt" javaType="java.time.LocalDateTime"/>
+  </resultMap>
+  <resultMap id="score" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="id" property="scoreId" javaType="Long"/>
+    <result column="assignment_id" property="assignmentId" javaType="Long"/>
+    <result column="item_code" property="scoreItemCode" javaType="String"/>
+    <result column="item_name" property="scoreItemName" javaType="String"/>
+    <result column="weight" property="weight" javaType="java.math.BigDecimal"/>
+    <result column="max_score" property="maxScore" javaType="java.math.BigDecimal"/>
+    <result column="score_value" property="scoreValue" javaType="java.math.BigDecimal"/>
+    <result column="comment" property="comment" javaType="String"/>
+  </resultMap>
+  <resultMap id="moduleBatch" extends="batch" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="configured_node_id" property="configuredNodeId" javaType="String"/>
+  </resultMap>
+  <select id="batch" resultMap="batch">SELECT * FROM expert_review_batch WHERE id=#{id}</select>
+  <select id="batches" resultMap="moduleBatch">SELECT b.*,n.node_id configured_node_id FROM expert_review_batch b LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id WHERE b.module_instance_id=#{module} ORDER BY b.id</select>
+  <select id="assignments" resultMap="assignment">SELECT * FROM expert_review_assignment WHERE batch_id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach> ORDER BY id</select>
+  <select id="scores" resultMap="score">SELECT * FROM expert_review_score WHERE assignment_id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach> ORDER BY id</select>
+</mapper>

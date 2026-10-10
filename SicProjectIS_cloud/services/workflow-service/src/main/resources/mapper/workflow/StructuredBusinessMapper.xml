@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.workflow.dao.StructuredBusinessMapper">
+  <resultMap id="ApplicationDraftRow" type="com.amatrix.sic.workflow.entity.ApplicationDraftRow"><constructor>
+    <arg column="id" javaType="Long"/>
+    <arg column="module_instance_id" javaType="Long"/>
+    <arg column="project_id" javaType="Long"/>
+    <arg column="title" javaType="String"/>
+    <arg column="limited_project" javaType="_boolean"/>
+    <arg column="summary" javaType="String"/>
+    <arg column="payload_json" javaType="String"/>
+    <arg column="created_at" javaType="java.time.LocalDateTime"/>
+  </constructor></resultMap>
+  <resultMap id="BusinessTask" type="com.amatrix.sic.workflow.entity.BusinessTask"><constructor>
+    <arg column="id" javaType="Long"/>
+    <arg column="current_round" javaType="_int"/>
+  </constructor></resultMap>
+  <resultMap id="ModuleRound" type="com.amatrix.sic.workflow.entity.ModuleRound"><constructor>
+    <arg column="id" javaType="Long"/>
+    <arg column="current_round" javaType="_int"/>
+  </constructor></resultMap>
+  <resultMap id="achievement" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="id" property="achievementId" javaType="Long"/>
+    <result column="project_id" property="projectId" javaType="Long"/>
+    <result column="module_instance_id" property="moduleInstanceId" javaType="Long"/>
+    <result column="acceptance_id" property="acceptanceId" javaType="Long"/>
+    <result column="achievement_type" property="achievementType" javaType="String"/>
+    <result column="achievement_title" property="achievementTitle" javaType="String"/>
+    <result column="author_list" property="authorList" javaType="String"/>
+    <result column="achievement_level" property="achievementLevel" javaType="String"/>
+    <result column="publish_or_grant_date" property="publishOrGrantDate" javaType="java.time.LocalDate"/>
+    <result column="proof_material_version_id" property="proofMaterialVersionId" javaType="Long"/>
+    <result column="remark" property="remark" javaType="String"/>
+    <result column="created_at" property="createdAt" javaType="java.time.LocalDateTime"/>
+    <result column="updated_at" property="updatedAt" javaType="java.time.LocalDateTime"/>
+  </resultMap>
+  <resultMap id="settlement" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="id" property="settlementId" javaType="Long"/>
+    <result column="acceptance_id" property="acceptanceId" javaType="Long"/>
+    <result column="project_id" property="projectId" javaType="Long"/>
+    <result column="module_instance_id" property="moduleInstanceId" javaType="Long"/>
+    <result column="state_record_id" property="stateRecordId" javaType="Long"/>
+    <result column="approved_amount" property="approvedAmount" javaType="java.math.BigDecimal"/>
+    <result column="received_amount" property="receivedAmount" javaType="java.math.BigDecimal"/>
+    <result column="spent_amount" property="spentAmount" javaType="java.math.BigDecimal"/>
+    <result column="surplus_amount" property="surplusAmount" javaType="java.math.BigDecimal"/>
+    <result column="execution_rate" property="executionRate" javaType="java.math.BigDecimal"/>
+    <result column="settlement_result" property="settlementResult" javaType="String"/>
+    <result column="finance_operator_id" property="financeOperatorId" javaType="Long"/>
+    <result column="finance_review_comment" property="financeReviewComment" javaType="String"/>
+    <result column="settled_at" property="settledAt" javaType="java.time.LocalDateTime"/>
+    <result column="created_at" property="createdAt" javaType="java.time.LocalDateTime"/>
+    <result column="updated_at" property="updatedAt" javaType="java.time.LocalDateTime"/>
+  </resultMap>
+  <select id="application" resultMap="ApplicationDraftRow">SELECT id,module_instance_id,project_id,title,limited_project,summary,payload_json,created_at FROM project_application WHERE project_id=#{project} ORDER BY id DESC LIMIT 1</select>
+  <select id="applicationId" resultType="Long">SELECT id FROM project_application WHERE project_id=#{project} AND module_instance_id=#{module} ORDER BY id DESC LIMIT 1</select>
+  <select id="achievements" resultMap="achievement">SELECT * FROM project_achievement WHERE project_id=#{project} ORDER BY id</select>
+  <select id="settlements" resultMap="settlement">SELECT * FROM acceptance_financial_settlement WHERE project_id=#{project} ORDER BY id</select>
+  <select id="draft" resultType="String">SELECT f.payload_json FROM <choose><when test="type == 'CONTRACT'">contract_form</when><otherwise>acceptance_form</otherwise></choose> f JOIN module_instance m ON m.id=f.module_instance_id WHERE m.project_id=#{project} AND m.module_code=#{type} ORDER BY f.round_no DESC,f.id DESC LIMIT 1</select>
+  <select id="module" resultMap="ModuleRound">SELECT id,current_round FROM module_instance WHERE project_id=#{project} AND module_code=#{type} ORDER BY id DESC LIMIT 1</select>
+  <select id="moduleProject" resultType="Integer">SELECT COUNT(*) FROM module_instance WHERE id=#{id} AND project_id=#{project}</select>
+  <select id="relatedAcceptance" resultType="Integer">SELECT COUNT(*) FROM acceptance_form WHERE id=#{id} AND module_instance_id=#{module}</select>
+  <select id="relatedState" resultType="Integer">SELECT COUNT(*) FROM state_record WHERE id=#{id} AND module_instance_id=#{module} AND round_no=#{round}</select>
+  <select id="lockTask" resultMap="BusinessTask">SELECT id,current_round FROM module_instance WHERE project_id=#{project} AND module_code=#{type} AND current_node_id=#{node} AND current_state=#{state} AND finished=FALSE ORDER BY id DESC LIMIT 1 FOR UPDATE</select>
+  <update id="updateApplication">UPDATE project_application SET title=COALESCE(#{title},title),limited_project=COALESCE(#{limited},limited_project),summary=COALESCE(#{summary},summary),payload_json=#{json} WHERE id=#{id}</update>
+  <insert id="achievement" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO project_achievement(project_id,module_instance_id,acceptance_id,achievement_type,achievement_title,author_list,achievement_level,publish_or_grant_date,proof_material_version_id,remark)
+    VALUES(#{project},#{module},#{acceptance},#{type},#{title},#{authors},#{level},#{date},#{proof},#{remark})</insert>
+  <insert id="settlement" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO acceptance_financial_settlement(acceptance_id,project_id,module_instance_id,state_record_id,approved_amount,received_amount,spent_amount,surplus_amount,execution_rate,settlement_result,finance_operator_id,finance_review_comment,settled_at)
+    VALUES(#{acceptance},#{project},#{module},#{state},#{approved},#{received},#{spent},#{surplus},#{rate},#{result},#{actor},#{comment},#{settled})</insert>
+  <insert id="saveDraft">INSERT INTO <choose><when test="kind == 'contract_form'">contract_form</when><otherwise>acceptance_form</otherwise></choose>
+    (module_instance_id,round_no,payload_json) VALUES(#{module},#{round},#{json}) ON DUPLICATE KEY UPDATE payload_json=VALUES(payload_json)</insert>
+</mapper>

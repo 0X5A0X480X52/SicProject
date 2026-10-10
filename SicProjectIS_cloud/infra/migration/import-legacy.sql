@@ -1,6 +1,6 @@
 -- One-shot import from the legacy monolith schema (sic_legacy) into the five
 -- service-owned schemas. Run as MySQL root while all business services are stopped.
--- Flyway must already have created the destination schemas and tables.
+-- Full release SQL and schema verification must precede this import.
 
 SET NAMES utf8mb4;
 SET @previous_foreign_key_checks = @@FOREIGN_KEY_CHECKS;
@@ -15,8 +15,9 @@ BEGIN
     END IF;
     IF (SELECT COUNT(*) FROM information_schema.tables
          WHERE table_schema IN ('sic_iam','sic_project','sic_workflow','sic_material','sic_notification')
-           AND table_name IN ('flyway_schema_history')) <> 5 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Run all destination Flyway migrations before importing';
+           AND table_name IN ('project_access_grant','expert_review_batch','material_reservation',
+             'expert_qualification','pending_notification')) <> 5 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Initialize and verify all destination full SQL before importing';
     END IF;
     IF (SELECT COUNT(*) FROM sic_project.project) > 0
        OR (SELECT COUNT(*) FROM sic_workflow.module_instance) > 0
@@ -108,9 +109,9 @@ DELETE FROM sic_iam.app_role;
 DELETE FROM sic_iam.app_user;
 DELETE FROM sic_iam.department;
 
-DELETE FROM sic_workflow.workflow_transition_config;
-DELETE FROM sic_workflow.workflow_node_config;
-DELETE FROM sic_workflow.workflow_definition;
+DELETE FROM sic_workflow.workflow_transition_config WHERE EXISTS(SELECT 1 FROM sic_legacy.workflow_definition);
+DELETE FROM sic_workflow.workflow_node_config WHERE EXISTS(SELECT 1 FROM sic_legacy.workflow_definition);
+DELETE FROM sic_workflow.workflow_definition WHERE EXISTS(SELECT 1 FROM sic_legacy.workflow_definition);
 
 -- IAM -----------------------------------------------------------------------
 INSERT INTO sic_iam.department(id,parent_id,name,code,enabled,created_at,updated_at)

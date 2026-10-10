@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.workflow.dao.WorkflowRuntimeMapper">
+  <resultMap id="module" type="com.amatrix.sic.workflow.entity.ModuleRecord"><constructor>
+    <arg column="id" javaType="Long"/>
+    <arg column="project_id" javaType="Long"/>
+    <arg column="started_by_user_id" javaType="Long"/>
+    <arg column="module_code" javaType="String"/>
+    <arg column="definition_id" javaType="Long"/>
+    <arg column="current_node_id" javaType="String"/>
+    <arg column="current_state" javaType="String"/>
+    <arg column="current_seq" javaType="_int"/>
+    <arg column="current_round" javaType="_int"/>
+    <arg column="finished" javaType="_boolean"/>
+    <arg column="created_at" javaType="java.time.LocalDateTime"/>
+    <arg column="updated_at" javaType="java.time.LocalDateTime"/>
+  </constructor></resultMap>
+  <resultMap id="batch" type="com.amatrix.sic.workflow.entity.ReviewBatch"><constructor>
+    <arg column="id" javaType="Long"/>
+    <arg column="module_instance_id" javaType="Long"/>
+    <arg column="workflow_node_id" javaType="Long"/>
+    <arg column="round_no" javaType="_int"/>
+    <arg column="status" javaType="String"/>
+    <arg column="created_by" javaType="Long"/>
+  </constructor></resultMap>
+  <resultMap id="leader" type="com.amatrix.sic.workflow.entity.LeaderTask"><constructor>
+    <arg column="id" javaType="_long"/>
+    <arg column="project_id" javaType="_long"/>
+    <arg column="module_code" javaType="String"/>
+    <arg column="round_no" javaType="_int"/>
+    <arg column="node_id" javaType="String"/>
+  </constructor></resultMap>
+  <resultMap id="state" type="com.amatrix.sic.contracts.StateRecordContract"><constructor>
+    <arg column="id" javaType="Long"/>
+    <arg column="module_instance_id" javaType="Long"/>
+    <arg column="seq" javaType="Integer"/>
+    <arg column="round_no" javaType="Integer"/>
+    <arg column="event_type" javaType="String"/>
+    <arg column="from_state" javaType="String"/>
+    <arg column="to_state" javaType="String"/>
+    <arg column="from_node_id" javaType="String"/>
+    <arg column="to_node_id" javaType="String"/>
+    <arg column="result" javaType="String"/>
+    <arg column="summary" javaType="String"/>
+    <arg column="created_at" javaType="java.time.LocalDateTime"/>
+  </constructor></resultMap>
+  <resultMap id="history" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="id" property="stateRecordId" javaType="Long"/>
+    <result column="module_instance_id" property="moduleInstanceId" javaType="Long"/>
+    <result column="seq" property="seq" javaType="Integer"/>
+    <result column="round_no" property="roundNo" javaType="Integer"/>
+    <result column="event_type" property="eventType" javaType="String"/>
+    <result column="from_state" property="fromState" javaType="String"/>
+    <result column="to_state" property="toState" javaType="String"/>
+    <result column="from_node_id" property="fromNodeId" javaType="String"/>
+    <result column="to_node_id" property="toNodeId" javaType="String"/>
+    <result column="result" property="result" javaType="String"/>
+    <result column="summary" property="summary" javaType="String"/>
+    <result column="created_at" property="createdAt" javaType="java.time.LocalDateTime"/>
+  </resultMap>
+  <resultMap id="task" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="id" property="taskInstanceId" javaType="Long"/>
+    <result column="module_instance_id" property="moduleInstanceId" javaType="Long"/>
+    <result column="node_id" property="nodeId" javaType="String"/>
+    <result column="assignee_user_id" property="assigneeUserId" javaType="Long"/>
+    <result column="candidate_role" property="candidateRoleCode" javaType="String"/>
+    <result column="status" property="taskStatus" javaType="String"/>
+    <result column="round_no" property="roundNo" javaType="Integer"/>
+    <result column="created_at" property="createdAt" javaType="java.time.LocalDateTime"/>
+    <result column="completed_at" property="completedAt" javaType="java.time.LocalDateTime"/>
+  </resultMap>
+  <resultMap id="workbench" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="id" property="moduleInstanceId" javaType="Long"/>
+    <result column="project_id" property="projectId" javaType="Long"/>
+    <result column="project_code" property="projectCode" javaType="String"/>
+    <result column="project_name" property="projectName" javaType="String"/>
+    <result column="module_code" property="moduleType" javaType="String"/>
+    <result column="lifecycle_stage" property="lifecycleStage" javaType="String"/>
+    <result column="definition_id" property="workflowDefinitionId" javaType="Long"/>
+    <result column="current_state" property="currentState" javaType="String"/>
+    <result column="current_node_id" property="currentNodeId" javaType="String"/>
+    <result column="current_node_id" property="currentNodeName" javaType="String"/>
+    <result column="current_seq" property="currentSeq" javaType="Integer"/>
+    <result column="current_round" property="currentRoundNo" javaType="Integer"/>
+    <result column="updated_at" property="lastTransitionTime" javaType="java.time.LocalDateTime"/>
+    <result column="finished" property="finished" javaType="Boolean"/>
+  </resultMap>
+  <resultMap id="scope" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="id" property="batchId" javaType="Long"/>
+    <result column="project_id" property="projectId" javaType="Long"/>
+    <result column="module_code" property="moduleType" javaType="String"/>
+    <result column="round_no" property="roundNo" javaType="Integer"/>
+    <result column="task_node_id" property="taskNodeId" javaType="String"/>
+  </resultMap>
+  <select id="module" resultMap="module">SELECT * FROM module_instance WHERE id=#{id} <if test="lock">FOR UPDATE</if></select>
+  <select id="nodeId" resultType="Long">SELECT id FROM workflow_node_config WHERE workflow_definition_id=#{definition} AND node_id=#{node}</select>
+  <select id="nodeCode" resultType="String">SELECT node_id FROM workflow_node_config WHERE id=#{id}</select>
+  <select id="history" resultMap="history">SELECT * FROM state_record WHERE module_instance_id=#{module} ORDER BY seq</select>
+  <select id="tasks" resultMap="task">SELECT * FROM workflow_task WHERE module_instance_id=#{module} AND status='OPEN' ORDER BY id</select>
+  <select id="workbench" resultMap="workbench">SELECT DISTINCT m.*,p.project_code,p.project_name,p.lifecycle_stage FROM module_instance m
+    LEFT JOIN project_snapshot p ON p.project_id=m.project_id WHERE m.finished=FALSE AND EXISTS(
+      SELECT 1 FROM workflow_task t WHERE t.module_instance_id=m.id AND t.node_id=m.current_node_id AND t.status='OPEN') ORDER BY m.updated_at DESC</select>
+  <select id="batchModule" resultType="Long">SELECT module_instance_id FROM expert_review_batch WHERE id=#{id}</select>
+  <select id="lockBatch" resultMap="batch">SELECT id,module_instance_id,workflow_node_id,round_no,status,created_by FROM expert_review_batch WHERE id=#{id} FOR UPDATE</select>
+  <select id="batches" resultMap="batch">SELECT id,module_instance_id,workflow_node_id,round_no,status,created_by FROM expert_review_batch WHERE module_instance_id=#{module} AND round_no=#{round}</select>
+  <select id="assignmentCount" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment WHERE batch_id=#{id}</select>
+  <select id="missingSuccessors" resultType="Long">SELECT m.id FROM module_instance m WHERE m.finished=TRUE
+    AND ((m.module_code='APPLICATION' AND m.current_state='APPLICATION_APPROVED') OR (m.module_code='CONTRACT' AND m.current_state='CONTRACT_APPROVED'))
+    AND NOT EXISTS(SELECT 1 FROM module_instance n WHERE n.project_id=m.project_id AND n.module_code=CASE m.module_code WHEN 'APPLICATION' THEN 'CONTRACT' ELSE 'ACCEPTANCE' END)
+    ORDER BY m.id LIMIT 50</select>
+  <select id="leaderTasks" resultMap="leader">SELECT t.id,m.project_id,m.module_code,t.round_no,t.node_id FROM workflow_task t JOIN module_instance m ON m.id=t.module_instance_id
+    WHERE t.status='OPEN' AND t.candidate_role='PROJECT_LEADER' AND t.node_id=m.current_node_id AND m.finished=FALSE ORDER BY t.id LIMIT 200</select>
+  <select id="endedExpertBatches" resultType="Long">SELECT b.id FROM expert_review_batch b JOIN module_instance m ON m.id=b.module_instance_id LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id
+    WHERE b.access_ended_at IS NULL AND (m.finished=TRUE OR b.round_no&lt;&gt;m.current_round
+      OR REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask')&lt;&gt;m.current_node_id) ORDER BY b.id LIMIT 100</select>
+  <select id="nodeExpertBatches" resultType="Long">SELECT b.id FROM expert_review_batch b LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id
+    WHERE b.module_instance_id=#{module} AND b.round_no=#{round} AND b.access_ended_at IS NULL
+    AND REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask')=#{node}</select>
+  <select id="endedScope" resultMap="scope">SELECT b.id,m.project_id,m.module_code,b.round_no,REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask') task_node_id
+    FROM expert_review_batch b JOIN module_instance m ON m.id=b.module_instance_id LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id WHERE b.id=#{id} AND b.access_ended_at IS NULL</select>
+  <select id="experts" resultType="Long">SELECT DISTINCT expert_user_id FROM expert_review_assignment WHERE batch_id=#{id} ORDER BY expert_user_id</select>
+  <select id="latestState" resultMap="state">SELECT * FROM state_record WHERE module_instance_id=#{module} ORDER BY seq DESC LIMIT 1</select>
+  <select id="findModule" resultType="Long">SELECT id FROM module_instance WHERE project_id=#{project} AND module_code=#{type} ORDER BY id LIMIT 1</select>
+  <select id="limitedProject" resultType="Boolean">SELECT limited_project FROM project_application WHERE project_id=#{project}</select>
+  <select id="finalReviewResult" resultType="String">SELECT final_result FROM expert_review_batch WHERE module_instance_id=#{module} AND status='COMPLETED' ORDER BY id DESC LIMIT 1</select>
+  <select id="acceptancePayload" resultType="String">SELECT payload_json FROM acceptance_form WHERE module_instance_id=#{module} ORDER BY id DESC LIMIT 1</select>
+  <update id="updateLeaderTask">UPDATE workflow_task SET assignee_user_id=#{owner} WHERE id=#{id} AND status='OPEN' AND candidate_role='PROJECT_LEADER'</update>
+  <update id="endBatch">UPDATE expert_review_batch SET access_ended_at=CURRENT_TIMESTAMP(6) WHERE id=#{id} AND access_ended_at IS NULL</update>
+  <update id="completeTasks">UPDATE workflow_task SET status='COMPLETED',completed_at=CURRENT_TIMESTAMP(6) WHERE module_instance_id=#{module} AND status='OPEN'</update>
+  <update id="advanceModule">UPDATE module_instance SET current_node_id=#{node},current_state=#{state},current_seq=#{seq},current_round=#{round},finished=#{finished},version=version+1 WHERE id=#{id}</update>
+  <insert id="insertModule" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO module_instance(project_id,started_by_user_id,module_code,definition_id,current_node_id,current_state,current_seq,current_round,finished)
+    VALUES(#{project},#{actor},#{type},#{definition},#{node},#{state},1,1,#{finished})</insert>
+  <insert id="insertState" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO state_record(module_instance_id,seq,round_no,event_type,from_state,to_state,from_node_id,to_node_id,result,summary,actor_user_id,actor_name_snapshot)
+    VALUES(#{module},#{seq},#{round},#{event},#{fromState},#{toState},#{fromNode},#{toNode},#{result},#{summary},#{actor},#{name})</insert>
+  <insert id="insertTask">INSERT INTO workflow_task(module_instance_id,node_id,assignee_user_id,candidate_role,status,round_no) VALUES(#{module},#{node},#{assignee},#{role},'OPEN',#{round})</insert>
+  <insert id="reference">INSERT INTO workflow_material_reference(module_instance_id,seq,material_version_id,material_type_code) VALUES(#{module},#{seq},#{version},#{code})</insert>
+</mapper>

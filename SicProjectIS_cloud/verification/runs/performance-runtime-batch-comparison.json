@@ -1,0 +1,38 @@
+{
+  "passed": false,
+  "comparable": true,
+  "checks": {
+    "sameResources": true,
+    "sameInitialRows": true,
+    "sameSchema": true,
+    "sameLoadProfile": true,
+    "sameDuration": true,
+    "bothBusinessFlowsPassed": true,
+    "completeInLoadSampling": true,
+    "noNewDeadlocks": true
+  },
+  "latencyNoiseAllowanceMs": 5,
+  "scope": "One local fixed workload; does not establish production capacity or compare against the original unmodified release",
+  "releaseLabels": [
+    "mapper-baseline-20261010",
+    "runtime-batch-candidate"
+  ],
+  "runIds": [
+    "2026101013532934e618",
+    "202610101533438d1788"
+  ],
+  "latency": {
+    "mean": {
+      "baselineMs": 58.49,
+      "candidateMs": 66.71,
+      "ratio": 1.1405,
+      "passed": false
+    },
+    "p95": {
+      "baselineMs": 109,
+      "candidateMs": 125,
+      "ratio": 1.1468,
+      "passed": false
+    }
+  }
+}

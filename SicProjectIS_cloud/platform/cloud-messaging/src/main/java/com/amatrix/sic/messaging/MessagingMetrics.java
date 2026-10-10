@@ -4,7 +4,7 @@ import java.util.Properties;
 
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.amatrix.sic.messaging.dao.MessagingMapper;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -12,18 +12,16 @@ import io.micrometer.core.instrument.Tags;
 
 /** Low-cardinality operational gauges for each service-owned outbox and the shared DLQ. */
 public final class MessagingMetrics {
-    private final JdbcTemplate jdbc;
+    private final MessagingMapper mapper;
     private final RabbitAdmin rabbitAdmin;
 
-    MessagingMetrics(JdbcTemplate jdbc, RabbitAdmin rabbitAdmin, MeterRegistry registry, String serviceName) {
-        this.jdbc = jdbc;
+    MessagingMetrics(MessagingMapper mapper, RabbitAdmin rabbitAdmin, MeterRegistry registry, String serviceName) {
+        this.mapper = mapper;
         this.rabbitAdmin = rabbitAdmin;
         Tags tags = Tags.of("service", serviceName);
-        Gauge.builder("sic.outbox.pending", this, metrics -> metrics.count(
-                        "SELECT COUNT(*) FROM outbox_event WHERE published_at IS NULL"))
+        Gauge.builder("sic.outbox.pending", this, metrics -> metrics.count(mapper::pending))
                 .description("Unpublished events in this service outbox").tags(tags).register(registry);
-        Gauge.builder("sic.outbox.failed", this, metrics -> metrics.count(
-                        "SELECT COUNT(*) FROM outbox_event WHERE published_at IS NULL AND attempts>0"))
+        Gauge.builder("sic.outbox.failed", this, metrics -> metrics.count(mapper::failedCount))
                 .description("Outbox events waiting after at least one failed publish").tags(tags).register(registry);
         Gauge.builder("sic.outbox.oldest.age.seconds", this, MessagingMetrics::oldestPendingAge)
                 .description("Age in seconds of the oldest unpublished outbox event").tags(tags).register(registry);
@@ -32,8 +30,7 @@ public final class MessagingMetrics {
     }
 
     private double oldestPendingAge() {
-        return count("SELECT COALESCE(TIMESTAMPDIFF(SECOND,MIN(created_at),CURRENT_TIMESTAMP),0) "
-                + "FROM outbox_event WHERE published_at IS NULL");
+        return count(mapper::oldestAge);
     }
 
     private double deadLetterCount() {
@@ -48,10 +45,9 @@ public final class MessagingMetrics {
         }
     }
 
-    private double count(String sql) {
+    private double count(java.util.function.LongSupplier query) {
         try {
-            Number value = jdbc.queryForObject(sql, Number.class);
-            return value == null ? 0 : value.doubleValue();
+            return query.getAsLong();
         } catch (DataAccessException ignored) {
             return Double.NaN;
         }

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.project.dao.ProjectAuthorizationMapper">
+  <resultMap id="project" type="com.amatrix.sic.project.entity.ProjectRecord"><constructor>
+    <arg column="id" javaType="java.lang.Long"/><arg column="project_code" javaType="String"/>
+    <arg column="project_name" javaType="String"/><arg column="dept_id" javaType="java.lang.Long"/>
+    <arg column="dept_name_snapshot" javaType="String"/><arg column="owner_user_id" javaType="java.lang.Long"/>
+    <arg column="owner_name_snapshot" javaType="String"/><arg column="project_type" javaType="String"/>
+    <arg column="project_level" javaType="String"/><arg column="business_status" javaType="String"/>
+  </constructor></resultMap>
+  <sql id="projectColumns">SELECT id,project_code,project_name,dept_id,dept_name_snapshot,owner_user_id,owner_name_snapshot,
+    project_type,project_level,business_status FROM project WHERE lifecycle_status='ACTIVE'</sql>
+  <select id="project" resultMap="project"><include refid="projectColumns"/> AND id=#{id}</select>
+  <select id="lockProject" resultMap="project"><include refid="projectColumns"/> AND id=#{id} FOR UPDATE</select>
+  <select id="manageable" resultMap="project"><include refid="projectColumns"/>
+    AND (#{global}=TRUE OR (#{department}=TRUE AND dept_id=#{deptId,jdbcType=BIGINT})) ORDER BY id DESC</select>
+  <resultMap id="member" type="java.util.LinkedHashMap">
+    <result column="projectMemberId" property="projectMemberId" javaType="Long"/>
+    <result column="userId" property="userId" javaType="Long"/>
+    <result column="memberRole" property="memberRole" javaType="String"/>
+    <result column="responsibility" property="responsibility" javaType="String"/>
+    <result column="joinedAt" property="joinedAt" javaType="java.time.LocalDateTime"/>
+  </resultMap>
+  <select id="members" resultMap="member">SELECT id projectMemberId,user_id userId,member_role memberRole,
+    responsibility,created_at joinedAt FROM project_member WHERE project_id=#{id} ORDER BY id</select>
+  <resultMap id="grant" type="java.util.LinkedHashMap">
+    <result column="projectRoleGrantId" property="projectRoleGrantId" javaType="Long"/>
+    <result column="grantRoleCode" property="grantRoleCode" javaType="String"/>
+    <result column="grantScope" property="grantScope" javaType="String"/>
+    <result column="moduleType" property="moduleType" javaType="String"/>
+    <result column="roundNo" property="roundNo" javaType="Integer"/>
+    <result column="taskNodeId" property="taskNodeId" javaType="String"/>
+    <result column="status" property="status" javaType="String"/>
+    <result column="grantReason" property="grantReason" javaType="String"/>
+    <result column="effectiveFrom" property="effectiveFrom" javaType="java.time.LocalDateTime"/>
+    <result column="effectiveTo" property="effectiveTo" javaType="java.time.LocalDateTime"/>
+    <result column="granteeId" property="granteeId" javaType="Long"/>
+    <result column="grantedById" property="grantedById" javaType="Long"/>
+  </resultMap>
+  <select id="grants" resultMap="grant">SELECT id projectRoleGrantId,grant_role_code grantRoleCode,grant_scope grantScope,
+    module_type moduleType,round_no roundNo,task_node_id taskNodeId,status,grant_reason grantReason,
+    effective_from effectiveFrom,effective_to effectiveTo,grantee_user_id granteeId,granted_by grantedById
+    FROM project_access_grant WHERE project_id=#{id} AND grant_role_code=#{role} ORDER BY id DESC</select>
+  <resultMap id="count" type="java.util.LinkedHashMap">
+    <result column="key" property="key" javaType="String"/>
+    <result column="label" property="label" javaType="String"/>
+    <result column="count" property="count" javaType="Long"/>
+  </resultMap>
+  <select id="grantCounts" resultMap="count">SELECT grant_role_code `key`,grant_role_code label,COUNT(*) `count`
+    FROM project_access_grant WHERE status='ACTIVE' GROUP BY grant_role_code</select>
+  <update id="changeLeader">UPDATE project SET owner_user_id=#{userId},owner_name_snapshot=#{name},version=version+1 WHERE id=#{id}</update>
+  <update id="demoteMember">UPDATE project_member SET member_role='MEMBER' WHERE project_id=#{id} AND user_id=#{userId}</update>
+  <insert id="upsertMember">INSERT INTO project_member(project_id,user_id,member_role,responsibility,user_name_snapshot)
+    VALUES(#{projectId},#{userId},#{role},#{responsibility},#{name}) ON DUPLICATE KEY UPDATE
+    member_role=VALUES(member_role),responsibility=VALUES(responsibility),user_name_snapshot=VALUES(user_name_snapshot)</insert>
+  <delete id="deleteMember">DELETE FROM project_member WHERE project_id=#{id} AND user_id=#{userId}</delete>
+  <sql id="scope">project_id=#{projectId} AND grantee_user_id=#{userId} AND grant_role_code=#{role} AND status='ACTIVE'
+    AND (module_type&lt;=&gt;#{moduleType}) AND (round_no&lt;=&gt;#{roundNo,jdbcType=INTEGER}) AND (task_node_id&lt;=&gt;#{node})</sql>
+  <select id="duplicateGrant" resultType="int">SELECT COUNT(*) FROM project_access_grant WHERE <include refid="scope"/></select>
+  <insert id="insertGrant" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    INSERT INTO project_access_grant(project_id,grantee_user_id,grantee_name_snapshot,grant_role_code,grant_scope,
+      module_type,round_no,task_node_id,grant_reason,granted_by,granted_by_name_snapshot)
+    VALUES(#{projectId},#{userId},#{name},#{role},#{grantScope},#{moduleType},#{roundNo,jdbcType=INTEGER},#{node},#{reason},#{operatorId},#{operatorName})
+  </insert>
+  <select id="grantRole" resultType="String">SELECT grant_role_code FROM project_access_grant WHERE id=#{id} AND project_id=#{projectId}</select>
+  <update id="revokeGrant">UPDATE project_access_grant SET status='REVOKED',effective_to=CURRENT_TIMESTAMP(6) WHERE id=#{id}</update>
+  <update id="revokeExpert">UPDATE project_access_grant SET status='REVOKED',effective_to=CURRENT_TIMESTAMP(6) WHERE <include refid="scope"/></update>
+  <update id="endExpertAccess">UPDATE project_access_grant SET status='REVOKED',effective_to=CURRENT_TIMESTAMP(6)
+    WHERE project_id=#{projectId} AND grant_role_code='PROJECT_MODULE_EXPERT_ASSIGNMENT' AND status='ACTIVE'
+    AND module_type=#{moduleType} AND round_no=#{roundNo}
+    <choose><when test="node != null">AND task_node_id=#{node}</when><otherwise>
+      AND grantee_user_id IN <foreach collection="experts" item="id" open="(" close=")" separator=",">#{id}</foreach>
+    </otherwise></choose>
+  </update>
+  <update id="touch">UPDATE project SET version=version+1,updated_at=CURRENT_TIMESTAMP(6) WHERE id=#{id}</update>
+  <select id="version" resultType="Long">SELECT version FROM project WHERE id=#{id}</select>
+  <update id="lifecycle">UPDATE project SET business_status=#{stage},version=version+1 WHERE id=#{id} AND lifecycle_status='ACTIVE'</update>
+</mapper>

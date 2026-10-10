@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "comparable": true,
+  "checks": {
+    "sameResources": true,
+    "sameInitialRows": true,
+    "sameSchema": true,
+    "sameLoadProfile": true,
+    "sameDuration": true,
+    "sameHighResolutionMeasurement": true,
+    "bothBusinessFlowsPassed": true,
+    "completeInLoadSampling": true,
+    "noNewDeadlocks": true
+  },
+  "latencyNoiseAllowanceMs": 5,
+  "scope": "One local fixed workload; does not establish production capacity or compare against the original unmodified release",
+  "latencyMeasurement": [
+    {
+      "clock": "perf_counter",
+      "resolutionSeconds": 1e-07,
+      "timedRegion": "HTTP request, success validation and JSON decoding"
+    },
+    {
+      "clock": "perf_counter",
+      "resolutionSeconds": 1e-07,
+      "timedRegion": "HTTP request, success validation and JSON decoding"
+    }
+  ],
+  "releaseLabels": [
+    "project-lock-candidate-20261010",
+    "runtime-batch-candidate"
+  ],
+  "runIds": [
+    "20261010162048d72400",
+    "20261010164257fa283e"
+  ],
+  "latency": {
+    "mean": {
+      "baselineMs": 53.84,
+      "candidateMs": 51.99,
+      "ratio": 0.9656,
+      "passed": true
+    },
+    "p95": {
+      "baselineMs": 104.131,
+      "candidateMs": 97.306,
+      "ratio": 0.9345,
+      "passed": true
+    }
+  }
+}

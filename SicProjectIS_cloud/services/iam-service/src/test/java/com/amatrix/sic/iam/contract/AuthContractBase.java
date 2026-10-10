@@ -1,5 +1,7 @@
 package com.amatrix.sic.iam.contract;
 
+import com.amatrix.sic.iam.dto.IamDtos;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doNothing;
@@ -22,16 +24,16 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 
-import com.amatrix.sic.iam.AuthApplicationService;
-import com.amatrix.sic.iam.AuthController;
-import com.amatrix.sic.iam.ExpertQualificationController;
-import com.amatrix.sic.iam.ExpertQualificationService;
-import com.amatrix.sic.iam.IamAdminController;
-import com.amatrix.sic.iam.IamAdminService;
-import com.amatrix.sic.iam.IamDtos.CurrentUser;
-import com.amatrix.sic.iam.IamDtos.LoginResponse;
-import com.amatrix.sic.iam.IamDtos.RegisterRequest;
-import com.amatrix.sic.iam.IamDtos.UserAccount;
+import com.amatrix.sic.iam.service.AuthApplicationService;
+import com.amatrix.sic.iam.controller.AuthController;
+import com.amatrix.sic.iam.controller.ExpertQualificationController;
+import com.amatrix.sic.iam.service.ExpertQualificationService;
+import com.amatrix.sic.iam.controller.IamAdminController;
+import com.amatrix.sic.iam.service.IamAdminService;
+import com.amatrix.sic.iam.dto.IamDtos.CurrentUser;
+import com.amatrix.sic.iam.dto.IamDtos.LoginResponse;
+import com.amatrix.sic.iam.dto.IamDtos.RegisterRequest;
+import com.amatrix.sic.iam.dto.IamDtos.UserAccount;
 import com.amatrix.sic.security.ApiExceptionHandler;
 
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
