@@ -1,9 +1,9 @@
 name: Cloud verification
 on:
   pull_request:
-    paths: ['SicProjectIS_cloud/**', '.github/workflows/cloud-verification.yml']
+    paths: ['SicProjectIS_cloud/**', 'SicProjectIS_fronted/**', '.github/workflows/cloud-verification.yml']
   push:
-    paths: ['SicProjectIS_cloud/**', '.github/workflows/cloud-verification.yml']
+    paths: ['SicProjectIS_cloud/**', 'SicProjectIS_fronted/**', '.github/workflows/cloud-verification.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -11,6 +11,21 @@ defaults:
   run:
     working-directory: SicProjectIS_cloud
 jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SicProjectIS_fronted
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: SicProjectIS_fronted/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
   smoke:
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +65,7 @@ jobs:
             SicProjectIS_cloud/verification/runs/ci-mysql.json
   business:
     runs-on: ubuntu-latest
-    needs: mysql
+    needs: [mysql, frontend]
     timeout-minutes: 30
     env:
       COMPOSE_PROJECT_NAME: sic-ci-${{ github.run_id }}-${{ github.run_attempt }}
@@ -67,7 +82,7 @@ jobs:
       - run: docker compose --env-file target/verification.env -f docker-compose.yml -f target/verification.compose.yaml up -d --wait --wait-timeout 600
       - run: python scripts/wait_verification_ready.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/ci-readiness.json
       - run: python scripts/verify_schema.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/ci-schema.json
-      - run: python scripts/verify_business_lifecycle.py --gateway-base-url http://127.0.0.1:18080 --env-file target/verification.env --negative-cases --report-path verification/runs/ci-business.json
+      - run: python scripts/verify_business_lifecycle.py --gateway-base-url http://127.0.0.1:18080 --env-file target/verification.env --negative-cases --ui-regression-cases --iteration-regression-cases --report-path verification/runs/ci-business.json
       - run: python scripts/verify_business_db.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --business-report verification/runs/ci-business.json --report-path verification/runs/ci-business-database.json
       - run: python scripts/verify_business_branches.py --gateway-base-url http://127.0.0.1:18080 --env-file target/verification.env --negative-cases --report-path verification/runs/ci-business-branches.json
       - run: python scripts/verify_business_db.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --business-report verification/runs/ci-business-branches.json --report-path verification/runs/ci-business-branches-database.json

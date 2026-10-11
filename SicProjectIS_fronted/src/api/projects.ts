@@ -19,6 +19,12 @@ export function listProjects(signal?: AbortSignal) {
   return apiRequest<ProjectSummary[]>('/projects', { signal })
 }
 
+export function assignMissingProjectDepartment(projectId: number, deptId: number, reason: string) {
+  return apiRequest<{ projectId: number; deptId: number; deptName: string }>(`/projects/${projectId}/department`, {
+    method: 'PUT', body: JSON.stringify({ deptId, reason }),
+  })
+}
+
 export function getProjectAuthorization(projectId: number) {
   return apiRequest<ProjectAuthorizationDetail>(`/projects/${projectId}/authorization`)
 }

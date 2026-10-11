@@ -19,6 +19,7 @@ const isAdminWorkspaceVisible = computed(
 )
 
 const currentMainTab = computed(() => {
+  if (route.path.startsWith('/expert-reviews')) return 'expert-reviews'
   if (route.path.startsWith('/admin')) {
     return 'admin'
   }
@@ -49,6 +50,7 @@ async function handleLogout() {
 }
 
 function handleTabSelect(index: string) {
+  if (index === 'expert-reviews') { router.push({ name: 'expert-reviews' }); return }
   if (index === 'dashboard') {
     router.push({ name: 'dashboard' })
     return
@@ -117,6 +119,9 @@ function handleTabSelect(index: string) {
       <el-menu-item index="expert-qualification">
         <el-icon><Medal /></el-icon>
         <span>Expert</span>
+      </el-menu-item>
+      <el-menu-item index="expert-reviews">
+        <el-icon><Medal /></el-icon><span>我的评审</span>
       </el-menu-item>
       <el-menu-item v-if="isAdminWorkspaceVisible" index="admin">
         <el-icon><Lock /></el-icon>

@@ -11,4 +11,6 @@ public interface ExpertReviewViewMapper {
     List<Map<String,Object>> batches(@Param("module") Long module);
     List<Map<String,Object>> assignments(@Param("ids") List<Long> ids);
     List<Map<String,Object>> scores(@Param("ids") List<Long> ids);
+    List<Map<String,Object>> mine(@Param("userId") Long userId,@Param("assignmentId") Long assignmentId,
+            @Param("status") String status,@Param("offset") int offset,@Param("limit") int limit);
 }

@@ -66,3 +66,7 @@ material-service,POST,/api/projects/{projectId}/materials/{materialTypeCode}/ver
 material-service,GET,/api/material-versions/{materialVersionId}/download,200,BINARY
 material-service,DELETE,/api/material-versions/{materialVersionId},200,JSON_NULL
 notification-service,GET,/api/sse/subscribe,200,SSE
+project-service,PUT,/api/projects/{projectId}/department,200,JSON
+workflow-service,GET,/api/workflow-workbench/query,200,JSON
+workflow-service,GET,/api/expert-reviews/my-assignments,200,JSON
+workflow-service,GET,/api/expert-reviews/my-assignments/{assignmentId},200,JSON

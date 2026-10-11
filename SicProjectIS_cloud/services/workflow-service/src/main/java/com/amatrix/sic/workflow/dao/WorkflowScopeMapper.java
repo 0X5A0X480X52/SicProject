@@ -11,5 +11,6 @@ public interface WorkflowScopeMapper {
     List<WorkflowTaskScope> openTasks(@Param("ids") List<Long> ids);
     List<Long> expertModules(@Param("userId") Long userId, @Param("ids") List<Long> ids);
     Long projectId(@Param("moduleId") Long moduleId);
+    List<Long> definitionProjects(@Param("definitionId") Long definitionId, @Param("afterProjectId") long afterProjectId);
     ExpertGrantScope expertGrant(@Param("userId") Long userId, @Param("moduleId") Long moduleId);
 }

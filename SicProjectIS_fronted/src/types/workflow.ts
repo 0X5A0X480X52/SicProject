@@ -18,6 +18,7 @@ export interface WorkflowWorkbenchItem {
   finished: boolean
   todo: boolean
   canOperate: boolean
+  operated?: boolean
 }
 
 export interface WorkflowBpmnResponse {
@@ -42,7 +43,7 @@ export interface WorkflowNodeDefinition {
 }
 
 export interface ModuleStateChangedEvent {
-  type: 'MODULE_STATE_CHANGED'
+  type: 'MODULE_STATE_CHANGED' | 'WORKBENCH_INVALIDATED'
   projectId?: number
   moduleInstanceId?: number
   moduleType?: string

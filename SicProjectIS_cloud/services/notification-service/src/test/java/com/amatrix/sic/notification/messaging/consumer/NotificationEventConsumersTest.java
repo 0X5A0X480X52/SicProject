@@ -27,6 +27,23 @@ class NotificationEventConsumersTest {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
+    void authorizationChangesSendOnlyATargetedRefreshHintWithoutAuditOrIdentityDetails() throws Exception {
+        var guard=mock(ConsumedEventGuard.class);
+        var notifications=mock(com.amatrix.sic.notification.dao.NotificationMapper.class);
+        var outbox=mock(OutboxService.class);
+        var event=EventEnvelope.create("PROJECT_GRANT_CHANGED","PROJECT","7",null,null,42L,
+                Map.<String,Object>of("projectId",7L,"userId",9L,"before","private-role-history","email","private@example.invalid"));
+        when(guard.begin(eq(event.eventId()),anyString())).thenReturn(true);
+        var consumer=new NotificationEventConsumers(mapper,notifications,guard,outbox,mock(PendingNotificationDeliveryService.class));
+        consumer.store(mapper.writeValueAsString(event));
+        var payload=ArgumentCaptor.forClass(String.class);
+        verify(notifications).insert(eq(event.eventId().toString()),eq(9L),payload.capture());
+        assertThat(payload.getValue()).contains("WORKBENCH_INVALIDATED","projectId","userId")
+                .doesNotContain("private","email","before");
+        verify(outbox).enqueue(eq("notification.live"),org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
     void liveDeliveryDeduplicatesPerInstanceWithoutSuppressingOtherInstances() throws Exception {
         UUID eventId = UUID.randomUUID();
         String json = liveEvent(eventId);

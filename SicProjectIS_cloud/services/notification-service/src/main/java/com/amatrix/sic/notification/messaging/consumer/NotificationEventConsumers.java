@@ -30,10 +30,16 @@ public class NotificationEventConsumers{
     public void store(String json)throws Exception{
         EventEnvelope<Map<String,Object>> source=mapper.readValue(json,new TypeReference<>(){});
         if(!guard.begin(source.eventId(),"notification-module-state"))return;
-        String payload=mapper.writeValueAsString(source.payload());
-        Long userId=number(source.payload().get("userId"));
+        Map<String,Object> hint=source.payload();
+        if(!"MODULE_STATE_CHANGED".equals(source.eventType())) {
+            hint=new java.util.LinkedHashMap<>();hint.put("type","WORKBENCH_INVALIDATED");
+            for(String key:java.util.List.of("projectId","userId"))
+                if(source.payload().get(key)!=null)hint.put(key,source.payload().get(key));
+        }
+        String payload=mapper.writeValueAsString(hint);
+        Long userId=number(hint.get("userId"));
         notifications.insert(source.eventId().toString(),userId,payload);
-        outbox.enqueue("notification.live",EventEnvelope.create("NOTIFICATION_LIVE","NOTIFICATION",source.eventId().toString(),source.correlationId(),source.eventId().toString(),source.actorUserId(),source.payload()));
+        outbox.enqueue("notification.live",EventEnvelope.create("NOTIFICATION_LIVE","NOTIFICATION",source.eventId().toString(),source.correlationId(),source.eventId().toString(),source.actorUserId(),hint));
     }
 
     @RabbitListener(queues="#{liveNotificationQueue.name}")

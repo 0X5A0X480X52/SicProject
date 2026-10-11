@@ -40,6 +40,22 @@ export interface ExpertReviewBatchDetailResponse {
   assignments: any[]
 }
 
+export interface PersonalReview {
+  assignmentId: number; batchId: number; projectId: number; projectCode: string; projectName: string
+  moduleInstanceId: number; moduleType: string; roundNo: number; reviewTitle: string
+  status: 'PENDING' | 'WAITING_REVIEW' | 'SUBMITTED' | 'COMPLETED' | 'EXPIRED'; canReview: boolean
+  totalScore?: number; reviewComment?: string; reviewResult?: string; assignedAt?: string; submittedAt?: string
+  scores?: Array<{ scoreItemName: string; scoreValue: number; maxScore: number }>
+}
+export function listMyReviews(status: string, page: number, pageSize = 10, signal?: AbortSignal) {
+  const query = new URLSearchParams({ page: String(page), pageSize: String(pageSize) })
+  if (status) query.set('status', status)
+  return apiRequest<{ items: PersonalReview[]; hasMore: boolean }>(`/expert-reviews/my-assignments?${query}`, { signal })
+}
+export function getMyReview(id: number, signal?: AbortSignal) {
+  return apiRequest<PersonalReview>(`/expert-reviews/my-assignments/${id}`, { signal })
+}
+
 export function createExpertReviewBatch(request: CreateExpertReviewBatchRequest) {
   return apiRequest<ExpertReviewBatchDetailResponse>('/expert-reviews/batches', {
     method: 'POST',

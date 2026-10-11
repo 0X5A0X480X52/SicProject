@@ -143,7 +143,7 @@ public class ExpertReviewService {
                     "EXPERT_REVIEW_BATCH", assignment.batchId().toString(), null, null, actor.userId(),
                     Map.of("batchId", assignment.batchId(), "moduleInstanceId", moduleId(assignment.batchId()))));
         }
-        return views.batchDetail(assignment.batchId());
+        return views.personalBatchDetail(assignment.batchId(),actor.userId());
     }
 
     @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
@@ -174,6 +174,7 @@ public class ExpertReviewService {
     public Map<String, Object> detail(ActorContext actor, Long batchId) {
         ExpertBatch batch = requireBatch(batchId);
         boolean assigned = mapper.assigned(batchId,actor.userId()) > 0;
+        if (assigned && !actor.hasRole("SYSTEM_ADMIN")) return views.personalBatchDetail(batchId,actor.userId());
         if (!assigned) requireOperator(actor, batch.moduleId());
         return views.batchDetail(batchId);
     }

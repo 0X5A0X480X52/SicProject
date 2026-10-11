@@ -128,18 +128,18 @@ public class WorkflowDefinitionService {
                 transitionMaps(model));
     }
 
-    @PreAuthorize("hasAuthority('PERM_WORKFLOW_DEFINITION_VIEW')")
+    @PreAuthorize("hasAuthority('PERM_WORKFLOW_DEFINITION_VIEW') or @projectAccessPolicy.canReadDefinition(@actorContextResolver.from(authentication), #id)")
     public Map<String, Object> bpmn(Long id) {
         DefinitionRow definition = row(id);
         return linked("workflowDefinitionId", definition.id(), "bpmnXml", definition.bpmnXml());
     }
 
-    @PreAuthorize("hasAuthority('PERM_WORKFLOW_DEFINITION_VIEW')")
+    @PreAuthorize("hasAuthority('PERM_WORKFLOW_DEFINITION_VIEW') or @projectAccessPolicy.canReadDefinition(@actorContextResolver.from(authentication), #id)")
     public List<Map<String, Object>> nodes(Long id) {
         return nodeMaps(model(id));
     }
 
-    @PreAuthorize("hasAuthority('PERM_WORKFLOW_DEFINITION_VIEW')")
+    @PreAuthorize("hasAuthority('PERM_WORKFLOW_DEFINITION_VIEW') or @projectAccessPolicy.canReadDefinition(@actorContextResolver.from(authentication), #id)")
     public List<Map<String, Object>> transitions(Long id) {
         return transitionMaps(model(id));
     }

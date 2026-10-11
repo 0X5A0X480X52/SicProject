@@ -179,6 +179,7 @@ export interface MaterialRequirementView {
 }
 
 export interface RuntimeViewResponse {
+  taskConfiguration?: { ready: boolean; status: string; handlerCount: number; message: string }
   context: RuntimeContextView
   canOperate: boolean
   availableTransitions: AvailableTransition[]

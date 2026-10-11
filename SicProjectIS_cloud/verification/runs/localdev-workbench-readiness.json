@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-11T08:07:55.316069+00:00",
+  "project": "sic-localdev",
+  "checks": [
+    {
+      "name": "registry propagation",
+      "passed": true,
+      "services": [
+        "GATEWAY-SERVICE",
+        "IAM-SERVICE",
+        "MATERIAL-SERVICE",
+        "NOTIFICATION-SERVICE",
+        "PROJECT-SERVICE",
+        "WORKFLOW-SERVICE"
+      ]
+    },
+    {
+      "name": "/api/auth/me",
+      "passed": true,
+      "status": 200,
+      "traceId": "1917a60a-4fa3-44ef-9b65-c040b82075e3"
+    },
+    {
+      "name": "/api/projects",
+      "passed": true,
+      "status": 200,
+      "traceId": "e9e58ea7-cd55-49b9-a88a-a20a40c04735"
+    },
+    {
+      "name": "/api/workflow-definitions",
+      "passed": true,
+      "status": 200,
+      "traceId": "0fb418b8-eb36-4491-af4a-1c1dee86f9c3"
+    },
+    {
+      "name": "/api/projects/0/materials",
+      "passed": true,
+      "status": 403,
+      "traceId": "3c4f1b70-73eb-4d25-9791-1cd4ff9e779b"
+    }
+  ],
+  "registryStableSeconds": 65,
+  "finishedAt": "2026-10-11T08:09:39.694432+00:00"
+}

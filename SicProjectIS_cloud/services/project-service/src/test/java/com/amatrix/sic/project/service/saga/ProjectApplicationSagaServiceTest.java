@@ -42,6 +42,8 @@ class ProjectApplicationSagaServiceTest {
     private InternalTokenProvider tokens;
     private OutboxService outbox;
     private ProjectApplicationSagaService service;
+    private com.amatrix.sic.project.service.ProjectDepartmentService departments;
+    private com.amatrix.sic.project.service.directory.ProjectUserDirectory users;
 
     @BeforeEach
     void setUp() {
@@ -64,9 +66,14 @@ class ProjectApplicationSagaServiceTest {
         tokens = mock(InternalTokenProvider.class);
         outbox = mock(OutboxService.class);
         when(tokens.authorization()).thenReturn("Bearer service-token");
+        departments=mock(com.amatrix.sic.project.service.ProjectDepartmentService.class);
+        users=mock(com.amatrix.sic.project.service.directory.ProjectUserDirectory.class);
+        when(users.fetchAll(java.util.List.of(7L))).thenReturn(java.util.List.of(
+                new com.amatrix.sic.contracts.UserSummary(7L,"owner","Owner",3L,"Science",java.util.List.of("PROJECT_LEADER"),true,1L)));
+        when(departments.requireEnabled(3L)).thenReturn(new com.amatrix.sic.contracts.DepartmentSummary(3L,"Science",true));
         service = new ProjectApplicationSagaService(ProjectTestMapper.create(dataSource,com.amatrix.sic.project.dao.ApplicationSagaMapper.class,"mapper/project/ApplicationSagaMapper.xml"),
                 new TransactionTemplate(new DataSourceTransactionManager(dataSource)), workflow, tokens, outbox,
-                new ObjectMapper());
+                new ObjectMapper(),departments,users);
     }
 
     @Test
@@ -85,6 +92,28 @@ class ProjectApplicationSagaServiceTest {
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM project", Integer.class)).isEqualTo(1);
         verify(workflow, times(1)).create(anyString(), anyString(), any());
         verify(outbox, times(1)).enqueue(anyString(), any());
+    }
+
+    @Test
+    void departmentlessApplicantIsRejectedBeforeAnyProjectOrSagaWrites() {
+        when(users.fetchAll(java.util.List.of(7L))).thenReturn(java.util.List.of(
+                new com.amatrix.sic.contracts.UserSummary(7L,"owner","Owner",null,null,java.util.List.of(),true,1L)));
+        when(departments.requireEnabled(null)).thenThrow(new ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT,"Department required"));
+        assertThatThrownBy(() -> service.start(7L,"Owner",3L,"Forged JWT department","Bearer user",request("NO-DEPT")))
+                .isInstanceOf(ResponseStatusException.class);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM project",Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM application_saga",Integer.class)).isZero();
+        org.mockito.Mockito.verifyNoInteractions(workflow,outbox);
+    }
+
+    @Test
+    void authoritativeDepartmentOverridesStaleJwtDepartment() {
+        when(workflow.create(anyString(),anyString(),any())).thenAnswer(invocation -> {
+            var command=(com.amatrix.sic.contracts.ApplicationSagaCommand)invocation.getArgument(2);
+            return ApiResponse.ok(result(command.sagaId(),command.projectId(),101L));
+        });
+        var started=service.start(7L,"Owner",99L,"Stale", "Bearer user",request("CURRENT-DEPT"));
+        assertThat(jdbc.queryForObject("SELECT dept_id FROM project WHERE id=?",Long.class,started.projectId())).isEqualTo(3L);
     }
 
     @Test

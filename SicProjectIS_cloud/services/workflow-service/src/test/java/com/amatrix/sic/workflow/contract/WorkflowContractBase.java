@@ -144,7 +144,16 @@ public abstract class WorkflowContractBase {
                 .claim("ver", 3L).claim("jti", "contract-jti")
                 .issuedAt(Instant.parse("2029-01-02T03:04:05Z")).expiresAt(Instant.parse("2030-01-02T03:04:05Z"))
                 .build();
+        var workbench=mock(com.amatrix.sic.workflow.service.runtime.WorkflowWorkbenchQueryService.class);
+        var personal=mock(com.amatrix.sic.workflow.service.review.ExpertPersonalReviewService.class);
+        when(workbench.query(any(),eq("VISIBLE"),eq(null),eq(null),eq(1),eq(10)))
+                .thenReturn(linked("items",List.of(),"page",1,"pageSize",10,"hasMore",false));
+        when(personal.list(any(),eq(null),eq(1),eq(10)))
+                .thenReturn(linked("items",List.of(),"page",1,"pageSize",10,"hasMore",false));
+        when(personal.detail(any(),eq(30L))).thenReturn(linked("assignmentId",30L,"status","COMPLETED","canReview",false,"scores",List.of()));
         RestAssuredMockMvc.mockMvc(MockMvcBuilders.standaloneSetup(
+                        new com.amatrix.sic.workflow.controller.WorkflowWorkbenchController(workbench),
+                        new com.amatrix.sic.workflow.controller.ExpertPersonalReviewController(personal),
                         new WorkflowRuntimeController(runtime), new WorkflowDefinitionController(definitions),
                         new ExpertReviewController(reviews), new NodeFormController(forms),
                         new ModuleBusinessDataController(forms))

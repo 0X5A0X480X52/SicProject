@@ -84,6 +84,8 @@
     <result column="current_round" property="currentRoundNo" javaType="Integer"/>
     <result column="updated_at" property="lastTransitionTime" javaType="java.time.LocalDateTime"/>
     <result column="finished" property="finished" javaType="Boolean"/>
+    <result column="candidate_role" property="candidateRoleCode" javaType="String"/>
+    <result column="operated" property="operated" javaType="Boolean"/>
   </resultMap>
   <resultMap id="scope" type="java.util.LinkedHashMap" autoMapping="false">
     <result column="id" property="batchId" javaType="Long"/>
@@ -101,6 +103,21 @@
     LEFT JOIN project_snapshot p ON p.project_id=m.project_id WHERE m.finished=FALSE AND EXISTS(
       SELECT 1 FROM workflow_task t WHERE t.module_instance_id=m.id AND t.node_id=m.current_node_id AND t.status='OPEN') ORDER BY m.updated_at DESC</select>
   <select id="batchModule" resultType="Long">SELECT module_instance_id FROM expert_review_batch WHERE id=#{id}</select>
+  <select id="workbenchCandidates" resultMap="workbench">
+    SELECT m.*,p.project_code,p.project_name,p.lifecycle_stage,
+      (SELECT t.candidate_role FROM workflow_task t WHERE t.module_instance_id=m.id AND t.node_id=m.current_node_id AND t.status='OPEN' ORDER BY t.id LIMIT 1) candidate_role,
+      EXISTS(SELECT 1 FROM state_record s WHERE s.module_instance_id=m.id AND s.actor_user_id=#{userId} AND s.seq&gt;1) operated
+    FROM module_instance m LEFT JOIN project_snapshot p ON p.project_id=m.project_id
+    <where>
+      <if test="view == 'TODO'">m.finished=FALSE AND EXISTS(SELECT 1 FROM workflow_task t WHERE t.module_instance_id=m.id AND t.node_id=m.current_node_id AND t.status='OPEN')</if>
+      <if test="view == 'FINISHED'">m.finished=TRUE</if>
+      <if test="view == 'OPERATED'">EXISTS(SELECT 1 FROM state_record s WHERE s.module_instance_id=m.id AND s.actor_user_id=#{userId} AND s.seq&gt;1)</if>
+      <if test="moduleType != null">AND m.module_code=#{moduleType}</if>
+      <if test="keyword != null">AND (LOCATE(#{keyword},p.project_name)&gt;0 OR LOCATE(#{keyword},p.project_code)&gt;0 OR LOCATE(#{keyword},m.current_node_id)&gt;0)</if>
+      <if test="beforeTime != null">AND (m.updated_at&lt;#{beforeTime} OR (m.updated_at=#{beforeTime} AND m.id&lt;#{beforeId}))</if>
+    </where>
+    ORDER BY m.updated_at DESC,m.id DESC LIMIT 100
+  </select>
   <select id="lockBatch" resultMap="batch">SELECT id,module_instance_id,workflow_node_id,round_no,status,created_by FROM expert_review_batch WHERE id=#{id} FOR UPDATE</select>
   <select id="batches" resultMap="batch">SELECT id,module_instance_id,workflow_node_id,round_no,status,created_by FROM expert_review_batch WHERE module_instance_id=#{module} AND round_no=#{round}</select>
   <select id="assignmentCount" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment WHERE batch_id=#{id}</select>

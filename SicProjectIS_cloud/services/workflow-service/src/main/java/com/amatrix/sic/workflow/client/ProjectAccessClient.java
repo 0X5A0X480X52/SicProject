@@ -19,6 +19,10 @@ import java.util.Map;
 
 @FeignClient(name="project-service",contextId="workflowProjectAccessClient")
 public interface ProjectAccessClient {
+    @GetMapping("/internal/projects/{projectId}/finance-readiness")
+    ApiResponse<Map<String,Object>> financeReadiness(@RequestHeader("Authorization") String authorization,
+            @PathVariable Long projectId, @RequestParam String moduleType, @RequestParam Integer roundNo,
+            @RequestParam String taskNodeId);
     @GetMapping("/internal/projects/{projectId}/access")
     ApiResponse<AccessDecision> decide(@RequestHeader("Authorization")String authorization,@PathVariable Long projectId,
             @RequestParam Long userId,@RequestParam(required=false)Long deptId,@RequestParam String operation,

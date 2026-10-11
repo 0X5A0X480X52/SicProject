@@ -20,10 +20,20 @@ python scripts/wait_verification_ready.py --project-name sic-verification --env-
 生成配置拒绝覆盖已有文件。重复执行应换新的环境文件、端口和 Compose 项目名；不要清空已有库。
 新 volume 执行五库完整 SQL 和发布种子。已有库先校验最终结构。等待脚本除容器健康外还检查 Eureka 注册、Gateway 路由及 Material 到 Project 的内部访问。
 
+## 一键停止本仓库服务
+
+```powershell
+.\scripts\stop-all.ps1 -WhatIf  # 预览匹配到的容器和本机进程
+.\scripts\stop-all.ps1          # 执行停止
+.\scripts\stop-all.ps1 -ContainersOnly  # 只停止 Docker 容器
+```
+
+脚本通过 Compose 的工作目录或配置文件路径识别本 Cloud 仓库的运行容器，包含日常开发环境和隔离验收栈，不依赖项目名。默认也停止命令行包含本仓库 Cloud、前端或旧后端绝对路径的 Node/Java 进程；无法识别的相对路径启动进程需在原终端按 Ctrl+C。脚本不输出进程命令行或凭据，不停止 Docker Desktop，不删除容器、数据卷或数据库文件。检查或停止失败返回非零退出码。Docker 之外的本机进程使用 Stop-Process 终止，需要保存中的本机调试工作应先处理完毕。
+
 ## 完整业务与拒绝分支
 
 ```powershell
-python scripts/verify_business_lifecycle.py --env-file target/verification.env --gateway-base-url http://127.0.0.1:18080 --negative-cases --report-path verification/runs/business.json
+python scripts/verify_business_lifecycle.py --env-file target/verification.env --gateway-base-url http://127.0.0.1:18080 --negative-cases --ui-regression-cases --report-path verification/runs/business.json
 python scripts/verify_business_db.py --business-report verification/runs/business.json --project-name sic-verification --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/business-db.json
 python scripts/verify_business_branches.py --env-file target/verification.env --gateway-base-url http://127.0.0.1:18080 --report-path verification/runs/branches.json
 python scripts/verify_business_db.py --business-report verification/runs/branches.json --project-name sic-verification --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/branches-db.json
@@ -32,6 +42,8 @@ python scripts/verify_business_db.py --business-report verification/runs/branche
 主用例注册六个账号，经管理员分配角色、真实申请和审批取得两名专家资格，再完成申请、合同和验收的 37 个用户节点、三个双专家评审批次及 17 类必填材料。
 每次读取最新运行时 ID 和 `expectedSeq`，提交与前端一致的表单嵌套；第一名专家评分不能推进，第二名评分后等待自动推进。自动后继模块由业务创建。
 上传夹具是 `output/pdf/blank-upload.pdf`。各上传版本单独保存 ID、核对下载 SHA-256、业务引用和预留确认。
+
+`--ui-regression-cases` 额外检查实际初始化后的中文种子、管理员不指定部门的首次加载、空部门编码创建、无部门管理员提示、通过 `{}` 分配部门时保留角色及旧 token 失效。负责人分别在无部门和已分配部门状态读取 BPMN、节点及转移；无关用户、未用于其项目的定义及定义管理列表仍应拒绝。无部门展示用项目单独记录在 `fixtures.departmentlessProjectId`，完整主流程使用随后创建的有部门项目。
 拒绝分支增加跨部门资格审批、两次退回重提、旧轮次评分和验收失败终态。历史评分批次保留，新轮次使用新批次。
 
 ## 混合负载与故障
@@ -65,7 +77,11 @@ JAR 内容摘要排除 ZIP 时间戳和条目顺序，文件完整性仍使用�
 
 ## CI 与报告
 
-仓库工作流 `.github/workflows/cloud-verification.yml` 分开执行 smoke、真实 MySQL、完整业务与分支、混合负载及依赖故障。
+仓库工作流 `.github/workflows/cloud-verification.yml` 分开执行前端测试与构建、smoke、真实 MySQL、完整业务与分支、混合负载及依赖故障。
 强制测试缺少 Docker、报告含跳过、源码测试缺少新运行结果、业务断言失败或采样不完整都会使门禁失败。
 本地测试可通过 `--started-at` 限制 JUnit 报告的新鲜度，避免包迁移后旧报告被重复计入。
 CI 上传脱敏 JSON 和 JUnit；不上传凭据或 SQL 备份。工作流配置通过校验与本地执行不能代替远程 CI 实际运行记录。
+
+本轮工作台、财务后补授权与专家历史回归使用 `verify_business_lifecycle.py --negative-cases --ui-regression-cases --iteration-regression-cases`；详情见 [迭代说明](workbench-permission-iteration.md)。强制门禁也核对生成的接口契约测试是否实际执行。
+
+父模块 `target` 存放环境凭据、冻结包及私有备份，已排除于父模块 Maven clean；子模块构建产物仍会清理。环境准备脚本拒绝覆盖已有配置，重复启动应直接复用原 `--env-file` 与 Compose override。

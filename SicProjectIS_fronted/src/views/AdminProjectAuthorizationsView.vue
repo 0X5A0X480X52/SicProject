@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'
+import ProjectDepartmentRepair from '../components/ProjectDepartmentRepair.vue'
 import { ApiError } from '../api/client'
 import { getAdminProjectAuthorizations } from '../api/admin'
 import {
@@ -347,6 +348,7 @@ onMounted(loadIndex)
       <el-skeleton v-if="loading || detailLoading" :rows="10" animated />
 
       <template v-else-if="detail">
+        <ProjectDepartmentRepair :project-id="detail.project.projectId" :dept-id="detail.project.deptId" @changed="loadDetail(detail.project.projectId)" />
         <el-descriptions :column="3" border>
           <el-descriptions-item label="Project">{{ detail.project.projectName }}</el-descriptions-item>
           <el-descriptions-item label="Code">{{ detail.project.projectCode || '-' }}</el-descriptions-item>
@@ -428,6 +430,7 @@ onMounted(loadIndex)
           </el-tab-pane>
 
           <el-tab-pane label="Finance" name="finance">
+            <el-alert title="财务角色仅代表办理资格，还需要分配本项目财务授权。角色变更后，请该人员重新登录。" type="info" :closable="false" />
             <div class="table-toolbar">
               <el-button type="primary" :disabled="!canManageTab('finance')" @click="openGrantDialog">Assign Finance</el-button>
               <el-button danger plain :disabled="!canManageTab('finance') || selectedGrantIds.length === 0" @click="revokeSelectedGrants">

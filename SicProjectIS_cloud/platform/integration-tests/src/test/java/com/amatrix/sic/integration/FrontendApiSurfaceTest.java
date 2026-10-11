@@ -45,7 +45,10 @@ class FrontendApiSurfaceTest {
             ProjectController.class, ProjectAuthorizationController.class, ProjectAdminController.class,
             ProjectAuditController.class, WorkflowRuntimeController.class, WorkflowDefinitionController.class,
             ModuleBusinessDataController.class, ExpertReviewController.class, NodeFormController.class,
-            MaterialController.class, SseController.class);
+            MaterialController.class, SseController.class,
+            com.amatrix.sic.project.controller.ProjectDepartmentController.class,
+            com.amatrix.sic.workflow.controller.WorkflowWorkbenchController.class,
+            com.amatrix.sic.workflow.controller.ExpertPersonalReviewController.class);
 
     @Test
     void everyFrontendCallHasAnExactProviderControllerMapping() throws Exception {

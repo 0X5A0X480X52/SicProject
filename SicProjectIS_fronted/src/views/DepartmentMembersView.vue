@@ -307,6 +307,7 @@ onMounted(loadMembers)
               </el-table-column>
               <el-table-column label="操作" width="190" fixed="right">
                 <template #default="{ row }">
+                  <el-button link type="primary" :disabled="memberManagementDisabled || row.deptId == null" @click="openRoleDialog(row)">编辑角色</el-button>
                   <el-button link type="danger" :disabled="memberManagementDisabled || row.deptId == null" @click="removeMember(row)">移除</el-button>
                 </template>
               </el-table-column>

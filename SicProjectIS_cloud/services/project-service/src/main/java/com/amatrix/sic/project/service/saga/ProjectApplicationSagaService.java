@@ -36,21 +36,30 @@ public class ProjectApplicationSagaService {
     private final InternalTokenProvider serviceTokens;
     private final OutboxService outbox;
     private final ObjectMapper objectMapper;
+    private final com.amatrix.sic.project.service.ProjectDepartmentService departments;
+    private final com.amatrix.sic.project.service.directory.ProjectUserDirectory users;
 
     public ProjectApplicationSagaService(ApplicationSagaMapper mapper, TransactionTemplate transactions,
             WorkflowSagaClient workflow, InternalTokenProvider serviceTokens, OutboxService outbox,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper, com.amatrix.sic.project.service.ProjectDepartmentService departments,
+            com.amatrix.sic.project.service.directory.ProjectUserDirectory users) {
         this.mapper = mapper;
         this.transactions = transactions;
         this.workflow = workflow;
         this.serviceTokens = serviceTokens;
         this.outbox = outbox;
         this.objectMapper = objectMapper;
+        this.departments = departments;
+        this.users = users;
     }
 
     public StartProjectApplicationResponse start(Long actorId, String actorName, Long deptId, String deptName,
             String userAuthorization, StartProjectApplicationRequest request) {
         validate(request);
+        // Read authoritative IAM data before any project/Saga writes or transaction is opened.
+        var applicant = users.fetchAll(List.of(actorId)).getFirst();
+        if (!applicant.enabled()) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "账号已停用");
+        var department = departments.requireEnabled(applicant.deptId());
         String requestHash = hash(request);
         ApplicationSagaRow existing = findRecent(actorId, requestHash);
         if (existing != null) {
@@ -64,7 +73,7 @@ public class ProjectApplicationSagaService {
 
         UUID sagaId = UUID.randomUUID();
         String projectCode = projectCode(request);
-        Long projectId = transactions.execute(status -> createProject(sagaId, actorId, actorName, deptId, deptName,
+        Long projectId = transactions.execute(status -> createProject(sagaId, actorId, actorName, department.deptId(), department.deptName(),
                 requestHash, projectCode, request));
         ApplicationSagaCommand command = new ApplicationSagaCommand(sagaId, projectId, actorId,
                 projectCode, request.projectName().trim(), request.projectType(), request.projectLevel(),

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { useRouter } from 'vue-router';
 import { getProjectAuthorization } from "../../api/projects";
 import {
   assignExpertToBatch,
@@ -23,6 +24,7 @@ const props = withDefaults(
 );
 const emit = defineEmits<{ changed: [] }>();
 const auth = useAuthStore();
+const router = useRouter();
 const loading = ref(false);
 const detail = ref<ProjectAuthorizationDetail | null>(null);
 const batch = ref<any | null>(null);
@@ -322,7 +324,7 @@ async function submitScore() {
     batch.value = response.batch;
     assignments.value = response.assignments;
     ElMessage.success("专家评分已提交");
-    emit("changed");
+    router.push({ name: 'expert-reviews' });
   } catch (error) {
     ElMessage.error(
       error instanceof Error ? error.message : "专家评分提交失败",

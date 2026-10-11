@@ -1,0 +1,17 @@
+description: personal review detail exposes the current user's record
+name: expert_personal_detail
+request:
+  method: GET
+  url: /api/expert-reviews/my-assignments/30
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      assignmentId: 30
+      status: COMPLETED
+      canReview: false
+      scores: []
+    message: OK

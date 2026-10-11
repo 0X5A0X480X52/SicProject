@@ -200,9 +200,17 @@ public class WorkflowRuntimeService {
                 .map(this::requirementMap).toList();
         List<Map<String, Object>> forms = nodeForms.forNode(module.type(), module.nodeId(), module.state());
         if (forms.isEmpty()) forms = List.of(defaultForm(module, currentNode));
+        Map<String,Object> configuration = Map.of();
+        if (!module.finished() && "FINANCE_ADMIN".equals(currentNode.candidateRoleCode())) {
+            var response = projectAccess.financeReadiness(tokens.authorization(), module.projectId(), module.type(),
+                    module.round(), module.nodeId());
+            if (response == null || !response.success() || response.data() == null)
+                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "财务办理配置暂不可用，请稍后重试");
+            configuration = response.data();
+        }
         return linked("context", context, "canOperate", canOperate, "availableTransitions", transitions,
                 "materialRequirements", requirements, "nodeForms", forms,
-                "openTasks", tasks, "history", history);
+                "openTasks", tasks, "history", history, "taskConfiguration", configuration);
     }
 
     @PreAuthorize("isAuthenticated()")

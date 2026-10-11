@@ -18,10 +18,12 @@ import WorkflowNodeWorkPanel from '../components/workflow/WorkflowNodeWorkPanel.
 import ExpertReviewPanel from '../components/workflow/ExpertReviewPanel.vue'
 import type { AvailableTransition, MaterialContextView, MaterialRequirementView, ModuleStateRecord, NodeFormSaveRequest, RuntimeViewResponse, StateTransitionRequest } from '../types/nodeForms'
 import type { ProjectSummary } from '../types/project'
+import { useAuthStore } from '../stores/auth'
 import type { WorkflowNodeDefinition } from '../types/workflow'
 import { eventLabel, lifecycleLabel, moduleTypeLabel, operationModeLabel, resultLabel, roleLabel, stateLabel } from '../utils/displayLabels'
 
 type DraftKey = string
+const auth = useAuthStore()
 interface MaterialSummaryItem { key: string; name: string; required: boolean; count: number; latest?: MaterialContextView; requirement: MaterialRequirementView; missing: boolean }
 interface WorkflowNodeFormModel { approved?: boolean; title?: string; summary?: string; remark?: string; externalActorCode?: string; externalActorName?: string; resultDocumentNo?: string; operationType?: string; operationTarget?: string; archiveType?: string; approvedAmount?: number | null; receivedAmount?: number | null; spentAmount?: number | null; settlementResult?: string; financeReviewComment?: string; settlementAmount?: number | null; scoreValue?: number | null; reviewResult?: string; isLimitedProject?: boolean }
 interface WorkflowNodeSubmitPayload { formCode?: string; data?: NodeFormSaveRequest; result?: string; remark?: string }
@@ -450,7 +452,12 @@ async function submitCurrentDraft() {
 }
 watch(processNodes, (nodes) => { if (nodes.length && (!selectedNodeId.value || !nodes.some((node) => node.id === selectedNodeId.value))) selectedNodeId.value = nodes.find((node) => node.status === 'current')?.id ?? nodes[nodes.length - 1].id })
 const workflowEvents = useWorkflowEvents((event) => { if (!event.moduleInstanceId || event.moduleInstanceId === moduleInstanceId.value) loadDetail() })
-onMounted(() => { loadDetail(); workflowEvents.connect() })
+onMounted(() => {
+  if (auth.user?.roleCodes.includes('EXPERT') && !auth.user.roleCodes.some(role => ['SYSTEM_ADMIN','SCIENCE_ADMIN','DEPT_ADMIN','PROJECT_LEADER'].includes(role))) {
+    router.replace({ name: 'expert-reviews' }); return
+  }
+  loadDetail(); workflowEvents.connect()
+})
 </script>
 
 <template>
@@ -478,6 +485,9 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
         </div>
       </section>
 
+      <el-alert v-if="runtimeView.taskConfiguration?.ready === false" type="warning" :closable="false" show-icon :title="runtimeView.taskConfiguration.message">
+        <router-link v-if="auth.user?.roleCodes.some(role => ['SYSTEM_ADMIN','SCIENCE_ADMIN'].includes(role))" :to="{ name: 'project-authorization', params: { projectId: runtimeView.context.projectId } }">配置本项目财务办理人</router-link>
+      </el-alert>
       <section class="workflow-detail-stack-summary-strip">
         <div v-for="item in summaryItems" :key="item.label" class="workflow-detail-stack-summary-item">
           <span>{{ item.label }}</span>

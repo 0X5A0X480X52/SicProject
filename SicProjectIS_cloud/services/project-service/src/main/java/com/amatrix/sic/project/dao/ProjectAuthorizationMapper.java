@@ -15,6 +15,9 @@ public interface ProjectAuthorizationMapper {
     List<Map<String,Object>> grants(@Param("id") Long id,@Param("role") String role);
     List<Map<String,Object>> grantCounts();
     int changeLeader(@Param("id") Long id,@Param("userId") Long userId,@Param("name") String name);
+    int assignDepartment(@Param("id") Long id,@Param("deptId") Long deptId,@Param("name") String name);
+    List<Long> financeCandidates(@Param("projectId") Long projectId,@Param("moduleType") String moduleType,
+            @Param("roundNo") Integer roundNo,@Param("node") String node);
     int demoteMember(@Param("id") Long id,@Param("userId") Long userId);
     int upsertMember(Map<String,Object> member);
     int deleteMember(@Param("id") Long id,@Param("userId") Long userId);

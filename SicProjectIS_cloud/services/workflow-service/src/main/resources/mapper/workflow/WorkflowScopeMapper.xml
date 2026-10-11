@@ -28,6 +28,11 @@
     <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
   </select>
   <select id="projectId" resultType="java.lang.Long">SELECT project_id FROM module_instance WHERE id=#{moduleId}</select>
+  <select id="definitionProjects" resultType="java.lang.Long">
+    SELECT DISTINCT project_id FROM module_instance
+     WHERE definition_id=#{definitionId} AND project_id&gt;#{afterProjectId}
+     ORDER BY project_id LIMIT 100
+  </select>
   <select id="expertGrant" resultMap="grant">
     SELECT m.project_id,m.module_code,m.current_round,b.created_by,n.node_id,a.expert_name_snapshot FROM module_instance m
       JOIN workflow_task t ON t.module_instance_id=m.id AND t.status='OPEN' AND t.node_id=m.current_node_id AND t.candidate_role='EXPERT'

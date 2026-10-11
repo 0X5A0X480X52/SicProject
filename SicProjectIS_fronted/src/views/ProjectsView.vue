@@ -19,7 +19,7 @@ const lifecycleOptions = computed(() => uniqueOptions(projects.value.map((projec
 const deptOptions = computed(() => uniqueOptions(projects.value.map((project) => project.deptName)))
 const leaderCount = computed(() => new Set(projects.value.map((project) => project.leaderUserId).filter(Boolean)).size)
 const activeCount = computed(() =>
-  projects.value.filter((project) => !['ARCHIVED', 'FINISHED', 'CLOSED'].includes(String(project.lifecycleStage ?? '').toUpperCase())).length,
+  projects.value.filter((project) => !['ARCHIVED', 'FINISHED', 'CLOSED', 'PROJECT_FINISHED'].includes(String(project.lifecycleStage ?? '').toUpperCase())).length,
 )
 const filteredProjects = computed(() => {
   const text = keyword.value.trim().toLowerCase()

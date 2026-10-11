@@ -89,7 +89,7 @@ public class IamAdminService {
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> createDepartment(Long operatorId,Map<String,Object> request) {
         requireGlobalDepartmentManager(operatorId);
-        String code=required(request.get("deptCode"),"Department code is required");
+        String code=departmentCode(request.get("deptCode"),null);
         String name=required(request.get("deptName"),"Department name is required");
         mapper.insertDepartment(code,name,asLong(request.get("parentDeptId")),!Boolean.FALSE.equals(request.get("enabled")));
         Long id=mapper.departmentId(code);
@@ -100,7 +100,7 @@ public class IamAdminService {
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> updateDepartment(Long operatorId,Long deptId,Map<String,Object> request) {
         requireGlobalDepartmentManager(operatorId);requireDepartment(deptId);
-        String code=required(request.get("deptCode"),"Department code is required");
+        String code=departmentCode(request.get("deptCode"),(String)department(deptId).get("deptCode"));
         String name=required(request.get("deptName"),"Department name is required");
         Long parent=asLong(request.get("parentDeptId"));
         if(Objects.equals(parent,deptId))throw status(HttpStatus.BAD_REQUEST,"Department cannot be its own parent");
@@ -118,11 +118,19 @@ public class IamAdminService {
     }
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> departmentMembers(Long operatorId,Long deptId) {
-        Long scope=departmentScope(operatorId),selected=scope==null?deptId:scope;
-        if(selected==null)throw status(HttpStatus.BAD_REQUEST,"Department is required");
-        requireDepartment(selected);
-        return linked("departments",departments(operatorId),"assignableRoleCodes",EDITABLE_DEPARTMENT_ROLES,
-                "members",usersForDepartment(selected,null),"canManageDepartments",scope==null,"memberManagementDisabled",false,"disabledReason",null);
+        requireUser(operatorId);
+        boolean global=isGlobalDepartmentManager(operatorId);
+        Long scope=global?null:mapper.userDepartment(operatorId);
+        if(!global && scope==null)
+            return linked("departments",List.of(),"assignableRoleCodes",EDITABLE_DEPARTMENT_ROLES,
+                    "members",List.of(),"canManageDepartments",false,"memberManagementDisabled",true,
+                    "disabledReason","请联系系统管理员分配部门");
+        if(!global && deptId!=null && !Objects.equals(deptId,scope))
+            throw status(HttpStatus.FORBIDDEN,"Department administrators can only manage their own department");
+        Long selected=global?deptId:scope;
+        if(selected!=null)requireDepartment(selected);
+        return linked("departments",mapper.departments(scope),"assignableRoleCodes",EDITABLE_DEPARTMENT_ROLES,
+                "members",usersForDepartment(selected,null),"canManageDepartments",global,"memberManagementDisabled",false,"disabledReason",null);
     }
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> candidates(Long operatorId,String keyword) {
@@ -136,13 +144,15 @@ public class IamAdminService {
         Long currentDept=mapper.userDepartment(userId);
         if(!isGlobalDepartmentManager(operatorId) && currentDept!=null && !Objects.equals(currentDept,deptId))
             throw status(HttpStatus.FORBIDDEN,"Department administrators cannot move users from another department");
-        replaceEditableRoles(userId,roles);mapper.moveUser(userId,deptId);cacheVersion(userId);
+        if(roles!=null)replaceEditableRoles(userId,roles);
+        mapper.moveUser(userId,deptId);cacheVersion(userId);
         emit("IAM_USER_CHANGED",userId,operatorId,linked("userId",userId,"deptId",deptId));
         return member(userId);
     }
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> updateMemberRoles(Long operatorId,Long userId,List<String> roles) {
+        if(roles==null)throw status(HttpStatus.BAD_REQUEST,"Role codes are required");
         requireUser(userId);requireManagedDepartment(operatorId,mapper.userDepartment(userId));
         replaceEditableRoles(userId,roles);invalidateUsers(List.of(userId));
         emit("IAM_USER_ROLES_CHANGED",userId,operatorId,linked("userId",userId,"roles",roles));
@@ -235,6 +245,12 @@ public class IamAdminService {
         String text=value==null?null:value.toString().trim();
         if(!hasText(text))throw status(HttpStatus.BAD_REQUEST,message);
         return text;
+    }
+    private static String departmentCode(Object value,String existing) {
+        String code=value==null?null:value.toString().trim();
+        if(!hasText(code))return hasText(existing)?existing:"DEPT_"+UUID.randomUUID().toString().replace("-","");
+        if(code.length()>64)throw status(HttpStatus.BAD_REQUEST,"Department code must not exceed 64 characters");
+        return code;
     }
     private static Long asLong(Object value) { return value==null?null:value instanceof Number n?n.longValue():Long.valueOf(value.toString()); }
     private static ResponseStatusException status(HttpStatus code,String message) { return new ResponseStatusException(code,message); }

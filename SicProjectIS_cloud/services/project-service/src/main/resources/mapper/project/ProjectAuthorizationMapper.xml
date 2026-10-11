@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.project.dao.ProjectAuthorizationMapper">
+  <update id="assignDepartment">UPDATE project SET dept_id=#{deptId},dept_name_snapshot=#{name},version=version+1 WHERE id=#{id} AND dept_id IS NULL</update>
+  <select id="financeCandidates" resultType="Long">
+    SELECT DISTINCT grantee_user_id FROM project_access_grant
+     WHERE project_id=#{projectId} AND grant_role_code='PROJECT_FINANCE_HANDLER_ASSIGNMENT' AND status='ACTIVE'
+       AND (module_type IS NULL OR module_type=#{moduleType}) AND (round_no IS NULL OR round_no=#{roundNo})
+       AND (task_node_id IS NULL OR task_node_id=#{node})
+       AND (effective_from IS NULL OR effective_from&lt;=CURRENT_TIMESTAMP(6))
+       AND (effective_to IS NULL OR effective_to&gt;CURRENT_TIMESTAMP(6))
+     ORDER BY grantee_user_id
+  </select>
   <resultMap id="project" type="com.amatrix.sic.project.entity.ProjectRecord"><constructor>
     <arg column="id" javaType="java.lang.Long"/><arg column="project_code" javaType="String"/>
     <arg column="project_name" javaType="String"/><arg column="dept_id" javaType="java.lang.Long"/>

@@ -1,0 +1,17 @@
+description: personal review records remain separate from project access
+name: expert_personal_list
+request:
+  method: GET
+  url: /api/expert-reviews/my-assignments
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      items: []
+      page: 1
+      pageSize: 10
+      hasMore: false
+    message: OK

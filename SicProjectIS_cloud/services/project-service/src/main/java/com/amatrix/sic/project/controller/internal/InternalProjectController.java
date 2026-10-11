@@ -26,9 +26,18 @@ import java.util.Map;
 public class InternalProjectController {
     private final ProjectAccessPolicy policy;
     private final ProjectAuthorizationService authorizations;
-    public InternalProjectController(ProjectAccessPolicy policy, ProjectAuthorizationService authorizations) {
+    private final com.amatrix.sic.project.service.ProjectFinanceReadinessService finance;
+    public InternalProjectController(ProjectAccessPolicy policy, ProjectAuthorizationService authorizations,
+            com.amatrix.sic.project.service.ProjectFinanceReadinessService finance) {
         this.policy = policy;
         this.authorizations = authorizations;
+        this.finance = finance;
+    }
+
+    @GetMapping("/{projectId}/finance-readiness")
+    ApiResponse<Map<String,Object>> financeReadiness(@PathVariable Long projectId, @RequestParam String moduleType,
+            @RequestParam Integer roundNo, @RequestParam String taskNodeId) {
+        return ApiResponse.ok(finance.readiness(projectId,moduleType,roundNo,taskNodeId));
     }
 
     @GetMapping("/{projectId}/access")

@@ -30,7 +30,8 @@ public class WorkflowProjectAuthorizationConsumer {
     public void consume(String json) throws Exception {
         EventEnvelope<Map<String, Object>> event = mapper.readValue(json, new TypeReference<>() {});
         if (!guard.begin(event.eventId(), "workflow-project-authorization")) return;
-        if (!"PROJECT_LEADER_CHANGED".equals(event.eventType())) return;
+        if (!"PROJECT_LEADER_CHANGED".equals(event.eventType())
+                && !"PROJECT_DEPARTMENT_ASSIGNED".equals(event.eventType())) return;
         Long projectId = number(event.payload().get("projectId"));
         Long ownerId = number(event.payload().get("ownerUserId"));
         Long version = number(event.payload().get("projectVersion"));

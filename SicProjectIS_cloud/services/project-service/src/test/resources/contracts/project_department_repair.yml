@@ -1,0 +1,21 @@
+description: only global administrators can repair missing project departments
+name: project_department_repair
+request:
+  method: PUT
+  url: /api/projects/10/department
+  headers:
+    Content-Type: application/json
+  body:
+    deptId: 3
+    reason: Historical department repair
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      projectId: 10
+      deptId: 3
+      deptName: Science
+    message: OK

@@ -31,13 +31,16 @@ public class InternalIdentityController {
     private final JwtTokenIssuer tokenIssuer;
     private final ServiceTokenProperties tokenProperties;
     private final IamOverviewService overview;
+    private final com.amatrix.sic.iam.dao.AdminMapper departments;
 
     public InternalIdentityController(IamRepository repository, JwtTokenIssuer tokenIssuer,
-            ServiceTokenProperties tokenProperties, IamOverviewService overview) {
+            ServiceTokenProperties tokenProperties, IamOverviewService overview,
+            com.amatrix.sic.iam.dao.AdminMapper departments) {
         this.repository = repository;
         this.tokenIssuer = tokenIssuer;
         this.tokenProperties = tokenProperties;
         this.overview = overview;
+        this.departments = departments;
     }
 
     @PostMapping("/tokens/service")
@@ -67,5 +70,14 @@ public class InternalIdentityController {
     @GetMapping("/admin/overview-stats")
     ApiResponse<IamOverviewStats> overviewStats() {
         return ApiResponse.ok(overview.overview());
+    }
+
+    @GetMapping("/departments/{deptId}/summary")
+    ApiResponse<com.amatrix.sic.contracts.DepartmentSummary> department(
+            @org.springframework.web.bind.annotation.PathVariable Long deptId) {
+        var row = departments.department(deptId);
+        if (row == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Department not found");
+        return ApiResponse.ok(new com.amatrix.sic.contracts.DepartmentSummary(deptId,
+                (String) row.get("deptName"), Boolean.TRUE.equals(row.get("enabled"))));
     }
 }

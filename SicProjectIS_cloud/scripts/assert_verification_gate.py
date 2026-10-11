@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_MYSQL = {"FullSchemaEquivalenceTest", "InfrastructureIntegrationTest",
-    "MysqlMapperIntegrationTest", "SessionRedisIntegrationTest"}
+    "MysqlMapperIntegrationTest", "SessionRedisIntegrationTest", "MysqlInitializationEncodingTest", "MysqlWorkbenchRegressionTest"}
 
 
 def main() -> int:
@@ -53,6 +53,11 @@ def main() -> int:
         package=re.search(r"\bpackage\s+([\w.]+)\s*;",content)
         if package:expected[package.group(1)+"."+name]=len(re.findall(r"@(Test|ParameterizedTest)\b",content))
     report["expectedSourceSuites"]=len(expected)
+    for source in ROOT.glob("**/target/generated-test-sources/contracts/**/*.java"):
+        content=source.read_text(encoding="utf-8")
+        package=re.search(r"\bpackage\s+([\w.]+)\s*;",content)
+        if package:expected[package.group(1)+"."+source.stem]=len(re.findall(r"@Test\b",content))
+    report["expectedGeneratedContractSuites"]=sum(1 for name in expected if name.endswith(".ContractVerifierTest"))
     report["failures"] += ["Missing source suite "+name for name in sorted(set(expected)-canonical)]
     report["failures"] += ["Incomplete source suite "+name for name,minimum in expected.items()
         if name in canonical and counts.get(name,0)<minimum]

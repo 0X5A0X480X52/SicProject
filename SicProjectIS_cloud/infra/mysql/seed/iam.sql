@@ -1,4 +1,5 @@
 -- Release seed; credentials are configured through IAM bootstrap.
+SET NAMES utf8mb4;
 INSERT INTO department(id, name, code) VALUES (1, '系统管理部门', 'SYSTEM');
 
 INSERT INTO app_role(code, name, description, built_in) VALUES

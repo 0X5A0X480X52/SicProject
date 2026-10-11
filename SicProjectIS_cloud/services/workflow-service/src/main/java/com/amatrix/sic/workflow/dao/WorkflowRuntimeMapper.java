@@ -17,6 +17,9 @@ public interface WorkflowRuntimeMapper {
     List<Map<String,Object>> history(@Param("module") Long module);
     List<Map<String,Object>> tasks(@Param("module") Long module);
     List<Map<String,Object>> workbench();
+    List<Map<String,Object>> workbenchCandidates(@Param("view") String view,@Param("userId") Long userId,
+            @Param("moduleType") String moduleType,@Param("keyword") String keyword,
+            @Param("beforeTime") java.time.LocalDateTime beforeTime,@Param("beforeId") Long beforeId);
     int insertModule(Map<String,Object> values);
     int insertState(Map<String,Object> values);
     int insertTask(@Param("module") Long module,@Param("node") String node,@Param("assignee") Long assignee,

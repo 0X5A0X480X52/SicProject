@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import secrets
 import sys
 import time
@@ -178,9 +179,15 @@ class LifecycleRunner:
         self.login("administrator")
         me = self.request("administrator", "GET", "/api/auth/me")
         require("SYSTEM_ADMIN" in me["roleCodes"], "Administrator lacks SYSTEM_ADMIN")
+        ui_cases = getattr(self.args, "ui_regression_cases", False)
+        if ui_cases:
+            self.check("Chinese seed labels and initial department page", self.ui_initial_department_view)
         department = self.request("administrator", "POST", "/api/admin/departments", body={
-            "deptCode": "E2E_" + self.run_id, "deptName": "E2E " + self.run_id,
+            "deptCode": "" if ui_cases else "E2E_" + self.run_id,
+            "deptName": ("自动化测试部门 " if ui_cases else "E2E ") + self.run_id,
             "parentDeptId": None, "enabled": True})
+        if ui_cases:
+            require(department["deptCode"].startswith("DEPT_"), "Blank department code was not generated")
         self.dept_id = department["deptId"]
         for spec in self.case["accounts"]:
             actor = spec["alias"]
@@ -189,16 +196,26 @@ class LifecycleRunner:
             self.accounts[actor] = {"username": username, "password": self.password}
             registered = self.request(actor, "POST", "/api/auth/register", token="", body={
                 "username": username, "password": self.password, "realName": "E2E " + actor,
-                "deptId": self.dept_id, "phone": "", "email": actor + "@example.invalid"})
+                "deptId": None if ui_cases else self.dept_id, "phone": "", "email": actor + "@example.invalid"})
             self.accounts[actor]["userId"] = registered["user"]["userId"]
             old_token = registered["token"]
             self.secrets.append(old_token)
+            roles = [] if getattr(self.args, "iteration_regression_cases", False) and actor == "finance" else spec["roleCodesBeforeQualification"]
+            self.accounts[actor]["initialRoles"] = roles
             self.request("administrator", "PUT", f"/api/admin/users/{registered['user']['userId']}/roles",
-                body={"roleCodes": spec["roleCodesBeforeQualification"]})
+                body={"roleCodes": roles})
             self.request(actor, "GET", "/api/auth/me", token=old_token, status=401)
             self.login(actor)
             current = self.request(actor, "GET", "/api/auth/me")
-            require(set(current["roleCodes"]) == set(spec["roleCodesBeforeQualification"]), f"{actor}: roles differ")
+            require(set(current["roleCodes"]) == set(roles), f"{actor}: roles differ")
+        if ui_cases:
+            self.check("Departmentless applicant rejected before project creation", self.ui_departmentless_project)
+            for spec in self.case["accounts"]:
+                actor = spec["alias"]
+                self.ui_assign_department(actor, self.accounts[actor]["initialRoles"])
+            view = self.request("administrator", "GET", f"/api/admin/departments/members?deptId={self.dept_id}")
+            require(len(view["members"]) == len(self.case["accounts"]), "Department assignments are missing")
+            self.request("department", "GET", "/api/admin/departments/members?deptId=1", status=403)
         for actor in self.case["qualification"]["applicants"]:
             application = self.request(actor, "POST", "/api/expert-qualification/applications", body={
                 "specialty": "科研项目评审", "professionalTitle": "副教授", "applicationReason": "E2E " + self.run_id})
@@ -215,8 +232,50 @@ class LifecycleRunner:
             require("EXPERT" in self.request(actor, "GET", "/api/auth/me")["roleCodes"], "Expert role missing")
             qualification = self.request(actor, "GET", "/api/expert-qualification/my")
             require(qualification["expert"] and not qualification["hasActiveApplication"], "Qualification not active")
+            if ui_cases:
+                self.ui_assign_department(actor, ["EXPERT"])
         self.report["fixtures"]["departmentId"] = self.dept_id
         self.report["fixtures"]["actors"] = {a: {"userId": v["userId"]} for a, v in self.accounts.items()}
+
+    def ui_initial_department_view(self) -> None:
+        matrix = self.request("administrator", "GET", "/api/admin/roles/permissions")
+        seed = (ROOT / "infra/mysql/seed/iam.sql").read_text(encoding="utf-8")
+        labels = dict(re.findall(r"\('([^']+)', '([^']+)'", seed))
+        for permission in matrix["permissions"]:
+            code = permission["permissionCode"]
+            if code in labels:
+                require(permission["permissionName"] == labels[code], "Permission seed label differs: " + code)
+        for role in matrix["roles"]:
+            require(role["roleName"] == labels[role["roleCode"]], "Role seed label differs")
+        view = self.request("administrator", "GET", "/api/admin/departments/members")
+        require(view["canManageDepartments"] and not view["memberManagementDisabled"], "Initial department controls unavailable")
+        system = next((d for d in view["departments"] if d["deptId"] == 1), None)
+        require(system and system["deptName"] == "系统管理部门", "Default department label differs")
+
+    def ui_departmentless_project(self) -> None:
+        disabled = self.request("department", "GET", "/api/admin/departments/members")
+        require(disabled["memberManagementDisabled"] and not disabled["members"] and not disabled["departments"],
+                "Unassigned department administrator was not safely disabled")
+        body = {k: v.replace("<runId>", self.run_id + "_UI") if isinstance(v, str) else v
+                for k, v in self.case["projectStart"]["body"].items()}
+        before = self.request("leader", "GET", "/api/projects")
+        self.request("leader", "POST", "/api/project-applications/start", body=body, status=409)
+        require(self.request("leader", "GET", "/api/projects") == before, "Rejected application created a project")
+
+    def ui_definition_display(self, definition: int) -> None:
+        require(self.request("leader", "GET", f"/api/workflow-definitions/{definition}/nodes"), "Definition nodes missing")
+        xml = self.request("leader", "GET", f"/api/workflow-definitions/{definition}/bpmn")
+        require("definitions" in xml["bpmnXml"], "Definition BPMN missing")
+        require(self.request("leader", "GET", f"/api/workflow-definitions/{definition}/transitions"), "Definition transitions missing")
+
+    def ui_assign_department(self, actor: str, roles: list[str]) -> None:
+        old_token = self.tokens[actor]
+        user = self.request("administrator", "PUT", f"/api/admin/departments/{self.dept_id}/members/{self.accounts[actor]['userId']}", body={})
+        require(set(user["roleCodes"]) == set(roles), "Department-only assignment changed roles: " + actor)
+        self.request(actor, "GET", "/api/auth/me", token=old_token, status=401)
+        self.login(actor)
+        me = self.request(actor, "GET", "/api/auth/me")
+        require(me["deptId"] == self.dept_id and set(me["roleCodes"]) == set(roles), "Assigned identity differs: " + actor)
 
     def start_project(self) -> None:
         body = dict(self.case["projectStart"]["body"])
@@ -226,8 +285,18 @@ class LifecycleRunner:
         started = self.request("leader", "POST", "/api/project-applications/start", body=body)
         self.project = started["projectId"]
         self.modules["APPLICATION"] = started["moduleInstanceId"]
+        if getattr(self.args, "ui_regression_cases", False):
+            module = self.request("leader", "GET", f"/api/module-instances/{started['moduleInstanceId']}/runtime-view")
+            self.check("Assigned owner definition display", lambda: self.ui_definition_display(module["context"]["workflowDefinitionId"]))
+            definition = module["context"]["workflowDefinitionId"]
+            self.request("finance", "GET", f"/api/workflow-definitions/{definition}/nodes", status=403)
+            self.request("leader", "GET", "/api/workflow-definitions", status=403)
+            self.request("leader", "PUT", f"/api/projects/{self.project}/department", body={"deptId": self.dept_id, "reason": "Forbidden repair"}, status=403)
+            self.request("administrator", "PUT", f"/api/projects/{self.project}/department", body={"deptId": self.dept_id, "reason": "Cannot overwrite existing department"}, status=409)
+            self.report["uiRegressionCasesPassed"] = True
         grant = dict(self.case["financeGrant"]["body"], userId=self.accounts["finance"]["userId"])
-        self.request("administrator", "POST", f"/api/projects/{self.project}/finance-grants", body=grant)
+        if not getattr(self.args, "iteration_regression_cases", False):
+            self.request("administrator", "POST", f"/api/projects/{self.project}/finance-grants", body=grant)
         experts = {self.accounts[a]["userId"] for a in ("expert1", "expert2")}
         self.poll("qualified expert snapshots", lambda: self.request("science", "GET", f"/api/projects/{self.project}/authorization"),
             lambda data: experts <= {u["userId"] for u in data["users"] if "EXPERT" in u["roleCodes"]})
@@ -271,10 +340,18 @@ class LifecycleRunner:
         require(len(assignments) == 2, "Review requires two distinct experts")
         for index, expert in enumerate(("expert1", "expert2")):
             score = self.case["expertBatch"]["scores"][expert]
-            batch = self.request(expert, "POST", f"/api/expert-reviews/assignments/{assignments[self.accounts[expert]['userId']]}/scores",
+            response = self.request(expert, "POST", f"/api/expert-reviews/assignments/{assignments[self.accounts[expert]['userId']]}/scores",
                 body={"conflictOfInterest": False, "valid": True, "reviewResult": "APPROVED", "reviewComment": "E2E",
                     "scores": [{"itemCode": "OVERALL", "itemName": "综合评分", "weight": 1, "maxScore": 100,
                                 "scoreValue": score, "comment": "E2E"}]})
+            require(len(response["assignments"]) == 1 and response["assignments"][0]["assignment"]["expertUserId"] == self.accounts[expert]["userId"], "Score response exposed another expert")
+            require("finalScore" not in response["batch"] and "highestScore" not in response["batch"], "Score response exposed batch scores")
+            batch = self.request("administrator", "GET", f"/api/expert-reviews/batches/{batch_id}")
+            if getattr(self.args, "iteration_regression_cases", False):
+                personal = self.request(expert, "GET", f"/api/expert-reviews/my-assignments/{assignments[self.accounts[expert]['userId']]}")
+                require(not personal["canReview"] and float(personal["totalScore"]) == score, "Submitted personal record is missing")
+                other = "expert2" if expert == "expert1" else "expert1"
+                self.request(expert, "GET", f"/api/expert-reviews/my-assignments/{assignments[self.accounts[other]['userId']]}", status=404)
             if index == 0:
                 require(batch["batch"]["submittedExpertCount"] == 1 and batch["batch"]["status"] != "COMPLETED",
                     "One score prematurely completed review")
@@ -284,6 +361,37 @@ class LifecycleRunner:
         require(float(result["finalScore"]) == 85 and result["finalResult"] == "RECOMMENDED", "Review result differs")
         self.poll("expert automatic transition", lambda: self.runtime(module),
             lambda v: v["context"]["currentNodeId"] == step["nextNodeId"])
+        if getattr(self.args, "iteration_regression_cases", False):
+            for expert in ("expert1", "expert2"):
+                self.poll("expert access revoked", lambda a=expert: self.request(a, "GET", f"/api/projects/{self.project}/authorization", status=(200,403)),
+                    lambda result: result is None)
+                personal = self.request(expert, "GET", f"/api/expert-reviews/my-assignments/{assignments[self.accounts[expert]['userId']]}")
+                require(personal["status"] == "COMPLETED" and not personal["canReview"], "Review history did not survive access revocation")
+
+    def late_finance_configuration(self, module: int) -> None:
+        view = self.runtime(module)
+        context = view["context"]
+        require(view["taskConfiguration"]["ready"] is False, "Unconfigured finance task not reported")
+        path = "/api/workflow-workbench/query?view=TODO"
+        require(not self.request("finance", "GET", path)["items"], "Unqualified user obtained finance todo")
+        old = self.tokens["finance"]
+        self.request("administrator", "PUT", f"/api/admin/users/{self.accounts['finance']['userId']}/roles", body={"roleCodes": ["FINANCE_ADMIN"]})
+        self.request("finance", "GET", "/api/auth/me", token=old, status=401)
+        self.login("finance")
+        require(not self.request("finance", "GET", path)["items"], "Finance role without project grant obtained todo")
+        self.poll("late finance user snapshot", lambda: self.request("administrator", "GET", f"/api/projects/{self.project}/authorization"),
+            lambda data: any(u["userId"] == self.accounts["finance"]["userId"] and "FINANCE_ADMIN" in u["roleCodes"] for u in data["users"]))
+        wrong = self.request("administrator", "POST", f"/api/projects/{self.project}/finance-grants", body={
+            "userId": self.accounts["finance"]["userId"], "moduleType": context["moduleType"], "roundNo": context["currentRoundNo"] + 1,
+            "taskNodeId": context["currentNodeId"], "reason": "E2E wrong round"})
+        require(not self.request("finance", "GET", path)["items"], "Wrong round grant obtained todo")
+        self.request("administrator", "POST", f"/api/projects/{self.project}/grants/{wrong['financeGrants'][-1]['projectRoleGrantId']}/revoke", body={"reason": "E2E cleanup wrong scope"})
+        self.request("administrator", "POST", f"/api/projects/{self.project}/finance-grants", body=dict(self.case["financeGrant"]["body"], userId=self.accounts["finance"]["userId"]))
+        rows = self.request("finance", "GET", path)["items"]
+        require(any(row["moduleInstanceId"] == module and row["todo"] for row in rows), "Late finance grant did not expose the existing task")
+        current = self.runtime(module, "finance")
+        require(current["taskConfiguration"]["ready"] and current["context"]["currentSeq"] == context["currentSeq"], "Configuration recreated or advanced the task")
+        self.report["lateFinanceConfigurationPassed"] = True
 
     def verify_form(self, module: int, step: dict, sent: dict) -> None:
         kind = step["form"]["dataKind"]
@@ -327,6 +435,8 @@ class LifecycleRunner:
             self.score_batch(module, step)
             return
         actor = step["actor"]
+        if actor == "finance" and getattr(self.args, "iteration_regression_cases", False) and not self.report.get("lateFinanceConfigurationPassed"):
+            self.check("Late finance role and project grant expose an existing task", lambda: self.late_finance_configuration(module))
         view = self.runtime(module, actor)
         context = view["context"]
         require(context["currentNodeId"] == step["nodeId"] and context["currentState"] == step["state"], "Unexpected current node/state")
@@ -361,6 +471,15 @@ class LifecycleRunner:
         require(len(self.batches) == 3 and len(self.materials) == 17, "Batch/material fixture counts differ")
         self.poll("project finished", lambda: self.request("science", "GET", f"/api/projects/{self.project}/authorization"),
             lambda p: p["project"]["lifecycleStage"] == "PROJECT_FINISHED")
+        if getattr(self.args, "iteration_regression_cases", False):
+            for actor in ("leader", "science"):
+                history = self.request(actor, "GET", "/api/workflow-workbench/query?view=FINISHED&pageSize=100")["items"]
+                own = [row for row in history if row["projectId"] == self.project]
+                require(len(own) == 3 and all(row["finished"] and not row["canOperate"] for row in own), "Finished modules disappeared from history")
+            personal = self.request("expert1", "GET", "/api/expert-reviews/my-assignments?status=COMPLETED")["items"]
+            require(len([row for row in personal if row["projectId"] == self.project]) == 3, "Expert history is incomplete")
+            require(not self.request("expert1", "GET", "/api/workflow-workbench/query?view=FINISHED")["items"], "Expert history restored full project access")
+            self.report["iterationRegressionCasesPassed"] = True
         expected = hashlib.sha256(self.args.fixture_pdf.read_bytes()).hexdigest()
         for code, version in self.materials.items():
             content = self.request("science", "GET", f"/api/material-versions/{version}/download", raw=True)
@@ -379,7 +498,13 @@ class LifecycleRunner:
             self.check("project and finance authorization", self.start_project)
             self.traverse()
             self.check("final business assertions", self.final_assertions)
-            self.report["overallPassed"] = self.report["workflowTraversalPassed"] and self.report["businessDataPassed"]
+            require(self.report["workflowTraversalPassed"] and self.report["businessDataPassed"],
+                    "Workflow or business assertions did not complete")
+            for enabled, flag in ((self.args.ui_regression_cases, "uiRegressionCasesPassed"),
+                                  (self.args.iteration_regression_cases, "iterationRegressionCasesPassed")):
+                if enabled:
+                    require(self.report.get(flag) is True, f"Required regression did not complete: {flag}")
+            self.report["overallPassed"] = True
             return 0
         except Exception as exc:
             self.report["error"] = self.redact(exc)
@@ -405,6 +530,8 @@ def main() -> int:
     parser.add_argument("--report-path", type=Path)
     parser.add_argument("--env-file", type=Path, help="Optional Compose credentials file; explicit SIC_E2E_* environment values take precedence")
     parser.add_argument("--negative-cases", action="store_true", help="Also verify stale sequences, missing files, unauthorized operators, duplicate submits and reserved-file deletion")
+    parser.add_argument("--ui-regression-cases", action="store_true", help="Verify initial department UI, Chinese seeds, role-preserving assignment and owner BPMN/node reads")
+    parser.add_argument("--iteration-regression-cases", action="store_true", help="Verify late finance assignment, finished workflow history and private expert history")
     parser.add_argument("--request-timeout", type=float, default=15)
     parser.add_argument("--poll-timeout", type=float, default=30)
     parser.add_argument("--poll-interval", type=float, default=.5)

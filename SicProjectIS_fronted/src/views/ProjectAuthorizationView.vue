@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import AppShell from '../layouts/AppShell.vue'
+import ProjectDepartmentRepair from '../components/ProjectDepartmentRepair.vue'
 import { ApiError } from '../api/client'
 import {
   assignProjectExpert,
@@ -193,6 +194,7 @@ onMounted(loadDetail)
     <p v-if="loading" class="helper-text">Loading authorization data...</p>
 
     <template v-else-if="detail">
+      <ProjectDepartmentRepair :project-id="detail.project.projectId" :dept-id="detail.project.deptId" @changed="loadDetail" />
       <section class="detail-grid">
         <article class="panel summary-panel">
           <h3>Project Summary</h3>
@@ -346,6 +348,7 @@ onMounted(loadDetail)
         </form>
 
         <form v-else-if="activeTab === 'finance'" class="expert-form" @submit.prevent="submitFinance">
+          <el-alert title="财务角色仅代表办理资格，还需要为本项目分配财务授权。角色变更后，请该人员重新登录。模块、轮次和节点留空表示本项目通用授权。" type="info" :closable="false" />
           <label>
             Finance
             <select v-model="financeForm.userId" :disabled="!canManageTab('finance') || submitting">

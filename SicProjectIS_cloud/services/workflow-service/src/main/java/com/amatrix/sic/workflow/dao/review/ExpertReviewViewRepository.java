@@ -21,8 +21,31 @@ public class ExpertReviewViewRepository {
         return assemble(List.of(batch), false).getFirst();
     }
 
+    public Map<String,Object> personalBatchDetail(Long batchId,Long userId) {
+        var detail=batchDetail(batchId);
+        return detail==null?null:personal(detail,userId);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String,Object> personal(Map<String,Object> detail,Long userId) {
+        Map<String,Object> batch=new LinkedHashMap<>((Map<String,Object>)detail.get("batch"));
+        for(String key:List.of("lowestScore","highestScore","finalScore","finalResult"))batch.remove(key);
+        var assignments=(List<Map<String,Object>>)detail.get("assignments");
+        detail.put("batch",batch);
+        detail.put("assignments",assignments.stream().filter(row ->
+                java.util.Objects.equals(userId,((Map<String,Object>)row.get("assignment")).get("expertUserId"))).toList());
+        return detail;
+    }
+
     public List<Map<String,Object>> moduleReviews(Long moduleId) {
-        return assemble(mapper.batches(moduleId), true);
+        var reviews=assemble(mapper.batches(moduleId), true);
+        var authentication=org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if(authentication!=null && authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            var actor=com.amatrix.sic.security.ActorContextFactory.from(jwt);
+            if(actor.hasRole("EXPERT") && !actor.hasRole("SYSTEM_ADMIN"))
+                return reviews.stream().map(review -> personal(review,actor.userId())).toList();
+        }
+        return reviews;
     }
 
     private List<Map<String,Object>> assemble(List<Map<String,Object>> batches, boolean includeNode) {

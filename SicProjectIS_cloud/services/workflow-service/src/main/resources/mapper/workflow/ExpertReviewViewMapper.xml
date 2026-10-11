@@ -55,6 +55,34 @@
   <resultMap id="moduleBatch" extends="batch" type="java.util.LinkedHashMap" autoMapping="false">
     <result column="configured_node_id" property="configuredNodeId" javaType="String"/>
   </resultMap>
+  <resultMap id="mine" extends="assignment" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="project_id" property="projectId" javaType="Long"/>
+    <result column="project_code" property="projectCode" javaType="String"/>
+    <result column="project_name" property="projectName" javaType="String"/>
+    <result column="module_instance_id" property="moduleInstanceId" javaType="Long"/>
+    <result column="module_code" property="moduleType" javaType="String"/>
+    <result column="review_title" property="reviewTitle" javaType="String"/>
+    <result column="round_no" property="roundNo" javaType="Integer"/>
+    <result column="assignment_status" property="status" javaType="String"/>
+  </resultMap>
+  <sql id="mineStatus">
+    CASE WHEN a.review_status='SUBMITTED' THEN
+      CASE WHEN b.access_ended_at IS NOT NULL OR m.finished=TRUE OR b.round_no&lt;&gt;m.current_round OR m.current_node_id&lt;&gt;REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask') THEN 'COMPLETED' ELSE 'SUBMITTED' END
+    WHEN b.access_ended_at IS NOT NULL OR m.finished=TRUE OR b.round_no&lt;&gt;m.current_round THEN 'EXPIRED'
+    WHEN a.valid=TRUE AND m.current_node_id=REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask') THEN 'PENDING'
+    ELSE 'WAITING_REVIEW' END
+  </sql>
+  <select id="mine" resultMap="mine">
+    SELECT a.*,m.project_id,m.module_code,b.module_instance_id,b.review_title,b.round_no,
+      p.project_code,p.project_name,<include refid="mineStatus"/> assignment_status
+    FROM expert_review_assignment a JOIN expert_review_batch b ON b.id=a.batch_id
+      JOIN module_instance m ON m.id=b.module_instance_id
+      LEFT JOIN project_snapshot p ON p.project_id=m.project_id LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id
+    WHERE a.expert_user_id=#{userId}
+    <if test="assignmentId != null">AND a.id=#{assignmentId}</if>
+    <if test="status != null">AND (<include refid="mineStatus"/>)=#{status}</if>
+    ORDER BY a.assigned_at DESC,a.id DESC LIMIT #{limit} OFFSET #{offset}
+  </select>
   <select id="batch" resultMap="batch">SELECT * FROM expert_review_batch WHERE id=#{id}</select>
   <select id="batches" resultMap="moduleBatch">SELECT b.*,n.node_id configured_node_id FROM expert_review_batch b LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id WHERE b.module_instance_id=#{module} ORDER BY b.id</select>
   <select id="assignments" resultMap="assignment">SELECT * FROM expert_review_assignment WHERE batch_id IN

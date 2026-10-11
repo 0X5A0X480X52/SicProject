@@ -98,7 +98,7 @@ def compile_domain(domain: str) -> tuple[str, str, dict]:
     ddl = "-- Final MySQL 8.4 schema. Empty database only; contains no DROP/TRUNCATE.\nSET NAMES utf8mb4;\n\n"
     for table, entries in tables.items():
         ddl += f"CREATE TABLE {table} (\n    " + ",\n    ".join(entries) + "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;\n\n"
-    return ddl, "-- Release seed; credentials are configured through IAM bootstrap.\n" + "\n\n".join(seed) + "\n", {
+    return ddl, "-- Release seed; credentials are configured through IAM bootstrap.\nSET NAMES utf8mb4;\n" + "\n\n".join(seed) + "\n", {
         "tableCount": len(tables), "tables": list(tables), "migrationSourceSha256": hashes}
 
 

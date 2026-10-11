@@ -113,7 +113,11 @@ public abstract class ProjectContractBase {
                 .claim("realName", "Alice").claim("roles", List.of("PROJECT_LEADER"))
                 .issuedAt(Instant.parse("2029-01-02T03:04:05Z")).expiresAt(Instant.parse("2030-01-02T03:04:05Z"))
                 .build();
+        var departments=mock(com.amatrix.sic.project.service.ProjectDepartmentService.class);
+        when(departments.assignMissing(eq(10L),any(),eq(3L),eq("Historical department repair")))
+                .thenReturn(linked("projectId",10L,"deptId",3L,"deptName","Science"));
         RestAssuredMockMvc.mockMvc(MockMvcBuilders.standaloneSetup(new ProjectController(queries, sagas),
+                        new com.amatrix.sic.project.controller.ProjectDepartmentController(departments),
                         new ProjectAuthorizationController(authorizations), new ProjectAdminController(authorizations),
                         new ProjectAuditController(audits))
                 .setControllerAdvice(new ApiExceptionHandler())
