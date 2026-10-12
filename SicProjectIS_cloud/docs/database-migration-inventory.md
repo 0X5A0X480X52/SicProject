@@ -43,43 +43,43 @@
 
 | 模块 | 文件 |
 | --- | --- |
-| iam-service | [ExpertQualificationService.java](../services/iam-service/src/main/java/com/amatrix/sic/iam/ExpertQualificationService.java) |
-| iam-service | [IamAdminService.java](../services/iam-service/src/main/java/com/amatrix/sic/iam/IamAdminService.java) |
-| iam-service | [IamRepository.java](../services/iam-service/src/main/java/com/amatrix/sic/iam/IamRepository.java) |
-| iam-service | [InternalIdentityController.java](../services/iam-service/src/main/java/com/amatrix/sic/iam/InternalIdentityController.java) |
-| project-service | [ProjectAccessPolicy.java](../services/project-service/src/main/java/com/amatrix/sic/project/ProjectAccessPolicy.java) |
-| project-service | [ProjectApplicationSagaService.java](../services/project-service/src/main/java/com/amatrix/sic/project/ProjectApplicationSagaService.java) |
-| project-service | [ProjectAuditService.java](../services/project-service/src/main/java/com/amatrix/sic/project/ProjectAuditService.java) |
-| project-service | [ProjectAuthorizationService.java](../services/project-service/src/main/java/com/amatrix/sic/project/ProjectAuthorizationService.java) |
-| project-service | [ProjectExpertAccessEndedConsumer.java](../services/project-service/src/main/java/com/amatrix/sic/project/ProjectExpertAccessEndedConsumer.java) |
-| project-service | [ProjectQueryService.java](../services/project-service/src/main/java/com/amatrix/sic/project/ProjectQueryService.java) |
-| project-service | [ProjectSagaMetrics.java](../services/project-service/src/main/java/com/amatrix/sic/project/ProjectSagaMetrics.java) |
-| project-service | [ProjectUserDirectory.java](../services/project-service/src/main/java/com/amatrix/sic/project/ProjectUserDirectory.java) |
-| project-service | [ProjectUserSnapshotConsumer.java](../services/project-service/src/main/java/com/amatrix/sic/project/ProjectUserSnapshotConsumer.java) |
-| project-service | [ProjectWorkflowLifecycleConsumer.java](../services/project-service/src/main/java/com/amatrix/sic/project/ProjectWorkflowLifecycleConsumer.java) |
-| workflow-service | [ApplicationSagaWorkflowService.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/ApplicationSagaWorkflowService.java) |
-| workflow-service | [ExpertReviewService.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/ExpertReviewService.java) |
-| workflow-service | [ExpertReviewViewRepository.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/ExpertReviewViewRepository.java) |
-| workflow-service | [NodeFormService.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/NodeFormService.java) |
-| workflow-service | [NoticeService.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/NoticeService.java) |
-| workflow-service | [StructuredBusinessService.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/StructuredBusinessService.java) |
-| workflow-service | [WorkflowAssetInitializer.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/WorkflowAssetInitializer.java) |
-| workflow-service | [WorkflowDefinitionCatalog.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/WorkflowDefinitionCatalog.java) |
-| workflow-service | [WorkflowDefinitionService.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/WorkflowDefinitionService.java) |
-| workflow-service | [WorkflowOperationPolicy.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/WorkflowOperationPolicy.java) |
-| workflow-service | [WorkflowProjectAccessPolicy.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/WorkflowProjectAccessPolicy.java) |
-| workflow-service | [WorkflowProjectAuthorizationConsumer.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/WorkflowProjectAuthorizationConsumer.java) |
-| workflow-service | [WorkflowProjectLifecycleConsumer.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/WorkflowProjectLifecycleConsumer.java) |
-| workflow-service | [WorkflowRuntimeService.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/WorkflowRuntimeService.java) |
-| workflow-service | [WorkflowUserSnapshotConsumer.java](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/WorkflowUserSnapshotConsumer.java) |
-| material-service | [GeneratedDocumentService.java](../services/material-service/src/main/java/com/amatrix/sic/material/GeneratedDocumentService.java) |
-| material-service | [MaterialApplicationService.java](../services/material-service/src/main/java/com/amatrix/sic/material/MaterialApplicationService.java) |
-| material-service | [MaterialCleanupMetrics.java](../services/material-service/src/main/java/com/amatrix/sic/material/MaterialCleanupMetrics.java) |
-| material-service | [MaterialReservationService.java](../services/material-service/src/main/java/com/amatrix/sic/material/MaterialReservationService.java) |
-| material-service | [ObjectDeletionService.java](../services/material-service/src/main/java/com/amatrix/sic/material/ObjectDeletionService.java) |
-| notification-service | [NotificationEventConsumers.java](../services/notification-service/src/main/java/com/amatrix/sic/notification/NotificationEventConsumers.java) |
-| notification-service | [NotificationMetrics.java](../services/notification-service/src/main/java/com/amatrix/sic/notification/NotificationMetrics.java) |
-| notification-service | [PendingNotificationDeliveryService.java](../services/notification-service/src/main/java/com/amatrix/sic/notification/PendingNotificationDeliveryService.java) |
+| iam-service | [ExpertQualificationService.java(../services/iam-service/src/main/java/com/amatrix/sic/iam/service/ExpertQualificationService.java) |
+| iam-service | [IamAdminService.java(../services/iam-service/src/main/java/com/amatrix/sic/iam/service/IamAdminService.java) |
+| iam-service | [IamRepository.java(../services/iam-service/src/main/java/com/amatrix/sic/iam/dao/IamRepository.java) |
+| iam-service | [InternalIdentityController.java(../services/iam-service/src/main/java/com/amatrix/sic/iam/controller/internal/InternalIdentityController.java) |
+| project-service | [ProjectAccessPolicy.java(../services/project-service/src/main/java/com/amatrix/sic/project/policy/ProjectAccessPolicy.java) |
+| project-service | [ProjectApplicationSagaService.java(../services/project-service/src/main/java/com/amatrix/sic/project/service/saga/ProjectApplicationSagaService.java) |
+| project-service | [ProjectAuditService.java(../services/project-service/src/main/java/com/amatrix/sic/project/service/ProjectAuditService.java) |
+| project-service | [ProjectAuthorizationService.java(../services/project-service/src/main/java/com/amatrix/sic/project/service/ProjectAuthorizationService.java) |
+| project-service | [ProjectExpertAccessEndedConsumer.java(../services/project-service/src/main/java/com/amatrix/sic/project/messaging/consumer/ProjectExpertAccessEndedConsumer.java) |
+| project-service | [ProjectQueryService.java(../services/project-service/src/main/java/com/amatrix/sic/project/service/ProjectQueryService.java) |
+| project-service | [ProjectSagaMetrics.java(../services/project-service/src/main/java/com/amatrix/sic/project/metrics/ProjectSagaMetrics.java) |
+| project-service | [ProjectUserDirectory.java(../services/project-service/src/main/java/com/amatrix/sic/project/service/directory/ProjectUserDirectory.java) |
+| project-service | [ProjectUserSnapshotConsumer.java(../services/project-service/src/main/java/com/amatrix/sic/project/messaging/consumer/ProjectUserSnapshotConsumer.java) |
+| project-service | [ProjectWorkflowLifecycleConsumer.java(../services/project-service/src/main/java/com/amatrix/sic/project/messaging/consumer/ProjectWorkflowLifecycleConsumer.java) |
+| workflow-service | [ApplicationSagaWorkflowService.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/service/saga/ApplicationSagaWorkflowService.java) |
+| workflow-service | [ExpertReviewService.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/service/review/ExpertReviewService.java) |
+| workflow-service | [ExpertReviewViewRepository.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/dao/review/ExpertReviewViewRepository.java) |
+| workflow-service | [NodeFormService.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/service/form/NodeFormService.java) |
+| workflow-service | [NoticeService.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/service/business/NoticeService.java) |
+| workflow-service | [StructuredBusinessService.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/service/business/StructuredBusinessService.java) |
+| workflow-service | [WorkflowAssetInitializer.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/bootstrap/WorkflowAssetInitializer.java) |
+| workflow-service | [WorkflowDefinitionCatalog.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/workflow/definition/WorkflowDefinitionCatalog.java) |
+| workflow-service | [WorkflowDefinitionService.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/service/definition/WorkflowDefinitionService.java) |
+| workflow-service | [WorkflowOperationPolicy.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/policy/WorkflowOperationPolicy.java) |
+| workflow-service | [WorkflowProjectAccessPolicy.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/policy/WorkflowProjectAccessPolicy.java) |
+| workflow-service | [WorkflowProjectAuthorizationConsumer.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/messaging/consumer/WorkflowProjectAuthorizationConsumer.java) |
+| workflow-service | [WorkflowProjectLifecycleConsumer.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/messaging/consumer/WorkflowProjectLifecycleConsumer.java) |
+| workflow-service | [WorkflowRuntimeService.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/service/runtime/WorkflowRuntimeService.java) |
+| workflow-service | [WorkflowUserSnapshotConsumer.java(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/messaging/consumer/WorkflowUserSnapshotConsumer.java) |
+| material-service | [GeneratedDocumentService.java(../services/material-service/src/main/java/com/amatrix/sic/material/service/document/GeneratedDocumentService.java) |
+| material-service | [MaterialApplicationService.java(../services/material-service/src/main/java/com/amatrix/sic/material/service/MaterialApplicationService.java) |
+| material-service | [MaterialCleanupMetrics.java(../services/material-service/src/main/java/com/amatrix/sic/material/metrics/MaterialCleanupMetrics.java) |
+| material-service | [MaterialReservationService.java(../services/material-service/src/main/java/com/amatrix/sic/material/service/reservation/MaterialReservationService.java) |
+| material-service | [ObjectDeletionService.java(../services/material-service/src/main/java/com/amatrix/sic/material/service/cleanup/ObjectDeletionService.java) |
+| notification-service | [NotificationEventConsumers.java(../services/notification-service/src/main/java/com/amatrix/sic/notification/messaging/consumer/NotificationEventConsumers.java) |
+| notification-service | [NotificationMetrics.java(../services/notification-service/src/main/java/com/amatrix/sic/notification/metrics/NotificationMetrics.java) |
+| notification-service | [PendingNotificationDeliveryService.java(../services/notification-service/src/main/java/com/amatrix/sic/notification/service/PendingNotificationDeliveryService.java) |
 | cloud-messaging | [CloudMessagingAutoConfiguration.java](../platform/cloud-messaging/src/main/java/com/amatrix/sic/messaging/CloudMessagingAutoConfiguration.java) |
 | cloud-messaging | [ConsumedEventGuard.java](../platform/cloud-messaging/src/main/java/com/amatrix/sic/messaging/ConsumedEventGuard.java) |
 | cloud-messaging | [MessagingMetrics.java](../platform/cloud-messaging/src/main/java/com/amatrix/sic/messaging/MessagingMetrics.java) |
@@ -95,17 +95,17 @@ migration-tool 的 LegacyFileMigrationTool 另用 DriverManager/PreparedStatemen
 | --- |
 | [ConsumedEventGuardTest.java](../platform/cloud-messaging/src/test/java/com/amatrix/sic/messaging/ConsumedEventGuardTest.java) |
 | [MaterialDeletionTransactionTest.java](../services/material-service/src/test/java/com/amatrix/sic/material/MaterialDeletionTransactionTest.java) |
-| [MaterialReservationServiceTest.java](../services/material-service/src/test/java/com/amatrix/sic/material/MaterialReservationServiceTest.java) |
-| [ObjectDeletionServiceTest.java](../services/material-service/src/test/java/com/amatrix/sic/material/ObjectDeletionServiceTest.java) |
-| [PendingNotificationDeliveryServiceTest.java](../services/notification-service/src/test/java/com/amatrix/sic/notification/PendingNotificationDeliveryServiceTest.java) |
-| [ProjectAccessPolicyTest.java](../services/project-service/src/test/java/com/amatrix/sic/project/ProjectAccessPolicyTest.java) |
-| [ProjectApplicationSagaServiceTest.java](../services/project-service/src/test/java/com/amatrix/sic/project/ProjectApplicationSagaServiceTest.java) |
-| [ProjectExpertAccessEndedConsumerTest.java](../services/project-service/src/test/java/com/amatrix/sic/project/ProjectExpertAccessEndedConsumerTest.java) |
-| [ProjectQueryServiceTest.java](../services/project-service/src/test/java/com/amatrix/sic/project/ProjectQueryServiceTest.java) |
+| [MaterialReservationServiceTest.java(../services/material-service/src/test/java/com/amatrix/sic/material/service/reservation/MaterialReservationServiceTest.java) |
+| [ObjectDeletionServiceTest.java(../services/material-service/src/test/java/com/amatrix/sic/material/service/cleanup/ObjectDeletionServiceTest.java) |
+| [PendingNotificationDeliveryServiceTest.java(../services/notification-service/src/test/java/com/amatrix/sic/notification/service/PendingNotificationDeliveryServiceTest.java) |
+| [ProjectAccessPolicyTest.java(../services/project-service/src/test/java/com/amatrix/sic/project/policy/ProjectAccessPolicyTest.java) |
+| [ProjectApplicationSagaServiceTest.java(../services/project-service/src/test/java/com/amatrix/sic/project/service/saga/ProjectApplicationSagaServiceTest.java) |
+| [ProjectExpertAccessEndedConsumerTest.java(../services/project-service/src/test/java/com/amatrix/sic/project/messaging/consumer/ProjectExpertAccessEndedConsumerTest.java) |
+| [ProjectQueryServiceTest.java(../services/project-service/src/test/java/com/amatrix/sic/project/service/ProjectQueryServiceTest.java) |
 | [ApplicationSagaCompensationTest.java](../services/workflow-service/src/test/java/com/amatrix/sic/workflow/ApplicationSagaCompensationTest.java) |
 | [NodeFormBusinessDataTest.java](../services/workflow-service/src/test/java/com/amatrix/sic/workflow/NodeFormBusinessDataTest.java) |
 | [WorkflowExpectedSequenceConcurrencyTest.java](../services/workflow-service/src/test/java/com/amatrix/sic/workflow/WorkflowExpectedSequenceConcurrencyTest.java) |
-| [WorkflowOperationPolicyTest.java](../services/workflow-service/src/test/java/com/amatrix/sic/workflow/WorkflowOperationPolicyTest.java) |
+| [WorkflowOperationPolicyTest.java(../services/workflow-service/src/test/java/com/amatrix/sic/workflow/policy/WorkflowOperationPolicyTest.java) |
 
 按上述条件共有 13 个文件。InfrastructureIntegrationTest 另直接调用 Flyway，在实际实施时须改为完整 SQL 初始化与结构验证；该测试没有 Docker 时会跳过。
 

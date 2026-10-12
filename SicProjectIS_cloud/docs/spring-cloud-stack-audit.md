@@ -66,9 +66,9 @@
 
 这三个服务都引用 OpenFeign starter，并在应用类使用 `@EnableFeignClients`。接口按 `name` 指定服务，不在注解中固定 `url`；同一目标的接口有不同 `contextId`。示例源码：
 
-- [Project 的 IamDirectoryClient](../services/project-service/src/main/java/com/amatrix/sic/project/IamDirectoryClient.java)
-- [Workflow 的 ProjectAccessClient](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/ProjectAccessClient.java)
-- [Material 的 MaterialProjectAccessClient](../services/material-service/src/main/java/com/amatrix/sic/material/MaterialProjectAccessClient.java)
+- [Project 的 IamDirectoryClient(../services/project-service/src/main/java/com/amatrix/sic/project/client/IamDirectoryClient.java)
+- [Workflow 的 ProjectAccessClient(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/client/ProjectAccessClient.java)
+- [Material 的 MaterialProjectAccessClient(../services/material-service/src/main/java/com/amatrix/sic/material/client/MaterialProjectAccessClient.java)
 
 同步 HTTP 调用链为：Project → IAM/Workflow；Workflow → Project/Material/IAM；Material → Project/IAM。
 
@@ -135,7 +135,7 @@ spring:
 | Redis 会话校验错误时拒绝 | 鉴权失败关闭策略，源码返回拒绝的 AuthorizationDecision；不等于自动熔断 |
 | `ExpertReviewController.removeFallback` | 专家评审移除接口的 POST 兼容入口，直接调用同类 remove；名字中的 Fallback 不是 Feign 降级 |
 
-上述异常策略见 [GatewayRateLimitWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayRateLimitWebFilter.java)、[SessionValidityAuthorizationManager](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/SessionValidityAuthorizationManager.java)、[ExpertReviewController](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/ExpertReviewController.java)。
+上述异常策略见 [GatewayRateLimitWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayRateLimitWebFilter.java)、[SessionValidityAuthorizationManager](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/SessionValidityAuthorizationManager.java)、[ExpertReviewController(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/controller/ExpertReviewController.java)。
 
 ## 8. 后续补齐方案：与目录重构独立实施
 

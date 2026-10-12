@@ -79,7 +79,7 @@ Workflow 的旧 expert_review 表即使当前评审代码主要使用 batch/assi
 
 ### 3.3 种子数据与应用初始化必须区分
 
-目前 IAM 种子数据在 SQL 中，管理员账号由 BootstrapAdminInitializer 根据环境变量创建；Workflow V2 放的是三份简化 BPMN，随后 [WorkflowAssetInitializer](../services/workflow-service/src/main/java/com/amatrix/sic/workflow/WorkflowAssetInitializer.java) 读取真实资源、更新定义并重建节点/迁移配置。
+目前 IAM 种子数据在 SQL 中，管理员账号由 BootstrapAdminInitializer 根据环境变量创建；Workflow V2 放的是三份简化 BPMN，随后 [WorkflowAssetInitializer(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/bootstrap/WorkflowAssetInitializer.java) 读取真实资源、更新定义并重建节点/迁移配置。
 
 推荐固化正式内置工作流：用同一个 FlowableBpmnDefinitionParser 离线生成 workflow-assets.sql，包含 BPMN、definition_json、节点和迁移模型；按业务 code/version 关联定义，避免写死环境中的自增 ID。空库执行全量 SQL 后就有可用模型，不能只写三行占位定义然后声称业务初始化完整。
 

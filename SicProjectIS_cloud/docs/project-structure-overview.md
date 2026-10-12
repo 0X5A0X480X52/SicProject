@@ -4,7 +4,19 @@
 
 数据库后续选型：[完整 MySQL SQL 与 MyBatis Mapper 迁移调研](database-mybatis-migration-research.md)、[数据库迁移范围清单](database-migration-inventory.md)。
 
-调研日期：2026-10-10。依据当前工作区的 Maven 配置、Java 源码、数据库迁移、Gateway 路由、消息绑定、测试及启动脚本整理。本文描述代码实现；没有启动或重置业务环境，也不把仓库中的历史验收报告视为本次运行结果。
+首次调研日期：2026-10-10；本次核对日期：2026-10-12，与 `ver.springcloud` 分支 `de761c5` 的源码对齐。依据当前工作区的 Maven 配置、Java 源码、数据库迁移、Gateway 路由、消息绑定、测试及启动脚本整理。本文描述代码实现；没有启动或重置业务环境，也不把仓库中的历史验收报告视为本次运行结果。
+
+## 0. 本次核对修订的内容
+
+2026-10-11 的 `1728b1f` 之后代码发生了结构性变化，本文据此更新了以下部分；其余章节的结论经抽查仍然成立。
+
+| 修订项 | 2026-10-10 记录 | 本次核对 |
+| --- | --- | --- |
+| 服务包结构 | 类平铺在 `com.amatrix.sic.<领域>` 下 | 已分为 controller/service/policy/client/dao/entity 等分层包 |
+| 数据访问 | 以 `JdbcTemplate` 和 SQL 为主 | 五个业务服务主源码零 `JdbcTemplate`，改为 MyBatis Mapper 接口 + `mapper/*.xml` |
+| 主源码 / 测试文件数 | 164 / 44 | **242 / 61** |
+| 接口契约 | 68 份 | **72 份**（IAM 26、Project 19、Workflow 22、Material 4、Notification 1） |
+| 内置 BPMN 位置 | `resources/workflows` 直属 | `resources/workflows/bpmn_auxiliary_tags_augmented/` |
 
 逐个源码文件及其内部类型的职责见 [类功能索引](class-responsibilities.md)。
 
@@ -40,9 +52,11 @@ SicProjectIS_cloud/
 └── docker-compose.yml           应用、基础设施及一次性工具编排
 ```
 
-各服务的 Java 类基本平铺在 `com.amatrix.sic.<领域>` 包中，没有进一步分成 controller/service/entity/mapper 子包。类名承担层次表达：`Controller` 是 HTTP 入口，`Service` 是业务编排，`Policy` 是权限或规则，`Client` 是 Feign 调用，`Consumer` 是消息消费，`Properties` 是配置，`Dtos`/`Contract` 是数据传输类型。
+五个业务服务的类已按层次分包：`controller`（含 `internal` 内部接口）、`service`（必要时再分 `saga`、`runtime`、`definition`、`form`、`review`、`business`、`directory` 等子包）、`policy`、`client`（含 `auth`）、`dao`、`entity`、`dto`、`config`（含 `properties`）、`messaging`（含 `consumer`）、`metrics`，启动类留在 `com.amatrix.sic.<领域>` 根包。`gateway-service` 仍为单包。类名继续承担角色区分：`Controller` 是 HTTP 入口，`Service` 是业务编排，`Policy` 是权限或规则，`Client` 是 Feign 调用，`Consumer` 是消息消费，`Properties` 是配置，`Mapper` 是 MyBatis 接口，`Repository` 是包装 Mapper 的 `@Repository`，`Dtos`/`Contract` 是数据传输类型。
 
-主业务数据访问以 `JdbcTemplate` 和 SQL 为主；事务使用 `@Transactional` 或 `TransactionTemplate`。不能套用“每张表都有 Entity、Mapper、Repository”的阅读方式。
+主业务数据访问已迁移为 **MyBatis**：五个业务服务各有 `dao` 接口（`@Mapper`）与 `src/main/resources/mapper/*.xml`，共 28 个 Mapper 接口与 28 份映射 XML；`cloud-messaging` 另有 1 个以编程方式装配的 `MessagingMapper`。因此不能再套用“每张表都有 Entity、Mapper、Repository”的阅读方式：`entity` 下是 `*Row`/`*Record` 等行投影 record，`dao` 下是接口，SQL 在 XML 中。
+
+事务使用 `@Transactional` 或 `TransactionTemplate`；`JdbcTemplate` 现仅出现在 `platform/cloud-messaging` 的自动配置排序注解与测试夹具中，业务代码已无直接使用。
 
 ## 2. 模块清单
 
@@ -51,20 +65,22 @@ SicProjectIS_cloud/
 | 模块 | 默认端口 | 主源码文件 | Java 测试文件 | 主要职责 |
 | --- | --- | ---: | ---: | --- |
 | gateway-service | 8080 | 11 | 5 | 统一 API 入口和响应式网关 |
-| iam-service | 9001 | 18 | 4 | 身份与组织权限管理 |
-| project-service | 9002 | 23 | 6 | 项目、授权、申请 Saga 与审计 |
-| workflow-service | 9003 | 38 | 9 | 工作流及项目过程业务数据 |
-| material-service | 9004 | 20 | 5 | 材料、单据与 MinIO 对象 |
-| notification-service | 9005 | 7 | 3 | SSE 通知投递 |
-| cloud-contracts | — | 18 | 0 | 公共数据契约 |
+| iam-service | 9001 | 31 | 6 | 身份与组织权限管理 |
+| project-service | 9002 | 37 | 7 | 项目、授权、申请 Saga 与审计 |
+| workflow-service | 9003 | 74 | 14 | 工作流及项目过程业务数据 |
+| material-service | 9004 | 29 | 6 | 材料、单据与 MinIO 对象 |
+| notification-service | 9005 | 9 | 4 | SSE 通知投递 |
+| cloud-contracts | — | 19 | 0 | 公共数据契约 |
 | cloud-security | — | 15 | 4 | 安全与请求上下文公共库 |
-| cloud-messaging | — | 8 | 3 | 事务消息公共库 |
+| cloud-messaging | — | 11 | 5 | 事务消息公共库 |
 | discovery-server | 8761 | 1 | 0 | Eureka |
 | config-server | 8888 | 1 | 0 | 集中配置 |
-| integration-tests | — | 0 | 2 | 跨模块与基础设施验证 |
+| integration-tests | — | 0 | 7 | 跨模块与基础设施验证 |
 | migration-tool | — | 1 | 1 | 旧文件迁移 |
 | dlq-recovery-tool | — | 3 | 2 | 死信恢复 |
-| **合计** | | **164** | **44** | **14 个 Maven 模块** |
+| **合计** | | **242** | **61** | **14 个 Maven 模块** |
+
+61 个测试文件中，51 个含 `@Test`；其余 10 个是 5 个 `*TestMapper` 与 5 个 `*ContractBase` 测试夹具。`platform/integration-tests` 的 7 个测试有 6 个声明 `@Testcontainers(disabledWithoutDocker = true)`，Docker 不可用时跳过而不是失败；`FrontendApiSurfaceTest` 不需要容器。
 
 6 个服务中，Gateway 是边缘应用，其余 5 个持有业务数据库。正常 Compose 编排包含这 6 个应用、2 个平台应用和 MySQL/RabbitMQ/Redis/MinIO，共 12 个常驻服务；migration、operations profile 中的两个工具按需运行。
 
@@ -194,6 +210,8 @@ Compose 当前使用一个 MySQL 实例中的五个业务 Schema 和不同账号
 
 五个业务 Schema 还应用 cloud-messaging 的 `db/common` 迁移，拥有自身的 `outbox_event` 和 `consumed_event`。建表存在不等于每张表都有独立业务入口，例如旧 `expert_review` 主要出现在兼容数据及补偿清理中。
 
+按 [结构清单](../infra/mysql/schema-manifest.json) 统计，五个 Schema 共 **52 条建表条目**（iam 9、project 9、workflow 22、material 9、notification 3）；因为 `outbox_event` 与 `consumed_event` 每库各一份、`user_snapshot` 在 project 与 workflow 各一份，去重后是 **43 个不同表名**。`infra/mysql/schema-signature.json` 保存了对应的实测元数据。
+
 ## 7. 关键业务链路
 
 ### 7.1 发起申请
@@ -262,7 +280,7 @@ Gateway 中项目下的 materials 和过程业务子资源路由必须在 `/api/
 - [verify_compose_e2e.py](../scripts/verify_compose_e2e.py) 检查服务健康、注册、配置、登录、跨服务路由、SSE 和注销，并输出 JSON；[verify_history_retention.py](../scripts/tests/verify_history_retention.py) 是历史数据保留场景验证工具。
 - [cutover.ps1](../scripts/cutover.ps1) 编排旧库/文件备份、导入 staging、Flyway、文件迁移、业务 SQL 拆分和校验、服务切换；操作说明见 [切换手册](cutover-runbook.md)。
 - [generate-jwt-keys.ps1](../scripts/generate-jwt-keys.ps1) 生成供 IAM 配置使用的 RSA 密钥；`.env.example` 是参数模板。
-- 5 个业务服务共有 68 份 YAML 接口契约：IAM 26、Project 18、Workflow 19、Material 4、Notification 1。契约基类使用 mock 构造 HTTP 行为；它们不能独立证明完整业务事务正确。业务单元/并发测试和基础设施测试提供不同层面的证据。
+- 5 个业务服务共有 72 份 YAML 接口契约：IAM 26、Project 19、Workflow 22、Material 4、Notification 1（Workflow 另有 2 份 JSON 响应夹具，不是契约本身）。契约基类使用 mock 构造 HTTP 行为；它们不能独立证明完整业务事务正确。业务单元/并发测试和基础设施测试提供不同层面的证据。
 - 本次完成的是源码结构与职责调研，并校验文档清单和链接；没有运行 Maven 测试或 Compose 业务验收。
 
 ## 10. 从实现中需要区分的能力边界
