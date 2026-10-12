@@ -21,6 +21,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import com.amatrix.sic.security.AudienceValidator;
 import com.amatrix.sic.security.JsonSecurityHandlers;
 
+/**
+ * IAM 专属 Servlet 安全链、BCrypt 编码器、本地公钥 JWT decoder；开放认证/JWK/服务 Token bootstrap，其他内部接口要求内部 scope。
+ */
 @Configuration
 public class IamSecurityConfig {
     @Bean

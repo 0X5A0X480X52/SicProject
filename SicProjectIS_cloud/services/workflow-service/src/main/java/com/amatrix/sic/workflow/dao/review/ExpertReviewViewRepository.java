@@ -8,7 +8,10 @@ import java.util.function.Function;
 import com.amatrix.sic.workflow.dao.ExpertReviewViewMapper;
 import org.springframework.stereotype.Repository;
 
-/** Assembles the public review shape after all mapper results have been closed. */
+/**
+ * 读取评审批次、专家分配及分项评分，形成批次详情和模块级实时评审数据投影。
+ * 先完成数据库读取再拼装嵌套结果；专家视图裁剪他人 assignment 和批次最终评分，避免从旧入口绕过个人视图。
+ */
 @Repository
 public class ExpertReviewViewRepository {
     private final ExpertReviewViewMapper mapper;
@@ -21,6 +24,9 @@ public class ExpertReviewViewRepository {
         return assemble(List.of(batch), false).getFirst();
     }
 
+    /**
+     * 复用批次装配后裁剪为当前专家本人记录，删除批次评分汇总和其他专家 assignment。
+     */
     public Map<String,Object> personalBatchDetail(Long batchId,Long userId) {
         var detail=batchDetail(batchId);
         return detail==null?null:personal(detail,userId);
@@ -37,6 +43,9 @@ public class ExpertReviewViewRepository {
         return detail;
     }
 
+    /**
+     * 通用业务数据入口也裁剪非系统管理员专家的视图，避免从旧流程页面读取其他专家结果。
+     */
     public List<Map<String,Object>> moduleReviews(Long moduleId) {
         var reviews=assemble(mapper.batches(moduleId), true);
         var authentication=org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();

@@ -16,6 +16,9 @@ import com.amatrix.sic.contracts.DocumentGenerationCommand;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 按 commandId 去重生成 PDF、哈希与 MinIO 对象；创建/复用输出材料类型及材料，生成新 ACTIVE 版本并关联 generated_document。
+ */
 @Service
 public class GeneratedDocumentService {
     private final MaterialMapper materials;
@@ -32,6 +35,10 @@ public class GeneratedDocumentService {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 先渲染 PDF，再用 commandId 在数据库抢占生成命令；成功抢占后写对象、材料版本及生成关系。
+     * 对象存储调用发生在本方法事务内，但 MinIO 不参加数据库提交，仍存在失败窗口。
+     */
     @Transactional
     public void generate(DocumentGenerationCommand command) {
         validate(command);

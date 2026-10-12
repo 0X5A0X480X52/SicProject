@@ -22,6 +22,9 @@ import com.amatrix.sic.workflow.workflow.model.WorkflowBpmnParseResult.DocumentC
 import com.amatrix.sic.workflow.workflow.model.WorkflowBpmnParseResult.NodeConfig;
 import com.amatrix.sic.workflow.workflow.model.WorkflowBpmnParseResult.TransitionConfig;
 
+/**
+ * 校验内置动作键，按节点完成/流程结束的单据配置生成幂等命令；发布文档生成和项目生命周期事件。
+ */
 @Service
 public class WorkflowTransitionActionService {
     static final Set<String> OFFICIAL_ACTION_KEYS = Set.of(

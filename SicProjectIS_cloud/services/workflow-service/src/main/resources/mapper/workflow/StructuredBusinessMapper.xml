@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.StructuredBusinessMapper">
+  <!-- 结构化业务正文 MyBatis 接口：申请、合同、结题正文与成果、财务结算的读写。 -->
   <resultMap id="ApplicationDraftRow" type="com.amatrix.sic.workflow.entity.ApplicationDraftRow"><constructor>
     <arg column="id" javaType="Long"/>
     <arg column="module_instance_id" javaType="Long"/>
@@ -61,6 +62,7 @@
   <select id="moduleProject" resultType="Integer">SELECT COUNT(*) FROM module_instance WHERE id=#{id} AND project_id=#{project}</select>
   <select id="relatedAcceptance" resultType="Integer">SELECT COUNT(*) FROM acceptance_form WHERE id=#{id} AND module_instance_id=#{module}</select>
   <select id="relatedState" resultType="Integer">SELECT COUNT(*) FROM state_record WHERE id=#{id} AND module_instance_id=#{module} AND round_no=#{round}</select>
+  <!-- StructuredBusinessMapper.lockTask 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
   <select id="lockTask" resultMap="BusinessTask">SELECT id,current_round FROM module_instance WHERE project_id=#{project} AND module_code=#{type} AND current_node_id=#{node} AND current_state=#{state} AND finished=FALSE ORDER BY id DESC LIMIT 1 FOR UPDATE</select>
   <update id="updateApplication">UPDATE project_application SET title=COALESCE(#{title},title),limited_project=COALESCE(#{limited},limited_project),summary=COALESCE(#{summary},summary),payload_json=#{json} WHERE id=#{id}</update>
   <insert id="achievement" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO project_achievement(project_id,module_instance_id,acceptance_id,achievement_type,achievement_title,author_list,achievement_level,publish_or_grant_date,proof_material_version_id,remark)

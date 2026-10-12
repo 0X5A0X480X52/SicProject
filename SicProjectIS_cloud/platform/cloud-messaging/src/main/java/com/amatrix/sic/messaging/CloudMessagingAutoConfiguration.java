@@ -22,6 +22,9 @@ import io.micrometer.core.instrument.MeterRegistry;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 在存在 {@code SqlSessionTemplate} 时启用调度、Outbox/去重组件、编程注册的 MessagingMapper、JDBC 延迟观察者、业务 Topic Exchange、死信 Exchange/队列及消息指标；{@code @AutoConfigureAfter} 同时声明在 JdbcTemplate 与 MyBatis 自动配置之后。
+ */
 @AutoConfiguration
 @AutoConfigureAfter({JdbcTemplateAutoConfiguration.class,org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration.class})
 @EnableScheduling

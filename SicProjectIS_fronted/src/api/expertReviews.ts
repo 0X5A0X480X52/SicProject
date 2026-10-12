@@ -1,4 +1,7 @@
-﻿import { ApiError, apiRequest } from './client'
+﻿/**
+ * 封装评审批次、专家指派、评分以及个人历史。个人记录接口与通用批次接口权限不同，评分完成后应读取本人记录。
+ */
+import { ApiError, apiRequest } from './client'
 
 export interface CreateExpertReviewBatchRequest {
   moduleInstanceId: number
@@ -40,6 +43,7 @@ export interface ExpertReviewBatchDetailResponse {
   assignments: any[]
 }
 
+/** 本人任务及历史；SUBMITTED 是个人已提交，COMPLETED 才表示所在评审已结束。canReview 由当前权限单独计算。 */
 export interface PersonalReview {
   assignmentId: number; batchId: number; projectId: number; projectCode: string; projectName: string
   moduleInstanceId: number; moduleType: string; roundNo: number; reviewTitle: string
@@ -52,6 +56,9 @@ export function listMyReviews(status: string, page: number, pageSize = 10, signa
   if (status) query.set('status', status)
   return apiRequest<{ items: PersonalReview[]; hasMore: boolean }>(`/expert-reviews/my-assignments?${query}`, { signal })
 }
+/**
+ * 读取当前账号自己的 assignment，不依赖整个项目仍可读；调用时传入 assignmentId，而不是 batchId。
+ */
 export function getMyReview(id: number, signal?: AbortSignal) {
   return apiRequest<PersonalReview>(`/expert-reviews/my-assignments/${id}`, { signal })
 }
@@ -74,12 +81,18 @@ export function assignExpertToBatch(batchId: number, request: AssignExpertReques
   })
 }
 
+/**
+ * 提交本人的一次评分；返回视图可能已裁剪为本人记录，不能据它读取其他专家分数或最终汇总。
+ */
 export function submitExpertScore(assignmentId: number, request: SubmitExpertScoreRequest) {
   return apiRequest<ExpertReviewBatchDetailResponse>(`/expert-reviews/assignments/${assignmentId}/scores`, {
     method: 'POST',
     body: JSON.stringify(request),
   })
 }
+/**
+ * 优先使用当前 DELETE 路由，仅在 404 时兼容旧 remove 路由；这不是对失败业务写入的通用自动重试。
+ */
 export async function removeExpertAssignment(assignmentId: number) {
   try {
     return await apiRequest<ExpertReviewBatchDetailResponse>(`/expert-reviews/assignments/${assignmentId}`, {

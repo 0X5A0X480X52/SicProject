@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.material.dao.GeneratedDocumentMapper">
+  <!-- 生成单据 MyBatis 接口：以 INSERT IGNORE 幂等写入生成记录，并按 commandId 把材料版本 ID 回写到该生成单据行。 -->
+  <!-- command_id 唯一约束竞争生成资格，重复命令不再创建另一份材料版本。 -->
   <insert id="insert">INSERT IGNORE INTO generated_document(command_id,project_id,module_instance_id,state_seq,
     state_record_id,document_type,document_name,template_code,object_key,original_filename,content_type,size_bytes,sha256,snapshot_json)
     VALUES(#{command.commandId},#{command.projectId},#{command.moduleInstanceId},#{command.stateSeq},#{command.stateRecordId,jdbcType=BIGINT},

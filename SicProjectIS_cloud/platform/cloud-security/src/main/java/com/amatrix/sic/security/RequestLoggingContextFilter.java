@@ -13,7 +13,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/** Adds bounded request identifiers to logs without ever logging credentials or query strings. */
+/**
+ * 为 Servlet 请求建立 Trace/Saga/Event/User MDC 与请求属性，回传 Trace Header，并在结束时恢复原 MDC。
+ */
 public final class RequestLoggingContextFilter extends OncePerRequestFilter {
     public static final String TRACE_HEADER = "X-Trace-Id";
     public static final String SAGA_HEADER = "X-Saga-Id";

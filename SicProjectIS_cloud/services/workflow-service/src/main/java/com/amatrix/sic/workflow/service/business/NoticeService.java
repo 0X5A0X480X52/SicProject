@@ -18,6 +18,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.amatrix.sic.contracts.ActorContext;
 
+/**
+ * 公告字段校验及 CRUD（无删除入口），按全部/部门/用户范围控制可见性；发布修改要求科技处或系统管理员。
+ */
 @Service
 public class NoticeService {
     private final NoticeMapper mapper;

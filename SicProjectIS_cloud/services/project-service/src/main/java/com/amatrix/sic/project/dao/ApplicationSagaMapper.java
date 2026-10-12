@@ -7,6 +7,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.amatrix.sic.project.entity.ApplicationSagaRow;
 
+/**
+ * 申请 Saga MyBatis 接口：插入临时项目与负责人成员及 Saga 记录，推进 WORKFLOW_CREATED 与确认/失败/完成/补偿状态，查询可恢复与近期同 hash 的 Saga，并统计未完成/失败/最老年龄。
+ */
 @Mapper
 public interface ApplicationSagaMapper {
     int insertProject(Map<String,Object> project);

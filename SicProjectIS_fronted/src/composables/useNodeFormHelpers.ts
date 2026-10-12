@@ -1,3 +1,6 @@
+/**
+ * 把扁平表单转换为后端按 dataKind 分组的业务请求，并生成节点快捷办理配置；系统关联 ID 取自运行时上下文。
+ */
 import type { NodeFormDataKind, NodeFormDefinition, NodeFormSaveRequest } from '../types/nodeForms'
 import type { FlatFormData } from '../utils/nodeFormFields'
 
@@ -8,8 +11,7 @@ function numberOrUndefined(value: unknown): number | undefined {
 }
 
 /**
- * Build a complete NodeFormSaveRequest from a flat form data record.
- * Ported from NodeFormsDebugView.buildRequest() — covers all 15 dataKinds.
+ * 按 dataKind 将用户输入组装为后端业务结构；项目、模块和状态记录 ID 来自上下文，数值空串保持未填写语义。
  */
 export function buildRequestFromFlatForm(
   kind: NodeFormDataKind | undefined,
@@ -303,25 +305,24 @@ export function buildRequestFromFlatForm(
 }
 
 /**
- * Quick action button configuration by node type category.
+ * 按节点数据类型描述快捷办理界面，不替代服务端的可执行迁移列表。
  */
 export interface QuickActionConfig {
   category: 'approval' | 'draft' | 'operation' | 'project_record' | 'notice' | 'expert' | 'generic'
-  /** Label for the primary approve/submit button */
+  /** 主要通过或提交按钮的展示文本。 */
   primaryLabel: string
-  /** Label for the secondary reject button (only for approval category) */
+  /** 审批类节点的不通过按钮文本，其他类型可省略。 */
   secondaryLabel?: string
-  /** Whether this node supports quick approve/reject without opening drawer */
+  /** 是否提供不打开表单抽屉的快捷操作入口。 */
   supportsQuickAction: boolean
-  /** Hint text shown below the quick action buttons */
+  /** 快捷按钮下方的办理提示。 */
   description?: string
-  /** Placeholder for the remark textarea (varies by node type) */
+  /** 按节点用途显示的意见输入提示。 */
   remarkPlaceholder?: string
 }
 
 /**
- * Detect the expert review sub-type from the current node context.
- * Returns 'assign' | 'review' | 'summary' | null.
+ * 从节点代码及展示上下文识别指派、评分或汇总界面；该识别只影响前端展示，不决定后端审批资格。
  */
 export function detectExpertSubType(
   currentNodeId?: string | null,
@@ -336,7 +337,7 @@ export function detectExpertSubType(
 }
 
 /**
- * Return quick action button configuration based on the node's dataKind.
+ * 按数据类型选择快捷按钮、意见提示及审批分支；按钮配置不是服务端迁移规则。
  */
 export function quickActionConfig(kind?: NodeFormDataKind, expertSubType?: string | null): QuickActionConfig {
   switch (kind) {
@@ -438,7 +439,7 @@ export function quickActionConfig(kind?: NodeFormDataKind, expertSubType?: strin
 }
 
 /**
- * Composable wrapper for node form helpers.
+ * 向组件提供共享的表单转换和快捷办理辅助函数，避免通用页与节点页维护两套请求结构。
  */
 export function useNodeFormHelpers() {
   return {

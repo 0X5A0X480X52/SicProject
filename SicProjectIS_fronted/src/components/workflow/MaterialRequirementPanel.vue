@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 展示当前节点必需材料并维护选中的版本 ID；上传成功不代表流程已引用，最终引用和确认由后端提交链路处理。
+ */
 import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { UploadRawFile } from 'element-plus'

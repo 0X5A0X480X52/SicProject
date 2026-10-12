@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.ProjectSnapshotMapper">
+  <!-- 项目快照 MyBatis 接口：更新项目负责人/部门与来源版本（支持单调条件）、把当前 OPEN 的负责人任务改派给新负责人，以及更新生命周期阶段。 -->
+  <!-- 使用项目版本约束更新负责人和部门快照，事件到达先后不应把较新归属回退。 -->
   <update id="owner">UPDATE project_snapshot SET owner_user_id=#{owner},owner_name_snapshot=#{name},dept_id=#{dept},source_version=#{version},
     updated_at=CURRENT_TIMESTAMP(6) WHERE project_id=#{project} <if test="monotonic">AND source_version&lt;=#{version}</if></update>
   <update id="leaderTasks">UPDATE workflow_task t JOIN module_instance m ON m.id=t.module_instance_id SET t.assignee_user_id=#{owner}

@@ -18,6 +18,10 @@ import com.amatrix.sic.messaging.OutboxService;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * store 将模块状态事件（以及由 project.authorization、iam.changed 改写的工作台失效提示）去重持久化并发 notification.live；live 以实例专属 consumerName 去重并触发 SSE 投递。
+ * 通知提示只携带刷新所需标识；收到推送后前端仍通过业务接口重新读取和鉴权。
+ */
 @Component
 public class NotificationEventConsumers{
     private final ObjectMapper mapper;private final NotificationMapper notifications;private final ConsumedEventGuard guard;

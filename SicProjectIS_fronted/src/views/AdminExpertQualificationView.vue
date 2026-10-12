@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 科研或系统管理员的专家资格审批页，按当前审批阶段提交结果并刷新记录；审批成功后新身份需重新登录获取。
+ */
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'
 import ExpertQualificationReviewModule from '../components/expert-qualification/ExpertQualificationReviewModule.vue'
 </script>

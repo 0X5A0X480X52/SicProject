@@ -7,6 +7,9 @@ import org.apache.ibatis.annotations.Param;
 import com.amatrix.sic.workflow.entity.NodeFormModule;
 import com.amatrix.sic.workflow.entity.NodeFormRecord;
 
+/**
+ * 节点表单 MyBatis 接口：按模块、节点、轮次读写表单记录及历史记录查询。
+ */
 @Mapper
 public interface NodeFormMapper {
     int store(@Param("module") Long module, @Param("key") String key, @Param("round") int round,

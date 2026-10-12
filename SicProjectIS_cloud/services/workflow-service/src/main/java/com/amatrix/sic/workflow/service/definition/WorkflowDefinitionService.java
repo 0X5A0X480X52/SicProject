@@ -24,6 +24,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 定义生命周期管理与权限检查；上传 DRAFT、校验必需字段/重复节点/连线引用等，发布 ACTIVE 并停用同模块旧发布版本。
+ */
 @Service
 public class WorkflowDefinitionService {
     private final WorkflowDefinitionMapper mapper;

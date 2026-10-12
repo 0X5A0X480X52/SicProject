@@ -24,6 +24,9 @@ import com.amatrix.sic.contracts.ActorContext;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 维护 43 个节点表单目录；按节点/状态匹配，区分三种写模式；校验当前节点和轮次，存储 JSON，聚合业务草稿与实时专家评审视图。
+ */
 @Service
 public class NodeFormService {
     private final NodeFormMapper mapper;
@@ -90,12 +93,14 @@ public class NodeFormService {
         return response(definition,projectId,moduleInstanceId,stateRecordId,data);
     }
 
-    /** Called only after runtime permission, sequence and module-lock validation. Joins its transaction. */
+    /**
+     * 仅在运行时权限、序号和模块锁校验后调用，加入迁移事务同时写节点表单与业务草稿；不是独立提交的补写操作。
+     */
     public void persistTransition(Long moduleId, Long projectId, String moduleType, String nodeId,
             String state, int round, String formCode, Map<String,Object> request, Long userId) {
         List<Map<String,Object>> candidates = forNode(moduleType, nodeId, state);
         if (candidates.isEmpty()) {
-            // Older/custom definitions without a registered form retain their node-keyed data.
+            // 未注册表单的旧版或自定义定义继续按节点键保存数据，保留历史读取兼容性。
             if (formCode != null && !formCode.equals(moduleType + "_FORM"))
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Node form does not match the current workflow node");
             store(moduleId, nodeId, round, request, userId);
@@ -158,6 +163,9 @@ public class NodeFormService {
         }
     }
 
+    /**
+     * 按表单定义的写入模式校验当前节点与轮次，再保存节点表单及对应业务数据；兼容读取不会扩大可写范围。
+     */
     @Transactional
     @CanOperateModule
     public Map<String,Object> save(Long moduleInstanceId,String formCode,Map<String,Object> request,ActorContext actor){
@@ -235,6 +243,9 @@ public class NodeFormService {
             return linked("recordId",row.id(),"value",value);
         }).toList();
     }
+    /**
+     * 读取已保存表单时规范化为当前响应形状，保持历史数据兼容；不直接覆盖数据库原文。
+     */
     @SuppressWarnings("unchecked")
     private static Object normalizeStored(Map<String,Object> definition,Object value){return value instanceof Map<?,?> map?payload(definition,(Map<String,Object>)map):value;}
     private Map<String,Object> requireDefinition(String code){return definitions().stream().filter(d->Objects.equals(d.get("formCode"),code)).findFirst().orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Node form definition not found"));}

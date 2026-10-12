@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 
+/**
+ * 暴露待投递通知数量与最老 QUEUED 通知年龄。
+ */
 @Component
 public final class NotificationMetrics {
     private final NotificationMapper notifications;

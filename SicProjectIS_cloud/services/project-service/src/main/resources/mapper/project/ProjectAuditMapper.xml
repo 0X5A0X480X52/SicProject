@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.project.dao.ProjectAuditMapper">
+  <!-- 审计与概览 MyBatis 接口：写入本地及 IAM 管理日志、按条件筛选日志、统计有效授权与日志数、按用户 ID 取名。 -->
   <insert id="insert">INSERT INTO admin_operation_log(id,scope_type,action_type,project_id,project_name_snapshot,
     operator_user_id,operator_name_snapshot,target_user_id,target_name_snapshot,grant_type,role_code,before_snapshot,after_snapshot,remark)
     VALUES(#{id},'PROJECT_AUTHORIZATION',#{action},#{projectId},#{projectName},#{operatorId},#{operatorName},

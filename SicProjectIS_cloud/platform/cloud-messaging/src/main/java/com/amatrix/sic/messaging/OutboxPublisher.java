@@ -12,6 +12,10 @@ import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 
+/**
+ * 定时领取待发事件，使用 RabbitMQ publisher confirm 后标记成功；失败指数退避，中断恢复线程标识。
+ * 数据库发送租约与 RabbitMQ 确认之间存在失败窗口，事件可能重复投递，消费方必须去重。
+ */
 public class OutboxPublisher {
     private static final Logger log = LoggerFactory.getLogger(OutboxPublisher.class);
 
@@ -26,6 +30,9 @@ public class OutboxPublisher {
         this.properties = properties;
     }
 
+    /**
+     * 领取本服务 Outbox 发送租约后逐项投递，根据 RabbitMQ 确认记录成功或重试。发送成功与数据库标记之间仍可能发生重复投递。
+     */
     @Scheduled(fixedDelayString = "${sic.messaging.fixed-delay-ms:1000}")
     public void publishPending() {
         if (!properties.publisherEnabled()) return;

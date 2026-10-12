@@ -21,6 +21,9 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * Servlet 安全自动装配：JWT decoder/converter、方法安全、401/403 处理、异常处理、Actor 解析、请求上下文 Filter；内部接口要求 SCOPE_internal。
+ */
 @AutoConfiguration
 @EnableMethodSecurity
 @ConditionalOnClass(SecurityFilterChain.class)

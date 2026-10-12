@@ -21,6 +21,9 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 
+/**
+ * 签发用户及内部服务 RS256 JWT，设置角色、权限、scope、jti、authVersion/ver、用户/部门信息和有效期。
+ */
 @Service
 public class JwtTokenIssuer {
     private final IamJwtProperties properties;

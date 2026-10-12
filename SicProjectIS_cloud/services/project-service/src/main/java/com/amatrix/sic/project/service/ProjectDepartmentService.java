@@ -14,6 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * 为无归属项目补充部门：先经 IAM 校验部门存在且启用，再在事务内锁项目、写审计并发布 project.authorization 事件。
+ * 此入口只补充历史空部门，不随负责人调部门改变项目归属，也不允许覆盖已存在的部门。
+ */
 @Service
 public class ProjectDepartmentService {
     private final IamDirectoryClient iam;
@@ -30,6 +34,9 @@ public class ProjectDepartmentService {
         this.outbox=outbox; this.transactions=transactions;
     }
 
+    /**
+     * 向 IAM 读取启用部门，空部门、缺失部门和停用部门阻止创建；远程读取发生在项目写事务之前。
+     */
     public DepartmentSummary requireEnabled(Long deptId) {
         if (deptId == null) throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "请先联系管理员分配部门，再发起项目申请");
@@ -45,7 +52,9 @@ public class ProjectDepartmentService {
         return response.data();
     }
 
-    /** IAM lookup precedes the local transaction; project ownership never follows user transfers. */
+    /**
+     * 仅允许全局管理员补充历史空部门；IAM 校验后锁定项目，在一个事务中写归属、审计及授权事件。已有部门不能覆盖。
+     */
     @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasRole('SCIENCE_ADMIN')")
     public Map<String,Object> assignMissing(Long projectId, ActorContext actor, Long deptId, String reason) {
         if (!actor.hasRole("SYSTEM_ADMIN") && !actor.hasRole("SCIENCE_ADMIN"))

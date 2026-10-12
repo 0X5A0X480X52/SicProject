@@ -14,6 +14,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * Spring Security AuthenticationEntryPoint/AccessDeniedHandler：以 JSON 返回 401、403。
+ */
 public class JsonSecurityHandlers implements AuthenticationEntryPoint, AccessDeniedHandler {
     private final ObjectMapper objectMapper;
 

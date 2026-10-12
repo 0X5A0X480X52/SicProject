@@ -9,6 +9,9 @@ import com.amatrix.sic.project.dao.ProjectQueryMapper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+/**
+ * 以一个 SQL 按全局/部门/负责人/成员/授权过滤 ACTIVE 项目；转换角色与数字类型。
+ */
 @Service
 public class ProjectQueryService {
     private final ProjectQueryMapper mapper;

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 展示资格申请并收集审批动作，部门和科研审批阶段由后端状态与权限决定；组件通过事件通知父页面刷新。
+ */
 import { computed, onMounted, reactive, ref } from 'vue'
 import { CircleCheckFilled, CircleCloseFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'

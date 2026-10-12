@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 
+/**
+ * 统计未结束 Saga、失败/补偿 Saga 及最老未完成 Saga 年龄。
+ */
 @Component
 public final class ProjectSagaMetrics {
     private final ApplicationSagaMapper mapper;

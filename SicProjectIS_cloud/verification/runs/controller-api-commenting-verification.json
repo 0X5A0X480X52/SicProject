@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "verifiedAt": "2026-10-12T07:40:37.265274+00:00",
+  "scope": "Controller endpoint Javadoc and related documentation only; prior core comments preserved",
+  "coverage": {
+    "controllers": 24,
+    "endpoints": 114,
+    "documentedEndpoints": 114,
+    "byService": {
+      "iam-service": 32,
+      "project-service": 24,
+      "workflow-service": 50,
+      "material-service": 7,
+      "notification-service": 1
+    }
+  },
+  "validation": {
+    "controllerJavaTokensUnchanged": true,
+    "routeAndParameterDeclarationsUnchanged": true,
+    "controllerJavadocAssociated": true,
+    "malformedJavadoc": 0,
+    "allProductionJavaAndMapperSemantics": {
+      "passed": true,
+      "javaFiles": 242,
+      "mapperFiles": 29,
+      "failures": []
+    },
+    "ordinaryBackendTests": {
+      "passed": true,
+      "tests": 185,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "freshReportSuites": 49
+    },
+    "mavenPackagePassed": true,
+    "documentationLinksAndUtf8Passed": true,
+    "gitDiffCheckPassed": true
+  },
+  "commands": [
+    "mvn -B -pl '!platform/integration-tests' test",
+    "mvn -B -DskipTests package",
+    "git diff --check"
+  ],
+  "notRun": [
+    "frontend tests (frontend unchanged in this iteration)",
+    "live HTTP or database integration (comments only)",
+    "deployment"
+  ],
+  "baselineControllerSnapshotSha256": "b9c9e6b609b2792abeb3f1ec120ad3b17fd9060012604d32c2cf93d5165bac13",
+  "localArtifactDirectory": "target/controller-api-comments",
+  "document": "docs/controller-api-index.md"
+}

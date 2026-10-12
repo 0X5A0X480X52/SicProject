@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.WorkflowScopeMapper">
+  <!-- 批量判权 MyBatis 接口：按项目 ID 集合取 OPEN 任务与专家可评审模块、按模块解析所属项目，并按定义分页取关联项目 ID。 -->
   <resultMap id="task" type="com.amatrix.sic.workflow.entity.WorkflowTaskScope">
     <constructor>
       <arg column="id" javaType="java.lang.Long"/><arg column="module_instance_id" javaType="java.lang.Long"/>
@@ -16,12 +17,14 @@
       <arg column="node_id" javaType="java.lang.String"/><arg column="expert_name_snapshot" javaType="java.lang.String"/>
     </constructor>
   </resultMap>
+  <!-- 仅读取当前未结束模块的开放节点任务；本地候选筛选后仍需 Project 判定办理权限。 -->
   <select id="openTasks" resultMap="task">
     SELECT t.id,t.module_instance_id,t.node_id,t.assignee_user_id,t.candidate_role,t.round_no,m.project_id,m.module_code
       FROM workflow_task t JOIN module_instance m ON m.id=t.module_instance_id
      WHERE m.finished=FALSE AND t.status='OPEN' AND t.node_id=m.current_node_id AND t.module_instance_id IN
     <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
   </select>
+  <!-- 只有当前轮次尚未提交的专家 assignment 才进入待评资格候选，不把历史指派当成当前待办。 -->
   <select id="expertModules" resultType="java.lang.Long">
     SELECT DISTINCT b.module_instance_id FROM expert_review_batch b JOIN expert_review_assignment a ON a.batch_id=b.id
      WHERE a.expert_user_id=#{userId} AND a.valid=TRUE AND a.review_status='ASSIGNED' AND b.module_instance_id IN

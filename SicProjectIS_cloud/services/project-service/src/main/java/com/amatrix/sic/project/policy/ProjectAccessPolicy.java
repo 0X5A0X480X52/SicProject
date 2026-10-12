@@ -20,6 +20,10 @@ import com.amatrix.sic.contracts.ActorContext;
 import com.amatrix.sic.contracts.ProjectAccessResult;
 import com.amatrix.sic.contracts.ProjectOperationTarget;
 
+/**
+ * 项目访问决策中心；批量加载项目、成员及有效授权，区分读取/材料/业务数据/角色任务操作，返回原因码和上下文。
+ * 读取项目的资格与操作当前任务的资格分别判定；财务和专家任务还要求有效授权匹配目标范围。
+ */
 @Component("projectAccessPolicy")
 public class ProjectAccessPolicy {
     private static final String EXPERT_GRANT = "PROJECT_MODULE_EXPERT_ASSIGNMENT";
@@ -43,6 +47,9 @@ public class ProjectAccessPolicy {
         return new AccessDecision(result.allowed(), result.projectVersion(), result.reasonCode());
     }
 
+    /**
+     * 分批装载项目、成员和授权后逐目标判定，保留 decisionId 与 projectId 供调用方关联。不会对每个目标重复执行整套查询。
+     */
     public List<ProjectAccessResult> decideBatch(ActorContext actor, List<ProjectOperationTarget> requested) {
         List<ProjectOperationTarget> targets = requested == null ? List.of()
                 : requested.stream().filter(Objects::nonNull).toList();
@@ -65,6 +72,9 @@ public class ProjectAccessPolicy {
         return results;
     }
 
+    /**
+     * 先区分任务办理和一般读取，再匹配负责人、部门角色或项目授权。读取权限不直接推导写入权限，财务和专家还需匹配授权范围。
+     */
     private Decision evaluate(ActorContext actor, ProjectScopeRow project, ProjectOperationTarget target,
             boolean member, List<Grant> grants) {
         if (actor == null || actor.userId() == null || target.projectId() == null)

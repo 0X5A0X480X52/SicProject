@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 按当前权限分页展示可见流程、待办、办理历史和已结束模块。取消旧请求防止过期响应覆盖，新申请要求所属部门，SSE 只触发重查。
+ */
 import { computed, onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -65,6 +68,9 @@ function statusTag(item: WorkflowWorkbenchItem) {
 }
 
 let abort: AbortController | null = null
+/**
+ * 取消上一轮列表读取，并只应用尚未取消请求的授权分页结果，防止快速切换筛选后旧响应覆盖新页面。
+ */
 async function loadItems(showMessage = false) {
   abort?.abort(); abort = new AbortController()
   const signal = abort.signal
@@ -103,6 +109,9 @@ function cleanApplicationRequest(): StartProjectApplicationRequest {
   }
 }
 
+/**
+ * 检查当前显示身份的部门及项目名后发起申请；成功跳转返回的首个模块，最终部门资格由 Project 再验证。
+ */
 async function submitApplicationStart() {
   if (!canApply.value) { ElMessage.warning('请先联系管理员分配部门'); return }
   if (!applicationForm.projectName?.trim()) {

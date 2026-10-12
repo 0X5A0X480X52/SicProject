@@ -4,6 +4,9 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.amatrix.sic.workflow.entity.*;
+/**
+ * 结构化业务正文 MyBatis 接口：申请、合同、结题正文与成果、财务结算的读写。
+ */
 @Mapper
 public interface StructuredBusinessMapper {
     ApplicationDraftRow application(@Param("project") Long project);

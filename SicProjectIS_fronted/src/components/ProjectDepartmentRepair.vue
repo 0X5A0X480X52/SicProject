@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 为历史空部门项目提供一次性归属补充入口，只向全局管理员展示操作；选择启用部门并填写原因后由后端加锁校验。
+ */
 import { ref, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
@@ -18,6 +21,9 @@ async function begin() {
   try { departments.value = (await getDepartments()).filter(row => row.enabled); open.value = true }
   catch (err) { ElMessage.error(err instanceof Error ? err.message : '部门列表加载失败') }
 }
+/**
+ * 要求选择部门并填写原因，确认后提交一次补充；成功通知父页面重查项目归属，不在前端先行伪造部门。
+ */
 async function save() {
   if (!department.value || !reason.value.trim()) { ElMessage.warning('请选择部门并填写补充原因'); return }
   const choice = department.value

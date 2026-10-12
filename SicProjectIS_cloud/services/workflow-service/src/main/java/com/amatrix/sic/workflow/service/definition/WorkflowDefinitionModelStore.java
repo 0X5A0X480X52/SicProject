@@ -6,7 +6,9 @@ import org.springframework.stereotype.Component;
 import com.amatrix.sic.workflow.dao.WorkflowDefinitionMapper;
 import tools.jackson.databind.ObjectMapper;
 
-/** Definition model writes participate in the caller's local transaction. */
+/**
+ * 定义模型写入：先删旧节点与连线，再插入节点/连线并序列化材料、单据与动作配置；以 MANDATORY 事务参与调用方事务。
+ */
 @Component
 public class WorkflowDefinitionModelStore {
     private final WorkflowDefinitionMapper mapper;

@@ -21,6 +21,9 @@ import com.amatrix.sic.messaging.ConsumedEventGuard;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 消费 IAM 变更，按用户/角色/部门事件从 IAM 拉取摘要并更新 Workflow 的 user_snapshot。
+ */
 @Component
 public class WorkflowUserSnapshotConsumer {
     private final ObjectMapper mapper;

@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 按 userId 定向或广播，发送成功后更新持久状态；重连按用户补发，定时重试 QUEUED 并记录失败次数。
+ */
 @Service
 public class PendingNotificationDeliveryService {
     private final NotificationMapper notifications;
@@ -32,6 +35,9 @@ public class PendingNotificationDeliveryService {
         if (delivered > 0) markDelivered(eventId, userId == null ? "BROADCASTED" : "DELIVERED");
     }
 
+    /**
+     * 连接建立后尝试发送该用户待投递通知；实时发送成功只表示通道接受了消息，不代表用户已查看。
+     */
     public void replayTo(Long userId) {
         for (Pending pending : pendingForUser(userId)) {
             if (connections.sendTo(userId, pending.eventName(), pending.payload()) > 0) {
@@ -40,6 +46,9 @@ public class PendingNotificationDeliveryService {
         }
     }
 
+    /**
+     * 重试持久化 QUEUED 通知，连接不可用时保留待投递记录，不把业务接口查询的正确性建立在推送必达上。
+     */
     @Scheduled(fixedDelayString = "${sic.notification.delivery-delay-ms:5000}")
     public void retryQueued() {
         List<Pending> rows = pending(null,false);

@@ -20,7 +20,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-/** Redis fences deny access across DB commit/publication; they deliberately have no expiry. */
+/**
+ * 以 Redis pending 键把授权版本发布推迟到数据库提交之后：提交前占栅栏、提交后发布，回滚只释放本方栅栏，并定时恢复遗留栅栏。
+ * pending 屏障不设置过期时间；提交结果不确定或发布失败时保持拒绝访问，由恢复任务读取数据库最终版本后解除。
+ */
 @Service
 public class SessionVersionService {
     private static final Logger log = LoggerFactory.getLogger(SessionVersionService.class);
@@ -77,6 +80,9 @@ public class SessionVersionService {
         this.transactions.setTimeout(5);
     }
 
+    /**
+     * 发布登录时读到的权限版本。Lua 同时检查 pending 和版本大小，避免并发改权后旧登录结果重新生效。
+     */
     public void publishLogin(Long userId, long version) {
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
             publishAfterCommit(userId, version);
@@ -90,6 +96,9 @@ public class SessionVersionService {
         if (!Long.valueOf(1).equals(result)) throw unavailable(null);
     }
 
+    /**
+     * 把本事务涉及的用户及最大权限版本登记到同步回调。beforeCommit 先占屏障，afterCommit 再发布版本，不能仅依靠异步事件撤权。
+     */
     public void publishAfterCommit(Long userId, long version) {
         if (!TransactionSynchronizationManager.isActualTransactionActive())
             throw new IllegalStateException("Authorization version updates require a database transaction");
@@ -139,12 +148,12 @@ public class SessionVersionService {
         }
 
         @Override public void afterCompletion(int status) {
-            if (status != STATUS_ROLLED_BACK) return; // Unknown commit remains fenced until DB recovery.
+            if (status != STATUS_ROLLED_BACK) return; // 提交结果不确定时保留屏障，等待数据库恢复判定。
             long started=System.nanoTime();
             var ids=ordered();
             for(int offset=0;offset<ids.size();offset+=BATCH_SIZE) {
                 if(System.nanoTime()-started>PUBLICATION_BUDGET_NANOS)break;
-                // Include commands whose response was lost: only this transaction's owner may release a fence.
+                // 也处理响应丢失的占屏障命令；仅本事务的 owner 能释放自己占有的屏障。
                 var chunk=ids.subList(offset,Math.min(ids.size(),offset+BATCH_SIZE));
                 try { redis.execute(RELEASE_BATCH,chunk.stream().map(id -> PREFIX+id).toList(),owner); }
                 catch (RuntimeException ex) { log.warn("Session fence recovery required for {} users",ids.size());break; }
@@ -163,7 +172,9 @@ public class SessionVersionService {
         } catch (RuntimeException ex) { throw unavailable(ex); }
     }
 
-    /** Locking read waits for an interrupted writer's commit/rollback before clearing its fence. */
+    /**
+     * 扫描未解除的屏障，在短事务中锁读用户最终版本，再按屏障 owner 发布或释放。锁读会等待未完成写事务，避免用旧版本提前解除屏障。
+     */
     @Scheduled(initialDelayString="${sic.security.session-recovery-delay-ms:10000}",
             fixedDelayString="${sic.security.session-recovery-delay-ms:10000}")
     public void recover() {

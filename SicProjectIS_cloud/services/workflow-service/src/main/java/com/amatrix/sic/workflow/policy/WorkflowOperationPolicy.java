@@ -21,6 +21,10 @@ import com.amatrix.sic.contracts.ProjectAccessBatchRequest;
 import com.amatrix.sic.contracts.ProjectAccessResult;
 import com.amatrix.sic.contracts.ProjectOperationTarget;
 
+/**
+ * 当前 OPEN 任务操作判定：指派人/候选角色/专家分配本地筛选，再批量向 Project 校验精确模块轮次节点范围；系统管理员有特殊放行。
+ * 可读取模块不等于可操作当前节点；角色、指派状态和 Project 授权判定共同决定办理资格。
+ */
 @Component("workflowOperationPolicy")
 public class WorkflowOperationPolicy {
     private final WorkflowScopeMapper mapper;
@@ -44,7 +48,9 @@ public class WorkflowOperationPolicy {
 
     public record RuntimeAccess(boolean canRead, boolean canOperate) {}
 
-    /** Shares a single Project lookup within a view request; writes still recheck under their lock. */
+    /**
+     * 在一次运行时读取中合并 Project 判定，分别计算能否读取和办理；写入口仍会在锁内重新校验。
+     */
     public RuntimeAccess runtimeAccess(ActorContext actor, Long moduleId, Long projectId) {
         if (actor == null || actor.userId() == null || moduleId == null || projectId == null)
             return new RuntimeAccess(false, false);
@@ -74,6 +80,9 @@ public class WorkflowOperationPolicy {
         return new RuntimeAccess(read, operate);
     }
 
+    /**
+     * 先检查开放任务、具体指派和未提交的专家 assignment，再批量向 Project 核对目标操作授权。候选角色满足时仍不能跳过项目范围校验。
+     */
     public Set<Long> operableModuleIds(ActorContext actor, List<Long> moduleIds) {
         if (actor == null || actor.userId() == null || moduleIds == null || moduleIds.isEmpty()) return Set.of();
         List<Long> ids = moduleIds.stream().filter(Objects::nonNull).distinct().toList();

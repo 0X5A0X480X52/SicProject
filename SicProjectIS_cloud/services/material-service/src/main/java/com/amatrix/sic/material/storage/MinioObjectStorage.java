@@ -14,6 +14,9 @@ import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import jakarta.annotation.PostConstruct;
 
+/**
+ * 初始化检查/创建 bucket，封装对象 put/get/remove 与存储异常。
+ */
 @Component
 public class MinioObjectStorage{
     private final MinioClient client;private final MaterialProperties properties;

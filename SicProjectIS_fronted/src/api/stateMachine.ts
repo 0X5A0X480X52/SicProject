@@ -1,3 +1,6 @@
+/**
+ * 封装模块运行时、历史、任务和迁移接口；提交携带最新 expectedSeq，冲突后重新读取而不是盲目重试写请求。
+ */
 import { apiRequest } from './client'
 import type {
   RuntimeViewResponse,

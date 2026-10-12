@@ -2,6 +2,9 @@ package com.amatrix.sic.iam.config.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * sic.jwt 的 issuer、audience、有效分钟数、公私钥配置；有效期默认 120 分钟。
+ */
 @ConfigurationProperties("sic.jwt")
 public record IamJwtProperties(
         String issuer,

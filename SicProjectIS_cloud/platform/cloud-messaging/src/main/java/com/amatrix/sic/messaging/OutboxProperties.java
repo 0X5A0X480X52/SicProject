@@ -2,6 +2,9 @@ package com.amatrix.sic.messaging;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * sic.messaging 配置：交换机、批量、调度、发布开关、确认超时、领取租约、最大重试间隔。
+ */
 @ConfigurationProperties("sic.messaging")
 public record OutboxProperties(
         String exchange,

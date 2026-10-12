@@ -9,6 +9,9 @@ import java.util.UUID;
 
 import com.amatrix.sic.messaging.dao.MessagingMapper;
 
+/**
+ * 写 Outbox，按条件更新领取租约，并记录发布成功/失败、下次尝试、错误和锁状态。
+ */
 public class OutboxRepository {
     private final MessagingMapper mapper;
 
@@ -21,9 +24,7 @@ public class OutboxRepository {
     }
 
     /**
-     * Claims rows with a compare-and-set update. Multiple service instances may read the same candidate,
-     * but only one can acquire its lease. Duplicate delivery can still occur after a lease timeout and is
-     * intentionally handled by consumed_event on the consumer side.
+     * 先读取候选，再用条件更新竞争发送租约；多实例可以读到同一候选，但只有租约持有者可处理。租约过期后的重复投递由消费端去重。
      */
     public List<OutboxRecord> claimPending(int limit, String owner, Duration lease) {
         Instant now = Instant.now();

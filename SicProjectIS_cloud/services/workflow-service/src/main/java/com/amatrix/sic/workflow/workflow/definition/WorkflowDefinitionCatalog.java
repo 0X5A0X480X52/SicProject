@@ -10,6 +10,9 @@ import com.amatrix.sic.workflow.dao.WorkflowCatalogMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * 运行器内部读取当前已发布定义或按 definitionId 解析模型，返回 ActiveDefinition。
+ */
 @Component
 public class WorkflowDefinitionCatalog {
     private final WorkflowCatalogMapper mapper;

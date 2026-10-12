@@ -34,6 +34,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * 禁用外部实体/DTD 后用 Flowable 转换器解析 BPMN 及 rm 辅助标签，构建流程、节点、连线、材料、单据模型并补齐状态。
+ */
 @Component
 public class FlowableBpmnDefinitionParser {
     private static final String STATUS_DRAFT = "DRAFT";
@@ -74,7 +77,7 @@ public class FlowableBpmnDefinitionParser {
                 nodeById.put(node.nodeId(), node);
             }
 
-            // Fill source/target state from parsed nodes after all node configs are known.
+            // 全部节点配置解析后再补齐迁移两端状态，避免 BPMN 元素顺序影响关联结果。
             List<WorkflowBpmnParseResult.TransitionConfig> normalizedTransitions = transitions.stream()
                     .map(transition -> normalizeTransitionStates(transition, nodeById))
                     .toList();

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "passed": true,
+  "recordedAt": "2026-10-12T04:50:58.491415+00:00",
+  "sourceBaselineCommit": "67864db61662d68b149667ee5717baa5fcaaccec",
+  "scope": "Core business comments and documentation only",
+  "coverage": {
+    "javaCore": 187,
+    "javaExempt": 55,
+    "frontendCore": 56,
+    "frontendExempt": 6,
+    "mapperFiles": 29
+  },
+  "semantics": {
+    "javaAndMapper": {
+      "passed": true,
+      "javaFiles": 242,
+      "mapperFiles": 29,
+      "failures": []
+    },
+    "frontend": {
+      "passed": true,
+      "frontendFiles": 62,
+      "failures": [],
+      "associatedCoreFunctions": 33
+    }
+  },
+  "validation": {
+    "backendSmoke": {
+      "passed": true,
+      "tests": 185,
+      "skipped": 0,
+      "generatedContractSuites": 5
+    },
+    "backendPackagePassed": true,
+    "frontendTests": {
+      "passed": true,
+      "tests": 5,
+      "skipped": 0
+    },
+    "frontendBuildPassed": true,
+    "javadoc": {
+      "passed": true,
+      "expectedCoreMethods": 63,
+      "associatedTopLevelTypes": 189,
+      "associatedMethods": 65,
+      "malformedDocs": 0
+    },
+    "utf8AndCoveragePassed": true,
+    "whitespacePassed": true
+  },
+  "changedTrackedFiles": 274,
+  "sourceAndMapperFilesChanged": 272,
+  "notRun": [
+    "real MySQL integration",
+    "capacity and fault matrix",
+    "deployment"
+  ],
+  "localArtifactDirectory": "target/comment-annotation"
+}

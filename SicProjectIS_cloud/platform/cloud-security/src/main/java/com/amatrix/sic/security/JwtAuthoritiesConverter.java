@@ -9,6 +9,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+/**
+ * 将 JWT roles、permissions、scope 转为 ROLE_、PERM_、SCOPE_ 权限字符串。
+ */
 public class JwtAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {

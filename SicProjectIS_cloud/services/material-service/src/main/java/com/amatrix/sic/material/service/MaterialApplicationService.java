@@ -29,11 +29,18 @@ import com.amatrix.sic.contracts.ActorContext;
 import com.amatrix.sic.contracts.EventEnvelope;
 import com.amatrix.sic.messaging.OutboxService;
 
+/**
+ * 向 Project 校验读写权限；上传 MinIO 并事务保存版本/SHA-256/事件，失败尝试清理对象；列表/下载；禁止删除生成单据及已预留/确认版本，其他删除建立持久清理任务。
+ * 对象存储写入与数据库事务分开执行；失败补偿和持久化删除任务用于处理两者之间的失败窗口。
+ */
 @Service
 public class MaterialApplicationService{
     private final MaterialMapper mapper;private final MinioObjectStorage storage;private final MaterialAccessPolicy access;private final OutboxService outbox;private final TransactionTemplate transactions;
     public MaterialApplicationService(MaterialMapper mapper,MinioObjectStorage storage,MaterialAccessPolicy access,OutboxService outbox,TransactionTemplate transactions){this.mapper=mapper;this.storage=storage;this.access=access;this.outbox=outbox;this.transactions=new TransactionTemplate(transactions.getTransactionManager(),transactions);this.transactions.setIsolationLevel(org.springframework.transaction.TransactionDefinition.ISOLATION_READ_COMMITTED);}
 
+    /**
+     * 先校验项目写权限并上传对象，再在数据库事务中持久化版本及事件；数据库失败时尝试删除刚上传的对象。
+     */
     public Map<String,Object> upload(ActorContext actor,Long projectId,String typeCode,MultipartFile file){
         requireAccess(actor,projectId,"MATERIAL_WRITE");if(file==null||file.isEmpty())throw bad("File is required");
         String filename=safeName(file.getOriginalFilename());String key="projects/"+projectId+"/"+typeCode+"/"+UUID.randomUUID()+"/"+filename;
@@ -69,6 +76,9 @@ public class MaterialApplicationService{
         transactions.executeWithoutResult(status -> deleteLocked(actor,versionId));
     }
 
+    /**
+     * 锁定版本后复核引用和预留状态；业务删除与对象删除任务同事务入库，实际 MinIO 删除由独立清理任务处理。
+     */
     private void deleteLocked(ActorContext actor,Long versionId){
         MaterialVersionRow version=mapper.version(versionId,true);
         if(version==null)throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Material version not found");

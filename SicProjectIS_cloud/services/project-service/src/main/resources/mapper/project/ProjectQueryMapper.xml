@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.project.dao.ProjectQueryMapper">
+  <!-- 项目列表 MyBatis 接口：以单条 SQL 按全局/部门/负责人/成员/有效授权（含专家与财务开关）过滤 ACTIVE 项目。 -->
   <resultMap id="project" type="java.util.LinkedHashMap">
     <result column="projectId" property="projectId" javaType="Long"/>
     <result column="projectCode" property="projectCode" javaType="String"/>
@@ -13,6 +14,7 @@
     <result column="projectLevel" property="projectLevel" javaType="String"/>
     <result column="lifecycleStage" property="lifecycleStage" javaType="String"/>
   </resultMap>
+  <!-- 按全局角色、部门管理员、负责人、成员和有效项目 grant 联合筛选；普通同部门成员不自动拥有所有项目。 -->
   <select id="accessible" resultMap="project">
     SELECT p.id projectId,p.project_code projectCode,p.project_name projectName,p.dept_id deptId,p.dept_name_snapshot deptName,
       p.owner_user_id leaderUserId,p.owner_name_snapshot leaderRealName,p.project_type projectType,p.project_level projectLevel,p.business_status lifecycleStage

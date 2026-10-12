@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 通用流程页中的指派与评分入口，任务范围取自当前模块和轮次；本人评分提交后转到专用历史页，避免继续请求已失去权限的项目详情。
+ */
 import { computed, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useRouter } from 'vue-router';

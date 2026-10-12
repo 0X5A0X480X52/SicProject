@@ -15,6 +15,9 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 按来源 IP 与每秒窗口在 Redis 计数限流；Redis 失败时放行，超限返回 429。
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 public class GatewayRateLimitWebFilter implements WebFilter {

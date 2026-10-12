@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 用于节点表单联调的通用界面，复用公共字段与请求转换逻辑；所有保存与维护操作仍经过现有业务接口校验。
+ */
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Download, Refresh, UploadFilled } from '@element-plus/icons-vue'
@@ -493,7 +496,7 @@ function requiredContextFields(definition?: NodeFormDefinition): Array<keyof Nod
 }
 
 
-// fieldsForKind, defaultsForKind, fieldType are now imported from utils/nodeFormFields
+// 字段列表、默认值和类型使用共享规则，避免调试页与正式节点表单发生分歧。
 
 
 function recordsForKind(kind?: NodeFormDataKind, source?: NodeFormDataResponse | null) {
@@ -575,7 +578,7 @@ function parseIds(value: string) {
     .filter((item) => !Number.isNaN(item))
 }
 
-// fieldType is now imported from utils/nodeFormFields
+// 输入类型同样复用共享字段规则。
 </script>
 
 <template>

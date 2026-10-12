@@ -5,6 +5,9 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+/**
+ * 审计与概览 MyBatis 接口：写入本地及 IAM 管理日志、按条件筛选日志、统计有效授权与日志数、按用户 ID 取名。
+ */
 @Mapper
 public interface ProjectAuditMapper {
     int insert(Map<String,Object> log);

@@ -7,6 +7,9 @@ import java.lang.annotation.Target;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+/**
+ * 方法权限元注解：调用 projectAccessPolicy.canAccess 验证项目读取。
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("@projectAccessPolicy.canAccess(@actorContextResolver.from(authentication), #projectId)")

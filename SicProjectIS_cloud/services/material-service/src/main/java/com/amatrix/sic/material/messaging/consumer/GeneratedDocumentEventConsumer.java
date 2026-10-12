@@ -14,6 +14,9 @@ import com.amatrix.sic.messaging.ConsumedEventGuard;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 校验并去重 DOCUMENT_GENERATION_REQUESTED，调用单据生成服务。
+ */
 @Component
 public class GeneratedDocumentEventConsumer {
     private final ObjectMapper mapper;

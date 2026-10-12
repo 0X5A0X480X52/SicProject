@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 提供业务页面导航及当前身份菜单。角色与权限决定前端入口提示，页面存在不等于当前账号具有后台操作资格。
+ */
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'

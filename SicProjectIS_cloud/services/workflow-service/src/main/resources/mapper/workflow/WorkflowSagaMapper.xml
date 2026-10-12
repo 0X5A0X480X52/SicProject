@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.WorkflowSagaMapper">
+  <!-- 申请 Saga MyBatis 接口：按 sagaId 查询状态与模块、创建申请模块/项目快照/申请正文，并在补偿时按模块级联删除任务、状态、表单、材料引用、评审、验收与合同等关联数据。 -->
   <resultMap id="state" type="com.amatrix.sic.workflow.entity.WorkflowSagaState"><constructor>
     <arg column="module_id" javaType="Long"/>
     <arg column="project_id" javaType="Long"/>
@@ -19,6 +20,7 @@
     <arg column="summary" javaType="String"/>
     <arg column="created_at" javaType="java.time.LocalDateTime"/>
   </constructor></resultMap>
+  <!-- 按 sagaId 查找已创建模块，重复申请创建和补偿以该标识关联同一用例。 -->
   <select id="find" resultMap="state">SELECT m.id module_id,m.project_id,m.current_node_id,m.current_state,m.finished,s.id state_id,s.seq,s.round_no,
     s.event_type,s.from_state,s.to_state,s.from_node_id,s.to_node_id,s.result,s.summary,s.created_at FROM module_instance m JOIN state_record s ON s.module_instance_id=m.id
     WHERE m.saga_id=#{saga} ORDER BY s.seq DESC LIMIT 1</select>

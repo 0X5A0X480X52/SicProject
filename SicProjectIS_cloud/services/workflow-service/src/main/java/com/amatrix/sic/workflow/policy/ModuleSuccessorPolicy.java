@@ -2,6 +2,9 @@ package com.amatrix.sic.workflow.policy;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * 按模块及终态映射下一模块/项目阶段：批准申请→合同，批准合同→结题，接受结题→项目完成；其他终态无后继。
+ */
 @Component
 public class ModuleSuccessorPolicy {
 

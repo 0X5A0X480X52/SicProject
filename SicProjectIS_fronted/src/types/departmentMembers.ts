@@ -1,3 +1,6 @@
+/**
+ * 描述可管理部门、成员及可编辑角色范围；管理能力随响应返回，不以同部门关系推导任意管理权限。
+ */
 export interface DepartmentOption {
   deptId: number
   deptCode: string | null

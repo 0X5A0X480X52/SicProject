@@ -13,6 +13,10 @@ import com.amatrix.sic.contracts.ProjectOperationTarget;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 以 projectAccessPolicy Bean 名实现项目/模块/节点表单读取；必要时根据当前专家分配同步缺失的 Project 授权。
+ * 定义读取与项目运行实例读取使用不同边界，不能把可查看某项目的资格解释为定义管理权限。
+ */
 @Component("projectAccessPolicy")
 public class WorkflowProjectAccessPolicy {
     private final ProjectAccessClient projects;
@@ -48,7 +52,7 @@ public class WorkflowProjectAccessPolicy {
         return response.success();
     }
 
-    /** Definition display is allowed only through a project using this exact version. */
+    /** 项目读取资格只放行该项目实际使用的定义版本，不扩展为任意版本的定义管理权限。 */
     public boolean canReadDefinition(ActorContext actor, Long definitionId) {
         if(actor==null || actor.userId()==null || definitionId==null)return false;
         long after=0;

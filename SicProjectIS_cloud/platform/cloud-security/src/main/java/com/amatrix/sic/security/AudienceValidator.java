@@ -5,6 +5,9 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+/**
+ * 检查 JWT audience 是否包含所需值，缺失则给出 invalid_token。
+ */
 public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
     private final String audience;
 

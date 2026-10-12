@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.material.dao.MaterialReservationMapper">
+  <!-- 材料预留 MyBatis 接口：按 commandId 幂等查询、预留与明细插入、可选版本加锁、确认/释放/过期清理及状态读取。 -->
   <resultMap id="reservation" type="com.amatrix.sic.material.entity.ReservationRow"><constructor>
     <arg column="reservation_id" javaType="String"/><arg column="status" javaType="String"/><arg column="expires_at" javaType="java.time.Instant"/>
   </constructor></resultMap>
@@ -10,6 +11,7 @@
   <select id="byCommand" resultMap="reservation">SELECT reservation_id,status,expires_at FROM material_reservation WHERE command_id=#{id}</select>
   <select id="reservedItems" resultMap="item">SELECT material_version_id version_id,NULL project_id,material_type_code type_code
     FROM material_reservation_item WHERE reservation_id=#{id} ORDER BY material_version_id</select>
+  <!-- 按版本 ID 排序读取，lock=true 才取行锁；材料必须未删除，项目及必需类型由用例校验。 -->
   <select id="available" resultMap="item">SELECT v.id version_id,m.project_id,m.material_type_code type_code FROM material_version v JOIN material m ON m.id=v.material_id
     WHERE v.id IN <foreach collection="ids" item="id" open="(" close=")" separator=",">#{id}</foreach>
     AND v.file_status&lt;&gt;'DELETED' ORDER BY v.id <if test="lock">FOR UPDATE</if></select>
@@ -17,8 +19,11 @@
     VALUES(#{id},#{command.commandId},#{command.projectId},#{command.moduleInstanceId},#{command.expectedSeq},#{command.actorUserId},'RESERVED',#{expires})</insert>
   <insert id="insertItem">INSERT INTO material_reservation_item(reservation_id,material_version_id,material_type_code) VALUES(#{id},#{item.versionId},#{item.typeCode})</insert>
   <select id="deleted" resultType="Integer">SELECT COUNT(*) FROM material_reservation_item i JOIN material_version v ON v.id=i.material_version_id WHERE i.reservation_id=#{id} AND v.file_status='DELETED'</select>
+  <!-- 允许 RESERVED 或 EXPIRED 的迟到确认，但调用方先锁定并验证材料仍可用；RELEASED 不会复活。 -->
   <update id="confirm">UPDATE material_reservation SET status='CONFIRMED' WHERE reservation_id=#{id} AND status IN ('RESERVED','EXPIRED')</update>
   <select id="status" resultType="String">SELECT status FROM material_reservation WHERE reservation_id=#{id}</select>
+  <!-- 失败尝试仅释放自己的 RESERVED 租约，已确认引用不被反向撤销。 -->
   <update id="release">UPDATE material_reservation SET status='RELEASED' WHERE reservation_id=#{id} AND status='RESERVED'</update>
+  <!-- 清理未确认的超时租约；对象是否删除和迟到确认资格另行判断。 -->
   <update id="expire">UPDATE material_reservation SET status='EXPIRED' WHERE status='RESERVED' AND expires_at&lt;=CURRENT_TIMESTAMP</update>
 </mapper>

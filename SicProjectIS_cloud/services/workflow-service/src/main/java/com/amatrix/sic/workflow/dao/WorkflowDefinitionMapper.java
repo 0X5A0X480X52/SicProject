@@ -4,6 +4,9 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.amatrix.sic.workflow.entity.DefinitionRow;
+/**
+ * 定义 MyBatis 接口：定义与版本状态写入、发布/停用切换、BPMN XML 读取，以及节点与连线配置的删除重建。
+ */
 @Mapper
 public interface WorkflowDefinitionMapper {
     DefinitionRow find(@Param("id") Long id);

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 专家专用任务与本人历史界面。提交后等待批次完成，保留个人记录；材料仅在当前 canReview 时加载，刷新时可保留尚未提交草稿。
+ */
 import { ref, reactive, watch, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import AppShell from '../layouts/AppShell.vue'
@@ -20,6 +23,9 @@ const draft = reactive({ score: 85, result: 'PASSED', comment: '' })
 const labels: Record<string, string> = { PENDING: '待评审', WAITING_REVIEW: '等待评审开始', SUBMITTED: '已提交，等待其他专家', COMPLETED: '评审已结束', EXPIRED: '任务已失效' }
 let listAbort: AbortController | null = null
 let detailAbort: AbortController | null = null
+/**
+ * 查询本人任务与历史，取消上一轮列表请求；后台授权变化后重新计算可评分状态。
+ */
 async function loadList() {
   listAbort?.abort(); listAbort = new AbortController()
   const signal = listAbort.signal; loading.value = true; error.value = ''
@@ -29,6 +35,9 @@ async function loadList() {
   } catch (err) { if (!signal.aborted) error.value = err instanceof Error ? err.message : '评审任务加载失败' }
   finally { if (!signal.aborted) loading.value = false }
 }
+/**
+ * 查询本人记录；事件触发刷新时 preserveDraft 保留未提交输入，只有当前可评分才读取项目材料。
+ */
 async function selectReview(id: number, preserveDraft = false) {
   detailAbort?.abort(); detailAbort = new AbortController()
   const signal = detailAbort.signal
@@ -47,6 +56,9 @@ async function selectReview(id: number, preserveDraft = false) {
     if (!signal.aborted) ElMessage.error(err instanceof Error ? err.message : '评审记录加载失败')
   }
 }
+/**
+ * 确认后提交本人评分，先切换为已提交并清除材料，再读取个人记录；批次结束不会要求继续访问通用项目详情。
+ */
 async function submit() {
   const review = selected.value
   if (!review?.canReview || submitting.value) return

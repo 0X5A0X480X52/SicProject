@@ -15,6 +15,9 @@ import com.amatrix.sic.messaging.ConsumedEventGuard;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 消费生命周期事件，更新本地 project_snapshot.lifecycle_stage。
+ */
 @Component
 public class WorkflowProjectLifecycleConsumer {
     private final ObjectMapper mapper;

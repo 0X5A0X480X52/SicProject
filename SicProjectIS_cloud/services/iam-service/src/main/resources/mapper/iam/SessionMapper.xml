@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.iam.dao.SessionMapper">
+  <!-- 会话版本 MyBatis 接口：按用户加行锁读取当前授权版本，供提交后发布栅栏使用。 -->
+  <!-- 恢复 pending 屏障前锁读最终版本，等待并发身份事务完成后才决定发布或释放。 -->
   <select id="lockedVersion" resultType="java.lang.Long">SELECT auth_version FROM app_user WHERE id=#{id} FOR UPDATE</select>
 </mapper>

@@ -5,6 +5,9 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+/**
+ * 评审读模型 MyBatis 接口：批次、分配、评分与本人评审历史的查询。
+ */
 @Mapper
 public interface ExpertReviewViewMapper {
     Map<String,Object> batch(@Param("id") Long id);

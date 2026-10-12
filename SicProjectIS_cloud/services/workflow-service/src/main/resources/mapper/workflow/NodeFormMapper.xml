@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.NodeFormMapper">
+  <!-- 节点表单 MyBatis 接口：按模块、节点、轮次读写表单记录及历史记录查询。 -->
   <resultMap id="module" type="com.amatrix.sic.workflow.entity.NodeFormModule"><constructor>
     <arg column="project_id" javaType="Long"/><arg column="module_code" javaType="String"/>
     <arg column="current_node_id" javaType="String"/><arg column="current_state" javaType="String"/>
@@ -9,6 +10,7 @@
   <resultMap id="record" type="com.amatrix.sic.workflow.entity.NodeFormRecord"><constructor>
     <arg column="id" javaType="Long"/><arg column="form_json" javaType="String"/>
   </constructor></resultMap>
+  <!-- 按本用例传入的 formCode 或兼容节点键写入节点表单；业务草稿由同事务内其他语句维护。 -->
   <insert id="store">
     INSERT INTO node_form(module_instance_id,node_id,round_no,form_json,submitted_by) VALUES(#{module},#{key},#{round},#{json},#{actor})
     ON DUPLICATE KEY UPDATE form_json=VALUES(form_json),submitted_by=VALUES(submitted_by)
@@ -39,5 +41,6 @@
   <select id="stored" resultType="String">SELECT form_json FROM node_form WHERE module_instance_id=#{module} AND node_id IN (#{code},#{node}) ORDER BY id DESC LIMIT 1</select>
   <select id="records" resultMap="record">SELECT id,form_json FROM node_form WHERE module_instance_id=#{module} AND (node_id LIKE #{pattern} OR node_id=#{node}) ORDER BY id</select>
   <select id="moduleCount" resultType="Integer">SELECT COUNT(*) FROM module_instance WHERE id=#{id}</select>
+  <!-- NodeFormMapper.lockModule 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
   <select id="lockModule" resultMap="module">SELECT project_id,module_code,current_node_id,current_state,current_round,finished FROM module_instance WHERE id=#{id} FOR UPDATE</select>
 </mapper>

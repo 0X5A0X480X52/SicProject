@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 读取当前可访问项目并按生命周期展示；项目可读不意味着可以操作其所有流程节点。
+ */
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppShell from '../layouts/AppShell.vue'

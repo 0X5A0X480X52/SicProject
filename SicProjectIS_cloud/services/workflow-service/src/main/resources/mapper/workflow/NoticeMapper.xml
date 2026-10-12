@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.NoticeMapper">
+  <!-- 公告 MyBatis 接口：公告写入、按全部/部门/用户范围查询与维护。 -->
   <resultMap id="notice" type="java.util.LinkedHashMap" autoMapping="false">
     <result column="id" property="noticeId" javaType="Long"/>
     <result column="module_instance_id" property="moduleInstanceId" javaType="Long"/>

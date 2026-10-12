@@ -20,6 +20,9 @@ import com.amatrix.sic.iam.dto.IamDtos.LoginResponse;
 import com.amatrix.sic.iam.dto.IamDtos.RegisterRequest;
 import com.amatrix.sic.iam.dto.IamDtos.UserAccount;
 
+/**
+ * 规范化用户名、验证 BCrypt 密码与启用状态、注册用户、读取当前用户、签发登录响应、维护 Redis 授权版本和注销黑名单。
+ */
 @Service
 public class AuthApplicationService {
     private final IamRepository repository;
@@ -37,6 +40,9 @@ public class AuthApplicationService {
         this.versions = versions;
     }
 
+    /**
+     * 验证密码及账号状态，再签发当前身份的登录结果。发布权限版本失败会阻止正常登录响应，不能把旧角色当成成功登录。
+     */
     public LoginResponse login(String username, String password) {
         UserAccount user = repository.findByUsername(normalize(username));
         if (user == null || !user.enabled() || password == null
@@ -46,6 +52,10 @@ public class AuthApplicationService {
         return response(user);
     }
 
+    /**
+     * 创建账号并返回登录结果；注册请求可携带部门，后续申请仍需验证当前启用部门。
+     * 注册本身不授予高级审批或专家角色，这些身份由管理和资格审批取得。
+     */
     @Transactional(isolation=Isolation.READ_COMMITTED)
     public LoginResponse register(RegisterRequest request) {
         String username = required(request.username(), "Username is required");
@@ -74,6 +84,9 @@ public class AuthApplicationService {
         return user;
     }
 
+    /**
+     * 按当前 token 的 jti 写入撤销标记，保存到 token 过期时间；不通过这个入口撤销用户的其他 token。
+     */
     public void logout(String tokenId, Instant expiresAt) {
         if (tokenId == null || expiresAt == null) {
             return;

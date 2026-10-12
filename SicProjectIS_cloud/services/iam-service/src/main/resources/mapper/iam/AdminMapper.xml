@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.iam.dao.AdminMapper">
+  <!-- 管理端 MyBatis 接口：用户筛选与详情、角色权限矩阵、部门树与成员、角色和部门 ID 解析、授权版本锁定与递增，以及用户角色/权限/部门的增删改。 -->
+  <!-- 角色修改先取得一致的角色锁，再进行用户及权限关联修改。 -->
   <select id="lockAllRoles" resultType="java.lang.Long">SELECT id FROM app_role ORDER BY id FOR UPDATE</select>
   <resultMap id="user" type="com.amatrix.sic.iam.entity.AdminUserRow">
     <constructor>
@@ -49,6 +51,7 @@
   <sql id="departmentColumns">SELECT id deptId,code deptCode,name deptName,parent_id parentDeptId,enabled FROM department</sql>
   <select id="departments" resultType="java.util.LinkedHashMap"><include refid="departmentColumns"/><if test="scope != null"> WHERE id=#{scope}</if> ORDER BY id</select>
   <select id="department" resultType="java.util.LinkedHashMap"><include refid="departmentColumns"/> WHERE id=#{id}</select>
+  <!-- AdminMapper.roleId 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
   <select id="roleId" resultType="Long">SELECT id FROM app_role WHERE code=#{code} FOR UPDATE</select>
   <select id="departmentId" resultType="Long">SELECT id FROM department WHERE code=#{code}</select>
   <select id="userId" resultType="Long">SELECT id FROM app_user WHERE id=#{id}</select>
@@ -59,11 +62,14 @@
   <select id="codeExists" resultType="int">
     SELECT COUNT(*) FROM <choose><when test="kind == 'app_role'">app_role</when><otherwise>app_permission</otherwise></choose> WHERE code=#{code}
   </select>
+  <!-- AdminMapper.lockRoleCodes 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
   <select id="lockRoleCodes" resultType="Long">SELECT id FROM app_role WHERE code IN <foreach collection="codes" item="code" open="(" close=")" separator=",">#{code}</foreach> ORDER BY id FOR UPDATE</select>
   <select id="roleCodes" resultType="String">SELECT r.code FROM app_role r JOIN user_role ur ON ur.role_id=r.id WHERE ur.user_id=#{id} ORDER BY r.code</select>
   <select id="rolePermissions" resultType="String">SELECT p.code FROM app_permission p JOIN role_permission rp ON rp.permission_id=p.id WHERE rp.role_id=#{id} ORDER BY p.code</select>
   <select id="usersForRole" resultType="Long">SELECT user_id FROM user_role WHERE role_id=#{id} ORDER BY user_id</select>
+  <!-- 读取待改权用户并加锁；版本递增与 Redis 屏障发布由业务事务协调。 -->
   <select id="lockedVersions" resultMap="version">SELECT id,auth_version FROM app_user WHERE id IN <foreach collection="ids" item="id" open="(" close=")" separator=",">#{id}</foreach> ORDER BY id FOR UPDATE</select>
+  <!-- 批量递增权限版本，旧 JWT 在版本发布后不能继续按旧身份使用。 -->
   <update id="incrementVersions">UPDATE app_user SET auth_version=auth_version+1 WHERE id IN <foreach collection="ids" item="id" open="(" close=")" separator=",">#{id}</foreach></update>
   <delete id="deleteUserRoles">DELETE FROM user_role WHERE user_id=#{id}</delete>
   <insert id="assignRole">INSERT INTO user_role(user_id,role_id) SELECT #{id},id FROM app_role WHERE code=#{code} AND enabled=TRUE</insert>
@@ -74,5 +80,6 @@
   <insert id="insertDepartment">INSERT INTO department(code,name,parent_id,enabled) VALUES(#{code},#{name},#{parent,jdbcType=BIGINT},#{enabled})</insert>
   <update id="updateDepartment">UPDATE department SET code=#{code},name=#{name},parent_id=#{parent,jdbcType=BIGINT},enabled=#{enabled} WHERE id=#{id}</update>
   <delete id="deleteDepartment">DELETE FROM department WHERE id=#{id}</delete>
+  <!-- 变更用户部门并递增授权版本；项目归属快照不随本操作自动转移。 -->
   <update id="moveUser">UPDATE app_user SET dept_id=#{department,jdbcType=BIGINT},auth_version=auth_version+1 WHERE id=#{id}</update>
 </mapper>

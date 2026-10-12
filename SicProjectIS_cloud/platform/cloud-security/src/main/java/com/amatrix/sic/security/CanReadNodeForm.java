@@ -7,6 +7,9 @@ import java.lang.annotation.Target;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+/**
+ * 方法权限元注解：按 projectId/moduleInstanceId 调用 projectAccessPolicy.canAccessForm。
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("@projectAccessPolicy.canAccessForm(@actorContextResolver.from(authentication), #projectId, #moduleInstanceId)")

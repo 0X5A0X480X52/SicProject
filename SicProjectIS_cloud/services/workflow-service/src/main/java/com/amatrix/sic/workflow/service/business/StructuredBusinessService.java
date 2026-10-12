@@ -26,6 +26,9 @@ import com.amatrix.sic.security.CanAccessProject;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 申请/合同/结题结构化正文、成果和财务结算持久化；校验当前业务节点操作人及关联模块/验收/状态记录，计算结余和执行率。
+ */
 @Service
 public class StructuredBusinessService {
     private final StructuredBusinessMapper mapper;

@@ -12,6 +12,9 @@ import com.amatrix.sic.messaging.ConsumedEventGuard;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 去重消费材料确认命令，读取 reservationId 并确认预留。
+ */
 @Component
 public class MaterialReservationEventConsumer{
     private final ObjectMapper mapper;private final ConsumedEventGuard guard;private final MaterialReservationService service;

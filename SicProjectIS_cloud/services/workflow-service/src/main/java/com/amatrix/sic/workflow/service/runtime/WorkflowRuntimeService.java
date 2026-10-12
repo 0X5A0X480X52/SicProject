@@ -53,6 +53,10 @@ import tools.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 自建工作流运行核心：实例/任务/状态历史、序号行锁、轮次、材料预留引用、运行视图、待办；专家完成自动迁移、成功后继模块及三类恢复任务。
+ * 材料预留发生在迁移事务外，锁内再次校验序号与权限；状态、任务、材料引用和 Outbox 共同提交。
+ */
 @Service
 public class WorkflowRuntimeService {
     private static final Logger log = LoggerFactory.getLogger(WorkflowRuntimeService.class);
@@ -123,6 +127,9 @@ public class WorkflowRuntimeService {
         });
     }
 
+    /**
+     * 先读取状态并校验 expectedSeq，在事务外预留材料；随后锁内复核状态、权限并提交迁移。每次尝试使用独立租约，失败只释放本次预留。
+     */
     @CanOperateModule
     public StateTransitionContract transition(Long moduleInstanceId, ActorContext actor, TransitionRequest request) {
         if (request == null || blank(request.eventType())) {
@@ -142,8 +149,8 @@ public class WorkflowRuntimeService {
         MaterialReservationResult reservation = null;
         List<Long> materialIds = request.materialVersionIds() == null ? List.of() : request.materialVersionIds();
         if (!materialIds.isEmpty() || !requiredTypes.isEmpty()) {
-            // A failed contender must release only its own lease. expectedSeq already
-            // serializes commits; sharing a lease across attempts can revoke the winner.
+            // 序号和行锁决定哪次迁移能够提交；每次竞争使用独立租约，
+            // 避免失败请求的释放操作撤销成功请求已使用的材料预留。
             String commandId = "transition:" + moduleInstanceId + ":" + expected + ":"
                     + UUID.randomUUID().toString().replace("-", "");
             var response = materials.reserve(tokens.authorization(), new MaterialReservationCommand(commandId,
@@ -163,20 +170,23 @@ public class WorkflowRuntimeService {
                 try {
                     materials.release(tokens.authorization(), reservation.reservationId());
                 } catch (Exception ignored) {
-                    // Reservation cleanup is also covered by the material-service expiry job.
+                    // 即时释放失败时由 Material 过期清理兜底，不把释放异常覆盖到原始迁移异常。
                 }
             }
             throw ex;
         }
     }
 
+    /**
+     * 读取模块与当前办理资格，组装节点、表单、材料和可执行动作；财务节点另读取配置状态，读取资格与操作资格分别返回。
+     */
     @PreAuthorize("isAuthenticated()")
     public Map<String, Object> runtimeView(Long moduleInstanceId, ActorContext actor) {
         ModuleRecord module = module(moduleInstanceId, false);
         var access = operationPolicy.runtimeAccess(actor, moduleInstanceId, module.projectId());
         boolean canOperate = access.canOperate();
         if (!access.canRead()) {
-            // Preserve the existing recovery of an assigned expert's not-yet-synchronized grant.
+            // 保留已指派专家但 Project 授权尚未同步时的既有恢复判定。
             if (!workflowAccess.canAccessModule(actor, moduleInstanceId))
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Project access denied");
             canOperate = operationPolicy.exactCanOperate(actor, moduleInstanceId);
@@ -303,6 +313,9 @@ public class WorkflowRuntimeService {
         }));
     }
 
+    /**
+     * 扫描已经离开评审节点但未结束访问的批次，补写权限结束事件；实际项目授权回收由 Project 消费事件完成。
+     */
     @Scheduled(initialDelayString = "${sic.workflow.expert-access-recovery-initial-delay-ms:25000}",
             fixedDelayString = "${sic.workflow.expert-access-recovery-delay-ms:300000}")
     public void recoverEndedExpertAccess() {
@@ -321,6 +334,9 @@ public class WorkflowRuntimeService {
         batchIds.forEach(batchId -> endExpertAccessBatch(batchId, actorId));
     }
 
+    /**
+     * 将批次结束和专家权限回收事件一起写入本地事务。携带不可变指派人列表，以兼容历史节点配置已被重建的情形。
+     */
     private void endExpertAccessBatch(Long batchId, Long actorId) {
         Map<String,Object> scope=mapper.endedScope(batchId);
         if(scope==null)return;
@@ -328,9 +344,8 @@ public class WorkflowRuntimeService {
         if (expertUserIds.isEmpty()) {
             throw new IllegalStateException("Expert review batch has no assignments: " + batchId);
         }
-        // A legacy batch can point at a node-config row removed by a definition reload.  Keep the
-        // normal node-scoped revocation, but include immutable assignment identities so Project can
-        // safely revoke only this batch's experts when that historical node id is no longer resolvable.
+        // 历史批次的节点配置可能已被定义重建移除；保留节点范围，同时携带不可变专家指派 ID，
+        // 让 Project 在旧节点无法解析时仍只回收对应专家的临时授权。
         scope.put("expertUserIds", expertUserIds);
         outbox.enqueue("workflow.expert-access-ended", EventEnvelope.create("EXPERT_ACCESS_ENDED",
                 "EXPERT_REVIEW_BATCH", batchId.toString(), null, null, actorId, scope));
@@ -363,6 +378,9 @@ public class WorkflowRuntimeService {
         return record;
     }
 
+    /**
+     * 持有模块行锁后重新验证序号，写表单、关闭旧任务并推进状态；状态记录、后继模块、材料引用及 Outbox 同事务提交。权限复核仍可能调用 Project，不能假设锁内完全没有远程调用。
+     */
     private StateTransitionContract lockedTransition(Long id, ActorContext actor, TransitionRequest request, int expected,
             MaterialReservationResult reservation, boolean enforcePermission) {
         ModuleRecord module = module(id, true);
@@ -418,6 +436,9 @@ public class WorkflowRuntimeService {
         return new StateTransitionContract(record, target.nodeId(), target.stateCode(), finished);
     }
 
+    /**
+     * 按已完成模块的终态选择后继；先查已有实例，再创建缺失实例。返回后继 ID，不要求前端再次调用创建接口。
+     */
     private Long ensureSuccessor(ModuleRecord module, ModuleSuccessorPolicy.Completion completion, ActorContext actor) {
         if (completion == null || !completion.hasSuccessor()) return null;
         Long existing = findModuleId(module.projectId(), completion.nextModuleType());

@@ -57,11 +57,13 @@ spring:
         resilience4j:
           enabled: false
     openfeign:
+      # 所有 Feign 调用接入断路器；客户端未声明 fallback，失败仍向业务层显式返回异常。
       circuitbreaker:
         enabled: true
       client:
         config:
           default:
+            # 内部同步请求采用有界连接/读取等待，避免下游故障长期占用业务线程和数据库连接。
             connectTimeout: 1000
             readTimeout: 3000
 

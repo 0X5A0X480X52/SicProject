@@ -10,7 +10,9 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 
-/** Low-cardinality operational gauges for each service-owned outbox and the shared DLQ. */
+/**
+ * 注册各服务 Outbox 待发、失败、最老年龄以及公共死信队列积压 Gauge。
+ */
 public final class MessagingMetrics {
     private final MessagingMapper mapper;
     private final RabbitAdmin rabbitAdmin;

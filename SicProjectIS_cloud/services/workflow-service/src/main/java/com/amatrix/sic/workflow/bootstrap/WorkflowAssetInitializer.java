@@ -17,6 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 启动校验内置 BPMN 所需的已安装定义，显式启用 bootstrap-if-missing 时才补齐缺失资产。
+ * 默认依赖完整 SQL 种子；已有配置、在用定义及自定义发布版本不会在重启时被内置资产覆盖。
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class WorkflowAssetInitializer implements ApplicationRunner {
@@ -34,6 +38,9 @@ public class WorkflowAssetInitializer implements ApplicationRunner {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 遍历发行包中的工作流资产；默认检查 SQL 已安装版本，显式启用 bootstrap-if-missing 时才补齐缺失资产。已配置或在用定义的 ID 和自定义内容保留。
+     */
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
@@ -49,7 +56,7 @@ public class WorkflowAssetInitializer implements ApplicationRunner {
         }
         String moduleType = required(model.processConfig().moduleType(), "moduleType", assetName);
         int version = model.processConfig().versionNo() == null ? 1 : model.processConfig().versionNo();
-        // An adopted database may publish a version absent from the bundled release assets.
+        // 接管的数据库可能发布了发行包之外的版本；默认只校验已安装的 SQL 资产。
         if (!bootstrapMissing) {
             Integer installed = mapper.installed(moduleType);
             if (installed != null && installed > 0) return;
@@ -60,7 +67,7 @@ public class WorkflowAssetInitializer implements ApplicationRunner {
         if (existing != null) {
             Long definitionId = existing;
             Integer configured = mapper.nodeCount(definitionId);
-            // Preserve installed IDs, customizations and published definitions across every restart.
+            // 重启保留已有 ID、节点自定义配置和发布状态，避免替换仍被实例引用的定义。
             if (configured != null && configured > 0) return;
             Integer inUse = mapper.moduleCount(definitionId);
             if (inUse != null && inUse > 0)

@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "verifiedAt": "2026-10-12T16:23:00+08:00",
+  "scope": "OpenFeign clients, request contracts, service-token providers, trace propagation and related documentation only",
+  "coverage": {
+    "feignClients": 8,
+    "feignMethods": 20,
+    "documentedFeignMethods": 20,
+    "requestRecords": 17,
+    "fullyDocumentedRequestRecords": 17,
+    "productionJavaFilesTouchedByThisIteration": 31,
+    "configurationFilesTouchedByThisIteration": 1
+  },
+  "outboundHttpInventory": {
+    "openFeign": 20,
+    "restTemplate": 0,
+    "webClient": 0,
+    "jdkHttpClient": 0
+  },
+  "semantics": {
+    "passed": true,
+    "productionJavaFilesCompared": 242,
+    "mapperFilesCompared": 29,
+    "routeMethodsAndPathsUnchanged": true,
+    "configurationValueChanges": 0,
+    "failures": []
+  },
+  "javadoc": {
+    "feignMethodDocsAssociated": 20,
+    "requestRecordsWithAllComponentParams": 17,
+    "associatedTopLevelTypes": 194,
+    "associatedMethodsAcrossProduction": 204,
+    "malformedDocs": 0
+  },
+  "validation": {
+    "ordinaryBackendTests": {
+      "passed": true,
+      "tests": 185,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "freshReportSuites": 49
+    },
+    "mavenPackagePassed": true,
+    "documentationLinksPassed": true,
+    "gitDiffCheckPassed": true
+  },
+  "documentedImplementationBoundaries": [
+    "WorkflowSagaClient forwards X-User-Authorization but the current Workflow create endpoint does not consume it",
+    "The IAM service-token exchange authenticates the bootstrap secret but currently does not validate a serviceName allowlist",
+    "Null module, round or node fields in ProjectOperationTarget skip that match dimension, so task-operation callers must send the current scope",
+    "Feign circuit breakers have no fallback and dependency failures are not converted into successful authorization or writes"
+  ],
+  "commands": [
+    "mvn -B -pl '!platform/integration-tests' test",
+    "mvn -B -DskipTests package",
+    "java target/backend-requests/FeignInventory.java",
+    "java target/backend-requests/RequestContractInventory.java",
+    "java target/comment-annotation/CheckJavadoc.java",
+    "python target/comment-annotation/check_semantics.py",
+    "git diff --check"
+  ],
+  "notRun": [
+    "frontend tests because frontend source was unchanged",
+    "live HTTP and database integration because this iteration changes comments and documentation only",
+    "deployment"
+  ],
+  "localArtifactDirectory": "target/backend-requests",
+  "document": "docs/backend-request-contracts.md"
+}

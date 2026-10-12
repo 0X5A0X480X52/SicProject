@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.amatrix.sic.workflow.entity.*;
+/**
+ * 评审读写 MyBatis 接口：批次、专家分配、评分与批次状态的插入、锁定与更新。
+ */
 @Mapper
 public interface ExpertReviewMapper {
     ExpertBatch batch(@Param("id") Long id,@Param("lock") boolean lock);

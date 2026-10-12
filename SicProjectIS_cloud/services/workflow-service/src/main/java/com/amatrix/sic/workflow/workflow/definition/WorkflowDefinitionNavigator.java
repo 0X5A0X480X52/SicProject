@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * 按开始事件/当前节点与 eventType 选取连线，按条件穿越网关，限制遍历次数，返回目标节点和完整迁移路径。
+ */
 @Component
 public class WorkflowDefinitionNavigator {
     public ResolvedTarget start(WorkflowBpmnParseResult model, Predicate<WorkflowBpmnParseResult.TransitionConfig> condition) {

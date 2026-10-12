@@ -13,6 +13,9 @@ import java.util.Base64;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * 加载配置的 PKCS8/X509 RSA 密钥或生成临时 3072 位密钥；校验成对配置、匹配及至少 2048 位，生成公钥指纹 kid。
+ */
 @Component
 public class RsaKeyProvider {
     private final RSAPublicKey publicKey;

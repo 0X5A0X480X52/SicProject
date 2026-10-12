@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 展示管理统计及可访问管理入口，统计信息是只读概览，不据此决定单个项目的办理资格。
+ */
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'

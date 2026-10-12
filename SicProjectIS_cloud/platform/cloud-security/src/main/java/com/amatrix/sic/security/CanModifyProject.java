@@ -7,6 +7,9 @@ import java.lang.annotation.Target;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+/**
+ * 方法权限元注解：调用 projectAccessPolicy，操作类型 WRITE_WORKFLOW_DATA。
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("@projectAccessPolicy.canAccess(@actorContextResolver.from(authentication), #projectId, 'WRITE_WORKFLOW_DATA')")

@@ -1,4 +1,7 @@
 ﻿<script setup lang="ts">
+/**
+ * 全局项目授权管理入口，维护成员与范围授权并补充历史空部门；批量变更使用后端整体提交接口。
+ */
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'

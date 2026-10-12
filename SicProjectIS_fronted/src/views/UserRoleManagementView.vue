@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 管理用户角色及启停状态，提交后刷新身份详情；改变用户身份与给用户授权某个项目是两个步骤。
+ */
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'

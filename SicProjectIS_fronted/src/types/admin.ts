@@ -1,3 +1,6 @@
+/**
+ * 描述管理概览、角色权限和审计响应；前端能力字段用于展示，不替代请求时的后端权限检查。
+ */
 import type { ProjectSummary } from './project'
 
 export interface AdminRoleOption {

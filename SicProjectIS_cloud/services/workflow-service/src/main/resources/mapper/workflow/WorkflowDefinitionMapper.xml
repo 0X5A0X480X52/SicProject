@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.WorkflowDefinitionMapper">
+  <!-- 定义 MyBatis 接口：定义与版本状态写入、发布/停用切换、BPMN XML 读取，以及节点与连线配置的删除重建。 -->
   <resultMap id="definition" type="com.amatrix.sic.workflow.entity.DefinitionRow"><constructor>
     <arg column="id" javaType="Long"/><arg column="code" javaType="String"/><arg column="name" javaType="String"/>
     <arg column="version" javaType="_int"/><arg column="status" javaType="String"/><arg column="published" javaType="_boolean"/><arg column="bpmn_xml" javaType="String"/>
@@ -16,6 +17,7 @@
   <select id="moduleCount" resultType="Integer">SELECT COUNT(*) FROM module_instance WHERE definition_id=#{id}</select>
   <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO workflow_definition(code,name,version,status,published,bpmn_xml,definition_json)
     VALUES(#{code},#{name},#{version},#{status},#{published},#{bpmn},#{json})</insert>
+  <!-- 仅补齐允许恢复的空定义；是否已有配置或正在被实例使用由启动用例先校验。 -->
   <update id="replaceEmpty">UPDATE workflow_definition SET name=#{name},status=#{status},published=#{published},bpmn_xml=#{bpmn},definition_json=#{json} WHERE id=#{id}</update>
   <update id="deactivate">UPDATE workflow_definition SET status='INACTIVE',published=FALSE WHERE code=#{code} AND id&lt;&gt;#{id} AND published=TRUE</update>
   <update id="publish">UPDATE workflow_definition SET code=#{code},name=#{name},version=#{version},status='ACTIVE',published=TRUE,definition_json=#{json} WHERE id=#{id}</update>

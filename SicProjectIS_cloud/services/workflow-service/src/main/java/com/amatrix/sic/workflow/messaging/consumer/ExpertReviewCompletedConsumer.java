@@ -15,6 +15,9 @@ import com.amatrix.sic.messaging.ConsumedEventGuard;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 去重并校验 EXPERT_REVIEW_COMPLETED 事件，调用运行器尝试自动迁移对应批次。
+ */
 @Component
 public class ExpertReviewCompletedConsumer {
     private final ObjectMapper mapper;

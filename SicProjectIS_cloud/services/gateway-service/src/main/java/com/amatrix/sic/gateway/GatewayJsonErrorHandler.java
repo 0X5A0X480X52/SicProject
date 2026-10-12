@@ -15,6 +15,9 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 将网关未处理异常映射为 JSON 错误响应。
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class GatewayJsonErrorHandler implements ErrorWebExceptionHandler {

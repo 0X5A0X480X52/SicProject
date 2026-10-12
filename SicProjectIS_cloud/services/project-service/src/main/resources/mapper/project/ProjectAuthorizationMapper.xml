@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.project.dao.ProjectAuthorizationMapper">
+  <!-- 授权中心 MyBatis 接口：读取与加锁项目、可管理项目、成员与授权查询、负责人更换、部门指派、财务候选人、成员升降级与增删、grant 幂等插入与撤销、专家访问结束、版本与生命周期更新。 -->
+  <!-- 由已锁定且确认部门为空的补充用例调用；同时递增项目版本以传播归属变更。 -->
   <update id="assignDepartment">UPDATE project SET dept_id=#{deptId},dept_name_snapshot=#{name},version=version+1 WHERE id=#{id} AND dept_id IS NULL</update>
+  <!-- 只筛选有效时间与目标模块、轮次、节点匹配的财务 grant；IAM 当前角色还需在事务外另行核对。 -->
   <select id="financeCandidates" resultType="Long">
     SELECT DISTINCT grantee_user_id FROM project_access_grant
      WHERE project_id=#{projectId} AND grant_role_code='PROJECT_FINANCE_HANDLER_ASSIGNMENT' AND status='ACTIVE'
@@ -21,6 +24,7 @@
   <sql id="projectColumns">SELECT id,project_code,project_name,dept_id,dept_name_snapshot,owner_user_id,owner_name_snapshot,
     project_type,project_level,business_status FROM project WHERE lifecycle_status='ACTIVE'</sql>
   <select id="project" resultMap="project"><include refid="projectColumns"/> AND id=#{id}</select>
+  <!-- 先锁定活动项目，再修改成员或 grant；专家回收消费也遵守项目→grant 的顺序。 -->
   <select id="lockProject" resultMap="project"><include refid="projectColumns"/> AND id=#{id} FOR UPDATE</select>
   <select id="manageable" resultMap="project"><include refid="projectColumns"/>
     AND (#{global}=TRUE OR (#{department}=TRUE AND dept_id=#{deptId,jdbcType=BIGINT})) ORDER BY id DESC</select>
@@ -66,6 +70,7 @@
   <delete id="deleteMember">DELETE FROM project_member WHERE project_id=#{id} AND user_id=#{userId}</delete>
   <sql id="scope">project_id=#{projectId} AND grantee_user_id=#{userId} AND grant_role_code=#{role} AND status='ACTIVE'
     AND (module_type&lt;=&gt;#{moduleType}) AND (round_no&lt;=&gt;#{roundNo,jdbcType=INTEGER}) AND (task_node_id&lt;=&gt;#{node})</sql>
+  <!-- 按授权用户及范围检测有效重复 grant，命令复用不等于扩大范围。 -->
   <select id="duplicateGrant" resultType="int">SELECT COUNT(*) FROM project_access_grant WHERE <include refid="scope"/></select>
   <insert id="insertGrant" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
     INSERT INTO project_access_grant(project_id,grantee_user_id,grantee_name_snapshot,grant_role_code,grant_scope,
@@ -75,6 +80,7 @@
   <select id="grantRole" resultType="String">SELECT grant_role_code FROM project_access_grant WHERE id=#{id} AND project_id=#{projectId}</select>
   <update id="revokeGrant">UPDATE project_access_grant SET status='REVOKED',effective_to=CURRENT_TIMESTAMP(6) WHERE id=#{id}</update>
   <update id="revokeExpert">UPDATE project_access_grant SET status='REVOKED',effective_to=CURRENT_TIMESTAMP(6) WHERE <include refid="scope"/></update>
+  <!-- 根据结束批次的专家与范围回收临时权限，不撤销项目永久成员关系。 -->
   <update id="endExpertAccess">UPDATE project_access_grant SET status='REVOKED',effective_to=CURRENT_TIMESTAMP(6)
     WHERE project_id=#{projectId} AND grant_role_code='PROJECT_MODULE_EXPERT_ASSIGNMENT' AND status='ACTIVE'
     AND module_type=#{moduleType} AND round_no=#{roundNo}

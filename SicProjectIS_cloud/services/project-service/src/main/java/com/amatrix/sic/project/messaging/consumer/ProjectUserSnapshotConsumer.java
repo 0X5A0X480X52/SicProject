@@ -19,6 +19,9 @@ import com.amatrix.sic.messaging.ConsumedEventGuard;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 去重消费 iam.changed，按用户/角色/部门变更刷新 user_snapshot，并保存 IAM 相关管理审计信息。
+ */
 @Component
 public class ProjectUserSnapshotConsumer {
     private final ObjectMapper mapper;

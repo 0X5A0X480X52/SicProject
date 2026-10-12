@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.ExpertReviewMapper">
+  <!-- 评审读写 MyBatis 接口：批次、专家分配、评分与批次状态的插入、锁定与更新。 -->
   <resultMap id="ExpertBatch" type="com.amatrix.sic.workflow.entity.ExpertBatch"><constructor>
     <arg column="id" javaType="Long"/>
     <arg column="module_instance_id" javaType="Long"/>
@@ -29,15 +30,19 @@
     <arg column="module_code" javaType="String"/>
     <arg column="node_id" javaType="String"/>
   </constructor></resultMap>
+  <!-- 读取批次；lock=true 时调用方应已先锁对应模块，再取得批次行锁。 -->
   <select id="batch" resultMap="ExpertBatch">SELECT * FROM expert_review_batch WHERE id=#{id} <if test="lock">FOR UPDATE</if></select>
+  <!-- 模块和批次已锁定后读取具体专家指派，调用方再次验证所属批次及操作人。 -->
   <select id="lockAssignment" resultMap="ExpertAssignment">SELECT id,batch_id,expert_user_id,review_status FROM expert_review_assignment WHERE id=#{id} FOR UPDATE</select>
   <select id="assignmentBatch" resultType="Long">SELECT batch_id FROM expert_review_assignment WHERE id=#{id}</select>
+  <!-- 评审写路径首先锁模块，随后取批次和 assignment 锁，保持与流程迁移一致的资源顺序。 -->
   <select id="lockModule" resultMap="ExpertModule">SELECT id,definition_id,current_node_id,current_state,current_round FROM module_instance WHERE id=#{id} AND finished=FALSE FOR UPDATE</select>
   <select id="nodeMatches" resultType="Integer">SELECT COUNT(*) FROM workflow_node_config WHERE id=#{id} AND workflow_definition_id=#{definition} AND node_id=#{node}</select>
   <select id="nodeCode" resultType="String">SELECT node_id FROM workflow_node_config WHERE id=#{id} AND workflow_definition_id=#{definition}</select>
   <select id="grant" resultMap="ExpertGrant">SELECT m.project_id,m.module_code,n.node_id FROM module_instance m LEFT JOIN workflow_node_config n ON n.id=#{node} WHERE m.id=#{module}</select>
   <select id="matchingAssignments" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment a JOIN expert_review_batch b ON b.id=a.batch_id WHERE b.module_instance_id=#{module} AND b.round_no=#{round} AND (b.workflow_node_id&lt;=&gt;#{node}) AND a.expert_user_id=#{expert}</select>
   <select id="assigned" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment WHERE batch_id=#{batch} AND expert_user_id=#{expert}</select>
+  <!-- 有效评分按分数排序供汇总使用，提交人数与有效评分人数分别计算。 -->
   <select id="scores" resultType="java.math.BigDecimal">SELECT total_score FROM expert_review_assignment WHERE batch_id=#{id} AND review_status='SUBMITTED' AND valid=TRUE AND conflict_of_interest=FALSE AND total_score IS NOT NULL ORDER BY total_score</select>
   <select id="assignedCount" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment WHERE batch_id=#{id}</select>
   <select id="submittedCount" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment WHERE batch_id=#{id} AND review_status='SUBMITTED'</select>

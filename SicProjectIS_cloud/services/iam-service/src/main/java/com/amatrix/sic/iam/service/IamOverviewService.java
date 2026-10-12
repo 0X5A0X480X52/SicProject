@@ -5,6 +5,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.amatrix.sic.iam.dao.OverviewMapper;
 import com.amatrix.sic.contracts.IamOverviewStats;
 
+/**
+ * 只读汇总用户/启用用户/角色/权限计数与角色人数分布，组装管理员概览 IamOverviewStats；本身是 Mapper 的薄封装。
+ */
 @Service
 public class IamOverviewService {
     private final OverviewMapper mapper;

@@ -1,3 +1,6 @@
+/**
+ * 定义前端页面路由与登录守卫；守卫只控制未登录入口，不承担项目范围或当前节点的服务端授权判断。
+ */
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import LoginView from '../views/LoginView.vue'

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 管理后端返回的可管理部门与成员，区分仅分配部门和明确替换可编辑角色，防止部门调整意外丢失身份角色。
+ */
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'

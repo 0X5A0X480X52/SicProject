@@ -11,7 +11,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
 import io.micrometer.core.instrument.MeterRegistry;
 
-/** Records acquisition, SQL execution and connection hold separately, without bind values. */
+/**
+ * BeanPostProcessor 包装 DataSource 及其连接/语句，按 acquire/prepare/statement/hold 阶段计时并记录超阈值告警；只注入校验通过的 traceId。
+ */
 public final class JdbcLatencyObserver implements BeanPostProcessor,org.springframework.beans.factory.SmartInitializingSingleton {
     private static final org.slf4j.Logger log=LoggerFactory.getLogger(JdbcLatencyObserver.class);
     private final ObjectProvider<MeterRegistry> registries;

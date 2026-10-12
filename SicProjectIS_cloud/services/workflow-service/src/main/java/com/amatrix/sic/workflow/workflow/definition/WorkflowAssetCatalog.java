@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 
-/** Release asset access shared by the offline seed exporter and online definition use cases. */
+/**
+ * 内置发布资产的静态目录：固定三个辅助标签版 BPMN 名称与 classpath 基础路径，并按名读取资产文本。
+ */
 public final class WorkflowAssetCatalog {
     private WorkflowAssetCatalog() {}
     private static final String BASE_PATH = "workflows/bpmn_auxiliary_tags_augmented/";

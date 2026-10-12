@@ -31,6 +31,10 @@ import com.amatrix.sic.contracts.EventEnvelope;
 import com.amatrix.sic.contracts.ExpertProjectGrantCommand;
 import com.amatrix.sic.messaging.OutboxService;
 
+/**
+ * 当前节点/轮次内创建批次、核验 IAM 专家、分配/移除并同步 Project grant；本人提交评分、计算有效均分/阈值结果并发布完成事件。
+ * 写操作按模块、批次、assignment 的顺序获取行锁；个人提交与批次完成分别计算，流程推进由完成事件触发。
+ */
 @Service
 public class ExpertReviewService {
     private final ExpertReviewMapper mapper;
@@ -73,6 +77,9 @@ public class ExpertReviewService {
         return views.batchDetail(((Number)Objects.requireNonNull(insert.get("id"))).longValue());
     }
 
+    /**
+     * 先在事务外读取 IAM 专家身份，再进入本地指派事务。Project grant 的同步属于另外的服务边界，不能解释为跨库原子提交。
+     */
     @PreAuthorize("isAuthenticated()")
     public Map<String, Object> assign(ActorContext actor, Long batchId, AssignExpertRequest request) {
         if (request == null || request.expertUserId() == null) throw bad("Expert user is required");
@@ -88,6 +95,9 @@ public class ExpertReviewService {
         return transactions.execute(status -> assignLocked(actor,batchId,request,expertName));
     }
 
+    /**
+     * 按模块→批次取得行锁，再校验当前指派节点与轮次。把 grant 限定到相应评审节点，防止沿用旧轮次授权。
+     */
     private Map<String,Object> assignLocked(ActorContext actor, Long batchId, AssignExpertRequest request, String expertName) {
         ExpertBatch observed = requireBatch(batchId);
         ExpertModule module = lockModule(observed.moduleId());
@@ -107,6 +117,9 @@ public class ExpertReviewService {
         return views.batchDetail(batchId);
     }
 
+    /**
+     * 按模块→批次→assignment 加锁，拒绝他人或旧轮次评分。保存本人结果后计算批次汇总，仅首次达到完成条件时发布完成事件。
+     */
     @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     @PreAuthorize("isAuthenticated()")
     public Map<String, Object> submit(ActorContext actor, Long assignmentId, SubmitScoreRequest request) {
@@ -179,6 +192,9 @@ public class ExpertReviewService {
         return views.batchDetail(batchId);
     }
 
+    /**
+     * 分别统计指派人数、提交人数和有效评分；全部已指派专家提交后才完成批次。去极值只作用于有效评分不少于五人的批次。
+     */
     private boolean refreshAggregate(Long batchId) {
         ExpertBatch before = lockBatch(batchId);
         List<BigDecimal> values = mapper.scores(batchId);
@@ -203,6 +219,9 @@ public class ExpertReviewService {
         return "REJECTED";
     }
 
+    /**
+     * 复核当前任务办理资格；调用方可能已经持有数据库锁，该判定可能发起 Project RPC，注释不能承诺完全消除了事务内远程等待。
+     */
     private void requireOperator(ActorContext actor, Long moduleId) {
         if (!operationPolicy.exactCanOperate(actor, moduleId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Current task cannot be operated by this user");

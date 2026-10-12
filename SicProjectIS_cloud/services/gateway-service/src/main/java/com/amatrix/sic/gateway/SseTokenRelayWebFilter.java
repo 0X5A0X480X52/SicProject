@@ -13,6 +13,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import reactor.core.publisher.Mono;
 
+/**
+ * 把 SSE 订阅 query 中的 token 转成 Bearer Header 并移除 URL 中的 token。
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class SseTokenRelayWebFilter implements WebFilter {

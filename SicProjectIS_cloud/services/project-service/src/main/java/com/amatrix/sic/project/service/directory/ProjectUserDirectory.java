@@ -16,6 +16,11 @@ import com.amatrix.sic.contracts.UserSummary;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 本地 user_snapshot 目录查询；require 在缺少快照时从 IAM 拉取存在用户，refresh 强制拉取、upsert 更新，allEnabled 提供启用候选用户；require 本身不拒绝禁用用户。
+ * 页面候选列表有短缓存；find/requireAll 直接读取本地快照，只有缺失补齐或显式 refresh/fetchAll 才访问 IAM。
+ * 本地快照可能短暂落后于 IAM 身份，不能把不使用页面缓存解释成实时读取 IAM。
+ */
 @Component
 public class ProjectUserDirectory {
     private final UserSnapshotMapper mapper;
@@ -40,6 +45,9 @@ public class ProjectUserDirectory {
         return response.data();
     }
 
+    /**
+     * 优先批量读取本地用户快照，仅对缺失用户调用 IAM 并补齐快照；该方法不保证已有快照与 IAM 实时一致。
+     */
     public Map<Long, UserSummary> requireAll(Collection<Long> userIds) {
         List<Long> ids = userIds.stream().distinct().toList();
         Map<Long, UserSummary> result = new LinkedHashMap<>();
@@ -54,6 +62,9 @@ public class ProjectUserDirectory {
         return result;
     }
 
+    /**
+     * 直接分批读取 IAM 的用户摘要并校验返回 ID 集合完整性，不使用页面候选缓存，也不在本方法内写入本地快照。
+     */
     public List<UserSummary> fetchAll(Collection<Long> userIds) {
         List<Long> ids = userIds.stream().distinct().toList();
         java.util.ArrayList<UserSummary> result = new java.util.ArrayList<>();
@@ -84,20 +95,25 @@ public class ProjectUserDirectory {
         return row==null?null:summary(row);
     }
 
-    /** UI selector data only. Grant validation continues to use fresh find/requireAll reads. */
+    /**
+     * 提供 UI 候选列表的两秒缓存。find/requireAll 仍读本地快照；只有显式 refresh、fetchAll 或缺失补齐才访问 IAM。
+     */
     public List<UserSummary> allEnabled() {
         long epoch=selectorEpoch.get(),now=System.nanoTime();
         SelectorSnapshot cached=selectorSnapshot;
         if(cached!=null&&cached.epoch()==epoch&&now<cached.expiresAt()
                 &&!org.springframework.transaction.support.TransactionSynchronizationManager.hasResource(this))return cached.users();
         List<UserSummary> users=mapper.enabled().stream().map(this::summary).toList();
-        // An uncommitted snapshot must never be published to other requests.
+        // 事务尚未提交的快照不能发布为其他请求可见的候选缓存。
         if(!org.springframework.transaction.support.TransactionSynchronizationManager.isActualTransactionActive()
                 &&selectorEpoch.get()==epoch)
             selectorSnapshot=new SelectorSnapshot(epoch,now+java.util.concurrent.TimeUnit.SECONDS.toNanos(2),users);
         return users;
     }
 
+    /**
+     * 写入用户快照；事务内更新在提交后使候选缓存失效，避免其他请求看到尚未提交的缓存内容。
+     */
     public void upsert(UserSummary user) {
         mapper.upsert(user,write(user.roleCodes()));
         if(org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {

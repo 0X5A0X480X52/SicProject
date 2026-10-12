@@ -20,6 +20,9 @@ import com.amatrix.sic.security.AudienceValidator;
 import reactor.core.publisher.Mono;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * WebFlux 安全链：JWT 校验、登录注册放行、内部路径拒绝、SSE token 转换与监控端点放行。
+ */
 @Configuration
 @EnableWebFluxSecurity
 public class GatewaySecurityConfig {

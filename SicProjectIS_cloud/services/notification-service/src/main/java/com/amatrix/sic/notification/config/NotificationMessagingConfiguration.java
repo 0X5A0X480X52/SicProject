@@ -8,6 +8,9 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * 持久化模块事件队列与每实例匿名 live 队列的声明、绑定及持久队列死信配置。
+ */
 @Configuration
 public class NotificationMessagingConfiguration{
     public static final String EVENT_QUEUE="notification.module-events.q";

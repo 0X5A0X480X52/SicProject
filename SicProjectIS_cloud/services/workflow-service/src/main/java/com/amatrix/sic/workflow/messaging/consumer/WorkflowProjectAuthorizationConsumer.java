@@ -15,6 +15,9 @@ import com.amatrix.sic.messaging.ConsumedEventGuard;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 消费项目授权事件；对 PROJECT_LEADER_CHANGED 更新项目负责人快照和当前未完成负责人任务。
+ */
 @Component
 public class WorkflowProjectAuthorizationConsumer {
     private final ObjectMapper mapper;

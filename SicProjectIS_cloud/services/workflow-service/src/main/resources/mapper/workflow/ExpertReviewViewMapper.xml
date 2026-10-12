@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.ExpertReviewViewMapper">
+  <!-- 评审读模型 MyBatis 接口：批次、分配、评分与本人评审历史的查询。 -->
   <resultMap id="batch" type="java.util.LinkedHashMap" autoMapping="false">
     <result column="id" property="batchId" javaType="Long"/>
     <result column="module_instance_id" property="moduleInstanceId" javaType="Long"/>
@@ -72,6 +73,7 @@
     WHEN a.valid=TRUE AND m.current_node_id=REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask') THEN 'PENDING'
     ELSE 'WAITING_REVIEW' END
   </sql>
+  <!-- 始终按当前账号过滤 assignment；闭合历史的读取不重新授予项目访问，canReview 由业务层另行校验。 -->
   <select id="mine" resultMap="mine">
     SELECT a.*,m.project_id,m.module_code,b.module_instance_id,b.review_title,b.round_no,
       p.project_code,p.project_name,<include refid="mineStatus"/> assignment_status

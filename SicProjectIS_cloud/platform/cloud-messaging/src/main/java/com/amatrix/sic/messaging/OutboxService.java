@@ -6,6 +6,10 @@ import com.amatrix.sic.contracts.EventEnvelope;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 序列化 EventEnvelope 并在事务中写 Outbox，连接本地业务事务与后续消息发布。
+ * 在调用方业务事务中写入待发送事件；入库成功不代表 RabbitMQ 已收到消息。
+ */
 public class OutboxService {
     private final OutboxRepository repository;
     private final ObjectMapper objectMapper;

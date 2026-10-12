@@ -20,6 +20,9 @@ import org.springframework.web.server.ResponseStatusException;
 import com.amatrix.sic.contracts.EventEnvelope;
 import com.amatrix.sic.messaging.OutboxService;
 
+/**
+ * 专家资格分阶段申请审核，校验重复/有效申请及部门范围；科技处通过后赋 EXPERT、更新授权版本及发布资格/用户变更事件。
+ */
 @Service
 public class ExpertQualificationService {
     private static final List<String> ACTIVE = List.of("PENDING_DEPT_REVIEW", "PENDING_SCIENCE_REVIEW");

@@ -10,7 +10,9 @@ import com.amatrix.sic.material.entity.ObjectDeletionJob;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-/** Durable, idempotent cleanup of objects whose metadata deletion has already committed. */
+/**
+ * 定时读取 PENDING 对象删除任务，删除 MinIO 对象后标记完成；异常保存错误、次数及指数退避时间，允许幂等重试。
+ */
 @Service
 public final class ObjectDeletionService {
     private final ObjectDeletionMapper mapper;
@@ -21,6 +23,9 @@ public final class ObjectDeletionService {
         this.storage = storage;
     }
 
+    /**
+     * 按计划时间处理待删除对象；成功标记完成，失败记录次数并安排退避，避免把对象存储等待放入材料删除事务。
+     */
     @Scheduled(fixedDelayString = "${sic.material.object-cleanup-ms:5000}")
     public void deletePendingObjects() {
         List<ObjectDeletionJob> jobs=mapper.pending();

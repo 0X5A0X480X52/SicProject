@@ -1,8 +1,10 @@
+/**
+ * 集中维护 dataKind 的字段、默认值和必填提示，过滤系统字段；客户端提示与转换不替代后端校验。
+ */
 import type { NodeFormDataKind } from '../types/nodeForms'
 
 /**
- * All fields for each dataKind — extracted from NodeFormsDebugView.vue.
- * Each entry is [fieldKey, chineseLabel].
+ * 返回数据类型对应的字段键与中文标签，供表单展示和初始化共享；并非后端数据库字段的完整清单。
  */
 export function fieldsForKind(kind?: NodeFormDataKind): Array<[string, string]> {
   switch (kind) {
@@ -164,7 +166,7 @@ export function fieldsForKind(kind?: NodeFormDataKind): Array<[string, string]> 
 }
 
 /**
- * Determine the appropriate input type for a field key.
+ * 根据字段键选择基础输入类型，最终数值和业务含义仍由提交转换与后端校验处理。
  */
 export function fieldType(key: string): 'text' | 'number' | 'boolean' {
   if (key === 'noticeNo') return 'text'
@@ -192,7 +194,7 @@ export function fieldType(key: string): 'text' | 'number' | 'boolean' {
 }
 
 /**
- * Fields that are system-generated and should NOT be exposed to frontend users.
+ * 系统生成字段不进入用户可编辑字段集合，关联 ID 和结果标识由上下文及转换逻辑提供。
  */
 export const SYSTEM_FIELDS = new Set<string>([
   'itemCode',
@@ -210,14 +212,14 @@ export const SYSTEM_FIELDS = new Set<string>([
 ])
 
 /**
- * Returns user-writable fields for a dataKind (all fields minus system-generated ones).
+ * 剔除系统生成字段，让节点表单只收集可输入内容；请求的上下文关联 ID 由运行时提供。
  */
 export function filteredFieldsForKind(kind?: NodeFormDataKind): Array<[string, string]> {
   return fieldsForKind(kind).filter(([key]) => !SYSTEM_FIELDS.has(key))
 }
 
 /**
- * Default values for each dataKind, used when initializing a new form.
+ * 初始化新表单的展示默认值；界面默认人数或结果不等同于后端已执行的硬性规则。
  */
 export function defaultsForKind(kind?: NodeFormDataKind): Record<string, string | number | boolean | undefined> {
   const result: Record<string, string | number | boolean | undefined> = {}
@@ -249,7 +251,7 @@ export function requiredFieldsForKind(kind?: NodeFormDataKind): string[] {
 }
 
 /**
- * Determine whether a field key renders as a textarea based on its name.
+ * 按字段用途选择多行展示，保持表单组件对同类意见和正文的一致呈现。
  */
 export function isTextareaField(key: string): boolean {
   return (

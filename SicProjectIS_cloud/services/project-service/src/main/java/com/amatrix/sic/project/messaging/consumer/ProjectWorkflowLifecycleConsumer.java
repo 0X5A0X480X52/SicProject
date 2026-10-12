@@ -15,6 +15,9 @@ import com.amatrix.sic.messaging.ConsumedEventGuard;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 去重消费工作流项目生命周期事件，更新 Project 的 business_status 及版本。
+ */
 @Component
 public class ProjectWorkflowLifecycleConsumer {
     private final ObjectMapper mapper;

@@ -9,6 +9,9 @@ import com.amatrix.sic.workflow.entity.LeaderTask;
 import com.amatrix.sic.workflow.entity.ModuleRecord;
 import com.amatrix.sic.workflow.entity.ReviewBatch;
 
+/**
+ * 运行器 MyBatis 接口：模块实例（可加行锁）与任务/状态历史的读写、序号推进、材料引用，以及工作台候选分页、评审批次与分配计数、缺失后继/负责人任务/专家访问范围恢复查询。
+ */
 @Mapper
 public interface WorkflowRuntimeMapper {
     ModuleRecord module(@Param("id") Long id,@Param("lock") boolean lock);

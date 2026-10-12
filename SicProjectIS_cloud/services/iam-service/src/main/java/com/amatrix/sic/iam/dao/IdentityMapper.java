@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.amatrix.sic.iam.entity.*;
 
+/**
+ * 身份 MyBatis 接口：按用户名或 ID 取账号、批量用户摘要与角色、插入用户并分配角色，以及行锁与角色/权限查询。
+ */
 @Mapper
 public interface IdentityMapper {
     Long idByUsername(@Param("username") String username);

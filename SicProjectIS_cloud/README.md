@@ -389,6 +389,9 @@ python scripts/verify_business_db.py `
 
 更深入的说明：
 
+- [前后端核心代码注释规范](docs/code-commenting-guide.md)、[注释覆盖清单](docs/code-commenting-coverage.md)
+- [Controller API 索引：接口用途及源码入口](docs/controller-api-index.md)
+- [后端请求与 OpenFeign 契约](docs/backend-request-contracts.md)
 - [项目结构概览](docs/project-structure-overview.md)、[逐类职责](docs/class-responsibilities.md)
 - [服务分层方案](docs/service-layering-refactor-plan.md)、[技术栈审计](docs/spring-cloud-stack-audit.md)
 - [鉴权与性能方案](docs/authentication-authorization-performance-plan.md)

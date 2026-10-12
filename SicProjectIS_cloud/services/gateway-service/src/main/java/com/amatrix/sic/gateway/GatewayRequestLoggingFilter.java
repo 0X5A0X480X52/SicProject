@@ -13,7 +13,9 @@ import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
 
-/** One bounded access-log record per request; the raw query string is deliberately excluded. */
+/**
+ * 记录路径/状态/耗时/用户与关联标识，并汇总到请求日志。
+ */
 @Component
 public class GatewayRequestLoggingFilter implements GlobalFilter, Ordered {
     private static final Logger log = LoggerFactory.getLogger(GatewayRequestLoggingFilter.class);

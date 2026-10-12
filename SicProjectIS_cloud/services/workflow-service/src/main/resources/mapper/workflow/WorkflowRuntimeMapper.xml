@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.WorkflowRuntimeMapper">
+  <!-- 运行器 MyBatis 接口：模块实例（可加行锁）与任务/状态历史的读写、序号推进、材料引用，以及工作台候选分页、评审批次与分配计数、缺失后继/负责人任务/专家访问范围恢复查询。 -->
   <resultMap id="module" type="com.amatrix.sic.workflow.entity.ModuleRecord"><constructor>
     <arg column="id" javaType="Long"/>
     <arg column="project_id" javaType="Long"/>
@@ -94,6 +95,7 @@
     <result column="round_no" property="roundNo" javaType="Integer"/>
     <result column="task_node_id" property="taskNodeId" javaType="String"/>
   </resultMap>
+  <!-- 读取模块；lock=true 时取得行锁，业务层在锁内重新验证结束状态、序号和权限。 -->
   <select id="module" resultMap="module">SELECT * FROM module_instance WHERE id=#{id} <if test="lock">FOR UPDATE</if></select>
   <select id="nodeId" resultType="Long">SELECT id FROM workflow_node_config WHERE workflow_definition_id=#{definition} AND node_id=#{node}</select>
   <select id="nodeCode" resultType="String">SELECT node_id FROM workflow_node_config WHERE id=#{id}</select>
@@ -103,6 +105,7 @@
     LEFT JOIN project_snapshot p ON p.project_id=m.project_id WHERE m.finished=FALSE AND EXISTS(
       SELECT 1 FROM workflow_task t WHERE t.module_instance_id=m.id AND t.node_id=m.current_node_id AND t.status='OPEN') ORDER BY m.updated_at DESC</select>
   <select id="batchModule" resultType="Long">SELECT module_instance_id FROM expert_review_batch WHERE id=#{id}</select>
+  <!-- 更新时间与 ID 共同构成游标，每批最多 100 个候选；最终可见页由业务层权限筛选形成。 -->
   <select id="workbenchCandidates" resultMap="workbench">
     SELECT m.*,p.project_code,p.project_name,p.lifecycle_stage,
       (SELECT t.candidate_role FROM workflow_task t WHERE t.module_instance_id=m.id AND t.node_id=m.current_node_id AND t.status='OPEN' ORDER BY t.id LIMIT 1) candidate_role,
@@ -118,6 +121,7 @@
     </where>
     ORDER BY m.updated_at DESC,m.id DESC LIMIT 100
   </select>
+  <!-- WorkflowRuntimeMapper.lockBatch 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
   <select id="lockBatch" resultMap="batch">SELECT id,module_instance_id,workflow_node_id,round_no,status,created_by FROM expert_review_batch WHERE id=#{id} FOR UPDATE</select>
   <select id="batches" resultMap="batch">SELECT id,module_instance_id,workflow_node_id,round_no,status,created_by FROM expert_review_batch WHERE module_instance_id=#{module} AND round_no=#{round}</select>
   <select id="assignmentCount" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment WHERE batch_id=#{id}</select>
@@ -144,11 +148,13 @@
   <update id="updateLeaderTask">UPDATE workflow_task SET assignee_user_id=#{owner} WHERE id=#{id} AND status='OPEN' AND candidate_role='PROJECT_LEADER'</update>
   <update id="endBatch">UPDATE expert_review_batch SET access_ended_at=CURRENT_TIMESTAMP(6) WHERE id=#{id} AND access_ended_at IS NULL</update>
   <update id="completeTasks">UPDATE workflow_task SET status='COMPLETED',completed_at=CURRENT_TIMESTAMP(6) WHERE module_instance_id=#{module} AND status='OPEN'</update>
+  <!-- 调用方持有模块锁并核对 expectedSeq 后写入新节点、状态和序号。 -->
   <update id="advanceModule">UPDATE module_instance SET current_node_id=#{node},current_state=#{state},current_seq=#{seq},current_round=#{round},finished=#{finished},version=version+1 WHERE id=#{id}</update>
   <insert id="insertModule" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO module_instance(project_id,started_by_user_id,module_code,definition_id,current_node_id,current_state,current_seq,current_round,finished)
     VALUES(#{project},#{actor},#{type},#{definition},#{node},#{state},1,1,#{finished})</insert>
   <insert id="insertState" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO state_record(module_instance_id,seq,round_no,event_type,from_state,to_state,from_node_id,to_node_id,result,summary,actor_user_id,actor_name_snapshot)
     VALUES(#{module},#{seq},#{round},#{event},#{fromState},#{toState},#{fromNode},#{toNode},#{result},#{summary},#{actor},#{name})</insert>
   <insert id="insertTask">INSERT INTO workflow_task(module_instance_id,node_id,assignee_user_id,candidate_role,status,round_no) VALUES(#{module},#{node},#{assignee},#{role},'OPEN',#{round})</insert>
+  <!-- 成功迁移事务中记录具体材料版本与状态序号；材料侧确认通过 Outbox 事件完成。 -->
   <insert id="reference">INSERT INTO workflow_material_reference(module_instance_id,seq,material_version_id,material_type_code) VALUES(#{module},#{seq},#{version},#{code})</insert>
 </mapper>

@@ -11,7 +11,9 @@ import org.springframework.web.server.WebFilterChain;
 
 import reactor.core.publisher.Mono;
 
-/** Establishes the trace id before Spring Security can short-circuit a request. */
+/**
+ * 在安全链可能提前返回之前规范化/生成 X-Trace-Id，同时写入下游请求和响应。
+ */
 @Component
 public class TraceIdWebFilter implements WebFilter, Ordered {
     public static final String TRACE_HEADER = "X-Trace-Id";

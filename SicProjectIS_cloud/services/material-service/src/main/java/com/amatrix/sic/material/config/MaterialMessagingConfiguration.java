@@ -7,6 +7,9 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * 声明材料预留确认和单据生成队列、Topic 绑定及死信路由。
+ */
 @Configuration
 public class MaterialMessagingConfiguration{
     public static final String QUEUE="material.reservation.confirm.q";

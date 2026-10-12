@@ -28,6 +28,10 @@ import com.amatrix.sic.project.dto.ProjectDtos.StartProjectApplicationResponse;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 编排临时项目与 Workflow APPLICATION 创建；近期请求 hash 去重、失败补偿、最终确认和定时确认恢复；写申请启动事件。
+ * 跨服务步骤分开提交，本类没有跨库原子事务；定时任务只恢复 WORKFLOW_CREATED 的确认，不自动重试所有补偿失败。
+ */
 @Service
 public class ProjectApplicationSagaService {
     private final ApplicationSagaMapper mapper;
@@ -53,10 +57,13 @@ public class ProjectApplicationSagaService {
         this.users = users;
     }
 
+    /**
+     * 以 IAM 当前启用身份和部门开始申请；短事务创建临时项目，事务外调用 Workflow，再分阶段登记并确认结果。相同请求的近期 Saga 可复用已完成响应。
+     */
     public StartProjectApplicationResponse start(Long actorId, String actorName, Long deptId, String deptName,
             String userAuthorization, StartProjectApplicationRequest request) {
         validate(request);
-        // Read authoritative IAM data before any project/Saga writes or transaction is opened.
+        // 写入项目或 Saga 前读取 IAM 当前身份，避免使用 JWT 中可能过时的部门。
         var applicant = users.fetchAll(List.of(actorId)).getFirst();
         if (!applicant.enabled()) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "账号已停用");
         var department = departments.requireEnabled(applicant.deptId());
@@ -106,6 +113,9 @@ public class ProjectApplicationSagaService {
         }
     }
 
+    /**
+     * 只扫描 WORKFLOW_CREATED 的待确认记录，读取 Workflow 已创建结果并恢复本地确认。这里不扫描 COMPENSATED 状态，不承担所有补偿失败的重试。
+     */
     @Scheduled(fixedDelayString = "${sic.saga.recovery-delay-ms:30000}")
     public void recoverIncompleteConfirmations() {
         List<String> sagaIds=mapper.recoverable();
@@ -139,6 +149,9 @@ public class ProjectApplicationSagaService {
         return ((Number)java.util.Objects.requireNonNull(project.get("id"))).longValue();
     }
 
+    /**
+     * 在调用方本地事务内激活项目、完成 Saga 并写入 project.created Outbox，使项目状态和待发送事件一起提交。
+     */
     private void confirm(UUID sagaId, Long projectId, Long actorId, StartProjectApplicationResponse response) {
         mapper.activateProject(projectId);mapper.complete(sagaId.toString(),write(response));
         outbox.enqueue("project.created", EventEnvelope.create("PROJECT_APPLICATION_STARTED", "PROJECT",
@@ -147,11 +160,14 @@ public class ProjectApplicationSagaService {
                         "sagaId", sagaId.toString())));
     }
 
+    /**
+     * 尝试撤销本 Saga 创建的 Workflow，再将本地项目标记失败。远程补偿异常被保留为失败窗口，不能据此承诺已自动补偿完成。
+     */
     private void compensate(UUID sagaId, Long projectId, Exception cause) {
         try {
             workflow.compensate(serviceTokens.authorization(), sagaId);
         } catch (Exception ignored) {
-            // Workflow compensation is idempotent; recovery can safely repeat it.
+            // Workflow 补偿接口支持重复调用；当前确认恢复任务不重试此异常，远端残留需另外核对。
         }
         transactions.executeWithoutResult(status -> {
             mapper.failProject(projectId);mapper.compensate(sagaId.toString(),trim(cause.getMessage()));

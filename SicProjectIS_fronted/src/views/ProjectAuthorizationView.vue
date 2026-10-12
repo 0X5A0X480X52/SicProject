@@ -1,4 +1,7 @@
 ﻿<script setup lang="ts">
+/**
+ * 管理单个可访问项目的成员、专家和财务范围授权，并为管理员提供空部门补充；后端能力控制可见操作。
+ */
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import AppShell from '../layouts/AppShell.vue'

@@ -1,4 +1,7 @@
 ﻿<script setup lang="ts">
+/**
+ * 展示当前任务与办理信息，以运行时返回的可操作状态控制按钮；候选角色不直接代替项目授权判定。
+ */
 import { computed } from 'vue'
 import { eventLabel, resultLabel, roleLabel, stateLabel } from '../../utils/displayLabels'
 import type { AvailableTransition, RuntimeViewResponse } from '../../types/nodeForms'

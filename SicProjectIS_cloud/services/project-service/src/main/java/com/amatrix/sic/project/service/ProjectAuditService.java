@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 import com.amatrix.sic.contracts.IamOverviewStats;
 
+/**
+ * 调用 IAM 聚合用户/角色统计，结合本地授权统计生成概览；按条件查询管理日志并执行概览/审计权限校验。
+ */
 @Service
 public class ProjectAuditService {
     private final ProjectAuditMapper mapper;

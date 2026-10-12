@@ -12,6 +12,9 @@ import com.amatrix.sic.messaging.OutboxService;
 import com.amatrix.sic.iam.dao.AdminMapper;
 import com.amatrix.sic.iam.entity.AdminUserRow;
 
+/**
+ * 用户筛选/详情、改角色/启停、权限矩阵维护、部门 CRUD/成员管理；限制自禁用/移除自身管理员与越部门操作，更新授权版本并发 IAM 变更事件。
+ */
 @Service
 public class IamAdminService {
     private static final List<String> EDITABLE_DEPARTMENT_ROLES=List.of("PROJECT_LEADER","EXPERT","FINANCE_ADMIN");

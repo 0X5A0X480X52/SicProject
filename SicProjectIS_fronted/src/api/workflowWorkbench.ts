@@ -1,3 +1,6 @@
+/**
+ * 封装工作台查询，区分旧待办接口与新的可见/办理历史分页；hasMore 由后端授权筛选后的结果决定。
+ */
 import { apiRequest } from './client'
 import type { WorkflowWorkbenchItem } from '../types/workflow'
 

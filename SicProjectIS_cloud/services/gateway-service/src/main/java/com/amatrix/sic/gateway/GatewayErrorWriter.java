@@ -13,6 +13,9 @@ import com.amatrix.sic.contracts.ApiResponse;
 import reactor.core.publisher.Mono;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 统一写出网关错误的 JSON 响应体，保持 {success,data,message} 形状。
+ */
 final class GatewayErrorWriter {
     private GatewayErrorWriter() {
     }

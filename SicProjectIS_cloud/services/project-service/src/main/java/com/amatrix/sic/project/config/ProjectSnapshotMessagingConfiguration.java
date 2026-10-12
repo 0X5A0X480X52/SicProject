@@ -7,6 +7,9 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * 声明 IAM 快照、工作流生命周期、专家访问结束的持久队列及 Topic 绑定和死信配置。
+ */
 @Configuration
 public class ProjectSnapshotMessagingConfiguration {
     public static final String IAM_QUEUE = "project.iam-snapshot.q";

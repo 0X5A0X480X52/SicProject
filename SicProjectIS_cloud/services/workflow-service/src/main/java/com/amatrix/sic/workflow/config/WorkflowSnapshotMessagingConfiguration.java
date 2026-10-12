@@ -7,6 +7,9 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * 声明 IAM 快照、项目生命周期、专家评审完成和项目授权队列，配置对应 routing key 与死信。
+ */
 @Configuration
 public class WorkflowSnapshotMessagingConfiguration {
     public static final String IAM_QUEUE = "workflow.iam-snapshot.q";

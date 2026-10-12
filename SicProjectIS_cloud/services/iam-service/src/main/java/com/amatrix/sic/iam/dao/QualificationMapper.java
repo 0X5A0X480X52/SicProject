@@ -5,6 +5,9 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+/**
+ * 专家资格 MyBatis 接口：锁定申请人、判断是否有生效申请、插入与筛选申请、部门/科技处审核写回，以及授权版本读取与递增。
+ */
 @Mapper
 public interface QualificationMapper {
     Long lockApplicant(@Param("id") Long id);

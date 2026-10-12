@@ -2,6 +2,9 @@ package com.amatrix.sic.workflow.workflow.model;
 
 import java.util.List;
 
+/**
+ * BPMN 解析结果容器：流程配置、节点列表和迁移列表；内嵌五种配置 record。
+ */
 public record WorkflowBpmnParseResult(
         ProcessConfig processConfig,
         List<NodeConfig> nodes,

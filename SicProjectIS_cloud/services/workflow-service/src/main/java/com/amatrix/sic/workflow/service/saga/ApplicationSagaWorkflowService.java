@@ -27,6 +27,9 @@ import com.amatrix.sic.workflow.workflow.model.WorkflowBpmnParseResult.Transitio
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 按 sagaId 幂等创建申请实例、项目快照、申请正文、初始任务/历史/事件；查询结果；仅清理指定 Saga 的关联流程数据，补偿可重复。
+ */
 @Service
 public class ApplicationSagaWorkflowService {
     private final WorkflowSagaMapper mapper;
@@ -38,6 +41,9 @@ public class ApplicationSagaWorkflowService {
     public ApplicationSagaWorkflowService(WorkflowSagaMapper mapper,WorkflowRuntimeMapper runtime,ObjectMapper objectMapper,OutboxService outbox,
             WorkflowDefinitionCatalog definitions,WorkflowDefinitionNavigator navigator){this.mapper=mapper;this.runtime=runtime;this.objectMapper=objectMapper;this.outbox=outbox;this.definitions=definitions;this.navigator=navigator;}
 
+    /**
+     * 按 sagaId 创建或复用申请模块；项目快照、申请草稿、初始任务和事件在 Workflow 本地事务中写入。
+     */
     @Transactional
     public ApplicationSagaResult create(ApplicationSagaCommand command){
         ApplicationSagaResult existing=find(command.sagaId());
@@ -68,6 +74,9 @@ public class ApplicationSagaWorkflowService {
         return new ApplicationSagaResult(sagaId,row.projectId(),row.moduleId(),new StateTransitionContract(record,row.node(),row.state(),row.finished()),"CREATED");
     }
 
+    /**
+     * 仅撤销本 Saga 创建的申请数据；重复补偿保持幂等，实际是否再次调用由 Project 的调用与恢复路径决定。
+     */
     @Transactional
     public void compensate(UUID sagaId){
         Long id=mapper.module(sagaId.toString());

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.material.dao.MaterialMapper">
+  <!-- 材料 MyBatis 接口：材料类型的确保与生成及查询、材料行加锁获取、版本号递增与旧版本 SUPERSEDED、版本插入/加锁读取/删除，以及生成单据与预留占用判定。 -->
   <resultMap id="type" type="com.amatrix.sic.material.entity.MaterialTypeRow"><constructor>
     <arg column="id" javaType="java.lang.Long"/><arg column="code" javaType="String"/><arg column="name" javaType="String"/>
     <arg column="module_type" javaType="String"/><arg column="allowed_file_types" javaType="String"/><arg column="max_file_size_mb" javaType="_int"/>
@@ -13,8 +14,10 @@
   <insert id="generatedType">INSERT INTO material_type(code,name,module_type,allowed_file_types,enabled) VALUES(#{code},#{name},#{module},'pdf',TRUE)
     ON DUPLICATE KEY UPDATE name=VALUES(name),module_type=COALESCE(module_type,VALUES(module_type)),allowed_file_types='pdf',enabled=TRUE</insert>
   <select id="type" resultMap="type">SELECT id,code,name,module_type,allowed_file_types,max_file_size_mb FROM material_type WHERE code=#{code}</select>
+  <!-- MaterialMapper.material 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
   <select id="material" resultType="Long">SELECT id FROM material WHERE project_id=#{project} AND material_type_code=#{code} ORDER BY id LIMIT 1 <if test="lock">FOR UPDATE</if></select>
   <insert id="insertMaterial" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO material(project_id,material_type_code,title,created_by) VALUES(#{project},#{code},#{title},#{actor})</insert>
+  <!-- MaterialMapper.maximumVersion 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
   <select id="maximumVersion" resultType="Integer">SELECT COALESCE(MAX(version_no),0) FROM material_version WHERE material_id=#{id} FOR UPDATE</select>
   <update id="supersede">UPDATE material_version SET file_status='SUPERSEDED' WHERE material_id=#{id} AND file_status='ACTIVE'</update>
   <insert id="insertVersion" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
@@ -44,12 +47,15 @@
       AND v.file_status&lt;&gt;'DELETED'
     </where> ORDER BY m.id,v.version_no DESC
   </select>
+  <!-- MaterialMapper.version 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
   <select id="version" resultMap="version">SELECT v.object_key,v.original_filename,v.content_type,v.size_bytes,m.project_id
     FROM material_version v JOIN material m ON m.id=v.material_id WHERE v.id=#{id} AND v.file_status&lt;&gt;'DELETED'
     <if test="lock">FOR UPDATE</if></select>
   <select id="generated" resultType="Integer">SELECT COUNT(*) FROM generated_document WHERE material_version_id=#{id}</select>
+  <!-- 删除前检查有效预留或已确认引用，防止材料正在流转期间被删除。 -->
   <select id="reserved" resultType="Integer">SELECT COUNT(*) FROM material_reservation_item i JOIN material_reservation r ON r.reservation_id=i.reservation_id
     WHERE i.material_version_id=#{id} AND r.status IN ('RESERVED','CONFIRMED')</select>
   <update id="deleteVersion">UPDATE material_version SET file_status='DELETED' WHERE id=#{id}</update>
+  <!-- 在材料业务删除事务中记录对象删除任务，MinIO 实际删除由清理用例执行。 -->
   <insert id="scheduleDeletion">INSERT INTO object_deletion_job(material_version_id,object_key,status) VALUES(#{id},#{key},'PENDING')</insert>
 </mapper>

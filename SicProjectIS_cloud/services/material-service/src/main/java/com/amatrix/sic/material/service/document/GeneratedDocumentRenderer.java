@@ -11,6 +11,9 @@ import com.amatrix.sic.contracts.DocumentGenerationCommand;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 把命令和 JSON 快照渲染为确定性的一页 PDF，手工写 PDF 结构；非 ASCII 转问号，无业务模板引擎。
+ */
 @Component
 public class GeneratedDocumentRenderer {
     private final ObjectMapper objectMapper;

@@ -11,6 +11,10 @@ import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 
 import reactor.core.publisher.Mono;
 
+/**
+ * 在 JWT 校验后查询 Redis 的注销 jti 与用户会话版本，判定会话是否仍然有效。
+ * JWT 签名有效不代表会话仍有效；pending 或 Redis 故障会标记基础设施不可用，供 Gateway 区分撤销与依赖故障。
+ */
 @Component
 public class SessionValidityAuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
     static final String UNAVAILABLE = SessionValidityAuthorizationManager.class.getName() + ".unavailable";
@@ -27,6 +31,9 @@ public class SessionValidityAuthorizationManager implements ReactiveAuthorizatio
         this.redis = redis;
     }
 
+    /**
+     * 在一个 Redis Lua 检查中读取撤销、版本和 pending 状态。依赖故障仍拒绝访问，同时标记不可用原因，避免被外层误转换成普通登录失效。
+     */
     @Override
     public Mono<AuthorizationResult> authorize(
             Mono<Authentication> authentication, AuthorizationContext context) {

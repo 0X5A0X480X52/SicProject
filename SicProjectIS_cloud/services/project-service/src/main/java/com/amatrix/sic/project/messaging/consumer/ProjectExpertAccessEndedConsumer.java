@@ -18,6 +18,9 @@ import com.amatrix.sic.messaging.ConsumedEventGuard;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 消费专家访问结束事件，按项目/模块/轮次/节点撤销专家 grant；历史节点引用丢失时按事件中的专家身份回退限定范围。
+ */
 @Component
 public class ProjectExpertAccessEndedConsumer {
     private final ObjectMapper mapper;
@@ -48,7 +51,7 @@ public class ProjectExpertAccessEndedConsumer {
                 || (taskNodeId == null && expertUserIds.isEmpty())) {
             throw new IllegalArgumentException("Expert access event is incomplete");
         }
-        // Keep the same project -> grant order as synchronous authorization writes.
+        // 与同步授权写入保持同一项目→grant 加锁顺序，避免反向取得相同资源。
         grants.lockProject(projectId);
         int changed=grants.endExpertAccess(projectId,moduleType,roundNo,taskNodeId,expertUserIds);
         if(changed>0)grants.touch(projectId);

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.project.dao.ApplicationSagaMapper">
+  <!-- 申请 Saga MyBatis 接口：插入临时项目与负责人成员及 Saga 记录，推进 WORKFLOW_CREATED 与确认/失败/完成/补偿状态，查询可恢复与近期同 hash 的 Saga，并统计未完成/失败/最老年龄。 -->
   <resultMap id="saga" type="com.amatrix.sic.project.entity.ApplicationSagaRow"><constructor>
     <arg column="saga_id" javaType="String"/><arg column="project_id" javaType="java.lang.Long"/>
     <arg column="actor_user_id" javaType="java.lang.Long"/><arg column="status" javaType="String"/>
@@ -18,6 +19,7 @@
     VALUES(#{sagaId},#{id},#{actor},#{hash},'PROJECT_CREATED')</insert>
   <update id="workflowCreated">UPDATE application_saga SET status='WORKFLOW_CREATED',module_instance_id=#{moduleId},response_json=#{response},next_retry_at=CURRENT_TIMESTAMP(6) WHERE saga_id=#{id}</update>
   <update id="confirmationFailed">UPDATE application_saga SET status='WORKFLOW_CREATED',last_error=#{error},next_retry_at=CURRENT_TIMESTAMP(6) WHERE saga_id=#{id}</update>
+  <!-- 当前自动恢复仅扫描 WORKFLOW_CREATED；已补偿或尚未登记 Workflow 结果的 Saga 不在该扫描范围。 -->
   <select id="recoverable" resultType="String">SELECT saga_id FROM application_saga WHERE status='WORKFLOW_CREATED'
     AND (next_retry_at IS NULL OR next_retry_at&lt;=CURRENT_TIMESTAMP) ORDER BY created_at LIMIT 20</select>
   <update id="retry">UPDATE application_saga SET retry_count=retry_count+1,last_error=#{error},
@@ -27,6 +29,7 @@
   <update id="complete">UPDATE application_saga SET status='COMPLETED',response_json=#{response},last_error=NULL WHERE saga_id=#{id}</update>
   <update id="compensate">UPDATE application_saga SET status='COMPENSATED',last_error=#{error} WHERE saga_id=#{id}</update>
   <sql id="columns">SELECT saga_id,project_id,actor_user_id,status,response_json FROM application_saga</sql>
+  <!-- 按操作人和请求 hash 查询近期 Saga，用于复用已完成结果或拒绝仍在进行的相同申请。 -->
   <select id="recent" resultMap="saga"><include refid="columns"/> WHERE actor_user_id=#{actor} AND request_hash=#{hash}
     AND created_at&gt;=#{after} ORDER BY created_at DESC LIMIT 1</select>
   <select id="saga" resultMap="saga"><include refid="columns"/> WHERE saga_id=#{id}</select>

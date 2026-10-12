@@ -28,6 +28,10 @@ import com.amatrix.sic.security.CanAccessProject;
 
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * 实现授权管理与角色/管理能力校验；维护项目版本、成员/授权关系、审计和 project.authorization；提供内部专家 grant 幂等同步/撤销。
+ * 批量命令在同一事务内修改，统一返回变更后的详情；审计、项目版本和授权事件随本地事务提交。
+ */
 @Service
 public class ProjectAuthorizationService {
     private static final String EXPERT_GRANT = "PROJECT_MODULE_EXPERT_ASSIGNMENT";
@@ -44,6 +48,9 @@ public class ProjectAuthorizationService {
         this.mapper = mapper;this.auditMapper = auditMapper; this.users = users; this.outbox = outbox; this.objectMapper = objectMapper;
     }
 
+    /**
+     * 先读取项目、成员和各类授权，再装配用户信息与操作能力；不在结果映射期间继续取得数据库连接。
+     */
     @CanAccessProject
     public Map<String, Object> detail(Long projectId, ActorContext actor) {
         ProjectRecord project = project(projectId);
@@ -57,7 +64,7 @@ public class ProjectAuthorizationService {
         for (var rows : List.of(experts, finance, proxies)) {
             rows.forEach(row -> { ids.add((Long) row.get("granteeId")); ids.add((Long) row.get("grantedById")); });
         }
-        // All result sets have closed before any further database or IAM access.
+        // 所有结果集已结束映射，再查询用户或 IAM，避免映射过程中嵌套获取连接。
         Map<Long, UserSummary> summaries = users.requireAll(ids);
         members.forEach(row -> row.put("user", userMap(summaries.get(row.remove("userId")))));
         for (var rows : List.of(experts, finance, proxies)) {
@@ -112,6 +119,9 @@ public class ProjectAuthorizationService {
         emit(projectId, actor.userId(), "PROJECT_MEMBERS_CHANGED", linked("projectId", projectId, "userId", userId));
     }
 
+    /**
+     * 将多个成员变更作为一个本地事务处理，命令完成后统一装配详情和变更摘要，保持同步批量操作的整体提交语义。
+     */
     @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     @CanAccessProject
     public Map<String, Object> upsertMembers(Long projectId, ActorContext actor, List<Long> userIds,
@@ -160,6 +170,9 @@ public class ProjectAuthorizationService {
         }
     }
 
+    /**
+     * 批量校验并写入同类项目授权，事务内维护审计、项目版本与事件，最后只装配一次响应详情。
+     */
     @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     @CanAccessProject
     public Map<String, Object> assignGrants(Long projectId, ActorContext actor, String grantRoleCode,
@@ -173,6 +186,9 @@ public class ProjectAuthorizationService {
                 ids.size(), "Project grants assigned");
     }
 
+    /**
+     * 根据 Workflow 指派范围同步专家临时项目授权；对应专家、模块、轮次和节点的已有授权可幂等复用。
+     */
     @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public Map<String, Object> syncExpertGrant(Long projectId, ExpertProjectGrantCommand command) {
         if (command == null || !Objects.equals(projectId, command.projectId()) || command.expertUserId() == null) {
@@ -233,6 +249,9 @@ public class ProjectAuthorizationService {
         emit(projectId, actor.userId(), "PROJECT_GRANT_CHANGED", linked("projectId", projectId, "grantId", grantId));
     }
 
+    /**
+     * 在同一事务中撤销选中的授权并返回统一变更结果；不是逐条独立提交的后台任务。
+     */
     @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     @CanAccessProject
     public Map<String, Object> revokeBatch(Long projectId, ActorContext actor, List<Long> grantIds, String reason) {

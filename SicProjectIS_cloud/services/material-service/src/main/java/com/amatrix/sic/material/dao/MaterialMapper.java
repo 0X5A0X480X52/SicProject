@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.amatrix.sic.material.entity.*;
 
+/**
+ * 材料 MyBatis 接口：材料类型的确保与生成及查询、材料行加锁获取、版本号递增与旧版本 SUPERSEDED、版本插入/加锁读取/删除，以及生成单据与预留占用判定。
+ */
 @Mapper
 public interface MaterialMapper {
     int ensureType(@Param("code") String code);

@@ -13,6 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.amatrix.sic.contracts.ApiResponse;
 
+/**
+ * Servlet 全局异常转换：业务 HTTP 状态、权限拒绝、参数绑定错误及未预期异常，统一 ApiResponse。
+ */
 @RestControllerAdvice
 public class ApiExceptionHandler {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ApiExceptionHandler.class);
@@ -46,7 +49,7 @@ public class ApiExceptionHandler {
             String type = cause.getClass().getName();
             dependencyFailure |= type.startsWith("feign.") || type.startsWith("io.github.resilience4j.")
                     || type.equals("org.springframework.cloud.client.circuitbreaker.NoFallbackAvailableException");
-            // Keep business conflicts/validation; internal service credentials do not invalidate the user's JWT.
+            // 保留业务冲突和校验状态；内部服务凭据失败不能被解释为用户 JWT 失效。
             if (type.startsWith("feign.")) {
                 try {
                     int remoteStatus = (Integer) cause.getClass().getMethod("status").invoke(cause);

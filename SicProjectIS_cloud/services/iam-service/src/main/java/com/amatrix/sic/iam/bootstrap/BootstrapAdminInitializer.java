@@ -9,6 +9,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 启动时按配置创建不存在的管理员并赋 SYSTEM_ADMIN；缺少配置、密码短于 10 或已有同名用户时跳过。
+ */
 @Component
 public class BootstrapAdminInitializer implements ApplicationRunner {
     private final BootstrapAdminProperties properties;

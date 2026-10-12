@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.amatrix.sic.material.entity.ObjectDeletionJob;
 
+/**
+ * 对象删除任务 MyBatis 接口：取 PENDING 任务、标记完成或失败退避，以及待处理与失败计数。
+ */
 @Mapper
 public interface ObjectDeletionMapper {
     List<ObjectDeletionJob> pending();

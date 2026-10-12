@@ -12,6 +12,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * 工作台视图查询：按可操作模块或 Project 批量访问判定过滤候选行，游标式分页并标注待办与可操作性。
+ * 候选模块采用游标分批读取，经过当前权限筛选后形成页面；hasMore 表示还有可见记录，不提供未经筛选的总数。
+ */
 @Service
 public class WorkflowWorkbenchQueryService {
     private final WorkflowRuntimeMapper mapper;
@@ -22,6 +26,10 @@ public class WorkflowWorkbenchQueryService {
             ProjectAccessClient projects, WorkflowInternalTokenProvider tokens) {
         this.mapper=mapper; this.operations=operations; this.projects=projects; this.tokens=tokens;
     }
+    /**
+     * 按更新时间和模块 ID 分批读候选，再检查当前可读或可办理资格后分页；
+     * 跳过数量按授权后的记录计算，避免历史页泄露不可见项目。
+     */
     @PreAuthorize("isAuthenticated()")
     public Map<String,Object> query(ActorContext actor,String view,String module,String keyword,int page,int size) {
         if (!Set.of("TODO","OPERATED","VISIBLE","FINISHED").contains(view)

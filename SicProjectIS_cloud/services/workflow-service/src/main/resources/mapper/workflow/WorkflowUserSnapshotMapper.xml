@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amatrix.sic.workflow.dao.WorkflowUserSnapshotMapper">
+  <!-- 用户快照 MyBatis 接口：按 IAM 摘要 upsert 本地 user_snapshot 的账号、姓名、启用状态与来源版本（以 authVersion 单调保护）。 -->
+  <!-- 以 source_version 防止乱序身份事件回退快照；消费去重仍由 Inbox 控制。 -->
   <insert id="upsert">
     INSERT INTO user_snapshot(user_id,username,real_name,enabled,source_version)
     VALUES(#{userId},#{username},#{realName},#{enabled},#{authVersion}) ON DUPLICATE KEY UPDATE

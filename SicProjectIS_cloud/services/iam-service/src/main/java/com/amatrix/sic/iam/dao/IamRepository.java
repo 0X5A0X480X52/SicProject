@@ -11,6 +11,9 @@ import com.amatrix.sic.contracts.UserSummary;
 import com.amatrix.sic.iam.dto.IamDtos.UserAccount;
 import com.amatrix.sic.iam.dao.IdentityMapper;
 
+/**
+ * 用户仓储：{@code @Repository} 包装 IdentityMapper；findByUsername/findById 在只读事务内查询用户、部门与角色权限，summaries 批量取用户摘要与角色；insertUser 无事务注解，assignRole 在读写事务内先锁角色与用户再写映射。
+ */
 @Repository
 public class IamRepository {
     private final IdentityMapper mapper;
@@ -22,7 +25,7 @@ public class IamRepository {
         return id==null?null:findById(id);
     }
 
-    /** One bounded role query and one credential-free user projection. */
+    /** 批量角色查询与不含凭据的用户投影分别读取，避免逐用户查询及密码字段外泄。 */
     @Transactional(readOnly=true)
     public List<UserSummary> summaries(List<Long> userIds) {
         if(userIds==null || userIds.isEmpty())return List.of();

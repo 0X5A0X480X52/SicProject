@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.amatrix.sic.project.entity.ProjectRecord;
 
+/**
+ * 授权中心 MyBatis 接口：读取与加锁项目、可管理项目、成员与授权查询、负责人更换、部门指派、财务候选人、成员升降级与增删、grant 幂等插入与撤销、专家访问结束、版本与生命周期更新。
+ */
 @Mapper
 public interface ProjectAuthorizationMapper {
     ProjectRecord project(@Param("id") Long id);

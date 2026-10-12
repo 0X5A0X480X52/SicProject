@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import com.amatrix.sic.iam.entity.*;
 
+/**
+ * 管理端 MyBatis 接口：用户筛选与详情、角色权限矩阵、部门树与成员、角色和部门 ID 解析、授权版本锁定与递增，以及用户角色/权限/部门的增删改。
+ */
 @Mapper
 public interface AdminMapper {
     List<AdminUserRow> users(@Param("filter") Map<String,Object> filter);
