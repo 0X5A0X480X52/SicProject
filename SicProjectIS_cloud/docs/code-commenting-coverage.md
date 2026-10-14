@@ -72,16 +72,16 @@ Controller 层已补充全部 24 个 Controller、114 个映射方法的详细 J
 
 | 文件 | 说明重点 |
 | --- | --- |
-| [GatewayErrorWriter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayErrorWriter.java) | 职责说明 |
-| [GatewayJsonErrorHandler](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayJsonErrorHandler.java) | 职责说明 |
-| [GatewayRateLimitProperties](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayRateLimitProperties.java) | 职责说明 |
-| [GatewayRateLimitWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayRateLimitWebFilter.java) | 职责说明 |
-| [GatewayRequestLoggingFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayRequestLoggingFilter.java) | 职责说明 |
-| [GatewaySecurityConfig](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewaySecurityConfig.java) | 职责说明 |
-| [GatewaySecurityProperties](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewaySecurityProperties.java) | 职责说明 |
-| [SessionValidityAuthorizationManager](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/SessionValidityAuthorizationManager.java) | 职责说明；`authorize` |
-| [SseTokenRelayWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/SseTokenRelayWebFilter.java) | 职责说明 |
-| [TraceIdWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/TraceIdWebFilter.java) | 职责说明 |
+| [GatewayErrorWriter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/error/GatewayErrorWriter.java) | 职责说明 |
+| [GatewayJsonErrorHandler](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/error/GatewayJsonErrorHandler.java) | 职责说明 |
+| [GatewayRateLimitProperties](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/config/properties/GatewayRateLimitProperties.java) | 职责说明 |
+| [GatewayRateLimitWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/filter/GatewayRateLimitWebFilter.java) | 职责说明 |
+| [GatewayRequestLoggingFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/filter/GatewayRequestLoggingFilter.java) | 职责说明 |
+| [GatewaySecurityConfig](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/config/GatewaySecurityConfig.java) | 职责说明 |
+| [GatewaySecurityProperties](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/config/properties/GatewaySecurityProperties.java) | 职责说明 |
+| [SessionValidityAuthorizationManager](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/security/SessionValidityAuthorizationManager.java) | 职责说明；`authorize` |
+| [SseTokenRelayWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/filter/SseTokenRelayWebFilter.java) | 职责说明 |
+| [TraceIdWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/filter/TraceIdWebFilter.java) | 职责说明 |
 
 ### services/iam-service
 

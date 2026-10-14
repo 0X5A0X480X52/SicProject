@@ -11,6 +11,8 @@ x-service-environment: &service-environment
   JWT_AUDIENCE: ${JWT_AUDIENCE:-sic-api}
   JWK_SET_URI: http://iam-service:9001/.well-known/jwks.json
   SERVICE_TOKEN_BOOTSTRAP_SECRET: ${SERVICE_TOKEN_BOOTSTRAP_SECRET}
+  DB_POOL_SIZE: ${DB_POOL_SIZE:-10}
+  SIC_LB_EVIDENCE_ENABLED: ${SIC_LB_EVIDENCE_ENABLED:-false}
 
 x-business-dependencies: &business-dependencies
   config-server:
@@ -224,7 +226,7 @@ services:
       <<: *service-environment
       SERVER_PORT: 8080
     ports:
-      - "8080:8080"
+      - "${GATEWAY_PORT:-8080}:8080"
     depends_on:
       config-server:
         condition: service_healthy

@@ -1,7 +1,6 @@
 package com.amatrix.sic.iam.controller;
 
 import com.amatrix.sic.iam.service.AuthApplicationService;
-import com.amatrix.sic.iam.dto.IamDtos;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;

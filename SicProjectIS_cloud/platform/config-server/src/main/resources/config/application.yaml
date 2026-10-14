@@ -90,6 +90,8 @@ resilience4j:
           - feign.FeignException$Conflict
 
 sic:
+  observability:
+    load-balancer-evidence-enabled: ${SIC_LB_EVIDENCE_ENABLED:false}
   security:
     issuer: ${JWT_ISSUER:sic-iam}
     audience: ${JWT_AUDIENCE:sic-api}

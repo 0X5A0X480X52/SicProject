@@ -10,6 +10,10 @@ cd C:\UserFiles\CS\Java\SicProject\SicProjectIS_cloud
 
 如果这台机器已有 `sic-localdev` 环境，先看 [已有环境启动](#4-已有环境启动和日常操作)，不要重新生成凭据或初始化数据库。
 
+需要多实例或验证负载均衡时，参见 [多实例启动、状态与验收](docs/multi-instance-startup.md)。原命令仍默认单实例；五个业务服务支持 `.env`、JSON 和命令行设置副本，新增按项目的状态、停止及 `balance/business/fault` 独立验证入口。
+
+本轮实际运行结果见 [多实例验收记录](docs/multi-instance-verification-report.md)。
+
 ## 1. 项目结构
 
 ```text
@@ -199,6 +203,10 @@ npm run dev -- --port 5173 --strictPort
 ```
 
 打开 `http://localhost:5173`。使用 `--strictPort` 后，5173 被占用会明确报错，不会静默换成另一个端口。开发服务器默认将 `/api` 代理到 `http://127.0.0.1:8080`，通常无需设置 `VITE_API_BASE_URL`。
+
+单实例和多实例示例均默认对外使用 **8080**，前端无需额外设置。Gateway 对外端口可在部署 `.env` 中配置 `GATEWAY_PORT`，生成器通过 `--gateway-port` 指定初始值；新生成的 JAR override 读取该变量。历史 override 若固定写了端口，应同步修改。用 History 启动更新已有环境的端口。
+
+若自行改为 18080，在前端目录的 `.env.development.local` 中设置 `SIC_GATEWAY_PROXY_TARGET=http://127.0.0.1:18080`，再重新启动 `npm run dev`。也可在前端 PowerShell 中设置 `$env:SIC_GATEWAY_PROXY_TARGET = 'http://127.0.0.1:18080'`。此设置控制开发服务器代理，浏览器仍使用同源 `/api`；切回默认 8080 时移除旧配置和进程变量。具体配置见 [前端 README](../SicProjectIS_fronted/README.md)。
 
 | 地址 | 用途 |
 | --- | --- |

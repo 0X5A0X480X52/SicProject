@@ -112,6 +112,9 @@ class LifecycleRunner:
         session = self.sessions.setdefault(actor, requests.Session())
         bearer = self.tokens.get(actor, "") if token is None else token
         headers = {"Accept": "application/json"}
+        trace_prefix = getattr(self.args, "trace_prefix", None)
+        if trace_prefix:
+            headers["X-Trace-Id"] = f"{trace_prefix}-{len(self.report['requests']):06d}"
         if bearer:
             headers["Authorization"] = f"Bearer {bearer}"
         started = time.monotonic()
@@ -536,7 +539,10 @@ def main() -> int:
     parser.add_argument("--poll-timeout", type=float, default=30)
     parser.add_argument("--poll-interval", type=float, default=.5)
     parser.add_argument("--request-interval", type=float, default=.05)
+    parser.add_argument("--trace-prefix", help="Optional bounded correlation prefix for per-instance verification")
     args = parser.parse_args()
+    if args.trace_prefix:
+        require(bool(re.fullmatch(r"[A-Za-z0-9_-]{8,60}", args.trace_prefix)), "Invalid trace prefix")
     if args.env_file:
         from startup_common import read_env
         values = read_env(args.env_file)

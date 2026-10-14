@@ -1,7 +1,5 @@
 package com.amatrix.sic.iam.dao;
 
-import com.amatrix.sic.iam.dto.IamDtos;
-
 import java.util.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import com.amatrix.sic.contracts.UserSummary;
 import com.amatrix.sic.iam.dto.IamDtos.UserAccount;
-import com.amatrix.sic.iam.dao.IdentityMapper;
 
 /**
  * 用户仓储：{@code @Repository} 包装 IdentityMapper；findByUsername/findById 在只读事务内查询用户、部门与角色权限，summaries 批量取用户摘要与角色；insertUser 无事务注解，assignRole 在读写事务内先锁角色与用户再写映射。
@@ -51,6 +48,12 @@ public class IamRepository {
         user.put("deptId",deptId);user.put("phone",phone);user.put("email",email);
         mapper.insertUser(user);
         return ((Number)Objects.requireNonNull(user.get("id"))).longValue();
+    }
+
+    /** 在管理员初始化事务内锁定既有角色行；随后必须重新查询账号，防止多副本并发创建。 */
+    public void lockBootstrapRole() {
+        if (mapper.lockRole("SYSTEM_ADMIN") == null)
+            throw new IllegalStateException("SYSTEM_ADMIN seed role is missing");
     }
 
     @Transactional

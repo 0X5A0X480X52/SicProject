@@ -23,6 +23,8 @@ except ImportError:
     raise SystemExit(2)
 
 from startup_common import CommandRunner, Redactor, RunLogger, StartupError, compose_base, parse_json_bytes
+from replica_common import (add_deployment_arguments, load_deployment, inspect_project, check_container_health,
+                            internal_json, check_registry, wait_instances, compose_files, child_environment)
 
 EXPECTED_SERVICES = ["mysql", "rabbitmq", "redis", "minio", "discovery-server", "config-server",
                      "iam-service", "project-service", "workflow-service", "material-service",
@@ -35,8 +37,8 @@ class Verifier:
         self.args, self.runner, self.logger = args, runner, logger
         self.username, self.password = username, password
         self.gateway = args.gateway_base_url.rstrip("/")
-        self.config = args.config_server_base_url.rstrip("/")
-        self.discovery = args.discovery_base_url.rstrip("/")
+        self.config = args.config_server_base_url.rstrip("/") if args.config_server_base_url else None
+        self.discovery = args.discovery_base_url.rstrip("/") if args.discovery_base_url else None
         self.session = requests.Session()
         self.results: list[dict[str, Any]] = []
         self.token = ""
@@ -104,39 +106,25 @@ class Verifier:
         raise StartupError("Gateway readiness timeout")
 
     def container_health(self) -> None:
-        data = self.runner.capture(self.args.compose + ["ps", "--format", "json"])
-        containers = parse_json_bytes(data, "docker compose ps", self.logger.redactor)
-        if isinstance(containers, dict):
-            containers = [containers]
-        by_service = {item.get("Service"): item for item in containers}
-        for service in EXPECTED_SERVICES:
-            item = by_service.get(service)
-            if not item:
-                raise StartupError(f"Compose service {service} is missing")
-            if item.get("State") != "running" or item.get("Health") != "healthy":
-                raise StartupError(f"{service}: state={item.get('State')} health={item.get('Health')}")
+        deployment = self.args.deployment
+        self.instance_evidence = check_container_health(inspect_project(self.runner, deployment), deployment.replicas)
 
     def config_discovery(self) -> None:
-        response = self.request("GET", self.config + "/application/default")
-        if response.status_code != 200 or not response.json().get("propertySources"):
-            raise StartupError(f"Config Server returned invalid response: HTTP {response.status_code}")
-        expected = {"GATEWAY-SERVICE", "IAM-SERVICE", "PROJECT-SERVICE", "WORKFLOW-SERVICE",
-                    "MATERIAL-SERVICE", "NOTIFICATION-SERVICE"}
-        deadline, found = time.monotonic() + self.args.start_timeout, set()
-        while time.monotonic() < deadline:
-            try:
-                registry = self.request("GET", self.discovery + "/eureka/apps")
-                apps = registry.json().get("applications", {}).get("application", [])
-                if isinstance(apps, dict):
-                    apps = [apps]
-                found = {str(app.get("name", "")).upper() for app in apps}
-                if expected <= found:
-                    break
-            except (requests.RequestException, ValueError):
-                pass
-            time.sleep(2)
-        if not expected <= found:
-            raise StartupError("Eureka missing registrations: " + ", ".join(sorted(expected - found)))
+        if self.config:
+            response = self.request("GET", self.config + "/application/default")
+            if response.status_code != 200:
+                raise StartupError("Config Server response failed")
+            config = response.json()
+        else:
+            config = internal_json(self.runner, self.args.deployment, "config-server", "/application/default", 8888)
+        if not config.get("propertySources"):
+            raise StartupError("Config Server returned no property sources")
+        if self.discovery:
+            response = self.request("GET", self.discovery + "/eureka/apps")
+            if response.status_code != 200:
+                raise StartupError("Discovery response failed")
+            check_registry(inspect_project(self.runner, self.args.deployment), response.json(), self.args.deployment.replicas)
+        self.registry_evidence = wait_instances(self.runner, self.args.deployment, self.args.start_timeout, stable_seconds=0)
         response = self.gateway_get("/api/auth/login")
         if response.status_code == 503:
             raise StartupError("Gateway IAM route did not become available")
@@ -220,16 +208,18 @@ class Verifier:
         finally:
             self.session.close()
         return {"passed": failure is None, "projectName": self.args.project_name,
-                "checkedAt": datetime.now(timezone.utc).isoformat(), "checks": self.results, "error": failure}
+                "checkedAt": datetime.now(timezone.utc).isoformat(), "checks": self.results, "error": failure,
+                "expectedReplicas": self.args.deployment.replicas,
+                "instances": getattr(self, "registry_evidence", None)}
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Verify the complete SIC Cloud Compose stack")
     parser.add_argument("--project-name", default="sic-cloud")
     parser.add_argument("--env-file")
-    parser.add_argument("--gateway-base-url", default="http://127.0.0.1:8080")
-    parser.add_argument("--config-server-base-url", default="http://127.0.0.1:8888")
-    parser.add_argument("--discovery-base-url", default="http://127.0.0.1:8761")
+    add_deployment_arguments(parser)
+    parser.add_argument("--config-server-base-url")
+    parser.add_argument("--discovery-base-url")
     parser.add_argument("--expected-jwt-issuer", default="sic-iam")
     parser.add_argument("--expected-jwt-audience", default="sic-api")
     parser.add_argument("--admin-username", required=True)
@@ -241,7 +231,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def run_verification(args: argparse.Namespace, runner: CommandRunner, logger: RunLogger,
                      username: str, password: str) -> dict[str, Any]:
-    args.compose = compose_base(runner.cwd, Path(args.env_file).resolve(), args.project_name)
+    if not getattr(args, "deployment", None):
+        from startup_common import read_env
+        args.deployment = load_deployment(runner.cwd, args, read_env(Path(args.env_file)), runner)
+    args.compose = args.deployment.compose
+    args.gateway_base_url = args.deployment.gateway
     report = Verifier(args, runner, logger, username, password).run()
     if args.report_path:
         path = Path(args.report_path)
@@ -259,7 +253,10 @@ def main() -> int:
         import getpass
         password = getpass.getpass("Administrator password: ")
     logger = RunLogger(root, Redactor({"ADMIN_PASSWORD": password}), "verification")
-    runner = CommandRunner(logger, root, os.environ.copy())
+    from startup_common import read_env
+    values = read_env(Path(args.env_file))
+    logger.redactor = Redactor({**values, "ADMIN_PASSWORD": password})
+    runner = CommandRunner(logger, root, child_environment(values, compose_files(root, args.compose_file), "history"))
     try:
         report = run_verification(args, runner, logger, args.admin_username, password)
         print(json.dumps(report, ensure_ascii=False, indent=2))

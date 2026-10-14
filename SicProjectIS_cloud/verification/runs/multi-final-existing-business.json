@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261012105823c3f89a",
+  "projectId": 7,
+  "passed": true,
+  "checks": {
+    "projectFinished": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "modulesFinished": {
+      "expected": 3,
+      "actual": 3,
+      "passed": true
+    },
+    "openTasks": {
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    "reviewBatches": {
+      "expected": 3,
+      "actual": 3,
+      "passed": true
+    },
+    "submittedAssignments": {
+      "expected": 6,
+      "actual": 6,
+      "passed": true
+    },
+    "scoreRows": {
+      "expected": 6,
+      "actual": 6,
+      "passed": true
+    },
+    "applicationDraft": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "contractDraft": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "acceptanceDraft": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "financialRecord": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "uploadedVersions": {
+      "expected": 17,
+      "actual": 17,
+      "passed": true
+    },
+    "unconfirmedReferences": {
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    "reference_PROJECT_APPLICATION_FORM": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_AUTHORITY_APPROVAL_FILE": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_SIGNED_APPLICATION_FORM": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_FINAL_APPLICATION_MATERIALS": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_PROJECT_APPROVAL_FILE": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_CONTRACT_DRAFT": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_CONTRACT_PDF": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_LEADER_SIGNED_CONTRACT": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_SCHOOL_SEALED_CONTRACT": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_AUTHORITY_SEALED_CONTRACT": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_ARCHIVED_CONTRACT": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_FINANCIAL_SETTLEMENT_LIST": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_ACCEPTANCE_APPLICATION_FORM": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_ACCEPTANCE_REPORT": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_SIGNED_ACCEPTANCE_MATERIALS": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_FINAL_ACCEPTANCE_MATERIALS": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    },
+    "reference_ACCEPTANCE_CERTIFICATE": {
+      "expected": 1,
+      "actual": 1,
+      "passed": true
+    }
+  },
+  "checkedAt": "2026-10-12T11:20:36.491582+00:00"
+}

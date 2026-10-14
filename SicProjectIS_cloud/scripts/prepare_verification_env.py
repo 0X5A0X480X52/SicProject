@@ -19,7 +19,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--env-file", type=Path, default=ROOT / "target/verification.env")
     parser.add_argument("--compose-override", type=Path, default=ROOT / "target/verification.compose.yaml")
-    parser.add_argument("--gateway-port", type=int, default=18080)
+    parser.add_argument("--gateway-port", type=int, default=8080,
+                        help="Initial GATEWAY_PORT in the generated env file (default: 8080)")
     parser.add_argument("--release-dir", type=Path, help="Use a frozen, hash-verified release instead of target jars")
     args = parser.parse_args()
     jars={name:ROOT/directory/name/"target"/(name+"-1.0.0-SNAPSHOT-exec.jar") for name,directory in APPLICATIONS.items()}
@@ -46,6 +47,7 @@ def main() -> int:
             lines.append((name, secrets.token_urlsafe(32) if value.startswith("CHANGE_ME") else value))
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     values = dict(lines)
+    values["GATEWAY_PORT"] = str(args.gateway_port)
     values["JWT_PRIVATE_KEY"] = base64.b64encode(key.private_bytes(serialization.Encoding.DER,
         serialization.PrivateFormat.PKCS8, serialization.NoEncryption())).decode()
     values["JWT_PUBLIC_KEY"] = base64.b64encode(key.public_key().public_bytes(serialization.Encoding.DER,
@@ -62,7 +64,7 @@ def main() -> int:
         if name in ("config-server", "discovery-server"):
             override += ["    ports: !reset []"]
         if name == "gateway-service":
-            override += [f'    ports: !override ["127.0.0.1:{args.gateway_port}:8080"]']
+            override += ['    ports: !override ["127.0.0.1:${GATEWAY_PORT:-8080}:8080"]']
     override += ["  rabbitmq:", "    ports: !reset []", "  minio:", "    ports: !reset []"]
     args.compose_override.write_text("\n".join(override) + "\n", encoding="utf-8")
     print("Created isolated credentials and Compose override; secret values were not printed.")

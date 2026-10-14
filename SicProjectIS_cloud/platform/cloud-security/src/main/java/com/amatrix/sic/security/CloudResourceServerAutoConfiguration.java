@@ -72,9 +72,12 @@ public class CloudResourceServerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    FilterRegistrationBean<RequestLoggingContextFilter> requestLoggingContextFilter() {
+    FilterRegistrationBean<RequestLoggingContextFilter> requestLoggingContextFilter(org.springframework.core.env.Environment environment) {
         FilterRegistrationBean<RequestLoggingContextFilter> registration =
-                new FilterRegistrationBean<>(new RequestLoggingContextFilter());
+                new FilterRegistrationBean<>(new RequestLoggingContextFilter(
+                        environment.getProperty("sic.observability.load-balancer-evidence-enabled", Boolean.class, false),
+                        environment.getProperty("spring.application.name", "unknown"),
+                        environment.getProperty("HOSTNAME", "unknown")));
         registration.setOrder(Ordered.LOWEST_PRECEDENCE - 100);
         return registration;
     }

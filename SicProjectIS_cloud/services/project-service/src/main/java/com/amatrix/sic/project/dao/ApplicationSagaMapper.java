@@ -25,6 +25,8 @@ public interface ApplicationSagaMapper {
     int compensate(@Param("id") String id,@Param("error") String error);
     ApplicationSagaRow recent(@Param("actor") Long actor,@Param("hash") String hash,@Param("after") Instant after);
     ApplicationSagaRow saga(@Param("id") String id);
+    Long lockProject(@Param("id") Long id);
+    ApplicationSagaRow lockSaga(@Param("id") String id);
     Long incomplete();
     Long failed();
     Long oldestAge();

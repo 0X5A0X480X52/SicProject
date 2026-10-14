@@ -1,6 +1,5 @@
 package com.amatrix.sic.iam.security;
 
-import com.amatrix.sic.iam.dto.IamDtos;
 import com.amatrix.sic.iam.config.properties.IamJwtProperties;
 
 import java.time.Instant;
@@ -30,6 +29,7 @@ public class JwtTokenIssuer {
     private final RsaKeyProvider keys;
     private final JwtEncoder encoder;
 
+    // 通过 RsaKeyProvider 提供的公私钥和 keyId 构建 NimbusJwtEncoder，用于签发 RS256 JWT。
     public JwtTokenIssuer(IamJwtProperties properties, RsaKeyProvider keys) {
         this.properties = properties;
         this.keys = keys;

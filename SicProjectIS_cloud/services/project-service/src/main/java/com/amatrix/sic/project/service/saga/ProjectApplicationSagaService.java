@@ -153,7 +153,17 @@ public class ProjectApplicationSagaService {
      * 在调用方本地事务内激活项目、完成 Saga 并写入 project.created Outbox，使项目状态和待发送事件一起提交。
      */
     private void confirm(UUID sagaId, Long projectId, Long actorId, StartProjectApplicationResponse response) {
-        mapper.activateProject(projectId);mapper.complete(sagaId.toString(),write(response));
+        // 多副本恢复可能同时读到同一候选；按 Project→Saga 锁序复核，而不是依赖进程内互斥。
+        if (mapper.lockProject(projectId) == null) throw new IllegalStateException("Saga project is missing");
+        ApplicationSagaRow current = mapper.lockSaga(sagaId.toString());
+        if (current == null || !java.util.Objects.equals(projectId, current.projectId()))
+            throw new IllegalStateException("Saga does not belong to the project");
+        if ("COMPLETED".equals(current.status())) return;
+        if (!"WORKFLOW_CREATED".equals(current.status()))
+            throw new IllegalStateException("Saga is not awaiting confirmation");
+        mapper.activateProject(projectId);
+        if (mapper.complete(sagaId.toString(),write(response)) != 1)
+            throw new IllegalStateException("Saga confirmation lost its state guard");
         outbox.enqueue("project.created", EventEnvelope.create("PROJECT_APPLICATION_STARTED", "PROJECT",
                 projectId.toString(), sagaId.toString(), null, actorId,
                 java.util.Map.of("projectId", projectId, "moduleInstanceId", response.moduleInstanceId(),

@@ -29,10 +29,11 @@ public class BootstrapAdminInitializer implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         if (properties.username() == null || properties.username().isBlank()
-                || properties.password() == null || properties.password().length() < 10
-                || repository.findByUsername(properties.username().trim()) != null) {
+                || properties.password() == null || properties.password().length() < 10) {
             return;
         }
+        repository.lockBootstrapRole();
+        if (repository.findByUsername(properties.username().trim()) != null) return;
         long id = repository.insertUser(properties.username().trim(), encoder.encode(properties.password()),
                 properties.realName() == null || properties.realName().isBlank() ? "系统管理员" : properties.realName(),
                 1L, null, null);

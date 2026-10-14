@@ -135,33 +135,33 @@
 
 | 源码类型 | 实现职责 | 关键公开方法 |
 | --- | --- | --- |
-| [GatewayErrorWriter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayErrorWriter.java) | 统一写出网关错误的 JSON 响应体，保持 {success,data,message} 形状。 | `write` |
-| [GatewayJsonErrorHandler](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayJsonErrorHandler.java) | 将网关未处理异常映射为 JSON 错误响应。 | `handle` |
-| [GatewayRateLimitProperties](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayRateLimitProperties.java) | sic.gateway.rate-limit 配置：开关、窗口秒数与每窗口请求上限。 | — |
-| [GatewayRateLimitWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayRateLimitWebFilter.java) | 按来源 IP 与每秒窗口在 Redis 计数限流；Redis 失败时放行，超限返回 429。 | `filter` |
-| [GatewayRequestLoggingFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayRequestLoggingFilter.java) | 记录路径/状态/耗时/用户与关联标识，并汇总到请求日志。 | `filter` |
-| [GatewaySecurityConfig](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewaySecurityConfig.java) | WebFlux 安全链：JWT 校验、登录注册放行、内部路径拒绝、SSE token 转换与监控端点放行。 | — |
-| [GatewaySecurityProperties](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewaySecurityProperties.java) | sic.security 的 issuer/audience 与公开路径配置。 | — |
+| [GatewayErrorWriter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/error/GatewayErrorWriter.java) | 统一写出网关错误的 JSON 响应体，保持 {success,data,message} 形状。 | `write` |
+| [GatewayJsonErrorHandler](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/error/GatewayJsonErrorHandler.java) | 将网关未处理异常映射为 JSON 错误响应。 | `handle` |
+| [GatewayRateLimitProperties](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/config/properties/GatewayRateLimitProperties.java) | sic.gateway.rate-limit 配置：开关、窗口秒数与每窗口请求上限。 | — |
+| [GatewayRateLimitWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/filter/GatewayRateLimitWebFilter.java) | 按来源 IP 与每秒窗口在 Redis 计数限流；Redis 失败时放行，超限返回 429。 | `filter` |
+| [GatewayRequestLoggingFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/filter/GatewayRequestLoggingFilter.java) | 记录路径/状态/耗时/用户与关联标识，并汇总到请求日志。 | `filter` |
+| [GatewaySecurityConfig](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/config/GatewaySecurityConfig.java) | WebFlux 安全链：JWT 校验、登录注册放行、内部路径拒绝、SSE token 转换与监控端点放行。 | — |
+| [GatewaySecurityProperties](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/config/properties/GatewaySecurityProperties.java) | sic.security 的 issuer/audience 与公开路径配置。 | — |
 | [GatewayServiceApplication](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayServiceApplication.java) | Gateway 启动入口。 | `main` |
-| [SessionValidityAuthorizationManager](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/SessionValidityAuthorizationManager.java) | 在 JWT 校验后查询 Redis 的注销 jti 与用户会话版本，判定会话是否仍然有效。 | `check` |
-| [SseTokenRelayWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/SseTokenRelayWebFilter.java) | 把 SSE 订阅 query 中的 token 转成 Bearer Header 并移除 URL 中的 token。 | `filter` |
-| [TraceIdWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/TraceIdWebFilter.java) | 在安全链可能提前返回之前规范化/生成 X-Trace-Id，同时写入下游请求和响应。 | `filter`、`getOrder` |
+| [SessionValidityAuthorizationManager](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/security/SessionValidityAuthorizationManager.java) | 在 JWT 校验后查询 Redis 的注销 jti 与用户会话版本，判定会话是否仍然有效。 | `check` |
+| [SseTokenRelayWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/filter/SseTokenRelayWebFilter.java) | 把 SSE 订阅 query 中的 token 转成 Bearer Header 并移除 URL 中的 token。 | `filter` |
+| [TraceIdWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/filter/TraceIdWebFilter.java) | 在安全链可能提前返回之前规范化/生成 X-Trace-Id，同时写入下游请求和响应。 | `filter`、`getOrder` |
 
 测试与契约基类：这些条目描述测试意图，不表示本次已执行。
 
 | 源码类型 | 验证/支撑的功能 |
 | --- | --- |
-| [GatewayErrorAndRateLimitTest](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/GatewayErrorAndRateLimitTest.java) | 验证 404/503/429 统一包装、限流短路和 Redis 计数故障放行。 |
-| [GatewayPayloadPassThroughTest](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/GatewayPayloadPassThroughTest.java) | 验证 multipart 内容及流式下载分块/文件名 Header 原样透传。 |
-| [GatewaySecurityConfigTest](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/GatewaySecurityConfigTest.java) | 验证匿名/无效会话、登录放行、internal 拒绝及监控边界。 |
-| [SessionValidityAuthorizationManagerTest](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/SessionValidityAuthorizationManagerTest.java) | 验证登记且当前版本会话、旧 ver、注销/过时、缺失/损坏/不可用 Redis 及缺少 JWT 字段。 |
-| [SseTokenRelayWebFilterTest](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/SseTokenRelayWebFilterTest.java) | 验证 SSE token 转 Header、移除 query token 和其他请求保持原状。 |
+| [GatewayErrorAndRateLimitTest](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/error/GatewayErrorAndRateLimitTest.java) | 验证 404/503/429 统一包装、限流短路和 Redis 计数故障放行。 |
+| [GatewayPayloadPassThroughTest](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/filter/GatewayPayloadPassThroughTest.java) | 验证 multipart 内容及流式下载分块/文件名 Header 原样透传。 |
+| [GatewaySecurityConfigTest](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/config/GatewaySecurityConfigTest.java) | 验证匿名/无效会话、登录放行、internal 拒绝及监控边界。 |
+| [SessionValidityAuthorizationManagerTest](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/security/SessionValidityAuthorizationManagerTest.java) | 验证登记且当前版本会话、旧 ver、注销/过时、缺失/损坏/不可用 Redis 及缺少 JWT 字段。 |
+| [SseTokenRelayWebFilterTest](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/filter/SseTokenRelayWebFilterTest.java) | 验证 SSE token 转 Header、移除 query token 和其他请求保持原状。 |
 
 测试内部类型：
 
 | 类型 | 功能 |
 | --- | --- |
-| [GatewaySecurityConfigTest.TestEndpoints](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/GatewaySecurityConfigTest.java) | 响应式测试端点，支撑网关 API、认证和内部路径验证。 |
+| [GatewaySecurityConfigTest.TestEndpoints](../services/gateway-service/src/test/java/com/amatrix/sic/gateway/config/GatewaySecurityConfigTest.java) | 响应式测试端点，支撑网关 API、认证和内部路径验证。 |
 
 ## services/iam-service
 

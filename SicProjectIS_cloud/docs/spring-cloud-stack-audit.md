@@ -135,7 +135,7 @@ spring:
 | Redis 会话校验错误时拒绝 | 鉴权失败关闭策略，源码返回拒绝的 AuthorizationDecision；不等于自动熔断 |
 | `ExpertReviewController.removeFallback` | 专家评审移除接口的 POST 兼容入口，直接调用同类 remove；名字中的 Fallback 不是 Feign 降级 |
 
-上述异常策略见 [GatewayRateLimitWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayRateLimitWebFilter.java)、[SessionValidityAuthorizationManager](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/SessionValidityAuthorizationManager.java)、[ExpertReviewController(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/controller/ExpertReviewController.java)。
+上述异常策略见 [GatewayRateLimitWebFilter](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/filter/GatewayRateLimitWebFilter.java)、[SessionValidityAuthorizationManager](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/security/SessionValidityAuthorizationManager.java)、[ExpertReviewController(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/controller/ExpertReviewController.java)。
 
 ## 8. 后续补齐方案：与目录重构独立实施
 

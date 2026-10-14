@@ -21,6 +21,30 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import feign.RequestTemplate;
 
 class RequestContextPropagationTest {
+    @Test
+    void evidenceIsOptInAndExcludesCredentialsAndQueryParameters() throws Exception {
+        var logger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(RequestLoggingContextFilter.class);
+        var capture = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+        capture.start(); logger.addAppender(capture);
+        try {
+            var request = new MockHttpServletRequest("POST", "/api/auth/login");
+            request.setQueryString("token=query-secret");
+            request.addHeader("Authorization", "Bearer header-secret");
+            request.addHeader("X-Trace-Id", "valid-trace-123");
+            request.setContent("{\"password\":\"body-secret\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            new RequestLoggingContextFilter().doFilter(request, new MockHttpServletResponse(), (a, b) -> {});
+            assertThat(capture.list).isEmpty();
+            new RequestLoggingContextFilter(true, "iam-service", "replica-2")
+                    .doFilter(request, new MockHttpServletResponse(), (a, b) -> {});
+            assertThat(capture.list).hasSize(1);
+            assertThat(capture.list.getFirst().getFormattedMessage())
+                    .contains("service=iam-service instance=replica-2 trace=valid-trace-123", "path=/api/auth/login status=200")
+                    .doesNotContain("query-secret", "header-secret", "body-secret", "Authorization");
+        } finally {
+            logger.detachAppender(capture); capture.stop();
+        }
+    }
+
     @AfterEach
     void cleanThreadLocals() {
         MDC.clear();

@@ -196,7 +196,7 @@ Compose 已有 Redis 8.2、AOF 和认证，但未声明内存上限/淘汰策略
 
 ## 7. 主要源码入口与隔离验证
 
-- [会话版本与注销检查](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/SessionValidityAuthorizationManager.java)、[网关限流](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/GatewayRateLimitWebFilter.java)。
+- [会话版本与注销检查](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/security/SessionValidityAuthorizationManager.java)、[网关限流](../services/gateway-service/src/main/java/com/amatrix/sic/gateway/filter/GatewayRateLimitWebFilter.java)。
 - [登录与版本发布(../services/iam-service/src/main/java/com/amatrix/sic/iam/service/AuthApplicationService.java)、[用户查询(../services/iam-service/src/main/java/com/amatrix/sic/iam/dao/IamRepository.java)、[IAM 管理与批量失效(../services/iam-service/src/main/java/com/amatrix/sic/iam/service/IamAdminService.java)。
 - [Project 判定(../services/project-service/src/main/java/com/amatrix/sic/project/policy/ProjectAccessPolicy.java)、[授权批量与详情(../services/project-service/src/main/java/com/amatrix/sic/project/service/ProjectAuthorizationService.java)、[用户快照查询(../services/project-service/src/main/java/com/amatrix/sic/project/service/directory/ProjectUserDirectory.java)。
 - [普通流转事务(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/service/runtime/WorkflowRuntimeService.java)、[操作权限(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/policy/WorkflowOperationPolicy.java)、[专家评审命令(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/service/review/ExpertReviewService.java)、[读权限修复(../services/workflow-service/src/main/java/com/amatrix/sic/workflow/policy/WorkflowProjectAccessPolicy.java)。

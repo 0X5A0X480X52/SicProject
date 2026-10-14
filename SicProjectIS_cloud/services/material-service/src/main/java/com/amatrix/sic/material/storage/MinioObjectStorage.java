@@ -21,7 +21,19 @@ import jakarta.annotation.PostConstruct;
 public class MinioObjectStorage{
     private final MinioClient client;private final MaterialProperties properties;
     public MinioObjectStorage(MinioClient client,MaterialProperties properties){this.client=client;this.properties=properties;}
-    @PostConstruct public void ensureBucket(){try{if(!client.bucketExists(BucketExistsArgs.builder().bucket(properties.bucket()).build()))client.makeBucket(MakeBucketArgs.builder().bucket(properties.bucket()).build());}catch(Exception ex){throw new IllegalStateException("Unable to initialize MinIO bucket",ex);}}
+    /** 多副本同时初始化时，只容忍 bucket 创建竞争；权限、网络等其他错误继续失败。 */
+    @PostConstruct public void ensureBucket(){
+        try {
+            if (!client.bucketExists(BucketExistsArgs.builder().bucket(properties.bucket()).build())) {
+                try { client.makeBucket(MakeBucketArgs.builder().bucket(properties.bucket()).build()); }
+                catch (io.minio.errors.ErrorResponseException conflict) {
+                    String code = conflict.errorResponse().code();
+                    if (!("BucketAlreadyOwnedByYou".equals(code) || "BucketAlreadyExists".equals(code))
+                            || !client.bucketExists(BucketExistsArgs.builder().bucket(properties.bucket()).build())) throw conflict;
+                }
+            }
+        } catch(Exception ex){throw new IllegalStateException("Unable to initialize MinIO bucket",ex);}
+    }
     public void put(String key,InputStream stream,long size,String contentType){try{client.putObject(PutObjectArgs.builder().bucket(properties.bucket()).object(key).stream(stream,size,-1).contentType(contentType).build());}catch(Exception ex){throw new IllegalStateException("Unable to store material",ex);}}
     public InputStream get(String key){try{return client.getObject(GetObjectArgs.builder().bucket(properties.bucket()).object(key).build());}catch(Exception ex){throw new IllegalStateException("Unable to read material",ex);}}
     public void remove(String key){try{client.removeObject(RemoveObjectArgs.builder().bucket(properties.bucket()).object(key).build());}catch(Exception ex){throw new IllegalStateException("Unable to remove material",ex);}}
