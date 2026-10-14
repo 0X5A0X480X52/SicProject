@@ -22,12 +22,15 @@
   <resultMap id="role" type="com.amatrix.sic.iam.entity.UserRoleRow">
     <constructor><arg column="user_id" javaType="java.lang.Long"/><arg column="code" javaType="String"/></constructor>
   </resultMap>
+  <!-- 按用户名定位用户 ID，供登录身份读取和注册重名检查使用。 -->
   <select id="idByUsername" resultType="java.lang.Long">SELECT id FROM app_user WHERE username=#{username}</select>
+  <!-- 读取用户账号、密码哈希、部门、启用状态及授权版本，供认证和身份组装使用。 -->
   <select id="identity" resultMap="identity">
     SELECT u.id,u.username,u.password_hash,u.real_name,u.dept_id,d.name dept_name,u.phone,u.email,u.enabled,u.auth_version
     FROM app_user u LEFT JOIN department d ON d.id=u.dept_id WHERE u.id=#{id}
   </select>
   <!-- 批量返回跨服务所需身份摘要，不选择密码哈希；角色另由批量查询装配。 -->
+  <!-- 批量读取用户身份摘要及授权版本，按用户 ID 排序供内部身份接口使用。 -->
   <select id="summaries" resultMap="summary">
     SELECT u.id,u.username,u.real_name,u.dept_id,d.name dept_name,u.enabled,u.auth_version
     FROM app_user u LEFT JOIN department d ON d.id=u.dept_id WHERE u.id IN
@@ -35,6 +38,7 @@
     ORDER BY u.id
   </select>
   <!-- 一次查询一组用户的角色关系，避免跨服务消费者逐用户请求 IAM。 -->
+  <!-- 批量读取用户角色编码，按用户 ID 和角色编码排序供身份摘要组装使用。 -->
   <select id="rolesForUsers" resultMap="role">
     SELECT ur.user_id,r.code FROM user_role ur JOIN app_role r ON r.id=ur.role_id WHERE ur.user_id IN
     <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
@@ -46,12 +50,16 @@
   </insert>
   <insert id="assignRole">INSERT IGNORE INTO user_role(user_id,role_id) SELECT #{id},id FROM app_role WHERE code=#{code}</insert>
   <!-- IdentityMapper.lockRole 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 按角色编码读取并锁定角色行，供初始化或角色分配事务使用。 -->
   <select id="lockRole" resultType="java.lang.Long">SELECT id FROM app_role WHERE code=#{code} FOR UPDATE</select>
   <!-- IdentityMapper.lockUser 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 按用户 ID 读取并锁定账号行，供身份变更事务协调使用。 -->
   <select id="lockUser" resultType="java.lang.Long">SELECT id FROM app_user WHERE id=#{id} FOR UPDATE</select>
+  <!-- 按用户 ID 查询角色编码，供 JWT 和身份上下文组装使用。 -->
   <select id="roles" resultType="String">
     SELECT r.code FROM app_role r JOIN user_role ur ON ur.role_id=r.id WHERE ur.user_id=#{id} ORDER BY r.code
   </select>
+  <!-- 查询用户通过角色获得的去重权限编码，供 JWT 权限声明组装使用。 -->
   <select id="permissions" resultType="String">
     SELECT DISTINCT p.code FROM app_permission p JOIN role_permission rp ON rp.permission_id=p.id
     JOIN user_role ur ON ur.role_id=rp.role_id WHERE ur.user_id=#{id} ORDER BY p.code

@@ -31,20 +31,32 @@
     <arg column="node_id" javaType="String"/>
   </constructor></resultMap>
   <!-- 读取批次；lock=true 时调用方应已先锁对应模块，再取得批次行锁。 -->
+  <!-- 按批次 ID 读取评审批次；lock 为 true 时加行锁，供批次修改和评分事务使用。 -->
   <select id="batch" resultMap="ExpertBatch">SELECT * FROM expert_review_batch WHERE id=#{id} <if test="lock">FOR UPDATE</if></select>
   <!-- 模块和批次已锁定后读取具体专家指派，调用方再次验证所属批次及操作人。 -->
+  <!-- 锁定指派并读取批次、专家和评审状态，供评分提交或指派变更使用。 -->
   <select id="lockAssignment" resultMap="ExpertAssignment">SELECT id,batch_id,expert_user_id,review_status FROM expert_review_assignment WHERE id=#{id} FOR UPDATE</select>
+  <!-- 按指派 ID 读取所属批次 ID，供定位批次及按顺序获取锁使用。 -->
   <select id="assignmentBatch" resultType="Long">SELECT batch_id FROM expert_review_assignment WHERE id=#{id}</select>
   <!-- 评审写路径首先锁模块，随后取批次和 assignment 锁，保持与流程迁移一致的资源顺序。 -->
+  <!-- 锁定未完成模块，读取定义、当前节点、状态和轮次供评审操作校验。 -->
   <select id="lockModule" resultMap="ExpertModule">SELECT id,definition_id,current_node_id,current_state,current_round FROM module_instance WHERE id=#{id} AND finished=FALSE FOR UPDATE</select>
+  <!-- 统计节点配置是否匹配配置 ID、定义 ID 和编码，防止跨定义引用节点。 -->
   <select id="nodeMatches" resultType="Integer">SELECT COUNT(*) FROM workflow_node_config WHERE id=#{id} AND workflow_definition_id=#{definition} AND node_id=#{node}</select>
+  <!-- 按节点配置 ID 和定义 ID 读取节点编码，供评审节点范围定位使用。 -->
   <select id="nodeCode" resultType="String">SELECT node_id FROM workflow_node_config WHERE id=#{id} AND workflow_definition_id=#{definition}</select>
+  <!-- 读取模块对应项目、模块编码及指定配置节点编码，供专家授权范围组装。 -->
   <select id="grant" resultMap="ExpertGrant">SELECT m.project_id,m.module_code,n.node_id FROM module_instance m LEFT JOIN workflow_node_config n ON n.id=#{node} WHERE m.id=#{module}</select>
+  <!-- 统计专家在指定模块、轮次和 NULL 安全匹配节点下的指派数，供重复指派检查。 -->
   <select id="matchingAssignments" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment a JOIN expert_review_batch b ON b.id=a.batch_id WHERE b.module_instance_id=#{module} AND b.round_no=#{round} AND (b.workflow_node_id&lt;=&gt;#{node}) AND a.expert_user_id=#{expert}</select>
+  <!-- 统计专家在指定批次中的指派数，供批次内重复指派检查。 -->
   <select id="assigned" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment WHERE batch_id=#{batch} AND expert_user_id=#{expert}</select>
   <!-- 有效评分按分数排序供汇总使用，提交人数与有效评分人数分别计算。 -->
+  <!-- 读取批次中已提交、有效、无利益冲突的非空总分，按分数排序供评审汇总使用。 -->
   <select id="scores" resultType="java.math.BigDecimal">SELECT total_score FROM expert_review_assignment WHERE batch_id=#{id} AND review_status='SUBMITTED' AND valid=TRUE AND conflict_of_interest=FALSE AND total_score IS NOT NULL ORDER BY total_score</select>
+  <!-- 统计批次全部指派数，供评审完成条件计算使用。 -->
   <select id="assignedCount" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment WHERE batch_id=#{id}</select>
+  <!-- 统计批次已提交指派数，供判断提交进度使用。 -->
   <select id="submittedCount" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment WHERE batch_id=#{id} AND review_status='SUBMITTED'</select>
   <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO expert_review_batch(module_instance_id,workflow_node_id,round_no,review_type,review_title,rule_type,min_expert_count,pass_score,recommend_score,remove_highest_lowest,expected_expert_count,created_by) VALUES(#{module},#{node},#{round},#{type},#{title},#{rule},#{min},#{pass},#{recommend},#{remove},#{expected},#{actor})</insert>
   <insert id="insertAssignment">INSERT INTO expert_review_assignment(batch_id,expert_user_id,expert_name_snapshot,expert_org_snapshot,expert_title_snapshot) VALUES(#{batch},#{expert},#{name},#{org},#{title})</insert>

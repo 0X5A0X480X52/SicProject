@@ -53,16 +53,26 @@
     <result column="created_at" property="createdAt" javaType="java.time.LocalDateTime"/>
     <result column="updated_at" property="updatedAt" javaType="java.time.LocalDateTime"/>
   </resultMap>
+  <!-- 按项目 ID 取最近申请正文和元数据，供结构化业务读取使用。 -->
   <select id="application" resultMap="ApplicationDraftRow">SELECT id,module_instance_id,project_id,title,limited_project,summary,payload_json,created_at FROM project_application WHERE project_id=#{project} ORDER BY id DESC LIMIT 1</select>
+  <!-- 按项目和模块 ID 取最近申请记录 ID，供正文写入定位使用。 -->
   <select id="applicationId" resultType="Long">SELECT id FROM project_application WHERE project_id=#{project} AND module_instance_id=#{module} ORDER BY id DESC LIMIT 1</select>
+  <!-- 按项目 ID 读取成果记录并按 ID 排序，供成果列表展示使用。 -->
   <select id="achievements" resultMap="achievement">SELECT * FROM project_achievement WHERE project_id=#{project} ORDER BY id</select>
+  <!-- 按项目 ID 读取验收财务结算并按 ID 排序，供结算列表展示使用。 -->
   <select id="settlements" resultMap="settlement">SELECT * FROM acceptance_financial_settlement WHERE project_id=#{project} ORDER BY id</select>
+  <!-- 按项目和模块类型读取合同或验收最近轮次正文 JSON，同轮次按 ID 倒序取一条。 -->
   <select id="draft" resultType="String">SELECT f.payload_json FROM <choose><when test="type == 'CONTRACT'">contract_form</when><otherwise>acceptance_form</otherwise></choose> f JOIN module_instance m ON m.id=f.module_instance_id WHERE m.project_id=#{project} AND m.module_code=#{type} ORDER BY f.round_no DESC,f.id DESC LIMIT 1</select>
+  <!-- 按项目和模块类型读取最新模块 ID 和当前轮次，供结构化正文关联使用。 -->
   <select id="module" resultMap="ModuleRound">SELECT id,current_round FROM module_instance WHERE project_id=#{project} AND module_code=#{type} ORDER BY id DESC LIMIT 1</select>
+  <!-- 统计模块是否属于指定项目，供业务数据关联检查使用。 -->
   <select id="moduleProject" resultType="Integer">SELECT COUNT(*) FROM module_instance WHERE id=#{id} AND project_id=#{project}</select>
+  <!-- 统计验收记录是否属于指定模块，供财务结算关联校验使用。 -->
   <select id="relatedAcceptance" resultType="Integer">SELECT COUNT(*) FROM acceptance_form WHERE id=#{id} AND module_instance_id=#{module}</select>
+  <!-- 统计状态记录是否属于指定模块和轮次，供业务历史关联校验使用。 -->
   <select id="relatedState" resultType="Integer">SELECT COUNT(*) FROM state_record WHERE id=#{id} AND module_instance_id=#{module} AND round_no=#{round}</select>
   <!-- StructuredBusinessMapper.lockTask 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 按项目、类型、当前节点和状态锁定最新未完成模块，供正文提交前检查轮次。 -->
   <select id="lockTask" resultMap="BusinessTask">SELECT id,current_round FROM module_instance WHERE project_id=#{project} AND module_code=#{type} AND current_node_id=#{node} AND current_state=#{state} AND finished=FALSE ORDER BY id DESC LIMIT 1 FOR UPDATE</select>
   <update id="updateApplication">UPDATE project_application SET title=COALESCE(#{title},title),limited_project=COALESCE(#{limited},limited_project),summary=COALESCE(#{summary},summary),payload_json=#{json} WHERE id=#{id}</update>
   <insert id="achievement" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO project_achievement(project_id,module_instance_id,acceptance_id,achievement_type,achievement_title,author_list,achievement_level,publish_or_grant_date,proof_material_version_id,remark)

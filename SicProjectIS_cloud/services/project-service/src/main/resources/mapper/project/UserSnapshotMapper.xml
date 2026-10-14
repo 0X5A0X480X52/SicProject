@@ -8,10 +8,14 @@
     <arg column="dept_name" javaType="String"/><arg column="role_codes_json" javaType="String"/>
     <arg column="enabled" javaType="_boolean"/><arg column="source_version" javaType="_long"/>
   </constructor></resultMap>
+  <!-- 复用本地身份快照的身份、部门、角色、启用状态和来源版本字段。 -->
   <sql id="columns">SELECT user_id,username,real_name,dept_id,dept_name,role_codes_json,enabled,source_version FROM user_snapshot</sql>
+  <!-- 按用户 ID 读取 Project 本地身份快照，供用户目录和授权判断使用。 -->
   <select id="user" resultMap="user"><include refid="columns"/> WHERE user_id=#{id}</select>
+  <!-- 批量读取用户本地身份快照，供目录组装和批量判权使用。 -->
   <select id="users" resultMap="user"><include refid="columns"/> WHERE user_id IN
     <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach></select>
+  <!-- 读取全部启用用户快照，按真实姓名和用户 ID 排序供候选列表使用。 -->
   <select id="enabled" resultMap="user"><include refid="columns"/> WHERE enabled=TRUE ORDER BY real_name,user_id</select>
   <!-- 仅接受不早于 source_version 的身份数据，旧事件不覆盖较新快照；相同版本仍可刷新字段。 -->
   <insert id="upsert">

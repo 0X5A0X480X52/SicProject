@@ -23,6 +23,7 @@
     INSERT INTO <choose><when test="kind == 'CONTRACT_DRAFT'">contract_form</when><otherwise>acceptance_form</otherwise></choose>
       (module_instance_id,round_no,payload_json) VALUES(#{module},#{round},#{json}) ON DUPLICATE KEY UPDATE payload_json=VALUES(payload_json)
   </insert>
+  <!-- 读取模块指定轮次最大的状态记录 ID，供表单或结算关联轮次历史使用。 -->
   <select id="latestState" resultType="Long">SELECT MAX(id) FROM state_record WHERE module_instance_id=#{module} AND round_no=#{round}</select>
   <insert id="settlement">
     INSERT INTO acceptance_financial_settlement(project_id,module_instance_id,state_record_id,approved_amount,received_amount,spent_amount,
@@ -35,12 +36,19 @@
   <update id="updateRecord">UPDATE node_form SET form_json=#{json},submitted_by=#{actor}
     WHERE id=#{id} AND module_instance_id=#{module} AND node_id LIKE #{pattern} AND round_no=#{round}</update>
   <delete id="deleteRecord">DELETE FROM node_form WHERE id=#{id} AND module_instance_id=#{module} AND node_id LIKE #{pattern} AND round_no=#{round}</delete>
+  <!-- 按模块 ID 读取申请正文 JSON，供节点表单初始数据和业务聚合使用。 -->
   <select id="application" resultType="String">SELECT payload_json FROM project_application WHERE module_instance_id=#{module}</select>
+  <!-- 按模块 ID 读取轮次最高的合同正文 JSON，供节点表单回填使用。 -->
   <select id="contract" resultType="String">SELECT payload_json FROM contract_form WHERE module_instance_id=#{module} ORDER BY round_no DESC LIMIT 1</select>
+  <!-- 按模块 ID 读取轮次最高的验收正文 JSON，供节点表单回填使用。 -->
   <select id="acceptance" resultType="String">SELECT payload_json FROM acceptance_form WHERE module_instance_id=#{module} ORDER BY round_no DESC LIMIT 1</select>
+  <!-- 按模块及表单编码或节点编码取 ID 最大的表单 JSON，供保存数据恢复使用。 -->
   <select id="stored" resultType="String">SELECT form_json FROM node_form WHERE module_instance_id=#{module} AND node_id IN (#{code},#{node}) ORDER BY id DESC LIMIT 1</select>
+  <!-- 查询模块中匹配节点前缀或精确编码的表单，按 ID 排序供历史和列表展示使用。 -->
   <select id="records" resultMap="record">SELECT id,form_json FROM node_form WHERE module_instance_id=#{module} AND (node_id LIKE #{pattern} OR node_id=#{node}) ORDER BY id</select>
+  <!-- 统计指定模块是否存在，供表单目标模块检查使用。 -->
   <select id="moduleCount" resultType="Integer">SELECT COUNT(*) FROM module_instance WHERE id=#{id}</select>
   <!-- NodeFormMapper.lockModule 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 锁定模块并读取项目、类型、节点、状态、轮次和完成标记，供表单写入前校验。 -->
   <select id="lockModule" resultMap="module">SELECT project_id,module_code,current_node_id,current_state,current_round,finished FROM module_instance WHERE id=#{id} FOR UPDATE</select>
 </mapper>

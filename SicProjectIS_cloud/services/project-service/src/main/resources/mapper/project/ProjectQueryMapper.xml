@@ -15,6 +15,7 @@
     <result column="lifecycleStage" property="lifecycleStage" javaType="String"/>
   </resultMap>
   <!-- 按全局角色、部门管理员、负责人、成员和有效项目 grant 联合筛选；普通同部门成员不自动拥有所有项目。 -->
+  <!-- 查询用户通过全局或部门范围、负责人、成员及有效代理、专家、财务授权可见的 ACTIVE 项目，按 ID 倒序返回。 -->
   <select id="accessible" resultMap="project">
     SELECT p.id projectId,p.project_code projectCode,p.project_name projectName,p.dept_id deptId,p.dept_name_snapshot deptName,
       p.owner_user_id leaderUserId,p.owner_name_snapshot leaderRealName,p.project_type projectType,p.project_level projectLevel,p.business_status lifecycleStage

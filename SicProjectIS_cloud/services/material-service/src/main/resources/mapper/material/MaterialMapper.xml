@@ -13,11 +13,14 @@
   <insert id="ensureType">INSERT INTO material_type(code,name,enabled) VALUES(#{code},#{code},TRUE) ON DUPLICATE KEY UPDATE code=VALUES(code)</insert>
   <insert id="generatedType">INSERT INTO material_type(code,name,module_type,allowed_file_types,enabled) VALUES(#{code},#{name},#{module},'pdf',TRUE)
     ON DUPLICATE KEY UPDATE name=VALUES(name),module_type=COALESCE(module_type,VALUES(module_type)),allowed_file_types='pdf',enabled=TRUE</insert>
+  <!-- 按类型编码读取材料配置及文件类型、大小限制，供上传校验使用。 -->
   <select id="type" resultMap="type">SELECT id,code,name,module_type,allowed_file_types,max_file_size_mb FROM material_type WHERE code=#{code}</select>
   <!-- MaterialMapper.material 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 按项目和材料类型取最早的材料 ID；lock 为 true 时加行锁，供版本创建事务使用。 -->
   <select id="material" resultType="Long">SELECT id FROM material WHERE project_id=#{project} AND material_type_code=#{code} ORDER BY id LIMIT 1 <if test="lock">FOR UPDATE</if></select>
   <insert id="insertMaterial" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO material(project_id,material_type_code,title,created_by) VALUES(#{project},#{code},#{title},#{actor})</insert>
   <!-- MaterialMapper.maximumVersion 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 读取材料最大版本号，无版本时返回 0；使用锁读取供新版本号计算。 -->
   <select id="maximumVersion" resultType="Integer">SELECT COALESCE(MAX(version_no),0) FROM material_version WHERE material_id=#{id} FOR UPDATE</select>
   <update id="supersede">UPDATE material_version SET file_status='SUPERSEDED' WHERE material_id=#{id} AND file_status='ACTIVE'</update>
   <insert id="insertVersion" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
@@ -34,6 +37,7 @@
     <result column="uploadedBy" property="uploadedBy" javaType="Long"/><result column="uploadedAt" property="uploadedAt" javaType="java.time.LocalDateTime"/>
     <result column="isCurrent" property="isCurrent" javaType="Boolean"/>
   </resultMap>
+  <!-- 按可选项目、材料或版本条件查询未删除版本，补充类型、哈希和上传信息并标记当前版本。 -->
   <select id="contexts" resultMap="context">
     SELECT m.id materialId,m.project_id projectId,t.id materialTypeId,t.code materialTypeCode,t.name materialTypeName,
       t.module_type moduleType,t.allowed_file_types allowedFileTypes,t.max_file_size_mb maxFileSizeMb,v.id materialVersionId,
@@ -48,11 +52,14 @@
     </where> ORDER BY m.id,v.version_no DESC
   </select>
   <!-- MaterialMapper.version 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 查询未删除版本的对象键、文件名、类型、大小和项目；lock 为 true 时加行锁。 -->
   <select id="version" resultMap="version">SELECT v.object_key,v.original_filename,v.content_type,v.size_bytes,m.project_id
     FROM material_version v JOIN material m ON m.id=v.material_id WHERE v.id=#{id} AND v.file_status&lt;&gt;'DELETED'
     <if test="lock">FOR UPDATE</if></select>
+  <!-- 统计版本关联的生成单据记录，供删除前判断是否为受保护的生成文件。 -->
   <select id="generated" resultType="Integer">SELECT COUNT(*) FROM generated_document WHERE material_version_id=#{id}</select>
   <!-- 删除前检查有效预留或已确认引用，防止材料正在流转期间被删除。 -->
+  <!-- 统计版本处于 RESERVED 或 CONFIRMED 的引用预留数，供删除前检查占用使用。 -->
   <select id="reserved" resultType="Integer">SELECT COUNT(*) FROM material_reservation_item i JOIN material_reservation r ON r.reservation_id=i.reservation_id
     WHERE i.material_version_id=#{id} AND r.status IN ('RESERVED','CONFIRMED')</select>
   <update id="deleteVersion">UPDATE material_version SET file_status='DELETED' WHERE id=#{id}</update>

@@ -25,18 +25,21 @@ public class IamAdminService {
         this.mapper=mapper;this.versions=versions;this.outbox=outbox;
     }
 
+    // 查询用户列表，支持按用户名、真实姓名、部门、启用状态和角色筛选，返回用户信息和角色列表。
     @PreAuthorize("hasAuthority('PERM_USER_MANAGE')")
     public Map<String,Object> queryUsers(String username,String realName,Long deptId,Boolean enabled,String roleCode) {
         var filter=linked("username",like(username),"realName",like(realName),"deptId",deptId,"enabled",enabled,
                 "roleCode",hasText(roleCode)?roleCode.trim():null);
         return linked("roles",roles(),"users",mapper.users(filter).stream().map(row -> userMap(row,false)).toList());
     }
+    // 查询用户详情，返回用户信息、角色和权限列表，支持按用户 ID 查询。
     @PreAuthorize("hasAuthority('PERM_USER_MANAGE')")
     public Map<String,Object> userDetail(Long userId) {
         var user=mapper.user(userId);
         if(user==null)throw status(HttpStatus.NOT_FOUND,"User not found");
         return userMap(user,true);
     }
+    // 查询用户的角色和权限，返回角色列表、权限列表和权限矩阵，支持按用户 ID 查询。
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasAuthority('PERM_ROLE_MANAGE')")
     public Map<String,Object> updateRoles(Long operatorId,Long userId,List<String> requested) {
@@ -54,6 +57,7 @@ public class IamAdminService {
         emit("IAM_USER_ROLES_CHANGED",userId,operatorId,linked("userId",userId,"before",before,"after",normalized));
         return linked("user",userDetail(userId),"diff",diff(before,normalized),"query",queryUsers(null,null,null,null,null));
     }
+    // 查询用户的角色和权限，返回角色列表、权限列表和权限矩阵，支持按用户 ID 查询。
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasAuthority('PERM_USER_MANAGE')")
     public Map<String,Object> updateStatus(Long operatorId,Long userId,boolean enabled) {
@@ -63,14 +67,17 @@ public class IamAdminService {
         emit("IAM_USER_STATUS_CHANGED",userId,operatorId,linked("userId",userId,"enabled",enabled));
         return userDetail(userId);
     }
+    // 查询角色列表，返回角色信息和权限列表，支持按角色代码查询。
     @PreAuthorize("hasAuthority('PERM_PERMISSION_MANAGE')")
     public List<Map<String,Object>> permissions() { return mapper.permissions(); }
+    // 查询用户权限矩阵，返回角色列表、权限列表和权限矩阵。
     @PreAuthorize("hasAuthority('PERM_PERMISSION_MANAGE')")
     public Map<String,Object> permissionMatrix() {
         var matrix=mapper.permissionMatrix();
         matrix.forEach(row -> row.put("permissionCodes",split((String)row.get("permissionCodes"))));
         return linked("roles",roles(),"permissions",permissions(),"matrix",matrix);
     }
+    // 更新角色权限，删除旧权限并分配新权限，返回角色权限变更前后对比和权限矩阵，支持按角色代码查询。
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasAuthority('PERM_PERMISSION_MANAGE')")
     public Map<String,Object> updateRolePermissions(Long operatorId,String roleCode,List<String> requested) {
@@ -86,8 +93,10 @@ public class IamAdminService {
         emit("IAM_ROLE_PERMISSIONS_CHANGED",roleId,operatorId,linked("roleCode",roleCode,"before",before,"after",normalized,"affectedUsers",affected));
         return linked("roleCode",roleCode,"diff",diff(before,normalized),"matrix",permissionMatrix());
     }
+    // 查询部门列表，返回部门信息和可分配角色列表，支持按部门 ID 查询。
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public List<Map<String,Object>> departments(Long operatorId) { return mapper.departments(departmentScope(operatorId)); }
+    // 创建部门，校验当前用户是否为全局管理员，插入部门信息并发布 IAM_DEPARTMENT_CHANGED 事件，返回新建部门信息。
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> createDepartment(Long operatorId,Map<String,Object> request) {
@@ -99,6 +108,7 @@ public class IamAdminService {
         emit("IAM_DEPARTMENT_CHANGED",id,operatorId,linked("departmentId",id,"operation","CREATE"));
         return department(id);
     }
+    // 更新部门，校验当前用户是否为全局管理员，更新部门信息并发布 IAM_DEPARTMENT_CHANGED 事件，返回更新后的部门信息。
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> updateDepartment(Long operatorId,Long deptId,Map<String,Object> request) {
@@ -111,6 +121,7 @@ public class IamAdminService {
         emit("IAM_DEPARTMENT_CHANGED",deptId,operatorId,linked("departmentId",deptId,"operation","UPDATE"));
         return department(deptId);
     }
+    // 删除部门，校验当前用户是否为全局管理员，检查部门是否被引用，删除部门信息并发布 IAM_DEPARTMENT_CHANGED 事件。
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public void deleteDepartment(Long operatorId,Long deptId) {
@@ -119,6 +130,7 @@ public class IamAdminService {
         mapper.deleteDepartment(deptId);
         emit("IAM_DEPARTMENT_CHANGED",deptId,operatorId,linked("departmentId",deptId,"operation","DELETE"));
     }
+    // 查询部门成员，返回部门信息、可分配角色列表和成员列表，支持按部门 ID 查询，部门管理员只能查询自己管理的部门。
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> departmentMembers(Long operatorId,Long deptId) {
         requireUser(operatorId);
@@ -135,11 +147,13 @@ public class IamAdminService {
         return linked("departments",mapper.departments(scope),"assignableRoleCodes",EDITABLE_DEPARTMENT_ROLES,
                 "members",usersForDepartment(selected,null),"canManageDepartments",global,"memberManagementDisabled",false,"disabledReason",null);
     }
+    // 查询部门成员候选人，返回符合条件的用户列表，支持按用户名、真实姓名和部门筛选，部门管理员只能查询自己管理的部门。
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> candidates(Long operatorId,String keyword) {
         Long scope=departmentScope(operatorId);
         return linked("users",mapper.users(linked("candidateDept",scope,"keyword",like(keyword))).stream().map(this::memberMap).toList());
     }
+    // 查询部门成员详情，返回成员信息和可分配角色列表，支持按用户 ID 查询，部门管理员只能查询自己管理的部门。
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> upsertMember(Long operatorId,Long deptId,Long userId,List<String> roles) {
@@ -152,6 +166,7 @@ public class IamAdminService {
         emit("IAM_USER_CHANGED",userId,operatorId,linked("userId",userId,"deptId",deptId));
         return member(userId);
     }
+    // 更新部门成员角色，校验当前用户是否有权限管理该成员，替换成员的可分配角色并发布 IAM_USER_ROLES_CHANGED 事件，返回更新后的成员信息。
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> updateMemberRoles(Long operatorId,Long userId,List<String> roles) {
@@ -161,6 +176,7 @@ public class IamAdminService {
         emit("IAM_USER_ROLES_CHANGED",userId,operatorId,linked("userId",userId,"roles",roles));
         return member(userId);
     }
+    // 移除部门成员，校验当前用户是否有权限管理该成员，将成员移出部门并发布 IAM_USER_CHANGED 事件，返回更新后的成员信息。
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasAuthority('PERM_DEPARTMENT_MEMBER_MANAGE')")
     public Map<String,Object> removeMember(Long operatorId,Long userId) {
@@ -169,14 +185,17 @@ public class IamAdminService {
         emit("IAM_USER_CHANGED",userId,operatorId,linked("userId",userId,"deptId",null));
         return member(userId);
     }
+    // 查询部门成员列表，返回符合条件的成员信息，支持按部门 ID 和关键字筛选，部门管理员只能查询自己管理的部门。
     private List<Map<String,Object>> usersForDepartment(Long deptId,String keyword) {
         return mapper.users(linked("deptId",deptId,"keyword",like(keyword))).stream().map(this::memberMap).toList();
     }
+    // 查询部门成员信息，返回成员信息和可分配角色列表，支持按用户 ID 查询，部门管理员只能查询自己管理的部门。
     private Map<String,Object> member(Long userId) {
         var user=mapper.user(userId);
         if(user==null)throw status(HttpStatus.NOT_FOUND,"User not found");
         return memberMap(user);
     }
+    // 替换用户的可分配角色，校验角色是否可分配，删除旧角色并分配新角色，支持按用户 ID 查询。
     private void replaceEditableRoles(Long userId,List<String> requested) {
         mapper.lockAllRoles();
         List<String> normalized=distinct(requested);
@@ -184,12 +203,15 @@ public class IamAdminService {
         validateCodes("app_role",normalized,"Unknown role code");mapper.lockedVersions(List.of(userId));
         mapper.deleteEditableRoles(userId);normalized.forEach(code -> mapper.assignRole(userId,code));
     }
+    // 查询角色列表，返回角色信息和权限列表，支持按角色代码查询。
     private List<Map<String,Object>> roles() { return mapper.roles(); }
+    // 查询部门信息，返回部门信息和可分配角色列表，支持按部门 ID 查询。
     private Map<String,Object> department(Long id) {
         var row=mapper.department(id);
         if(row==null)throw status(HttpStatus.NOT_FOUND,"Department not found");
         return row;
     }
+    // 查询当前用户的部门范围，返回部门 ID，如果是全局管理员则返回 null，部门管理员只能管理自己所在的部门。
     private Long departmentScope(Long operatorId) {
         requireUser(operatorId);
         if(isGlobalDepartmentManager(operatorId))return null;
@@ -197,44 +219,57 @@ public class IamAdminService {
         if(dept==null)throw status(HttpStatus.FORBIDDEN,"Department administrator has no department scope");
         return dept;
     }
+    // 判断当前用户是否为全局管理员，返回 true 或 false。
     private boolean isGlobalDepartmentManager(Long id) { return mapper.globalDepartmentRoles(id)>0; }
+    // 校验当前用户是否为全局管理员，如果不是则抛出 403 异常。
     private void requireGlobalDepartmentManager(Long id) {
         if(!isGlobalDepartmentManager(id))throw status(HttpStatus.FORBIDDEN,"Only global administrators can change department structure");
     }
+    // 校验当前用户是否有权限管理指定部门，如果没有则抛出 403 异常。
     private void requireManagedDepartment(Long operatorId,Long deptId) {
         if(isGlobalDepartmentManager(operatorId))return;
         if(deptId==null || !Objects.equals(departmentScope(operatorId),deptId))
             throw status(HttpStatus.FORBIDDEN,"Department administrators can only manage their own department");
     }
+    // 将用户信息转换为 Map 格式，支持详细信息和简略信息。
     private Map<String,Object> userMap(AdminUserRow user,boolean detail) {
         var row=linked("userId",user.userId(),"username",user.username(),"realName",user.realName(),"deptId",user.deptId(),
                 "deptName",user.deptName(),"enabled",user.enabled(),"roleCodes",split(user.roleCodes()),"canEditRoles",true,"canToggleStatus",true);
         if(detail) { row.put("phone",user.phone());row.put("email",user.email()); }
         return row;
     }
+    // 将成员信息转换为 Map 格式，返回成员信息和可分配角色列表。
     private Map<String,Object> memberMap(AdminUserRow user) {
         return linked("userId",user.userId(),"username",user.username(),"realName",user.realName(),"deptId",user.deptId(),"deptName",user.deptName(),
                 "phone",user.phone(),"email",user.email(),"enabled",user.enabled(),"roleCodes",split(user.roleCodes()),"editableRoleCodes",EDITABLE_DEPARTMENT_ROLES);
     }
+    // 使指定用户的授权版本失效，发布版本更新事件，支持批量操作。
     private void invalidateUsers(Collection<Long> values) {
         List<Long> ids=values.stream().filter(Objects::nonNull).distinct().sorted().toList();
         if(ids.isEmpty())return;
         var before=mapper.lockedVersions(ids);mapper.incrementVersions(ids);
         before.forEach(user -> versions.publishAfterCommit(user.userId(),user.version()+1));
     }
+    // 查询指定用户的授权版本并缓存，发布版本更新事件，支持按用户 ID 查询。
     private void cacheVersion(Long id) {
         Long version=mapper.authVersion(id);
         if(version!=null)versions.publishAfterCommit(id,version);
     }
+    // 校验指定代码是否存在于指定类型中，如果不存在则抛出 400 异常，如果是角色类型且不为空则锁定角色代码。
     private void validateCodes(String kind,List<String> codes,String message) {
         for(String code:codes)if(mapper.codeExists(kind,code)==0)throw status(HttpStatus.BAD_REQUEST,message+": "+code);
         if(kind.equals("app_role") && !codes.isEmpty())mapper.lockRoleCodes(codes);
     }
+    // 校验指定用户是否存在，如果不存在则抛出 404 异常。
     private void requireUser(Long id) { if(mapper.userId(id)==null)throw status(HttpStatus.NOT_FOUND,"User not found"); }
+    // 校验指定部门是否存在，如果不存在则抛出 404 异常。
     private void requireDepartment(Long id) { if(mapper.department(id)==null)throw status(HttpStatus.NOT_FOUND,"Department not found"); }
+    // 发布 IAM 变更事件，包含事件类型、ID、操作人和负载信息。
     private void emit(String type,Object id,Long actor,Map<String,Object> payload) {
         outbox.enqueue("iam.changed",EventEnvelope.create(type,"IAM",String.valueOf(id),null,null,actor,payload));
     }
+
+    // 其他辅助方法，用于计算列表差异、去重、分割字符串、模糊匹配、必填校验、部门代码生成、类型转换和异常处理。
     private static Map<String,Object> diff(List<String> before,List<String> after) {
         return linked("added",after.stream().filter(value -> !before.contains(value)).toList(),"removed",before.stream().filter(value -> !after.contains(value)).toList());
     }

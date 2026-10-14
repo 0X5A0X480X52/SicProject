@@ -27,7 +27,9 @@
     <result column="created_at" property="createdAt" javaType="java.time.LocalDateTime"/>
     <result column="updated_at" property="updatedAt" javaType="java.time.LocalDateTime"/>
   </resultMap>
+  <!-- 按可选模块类型查公告，以发布时间（为空用创建时间）和 ID 倒序返回供后续可见性过滤。 -->
   <select id="list" resultMap="notice">SELECT * FROM notice_record <if test="module != null">WHERE module_type=#{module}</if> ORDER BY COALESCE(publish_time,created_at) DESC,id DESC</select>
+  <!-- 按公告 ID 读取完整记录，供详情及修改前校验使用。 -->
   <select id="find" resultMap="notice">SELECT * FROM notice_record WHERE id=#{id}</select>
   <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO notice_record(module_type,notice_type,notice_title,notice_no,publish_unit,publish_user_id,publish_time,notice_scope,target_dept_scope,target_user_scope,project_category,limited_project,limit_count,start_time,deadline_time,material_requirement_summary,content_summary,remark) VALUES(#{moduleType},#{noticeType},#{noticeTitle},#{noticeNo},#{publishUnit},#{actor},#{publishTime},#{noticeScope},#{targetDeptScope},#{targetUserScope},#{projectCategory},#{isLimitedProject},#{limitCount},#{startTime},#{deadlineTime},#{materialRequirementSummary},#{contentSummary},#{remark})</insert>
   <update id="update">UPDATE notice_record SET module_type=#{moduleType},notice_type=#{noticeType},notice_title=#{noticeTitle},notice_no=#{noticeNo},publish_unit=#{publishUnit},publish_user_id=#{actor},publish_time=#{publishTime},notice_scope=#{noticeScope},target_dept_scope=#{targetDeptScope},target_user_scope=#{targetUserScope},project_category=#{projectCategory},limited_project=#{isLimitedProject},limit_count=#{limitCount},start_time=#{startTime},deadline_time=#{deadlineTime},material_requirement_summary=#{materialRequirementSummary},content_summary=#{contentSummary},remark=#{remark} WHERE id=#{id}</update>

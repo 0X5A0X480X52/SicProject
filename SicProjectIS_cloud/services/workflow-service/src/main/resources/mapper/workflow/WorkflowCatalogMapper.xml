@@ -5,8 +5,10 @@
   <resultMap id="source" type="com.amatrix.sic.workflow.entity.WorkflowDefinitionSource">
     <constructor><arg column="id" javaType="java.lang.Long"/><arg column="bpmn_xml" javaType="java.lang.String"/></constructor>
   </resultMap>
+  <!-- 按模块类型取版本最高的已发布定义 ID 和 BPMN XML，供运行时加载使用。 -->
   <select id="active" resultMap="source">
     SELECT id,bpmn_xml FROM workflow_definition WHERE code=#{moduleType} AND published=TRUE ORDER BY version DESC,id DESC LIMIT 1
   </select>
+  <!-- 按定义 ID 读取 BPMN XML，供指定版本模型加载使用。 -->
   <select id="bpmn" resultType="java.lang.String">SELECT bpmn_xml FROM workflow_definition WHERE id=#{id}</select>
 </mapper>

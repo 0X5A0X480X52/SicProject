@@ -66,6 +66,7 @@
     <result column="round_no" property="roundNo" javaType="Integer"/>
     <result column="assignment_status" property="status" javaType="String"/>
   </resultMap>
+  <!-- 根据提交状态、访问结束、模块完成、轮次与当前节点推导本人指派状态，供展示和筛选复用。 -->
   <sql id="mineStatus">
     CASE WHEN a.review_status='SUBMITTED' THEN
       CASE WHEN b.access_ended_at IS NOT NULL OR m.finished=TRUE OR b.round_no&lt;&gt;m.current_round OR m.current_node_id&lt;&gt;REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask') THEN 'COMPLETED' ELSE 'SUBMITTED' END
@@ -74,6 +75,7 @@
     ELSE 'WAITING_REVIEW' END
   </sql>
   <!-- 始终按当前账号过滤 assignment；闭合历史的读取不重新授予项目访问，canReview 由业务层另行校验。 -->
+  <!-- 分页查询专家指派及项目信息，按指派 ID 或派生状态筛选，按指派时间、ID 倒序返回。 -->
   <select id="mine" resultMap="mine">
     SELECT a.*,m.project_id,m.module_code,b.module_instance_id,b.review_title,b.round_no,
       p.project_code,p.project_name,<include refid="mineStatus"/> assignment_status
@@ -85,10 +87,14 @@
     <if test="status != null">AND (<include refid="mineStatus"/>)=#{status}</if>
     ORDER BY a.assigned_at DESC,a.id DESC LIMIT #{limit} OFFSET #{offset}
   </select>
+  <!-- 按批次 ID 读取评审批次详情，供评审视图组装使用。 -->
   <select id="batch" resultMap="batch">SELECT * FROM expert_review_batch WHERE id=#{id}</select>
+  <!-- 查询模块全部批次并补充配置节点编码，按批次 ID 排序供评审视图使用。 -->
   <select id="batches" resultMap="moduleBatch">SELECT b.*,n.node_id configured_node_id FROM expert_review_batch b LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id WHERE b.module_instance_id=#{module} ORDER BY b.id</select>
+  <!-- 批量读取候选批次的专家指派，按 ID 排序供评审详情组装使用。 -->
   <select id="assignments" resultMap="assignment">SELECT * FROM expert_review_assignment WHERE batch_id IN
     <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach> ORDER BY id</select>
+  <!-- 批量读取候选指派的评分明细，按 ID 排序供评审详情和本人历史展示使用。 -->
   <select id="scores" resultMap="score">SELECT * FROM expert_review_score WHERE assignment_id IN
     <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach> ORDER BY id</select>
 </mapper>

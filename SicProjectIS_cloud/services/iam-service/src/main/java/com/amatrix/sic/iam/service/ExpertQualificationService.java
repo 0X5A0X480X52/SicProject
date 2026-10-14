@@ -39,19 +39,27 @@ public class ExpertQualificationService {
         this.outbox = outbox;
     }
 
+    /**
+     * 提交专家资格申请，校验当前用户是否已经是专家或有未完成的申请，锁定当前用户的申请，防止并发提交。
+     * 填充申请信息并插入数据库，发布 EXPERT_QUALIFICATION_SUBMITTED 事件。
+     */
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("isAuthenticated()")
     public Map<String, Object> submit(Long actorId, Map<String, Object> request) {
         var actor = requireUser(actorId);
+        // 校验当前用户是否已经是专家，如果是则不允许重复申请
         if (actor.roleCodes().contains("EXPERT")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current user already has EXPERT role");
         }
+        // 锁定当前用户的申请，防止并发提交
         mapper.lockApplicant(actorId);
+        // 查询当前用户是否有未完成的申请，如果有则不允许重复提交
         Integer active = mapper.active(actorId);
         if (active != null && active > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "There is already an active expert qualification application");
         }
+        // 填充申请信息并插入数据库
         String specialty = required(request.get("specialty"), "Specialty is required");
         String reason = required(request.get("applicationReason"), "Application reason is required");
         var insert=linked("userId",actorId,"departmentId",actor.deptId(),"specialty",specialty,
@@ -62,6 +70,9 @@ public class ExpertQualificationService {
         return application(id);
     }
 
+    /** 
+     * 查询当前用户的专家资格申请及状态，返回是否有未完成的申请及申请列表。
+     */
     @PreAuthorize("isAuthenticated()")
     public Map<String, Object> mine(Long actorId) {
         var actor = requireUser(actorId);
@@ -71,10 +82,14 @@ public class ExpertQualificationService {
                 "applications", applications);
     }
 
+    /** 
+     * 查询所有专家资格申请，部门管理员只能查询本部门的申请，系统管理员和科技处可以查询所有申请。
+     */
     @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasAuthority('PERM_EXPERT_QUALIFICATION_REVIEW_DEPT') or hasAuthority('PERM_EXPERT_QUALIFICATION_REVIEW_SCIENCE')")
     public Map<String, Object> query(Long actorId) {
         var actor = requireUser(actorId);
         List<Map<String, Object>> result;
+        // 部门管理员只能查询本部门的申请，系统管理员和科技处可以查询所有申请
         if (actor.roleCodes().contains("DEPT_ADMIN") && !actor.roleCodes().contains("SYSTEM_ADMIN")
                 && !actor.permissionCodes().contains("expert:qualification:review:science")) {
             result = applications(linked("departmentId",actor.deptId(),"departmentOnly",true));
@@ -84,6 +99,7 @@ public class ExpertQualificationService {
         return linked("applications", result);
     }
 
+    // 部门审批
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasAuthority('PERM_EXPERT_QUALIFICATION_REVIEW_DEPT')")
     public Map<String, Object> departmentReview(Long actorId, Long id, Map<String, Object> request) {
@@ -106,6 +122,7 @@ public class ExpertQualificationService {
         return application(id);
     }
 
+    // 科技处审批
     @Transactional(isolation=Isolation.READ_COMMITTED)
     @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasAuthority('PERM_EXPERT_QUALIFICATION_REVIEW_SCIENCE')")
     public Map<String, Object> scienceReview(Long actorId, Long id, Map<String, Object> request) {
@@ -132,6 +149,7 @@ public class ExpertQualificationService {
         return application(id);
     }
 
+    // 查询申请
     private Map<String, Object> application(Long id) {
         List<Map<String, Object>> rows = applications(linked("id",id));
         if (rows.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -139,6 +157,7 @@ public class ExpertQualificationService {
         return rows.getFirst();
     }
 
+    // 查询申请列表
     private List<Map<String,Object>> applications(Map<String,Object> filter) {
         return mapper.applications(filter).stream().map(row -> linked(
                 "applicationId",number(row,"id"),

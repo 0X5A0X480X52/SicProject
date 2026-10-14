@@ -10,8 +10,11 @@
     target_user_id,target_name_snapshot,role_code,before_snapshot,after_snapshot,remark)
     VALUES(#{id},'IAM',#{action},#{operatorId,jdbcType=BIGINT},#{operatorName},#{targetId,jdbcType=BIGINT},#{targetName},#{role},#{before},#{after},#{remark})
     ON DUPLICATE KEY UPDATE id=VALUES(id)</insert>
+  <!-- 统计状态为 ACTIVE 的项目授权记录数，供管理概览使用。 -->
   <select id="activeGrants" resultType="Long">SELECT COUNT(*) FROM project_access_grant WHERE status='ACTIVE'</select>
+  <!-- 统计全部管理操作日志数，供审计概览使用。 -->
   <select id="logCount" resultType="Long">SELECT COUNT(*) FROM admin_operation_log</select>
+  <!-- 按用户 ID 读取本地身份快照真实姓名，供审计展示和名称快照组装使用。 -->
   <select id="userName" resultType="String">SELECT real_name FROM user_snapshot WHERE user_id=#{id}</select>
   <resultMap id="log" type="java.util.LinkedHashMap">
     <result column="logId" property="logId" javaType="String"/>
@@ -31,6 +34,7 @@
     <result column="remark" property="remark" javaType="String"/>
     <result column="createdAt" property="createdAt" javaType="java.time.LocalDateTime"/>
   </resultMap>
+  <!-- 按关键字、操作、范围、项目、操作者及时间区间筛选日志，按时间倒序取最多 1000 条。 -->
   <select id="logs" resultMap="log">SELECT id logId,scope_type scopeType,action_type actionType,project_id projectId,project_name_snapshot projectName,
     operator_user_id operatorId,operator_name_snapshot operatorName,target_user_id targetId,target_name_snapshot targetName,
     grant_type grantType,role_code roleCode,permission_code permissionCode,before_snapshot beforeSnapshot,after_snapshot afterSnapshot,remark,created_at createdAt

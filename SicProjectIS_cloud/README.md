@@ -59,12 +59,12 @@ SicProject/
 
 | 模块 | 职责 | 容器内端口 |
 | --- | --- | --- |
-| Gateway | API 路由、JWT 与会话有效性检查、限流、SSE 转发 | 8080 |
-| IAM | 注册登录、用户部门、角色权限、专家资格申请与审批 | 9001 |
-| Project | 项目主数据、成员与项目授权、申请 Saga、审计 | 9002 |
-| Workflow | BPMN 与任务流转、表单落库、专家指派评分、工作台与本人评审历史 | 9003 |
-| Material | 文件上传下载、材料版本、引用预留与确认、单据及对象删除 | 9004 |
-| Notification | 消息消费、通知持久化及 SSE 实时投递 | 9005 |
+| [Gateway](services/gateway-service/README.md) | API 路由、JWT 与会话有效性检查、限流、SSE 转发 | 8080 |
+| [IAM](services/iam-service/README.md) | 注册登录、用户部门、角色权限、专家资格申请与审批 | 9001 |
+| [Project](services/project-service/README.md) | 项目主数据、成员与项目授权、申请 Saga、审计 | 9002 |
+| [Workflow](services/workflow-service/README.md) | BPMN 与任务流转、表单落库、专家指派评分、工作台与本人评审历史 | 9003 |
+| [Material](services/material-service/README.md) | 文件上传下载、材料版本、引用预留与确认、单据及对象删除 | 9004 |
+| [Notification](services/notification-service/README.md) | 消息消费、通知持久化及 SSE 实时投递 | 9005 |
 | Config Server | 提供公共配置及各服务配置 | 8888 |
 | Eureka | 服务注册与发现 | 8761 |
 

@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Param;
  */
 @Mapper
 public interface ProjectQueryMapper {
+    /** 查询用户通过全局或部门范围、负责人、成员及有效代理、专家、财务授权可见的 ACTIVE 项目，按 ID 倒序返回。 */
     List<Map<String,Object>> accessible(@Param("userId") Long userId,@Param("deptId") Long deptId,
         @Param("global") boolean global,@Param("department") boolean department,
         @Param("expert") boolean expert,@Param("finance") boolean finance);

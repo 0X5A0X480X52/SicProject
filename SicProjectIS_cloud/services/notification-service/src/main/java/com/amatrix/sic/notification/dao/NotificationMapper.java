@@ -11,9 +11,12 @@ import com.amatrix.sic.notification.entity.PendingNotification;
 @Mapper
 public interface NotificationMapper {
     int insert(@Param("eventId")String eventId,@Param("userId")Long userId,@Param("payload")String payload);
+    /** 按创建时间和 ID 取最多 100 条 QUEUED 通知；userScoped 为 true 时仅查指定用户，供重连补发或定时重试。 */
     List<PendingNotification> queued(@Param("userId")Long userId,@Param("userScoped")boolean userScoped);
     int delivered(@Param("eventId")String eventId,@Param("status")String status);
     int retry(@Param("eventId")String eventId);
+    /** 统计待投递 QUEUED 通知数，供通知积压指标使用。 */
     long queuedCount();
+    /** 计算最早 QUEUED 通知距当前的秒数，无记录时返回 0，供积压年龄指标使用。 */
     long oldestAge();
 }

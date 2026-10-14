@@ -96,16 +96,24 @@
     <result column="task_node_id" property="taskNodeId" javaType="String"/>
   </resultMap>
   <!-- 读取模块；lock=true 时取得行锁，业务层在锁内重新验证结束状态、序号和权限。 -->
+  <!-- 按模块 ID 读取实例；lock 为 true 时加行锁，供状态迁移事务使用。 -->
   <select id="module" resultMap="module">SELECT * FROM module_instance WHERE id=#{id} <if test="lock">FOR UPDATE</if></select>
+  <!-- 按定义 ID 和节点编码定位配置 ID，供状态历史及任务关联使用。 -->
   <select id="nodeId" resultType="Long">SELECT id FROM workflow_node_config WHERE workflow_definition_id=#{definition} AND node_id=#{node}</select>
+  <!-- 按节点配置 ID 读取节点编码，供运行时转换和展示使用。 -->
   <select id="nodeCode" resultType="String">SELECT node_id FROM workflow_node_config WHERE id=#{id}</select>
+  <!-- 读取模块全部状态历史并按序号排序，供运行轨迹展示使用。 -->
   <select id="history" resultMap="history">SELECT * FROM state_record WHERE module_instance_id=#{module} ORDER BY seq</select>
+  <!-- 读取模块 OPEN 任务并按 ID 排序，供当前任务展示和操作校验使用。 -->
   <select id="tasks" resultMap="task">SELECT * FROM workflow_task WHERE module_instance_id=#{module} AND status='OPEN' ORDER BY id</select>
+  <!-- 查询未完成且当前节点有 OPEN 任务的模块，补充项目快照并按更新时间倒序返回工作台候选。 -->
   <select id="workbench" resultMap="workbench">SELECT DISTINCT m.*,p.project_code,p.project_name,p.lifecycle_stage FROM module_instance m
     LEFT JOIN project_snapshot p ON p.project_id=m.project_id WHERE m.finished=FALSE AND EXISTS(
       SELECT 1 FROM workflow_task t WHERE t.module_instance_id=m.id AND t.node_id=m.current_node_id AND t.status='OPEN') ORDER BY m.updated_at DESC</select>
+  <!-- 按评审批次 ID 定位模块 ID，供先锁模块再锁批次的流程使用。 -->
   <select id="batchModule" resultType="Long">SELECT module_instance_id FROM expert_review_batch WHERE id=#{id}</select>
   <!-- 更新时间与 ID 共同构成游标，每批最多 100 个候选；最终可见页由业务层权限筛选形成。 -->
+  <!-- 按待办、完成或已办理视图及类型、关键字、时间/ID 游标取最多 100 个候选，最终权限由服务层过滤。 -->
   <select id="workbenchCandidates" resultMap="workbench">
     SELECT m.*,p.project_code,p.project_name,p.lifecycle_stage,
       (SELECT t.candidate_role FROM workflow_task t WHERE t.module_instance_id=m.id AND t.node_id=m.current_node_id AND t.status='OPEN' ORDER BY t.id LIMIT 1) candidate_role,
@@ -122,28 +130,42 @@
     ORDER BY m.updated_at DESC,m.id DESC LIMIT 100
   </select>
   <!-- WorkflowRuntimeMapper.lockBatch 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 锁定批次并读取状态、轮次和节点，供运行时评审推进使用。 -->
   <select id="lockBatch" resultMap="batch">SELECT id,module_instance_id,workflow_node_id,round_no,status,created_by FROM expert_review_batch WHERE id=#{id} FOR UPDATE</select>
+  <!-- 按模块和轮次查询批次，供当前轮次评审操作使用。 -->
   <select id="batches" resultMap="batch">SELECT id,module_instance_id,workflow_node_id,round_no,status,created_by FROM expert_review_batch WHERE module_instance_id=#{module} AND round_no=#{round}</select>
+  <!-- 统计批次全部专家指派数，供批次推进校验使用。 -->
   <select id="assignmentCount" resultType="Integer">SELECT COUNT(*) FROM expert_review_assignment WHERE batch_id=#{id}</select>
+  <!-- 取最多 50 个申请或合同已批准完成但缺少下一模块的实例 ID，供后继恢复使用。 -->
   <select id="missingSuccessors" resultType="Long">SELECT m.id FROM module_instance m WHERE m.finished=TRUE
     AND ((m.module_code='APPLICATION' AND m.current_state='APPLICATION_APPROVED') OR (m.module_code='CONTRACT' AND m.current_state='CONTRACT_APPROVED'))
     AND NOT EXISTS(SELECT 1 FROM module_instance n WHERE n.project_id=m.project_id AND n.module_code=CASE m.module_code WHEN 'APPLICATION' THEN 'CONTRACT' ELSE 'ACCEPTANCE' END)
     ORDER BY m.id LIMIT 50</select>
+  <!-- 取最多 200 个未完成模块当前节点的 PROJECT_LEADER 待办，供负责人指派恢复使用。 -->
   <select id="leaderTasks" resultMap="leader">SELECT t.id,m.project_id,m.module_code,t.round_no,t.node_id FROM workflow_task t JOIN module_instance m ON m.id=t.module_instance_id
     WHERE t.status='OPEN' AND t.candidate_role='PROJECT_LEADER' AND t.node_id=m.current_node_id AND m.finished=FALSE ORDER BY t.id LIMIT 200</select>
+  <!-- 取最多 100 个模块结束、轮次改变或已离开评审节点但未标记访问结束的批次，供权限回收恢复。 -->
   <select id="endedExpertBatches" resultType="Long">SELECT b.id FROM expert_review_batch b JOIN module_instance m ON m.id=b.module_instance_id LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id
     WHERE b.access_ended_at IS NULL AND (m.finished=TRUE OR b.round_no&lt;&gt;m.current_round
       OR REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask')&lt;&gt;m.current_node_id) ORDER BY b.id LIMIT 100</select>
+  <!-- 查询模块指定轮次和归一化评审节点下未结束访问的批次 ID，供节点退出时回收权限。 -->
   <select id="nodeExpertBatches" resultType="Long">SELECT b.id FROM expert_review_batch b LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id
     WHERE b.module_instance_id=#{module} AND b.round_no=#{round} AND b.access_ended_at IS NULL
     AND REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask')=#{node}</select>
+  <!-- 读取未标记访问结束批次的项目、模块、轮次和归一化节点，供权限回收事件组装。 -->
   <select id="endedScope" resultMap="scope">SELECT b.id,m.project_id,m.module_code,b.round_no,REPLACE(REPLACE(n.node_id,'ExpertAssignTask','ExpertReviewTask'),'ExpertSummaryTask','ExpertReviewTask') task_node_id
     FROM expert_review_batch b JOIN module_instance m ON m.id=b.module_instance_id LEFT JOIN workflow_node_config n ON n.id=b.workflow_node_id WHERE b.id=#{id} AND b.access_ended_at IS NULL</select>
+  <!-- 按批次 ID 读取去重专家 ID 并排序，供专家授权回收使用。 -->
   <select id="experts" resultType="Long">SELECT DISTINCT expert_user_id FROM expert_review_assignment WHERE batch_id=#{id} ORDER BY expert_user_id</select>
+  <!-- 按模块 ID 取序号最大的状态记录，供当前运行状态响应组装。 -->
   <select id="latestState" resultMap="state">SELECT * FROM state_record WHERE module_instance_id=#{module} ORDER BY seq DESC LIMIT 1</select>
+  <!-- 按项目和模块类型取 ID 最小的已有实例，供后继模块幂等创建检查。 -->
   <select id="findModule" resultType="Long">SELECT id FROM module_instance WHERE project_id=#{project} AND module_code=#{type} ORDER BY id LIMIT 1</select>
+  <!-- 按项目 ID 读取申请的限额标记，供业务流转规则使用。 -->
   <select id="limitedProject" resultType="Boolean">SELECT limited_project FROM project_application WHERE project_id=#{project}</select>
+  <!-- 读取模块最近一个 COMPLETED 批次的最终结果，供评审后迁移判断使用。 -->
   <select id="finalReviewResult" resultType="String">SELECT final_result FROM expert_review_batch WHERE module_instance_id=#{module} AND status='COMPLETED' ORDER BY id DESC LIMIT 1</select>
+  <!-- 按模块 ID 取 ID 最大的验收正文 JSON，供运行时验收业务读取。 -->
   <select id="acceptancePayload" resultType="String">SELECT payload_json FROM acceptance_form WHERE module_instance_id=#{module} ORDER BY id DESC LIMIT 1</select>
   <update id="updateLeaderTask">UPDATE workflow_task SET assignee_user_id=#{owner} WHERE id=#{id} AND status='OPEN' AND candidate_role='PROJECT_LEADER'</update>
   <update id="endBatch">UPDATE expert_review_batch SET access_ended_at=CURRENT_TIMESTAMP(6) WHERE id=#{id} AND access_ended_at IS NULL</update>

@@ -80,6 +80,7 @@ public class ProjectAuthorizationService {
                 "capabilities", capabilities(project, actor));
     }
 
+    // 更新项目负责人，事务内维护审计、项目版本和事件，最后只装配一次响应详情。
     @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     @CanAccessProject
     public Map<String, Object> changeLeader(Long projectId, ActorContext actor, Long userId, String reason) {
@@ -100,6 +101,7 @@ public class ProjectAuthorizationService {
         return detail(projectId, actor);
     }
 
+    // 更新项目成员，支持新增或修改责任分工；事务内维护审计、项目版本和事件，最后只装配一次响应详情。
     @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     @CanAccessProject
     public Map<String, Object> upsertMember(Long projectId, ActorContext actor, Long userId, String responsibility) {
@@ -109,6 +111,7 @@ public class ProjectAuthorizationService {
         return detail(projectId, actor);
     }
 
+    // 在同一事务中写入成员信息，维护审计、项目版本和事件，最后只装配一次响应详情；支持新增或修改责任分工。
     private void writeMember(ProjectRecord project, ActorContext actor, UserSummary selected, String responsibility) {
         Long projectId = project.id();
         Long userId = selected.userId();
@@ -134,6 +137,7 @@ public class ProjectAuthorizationService {
                 ids.size(), "Project members updated");
     }
 
+    // 删除项目成员，事务内维护审计、项目版本和事件，最后只装配一次响应详情；不允许删除项目负责人。
     @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     @CanAccessProject
     public Map<String, Object> removeMember(Long projectId, ActorContext actor, Long userId) {
@@ -145,6 +149,7 @@ public class ProjectAuthorizationService {
         return detail(projectId, actor);
     }
 
+    // 分配项目授权，事务内维护审计、项目版本和事件，最后只装配一次响应详情。
     @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     @CanAccessProject
     public Map<String, Object> assignGrant(Long projectId, ActorContext actor, String grantRoleCode,
@@ -156,6 +161,7 @@ public class ProjectAuthorizationService {
         return detail(projectId, actor);
     }
 
+    // 在同一事务中写入项目授权，维护审计、项目版本和事件，最后只装配一次响应详情；支持新增或修改授权。
     private void writeGrant(ProjectRecord project, ActorContext actor, String grantRoleCode,
             UserSummary selected, String moduleType, Integer roundNo, String taskNodeId, String reason) {
         Long projectId = project.id();
@@ -211,6 +217,7 @@ public class ProjectAuthorizationService {
         return linked("changed", true, "status", "ACTIVE");
     }
 
+    // 撤销专家临时项目授权，事务内维护审计、项目版本和事件，最后只装配一次响应详情；对应专家、模块、轮次和节点的授权可幂等撤销。
     @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public Map<String, Object> revokeExpertGrant(Long projectId, ExpertProjectGrantCommand command) {
         if (command == null || !Objects.equals(projectId, command.projectId()) || command.expertUserId() == null) {
@@ -231,6 +238,7 @@ public class ProjectAuthorizationService {
         return linked("changed", changed > 0, "status", changed > 0 ? "REVOKED" : "NOT_ACTIVE");
     }
 
+    // 撤销项目授权，事务内维护审计、项目版本和事件，最后只装配一次响应详情；不是逐条独立提交的后台任务。
     @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     @CanAccessProject
     public Map<String, Object> revoke(Long projectId, ActorContext actor, Long grantId, String reason) {
@@ -239,6 +247,7 @@ public class ProjectAuthorizationService {
         return detail(projectId, actor);
     }
 
+    // 撤销项目授权的内部命令，用于在事务中处理具体的撤销逻辑。
     private void revokeCommand(ProjectRecord project, ActorContext actor, Long grantId, String reason) {
         Long projectId = project.id();
         String role=mapper.grantRole(grantId,projectId);
@@ -262,6 +271,7 @@ public class ProjectAuthorizationService {
                 ids.size(), "Project grants revoked");
     }
 
+    // 查询当前用户可管理的项目列表，返回项目概要和各类授权数量；需要 PERM_PROJECT_GRANT_VIEW 权限。
     @PreAuthorize("hasAuthority('PERM_PROJECT_GRANT_VIEW')")
     public Map<String, Object> manageableProjects(ActorContext actor, Long deptId) {
         List<Map<String,Object>> projects=mapper.manageable(actor.hasRole("SYSTEM_ADMIN") || actor.hasRole("SCIENCE_ADMIN"),
@@ -270,6 +280,7 @@ public class ProjectAuthorizationService {
         return linked("projects", projects, "grantTypeCounts", counts);
     }
 
+    // 其他辅助方法，用于装配响应、计算差异、查询成员和授权、写入成员行、生成授权值、计算能力、校验权限、获取项目记录和用户信息。
     private Map<String, Object> mutation(Map<String, Object> detail, List<String> added, List<String> removed,
             int affected, String message) {
         return linked("detail", detail, "diff", linked("added", added, "removed", removed),

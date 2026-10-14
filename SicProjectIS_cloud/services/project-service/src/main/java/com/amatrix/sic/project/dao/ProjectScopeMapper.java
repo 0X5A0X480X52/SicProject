@@ -11,7 +11,10 @@ import com.amatrix.sic.project.entity.*;
  */
 @Mapper
 public interface ProjectScopeMapper {
+    /** 批量读取候选 ACTIVE 项目的版本、负责人和部门，供项目范围判权使用。 */
     List<ProjectScopeRow> projects(@Param("ids") Collection<Long> ids);
+    /** 查询用户在候选项目集合中的成员项目 ID，供批量访问判断使用。 */
     List<Long> memberships(@Param("userId") Long userId,@Param("ids") Collection<Long> ids);
+    /** 读取用户在候选项目内处于有效期的 ACTIVE 授权范围，供策略层进一步判权。 */
     List<ProjectGrantScopeRow> grants(@Param("userId") Long userId,@Param("ids") Collection<Long> ids);
 }

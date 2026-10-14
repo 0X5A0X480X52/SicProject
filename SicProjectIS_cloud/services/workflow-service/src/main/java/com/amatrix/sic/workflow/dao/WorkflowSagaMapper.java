@@ -8,7 +8,9 @@ import com.amatrix.sic.workflow.entity.WorkflowSagaState;
  */
 @Mapper
 public interface WorkflowSagaMapper {
+    /** 按 Saga ID 查询模块及序号最大的状态记录，供申请创建结果和状态恢复使用。 */
     WorkflowSagaState find(@Param("saga") String saga);
+    /** 按 Saga ID 读取关联模块 ID，供幂等创建检查和补偿定位使用。 */
     Long module(@Param("saga") String saga);
     int insertModule(Map<String,Object> values);
     int snapshot(Map<String,Object> values);
