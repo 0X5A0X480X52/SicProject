@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 收集登录凭据并更新 auth store，再进入目标页面；错误提示使用请求结果，不将基础设施失败自动当成密码错误。
+ */
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ApiError } from '../api/client'

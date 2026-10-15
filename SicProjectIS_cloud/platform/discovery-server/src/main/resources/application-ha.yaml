@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: ha
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOSTNAME}
+    prefer-ip-address: false
+    instance-id: ${EUREKA_HOSTNAME}:${server.port}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_PEER_URL}
+    timeout:
+      connect-timeout: 2000
+      connect-request-timeout: 2000
+      socket-timeout: 5000
+  server:
+    enable-self-preservation: true

@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "data": {
+    "stateRecord": {
+      "stateRecordId": 101,
+      "moduleInstanceId": 20,
+      "seq": 2,
+      "roundNo": 1,
+      "eventType": "SUBMIT",
+      "fromState": "DRAFT",
+      "toState": "DEPT_REVIEW",
+      "fromNodeId": "application_draft",
+      "toNodeId": "department_review",
+      "result": "SUBMITTED",
+      "summary": "Ready",
+      "createdAt": "2030-01-02T03:04:05"
+    },
+    "currentNodeId": "department_review",
+    "currentState": "DEPT_REVIEW",
+    "finished": false
+  },
+  "message": "OK"
+}

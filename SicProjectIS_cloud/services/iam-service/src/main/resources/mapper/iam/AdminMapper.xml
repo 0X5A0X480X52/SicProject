@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.iam.dao.AdminMapper">
+  <!-- 管理端 MyBatis 接口：用户筛选与详情、角色权限矩阵、部门树与成员、角色和部门 ID 解析、授权版本锁定与递增，以及用户角色/权限/部门的增删改。 -->
+  <!-- 角色修改先取得一致的角色锁，再进行用户及权限关联修改。 -->
+  <!-- 按角色 ID 顺序读取并锁定全部角色行，供管理员引导和角色变更串行处理。 -->
+  <select id="lockAllRoles" resultType="java.lang.Long">SELECT id FROM app_role ORDER BY id FOR UPDATE</select>
+  <resultMap id="user" type="com.amatrix.sic.iam.entity.AdminUserRow">
+    <constructor>
+      <arg column="id" javaType="java.lang.Long"/><arg column="username" javaType="String"/>
+      <arg column="real_name" javaType="String"/><arg column="dept_id" javaType="java.lang.Long"/>
+      <arg column="dept_name" javaType="String"/><arg column="phone" javaType="String"/>
+      <arg column="email" javaType="String"/><arg column="enabled" javaType="_boolean"/>
+      <arg column="role_codes" javaType="String"/>
+    </constructor>
+  </resultMap>
+  <resultMap id="version" type="com.amatrix.sic.iam.entity.UserVersionRow">
+    <constructor><arg column="id" javaType="java.lang.Long"/><arg column="auth_version" javaType="_long"/></constructor>
+  </resultMap>
+  <!-- 复用用户、部门及角色关联查询，提供用户详情和角色聚合所需字段。 -->
+  <sql id="usersBase">
+    SELECT u.id,u.username,u.real_name,u.dept_id,d.name dept_name,u.phone,u.email,u.enabled,
+      GROUP_CONCAT(DISTINCT r.code ORDER BY r.code SEPARATOR ',') role_codes
+    FROM app_user u LEFT JOIN department d ON d.id=u.dept_id
+    LEFT JOIN user_role ur ON ur.user_id=u.id LEFT JOIN app_role r ON r.id=ur.role_id
+  </sql>
+  <!-- 复用用户字段分组与 ID 排序，配合角色聚合避免同一用户重复返回。 -->
+  <sql id="usersGroup">GROUP BY u.id,u.username,u.real_name,u.dept_id,d.name,u.phone,u.email,u.enabled ORDER BY u.id</sql>
+  <!-- 按用户名、姓名、部门、状态、角色及候选部门筛选用户，聚合部门和角色编码，按用户 ID 排序。 -->
+  <select id="users" resultMap="user">
+    <include refid="usersBase"/>
+    <where>
+      <if test="filter.username != null">AND u.username LIKE #{filter.username}</if>
+      <if test="filter.realName != null">AND u.real_name LIKE #{filter.realName}</if>
+      <if test="filter.deptId != null">AND u.dept_id=#{filter.deptId}</if>
+      <if test="filter.enabled != null">AND u.enabled=#{filter.enabled}</if>
+      <if test="filter.roleCode != null">AND EXISTS(SELECT 1 FROM user_role ur2 JOIN app_role r2 ON r2.id=ur2.role_id WHERE ur2.user_id=u.id AND r2.code=#{filter.roleCode})</if>
+      <if test="filter.candidateDept != null">AND (u.dept_id IS NULL OR u.dept_id=#{filter.candidateDept})</if>
+      <if test="filter.keyword != null">AND (u.username LIKE #{filter.keyword} OR u.real_name LIKE #{filter.keyword})</if>
+    </where>
+    <include refid="usersGroup"/>
+  </select>
+  <!-- 按用户 ID 查询管理端详情，包含部门名称和聚合后的角色编码。 -->
+  <select id="user" resultMap="user"><include refid="usersBase"/> WHERE u.id=#{id} <include refid="usersGroup"/></select>
+  <!-- 按编码列出全部角色的名称、描述和启用状态，供角色管理使用。 -->
+  <select id="roles" resultType="java.util.LinkedHashMap">
+    SELECT id roleId,code roleCode,name roleName,description roleDesc,enabled FROM app_role ORDER BY code
+  </select>
+  <!-- 按编码列出全部权限及分组、描述，供权限配置使用。 -->
+  <select id="permissions" resultType="java.util.LinkedHashMap">
+    SELECT id permissionId,code permissionCode,name permissionName,permission_group permissionGroup,description permissionDesc FROM app_permission ORDER BY code
+  </select>
+  <!-- 按角色聚合去重权限编码，生成角色权限矩阵，保留尚未分配权限的角色。 -->
+  <select id="permissionMatrix" resultType="java.util.LinkedHashMap">
+    SELECT r.code roleCode,r.name roleName,r.enabled,GROUP_CONCAT(DISTINCT p.code ORDER BY p.code SEPARATOR ',') permissionCodes
+    FROM app_role r LEFT JOIN role_permission rp ON rp.role_id=r.id LEFT JOIN app_permission p ON p.id=rp.permission_id
+    GROUP BY r.id,r.code,r.name,r.enabled ORDER BY r.code
+  </select>
+  <!-- 复用部门基础字段查询，统一部门列表和详情的字段别名。 -->
+  <sql id="departmentColumns">SELECT id deptId,code deptCode,name deptName,parent_id parentDeptId,enabled FROM department</sql>
+  <!-- 查询部门列表；scope 非空时仅返回该部门，按部门 ID 排序供组织管理使用。 -->
+  <select id="departments" resultType="java.util.LinkedHashMap"><include refid="departmentColumns"/><if test="scope != null"> WHERE id=#{scope}</if> ORDER BY id</select>
+  <!-- 按部门 ID 读取编码、名称、上级部门和启用状态。 -->
+  <select id="department" resultType="java.util.LinkedHashMap"><include refid="departmentColumns"/> WHERE id=#{id}</select>
+  <!-- AdminMapper.roleId 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 按角色编码解析角色 ID 并加行锁，供事务内角色分配或修改使用。 -->
+  <select id="roleId" resultType="Long">SELECT id FROM app_role WHERE code=#{code} FOR UPDATE</select>
+  <!-- 按部门编码解析部门 ID，用于编码校验和部门定位。 -->
+  <select id="departmentId" resultType="Long">SELECT id FROM department WHERE code=#{code}</select>
+  <!-- 检查指定用户是否存在，存在时返回用户 ID。 -->
+  <select id="userId" resultType="Long">SELECT id FROM app_user WHERE id=#{id}</select>
+  <!-- 读取用户所属部门 ID，供部门范围校验使用。 -->
+  <select id="userDepartment" resultType="Long">SELECT dept_id FROM app_user WHERE id=#{id}</select>
+  <!-- 读取用户当前授权版本，供身份变更和会话版本协调使用。 -->
+  <select id="authVersion" resultType="Long">SELECT auth_version FROM app_user WHERE id=#{id}</select>
+  <!-- 统计用户持有的 SYSTEM_ADMIN 或 SCIENCE_ADMIN 角色数，判断全局部门管理角色。 -->
+  <select id="globalDepartmentRoles" resultType="int">SELECT COUNT(*) FROM user_role ur JOIN app_role r ON r.id=ur.role_id WHERE ur.user_id=#{id} AND r.code IN ('SYSTEM_ADMIN','SCIENCE_ADMIN')</select>
+  <!-- 合计部门下用户数与直接子部门数，供删除部门前检查引用使用。 -->
+  <select id="departmentReferences" resultType="int">SELECT (SELECT COUNT(*) FROM app_user WHERE dept_id=#{id})+(SELECT COUNT(*) FROM department WHERE parent_id=#{id})</select>
+  <!-- 根据 kind 选择角色表或权限表，统计指定编码是否存在。 -->
+  <select id="codeExists" resultType="int">
+    SELECT COUNT(*) FROM <choose><when test="kind == 'app_role'">app_role</when><otherwise>app_permission</otherwise></choose> WHERE code=#{code}
+  </select>
+  <!-- AdminMapper.lockRoleCodes 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 按角色编码集合查询角色 ID 并按 ID 顺序加行锁，供批量角色分配使用。 -->
+  <select id="lockRoleCodes" resultType="Long">SELECT id FROM app_role WHERE code IN <foreach collection="codes" item="code" open="(" close=")" separator=",">#{code}</foreach> ORDER BY id FOR UPDATE</select>
+  <!-- 读取用户角色编码并排序，供身份快照和管理详情组装使用。 -->
+  <select id="roleCodes" resultType="String">SELECT r.code FROM app_role r JOIN user_role ur ON ur.role_id=r.id WHERE ur.user_id=#{id} ORDER BY r.code</select>
+  <!-- 读取角色权限编码并排序，供权限配置修改前后比较使用。 -->
+  <select id="rolePermissions" resultType="String">SELECT p.code FROM app_permission p JOIN role_permission rp ON rp.permission_id=p.id WHERE rp.role_id=#{id} ORDER BY p.code</select>
+  <!-- 查询关联角色的用户 ID，供权限变更时定位需更新授权版本的用户。 -->
+  <select id="usersForRole" resultType="Long">SELECT user_id FROM user_role WHERE role_id=#{id} ORDER BY user_id</select>
+  <!-- 读取待改权用户并加锁；版本递增与 Redis 屏障发布由业务事务协调。 -->
+  <!-- 批量读取用户授权版本并按用户 ID 顺序加行锁，供授权版本更新使用。 -->
+  <select id="lockedVersions" resultMap="version">SELECT id,auth_version FROM app_user WHERE id IN <foreach collection="ids" item="id" open="(" close=")" separator=",">#{id}</foreach> ORDER BY id FOR UPDATE</select>
+  <!-- 批量递增权限版本，旧 JWT 在版本发布后不能继续按旧身份使用。 -->
+  <update id="incrementVersions">UPDATE app_user SET auth_version=auth_version+1 WHERE id IN <foreach collection="ids" item="id" open="(" close=")" separator=",">#{id}</foreach></update>
+  <delete id="deleteUserRoles">DELETE FROM user_role WHERE user_id=#{id}</delete>
+  <insert id="assignRole">INSERT INTO user_role(user_id,role_id) SELECT #{id},id FROM app_role WHERE code=#{code} AND enabled=TRUE</insert>
+  <delete id="deleteEditableRoles">DELETE ur FROM user_role ur JOIN app_role r ON r.id=ur.role_id WHERE ur.user_id=#{id} AND r.code IN ('PROJECT_LEADER','EXPERT','FINANCE_ADMIN')</delete>
+  <update id="updateStatus">UPDATE app_user SET enabled=#{enabled},auth_version=auth_version+1 WHERE id=#{id}</update>
+  <delete id="deleteRolePermissions">DELETE FROM role_permission WHERE role_id=#{id}</delete>
+  <insert id="assignPermission">INSERT INTO role_permission(role_id,permission_id) SELECT #{id},id FROM app_permission WHERE code=#{code}</insert>
+  <insert id="insertDepartment">INSERT INTO department(code,name,parent_id,enabled) VALUES(#{code},#{name},#{parent,jdbcType=BIGINT},#{enabled})</insert>
+  <update id="updateDepartment">UPDATE department SET code=#{code},name=#{name},parent_id=#{parent,jdbcType=BIGINT},enabled=#{enabled} WHERE id=#{id}</update>
+  <delete id="deleteDepartment">DELETE FROM department WHERE id=#{id}</delete>
+  <!-- 变更用户部门并递增授权版本；项目归属快照不随本操作自动转移。 -->
+  <update id="moveUser">UPDATE app_user SET dept_id=#{department,jdbcType=BIGINT},auth_version=auth_version+1 WHERE id=#{id}</update>
+</mapper>

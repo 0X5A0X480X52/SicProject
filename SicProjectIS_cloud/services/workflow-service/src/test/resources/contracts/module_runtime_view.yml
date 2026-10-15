@@ -1,0 +1,10 @@
+description: runtime view keeps all frontend collections and nullable context fields
+name: module_runtime_view
+request:
+  method: GET
+  url: /api/module-instances/20/runtime-view
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  bodyFromFile: module-runtime-view-response.json

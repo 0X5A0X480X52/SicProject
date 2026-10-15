@@ -1,0 +1,102 @@
+{
+  "passed": false,
+  "startedAt": "2026-10-14T15:29:45.528227+00:00",
+  "project": "sic-jar-unified",
+  "checks": [],
+  "registryStableSeconds": 0.0,
+  "projectName": "sic-jar-unified",
+  "envFile": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\jar-unified.env",
+  "composeFiles": [
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\docker-compose.yml",
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\jar-unified.compose.yaml"
+  ],
+  "replicas": {
+    "mysql": 1,
+    "rabbitmq": 1,
+    "redis": 1,
+    "minio": 1,
+    "discovery-server": 1,
+    "discovery-peer": 1,
+    "config-server": 1,
+    "iam-service": 2,
+    "project-service": 4,
+    "workflow-service": 2,
+    "material-service": 2,
+    "notification-service": 2,
+    "gateway-service": 1
+  },
+  "replicaSources": {
+    "mysql": "default",
+    "rabbitmq": "default",
+    "redis": "default",
+    "minio": "default",
+    "discovery-server": "default",
+    "discovery-peer": "default",
+    "config-server": "default",
+    "iam-service": "env-file",
+    "project-service": "env-file",
+    "workflow-service": "env-file",
+    "material-service": "env-file",
+    "notification-service": "env-file",
+    "gateway-service": "default"
+  },
+  "gatewayBaseUrl": "http://127.0.0.1:18082",
+  "artifacts": {
+    "discovery-server": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\jar-unified-20261014\\discovery-server\\application.jar",
+      "sha256": "d3491ede706bf4861200a342b7f0e6a32dde249917b4994185b597a81a707031"
+    },
+    "discovery-peer": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\jar-unified-20261014\\discovery-server\\application.jar",
+      "sha256": "d3491ede706bf4861200a342b7f0e6a32dde249917b4994185b597a81a707031"
+    },
+    "config-server": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\jar-unified-20261014\\config-server\\application.jar",
+      "sha256": "a4ffa24996568d21848ebf0ff6a58ec632dea276bdc87f13cd91c549aede7584"
+    },
+    "iam-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\jar-unified-20261014\\iam-service\\application.jar",
+      "sha256": "509b90c82395bc46b4462f5344ea7ec89da011532d09a8d3a43751859ffa6828"
+    },
+    "project-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\jar-unified-20261014\\project-service\\application.jar",
+      "sha256": "a015b4e761fd557da63b914fcdf4446a1959443adf8f08503b63c5671a55d837"
+    },
+    "workflow-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\jar-unified-20261014\\workflow-service\\application.jar",
+      "sha256": "2d404d0e2daa8cd391d9195bcd38e20db126df6d259ca4363bea9c9de41035fd"
+    },
+    "material-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\jar-unified-20261014\\material-service\\application.jar",
+      "sha256": "4f60b0bee9fcf5329309451d5e9ba1141834c8979d786604efcf4cc58507ca33"
+    },
+    "notification-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\jar-unified-20261014\\notification-service\\application.jar",
+      "sha256": "094c653c9319806b8bfa75d6e36af4b34e24fdb2d79d134b0ae7431a63bbb59a"
+    },
+    "gateway-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\jar-unified-20261014\\gateway-service\\application.jar",
+      "sha256": "d1667998e3f55b3fb7b42263c5d0aae3e095dcb66f1d91f15b7dfd804648a227"
+    }
+  },
+  "deploymentMode": "jar",
+  "eurekaUI": {
+    "enabled": true,
+    "bindIp": "127.0.0.1",
+    "ports": [
+      18761,
+      18762
+    ]
+  },
+  "error": "StartupError: Per-instance readiness timed out: project-service: expected 4 healthy running replicas; actual [('sic-jar-unified-project-service-1', 'healthy'), ('sic-jar-unified-project-service-2', 'healthy'), ('sic-jar-unified-project-service-3', 'healthy')]",
+  "finishedAt": "2026-10-14T15:29:54.167326+00:00"
+}

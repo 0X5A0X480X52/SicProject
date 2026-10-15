@@ -1,3 +1,6 @@
+/**
+ * 封装专家资格申请、本人记录和部门/科研审批；取得专家角色依靠审批结果，提交申请本身不授予资格。
+ */
 import { apiRequest } from './client'
 import type {
   ExpertQualificationApplication,

@@ -1,0 +1,609 @@
+{
+  "passed": true,
+  "mode": "history",
+  "startedAt": "2026-10-12T10:37:47.028692+00:00",
+  "projectName": "sic-replica-accept",
+  "envFile": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-replica.env",
+  "composeFiles": [
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\docker-compose.yml",
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-replica.compose.yaml"
+  ],
+  "replicas": {
+    "mysql": 1,
+    "rabbitmq": 1,
+    "redis": 1,
+    "minio": 1,
+    "discovery-server": 1,
+    "config-server": 1,
+    "iam-service": 1,
+    "project-service": 2,
+    "workflow-service": 2,
+    "material-service": 1,
+    "notification-service": 1,
+    "gateway-service": 1
+  },
+  "replicaSources": {
+    "mysql": "default",
+    "rabbitmq": "default",
+    "redis": "default",
+    "minio": "default",
+    "discovery-server": "default",
+    "config-server": "default",
+    "iam-service": "default",
+    "project-service": "command-line",
+    "workflow-service": "command-line",
+    "material-service": "default",
+    "notification-service": "default",
+    "gateway-service": "default"
+  },
+  "gatewayBaseUrl": "http://127.0.0.1:18080",
+  "artifacts": {
+    "discovery-server": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-replica-20261012\\discovery-server\\application.jar",
+      "sha256": "1b4dd55a039914a4f6892fff375de2b85137dd3a58b9f93c84e90a01e10dfc0e"
+    },
+    "config-server": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-replica-20261012\\config-server\\application.jar",
+      "sha256": "a24e80c3a51fe781df80380ee8d84053ac814a9d3fce517a43a30d1d55bda466"
+    },
+    "iam-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-replica-20261012\\iam-service\\application.jar",
+      "sha256": "39ac261993ca5f01e3bbf723dac49ff56a3ff74da951d98dbe079052bed8743b"
+    },
+    "project-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-replica-20261012\\project-service\\application.jar",
+      "sha256": "82fcafa5bcd22898bbee6b086a7db814d393c125ff36c355a3fa8acbfc21a37d"
+    },
+    "workflow-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-replica-20261012\\workflow-service\\application.jar",
+      "sha256": "3e92d0d37368d69cd302c90d01f12a11c27fe5dbd831e209add09cfa861ddcd4"
+    },
+    "material-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-replica-20261012\\material-service\\application.jar",
+      "sha256": "8a42dde7edc2a063efc262a250661f50e5e3c9a93d51bf1998e5749e018f87e6"
+    },
+    "notification-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-replica-20261012\\notification-service\\application.jar",
+      "sha256": "bcaf8cfd398437a8ba7576ecc3e6e75a681742dc137812a90198073317884588"
+    },
+    "gateway-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-replica-20261012\\gateway-service\\application.jar",
+      "sha256": "7f57de5fca075e4f87522b9847ac249fc85bfc5f3254ba0e082c7cf089b4b9f3"
+    }
+  },
+  "deploymentMode": "jar",
+  "connectionBudget": {
+    "applicationMaximum": 70,
+    "operationsReserve": 20,
+    "mysqlMaxConnections": 151
+  },
+  "instances": {
+    "containers": [
+      {
+        "containerId": "2425f5c609641f3e6827cb0fb3eb0cc4b59da2c9e237e33602cc3db3f4977443",
+        "containerName": "sic-replica-accept-config-server-1",
+        "hostname": "2425f5c60964",
+        "service": "config-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.5"
+        ]
+      },
+      {
+        "containerId": "7248b72c236a0820816b23b1ee2cde15cee4aa0ba36954e1620fc4d65c6c46c7",
+        "containerName": "sic-replica-accept-discovery-server-1",
+        "hostname": "7248b72c236a",
+        "service": "discovery-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.7"
+        ]
+      },
+      {
+        "containerId": "36fe855f61121b9196335e6a0966cc60dc91d5f3a26e9608dd4f7f45792d1f92",
+        "containerName": "sic-replica-accept-gateway-service-1",
+        "hostname": "36fe855f6112",
+        "service": "gateway-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.13"
+        ]
+      },
+      {
+        "containerId": "52d57db41c6a0aa67614a604bad71d9b1160b99e5434084470299d47b459a282",
+        "containerName": "sic-replica-accept-iam-service-1",
+        "hostname": "52d57db41c6a",
+        "service": "iam-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.8"
+        ]
+      },
+      {
+        "containerId": "75c9daae4675a0af1ea1ff05f1674c64b0b9701592cb7352bb894b6af96b24c5",
+        "containerName": "sic-replica-accept-material-service-1",
+        "hostname": "75c9daae4675",
+        "service": "material-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.12"
+        ]
+      },
+      {
+        "containerId": "ded0cce2922b3dd28f031967cde170cfff105c827e86c0fd74de4cce2e32618d",
+        "containerName": "sic-replica-accept-minio-1",
+        "hostname": "ded0cce2922b",
+        "service": "minio",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.4"
+        ]
+      },
+      {
+        "containerId": "42c940d866cb3bf91cbce4cd58db83fd95a3d052c62bb1a9d81cfdc05ca19b2d",
+        "containerName": "sic-replica-accept-mysql-1",
+        "hostname": "42c940d866cb",
+        "service": "mysql",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.6"
+        ]
+      },
+      {
+        "containerId": "87805ce97e5ec1ed029ac99c09419d000c5701797ffde0846fc62f33f8ee42f2",
+        "containerName": "sic-replica-accept-notification-service-1",
+        "hostname": "87805ce97e5e",
+        "service": "notification-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.10"
+        ]
+      },
+      {
+        "containerId": "b49bc166c901d870d945800290a29303843c89b3dea26ef653dff2e3652e1d8d",
+        "containerName": "sic-replica-accept-project-service-1",
+        "hostname": "b49bc166c901",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.9"
+        ]
+      },
+      {
+        "containerId": "509a1d990cec7ef34d896f2d880a1656f373c5586780c22e37b47f19c05626aa",
+        "containerName": "sic-replica-accept-project-service-2",
+        "hostname": "509a1d990cec",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.14"
+        ]
+      },
+      {
+        "containerId": "ba6ae98c14597c4bd2c4b74abed2b2fcf8abcabcd5e15c3a8ebbb59c67c4a430",
+        "containerName": "sic-replica-accept-rabbitmq-1",
+        "hostname": "ba6ae98c1459",
+        "service": "rabbitmq",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.2"
+        ]
+      },
+      {
+        "containerId": "71c4b8a739163abc117301e9825e0876d98eec31b5d22bd798cea8c3d17b3d1d",
+        "containerName": "sic-replica-accept-redis-1",
+        "hostname": "71c4b8a73916",
+        "service": "redis",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.3"
+        ]
+      },
+      {
+        "containerId": "2debb36adc15120b4cb4285b3b64b212ac2a454f347264b395ce671cc8cbcac4",
+        "containerName": "sic-replica-accept-workflow-service-1",
+        "hostname": "2debb36adc15",
+        "service": "workflow-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.11"
+        ]
+      },
+      {
+        "containerId": "e78002ab487aa337c10656517681a09dbf80aeb0af250131d25469109a9db18f",
+        "containerName": "sic-replica-accept-workflow-service-2",
+        "hostname": "e78002ab487a",
+        "service": "workflow-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.16.15"
+        ]
+      }
+    ],
+    "registrations": [
+      {
+        "service": "workflow-service",
+        "instanceId": "e78002ab487a:workflow-service:9003",
+        "ip": "192.168.16.15",
+        "port": 9003,
+        "status": "UP",
+        "containerId": "e78002ab487aa337c10656517681a09dbf80aeb0af250131d25469109a9db18f"
+      },
+      {
+        "service": "workflow-service",
+        "instanceId": "2debb36adc15:workflow-service:9003",
+        "ip": "192.168.16.11",
+        "port": 9003,
+        "status": "UP",
+        "containerId": "2debb36adc15120b4cb4285b3b64b212ac2a454f347264b395ce671cc8cbcac4"
+      },
+      {
+        "service": "material-service",
+        "instanceId": "75c9daae4675:material-service:9004",
+        "ip": "192.168.16.12",
+        "port": 9004,
+        "status": "UP",
+        "containerId": "75c9daae4675a0af1ea1ff05f1674c64b0b9701592cb7352bb894b6af96b24c5"
+      },
+      {
+        "service": "iam-service",
+        "instanceId": "52d57db41c6a:iam-service:9001",
+        "ip": "192.168.16.8",
+        "port": 9001,
+        "status": "UP",
+        "containerId": "52d57db41c6a0aa67614a604bad71d9b1160b99e5434084470299d47b459a282"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "509a1d990cec:project-service:9002",
+        "ip": "192.168.16.14",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "509a1d990cec7ef34d896f2d880a1656f373c5586780c22e37b47f19c05626aa"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "b49bc166c901:project-service:9002",
+        "ip": "192.168.16.9",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "b49bc166c901d870d945800290a29303843c89b3dea26ef653dff2e3652e1d8d"
+      },
+      {
+        "service": "gateway-service",
+        "instanceId": "36fe855f6112:gateway-service:8080",
+        "ip": "192.168.16.13",
+        "port": 8080,
+        "status": "UP",
+        "containerId": "36fe855f61121b9196335e6a0966cc60dc91d5f3a26e9608dd4f7f45792d1f92"
+      },
+      {
+        "service": "notification-service",
+        "instanceId": "87805ce97e5e:notification-service:9005",
+        "ip": "192.168.16.10",
+        "port": 9005,
+        "status": "UP",
+        "containerId": "87805ce97e5ec1ed029ac99c09419d000c5701797ffde0846fc62f33f8ee42f2"
+      }
+    ]
+  },
+  "smoke": {
+    "passed": true,
+    "projectName": "sic-replica-accept",
+    "checkedAt": "2026-10-12T10:39:42.846681+00:00",
+    "checks": [
+      {
+        "name": "gateway-readiness",
+        "passed": true,
+        "durationMs": 31,
+        "error": null
+      },
+      {
+        "name": "compose-container-health",
+        "passed": true,
+        "durationMs": 155,
+        "error": null
+      },
+      {
+        "name": "config-and-discovery",
+        "passed": true,
+        "durationMs": 875,
+        "error": null
+      },
+      {
+        "name": "gateway-unauthenticated-wrapper",
+        "passed": true,
+        "durationMs": 16,
+        "error": null
+      },
+      {
+        "name": "admin-login-and-jwt",
+        "passed": true,
+        "durationMs": 125,
+        "error": null
+      },
+      {
+        "name": "authenticated-service-routes",
+        "passed": true,
+        "durationMs": 796,
+        "error": null
+      },
+      {
+        "name": "sse-query-token-relay",
+        "passed": true,
+        "durationMs": 47,
+        "error": null
+      },
+      {
+        "name": "logout-jti-blacklist",
+        "passed": true,
+        "durationMs": 62,
+        "error": null
+      }
+    ],
+    "error": null,
+    "expectedReplicas": {
+      "mysql": 1,
+      "rabbitmq": 1,
+      "redis": 1,
+      "minio": 1,
+      "discovery-server": 1,
+      "config-server": 1,
+      "iam-service": 1,
+      "project-service": 2,
+      "workflow-service": 2,
+      "material-service": 1,
+      "notification-service": 1,
+      "gateway-service": 1
+    },
+    "instances": {
+      "containers": [
+        {
+          "containerId": "2425f5c609641f3e6827cb0fb3eb0cc4b59da2c9e237e33602cc3db3f4977443",
+          "containerName": "sic-replica-accept-config-server-1",
+          "hostname": "2425f5c60964",
+          "service": "config-server",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.5"
+          ]
+        },
+        {
+          "containerId": "7248b72c236a0820816b23b1ee2cde15cee4aa0ba36954e1620fc4d65c6c46c7",
+          "containerName": "sic-replica-accept-discovery-server-1",
+          "hostname": "7248b72c236a",
+          "service": "discovery-server",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.7"
+          ]
+        },
+        {
+          "containerId": "36fe855f61121b9196335e6a0966cc60dc91d5f3a26e9608dd4f7f45792d1f92",
+          "containerName": "sic-replica-accept-gateway-service-1",
+          "hostname": "36fe855f6112",
+          "service": "gateway-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.13"
+          ]
+        },
+        {
+          "containerId": "52d57db41c6a0aa67614a604bad71d9b1160b99e5434084470299d47b459a282",
+          "containerName": "sic-replica-accept-iam-service-1",
+          "hostname": "52d57db41c6a",
+          "service": "iam-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.8"
+          ]
+        },
+        {
+          "containerId": "75c9daae4675a0af1ea1ff05f1674c64b0b9701592cb7352bb894b6af96b24c5",
+          "containerName": "sic-replica-accept-material-service-1",
+          "hostname": "75c9daae4675",
+          "service": "material-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.12"
+          ]
+        },
+        {
+          "containerId": "ded0cce2922b3dd28f031967cde170cfff105c827e86c0fd74de4cce2e32618d",
+          "containerName": "sic-replica-accept-minio-1",
+          "hostname": "ded0cce2922b",
+          "service": "minio",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.4"
+          ]
+        },
+        {
+          "containerId": "42c940d866cb3bf91cbce4cd58db83fd95a3d052c62bb1a9d81cfdc05ca19b2d",
+          "containerName": "sic-replica-accept-mysql-1",
+          "hostname": "42c940d866cb",
+          "service": "mysql",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.6"
+          ]
+        },
+        {
+          "containerId": "87805ce97e5ec1ed029ac99c09419d000c5701797ffde0846fc62f33f8ee42f2",
+          "containerName": "sic-replica-accept-notification-service-1",
+          "hostname": "87805ce97e5e",
+          "service": "notification-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.10"
+          ]
+        },
+        {
+          "containerId": "b49bc166c901d870d945800290a29303843c89b3dea26ef653dff2e3652e1d8d",
+          "containerName": "sic-replica-accept-project-service-1",
+          "hostname": "b49bc166c901",
+          "service": "project-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.9"
+          ]
+        },
+        {
+          "containerId": "509a1d990cec7ef34d896f2d880a1656f373c5586780c22e37b47f19c05626aa",
+          "containerName": "sic-replica-accept-project-service-2",
+          "hostname": "509a1d990cec",
+          "service": "project-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.14"
+          ]
+        },
+        {
+          "containerId": "ba6ae98c14597c4bd2c4b74abed2b2fcf8abcabcd5e15c3a8ebbb59c67c4a430",
+          "containerName": "sic-replica-accept-rabbitmq-1",
+          "hostname": "ba6ae98c1459",
+          "service": "rabbitmq",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.2"
+          ]
+        },
+        {
+          "containerId": "71c4b8a739163abc117301e9825e0876d98eec31b5d22bd798cea8c3d17b3d1d",
+          "containerName": "sic-replica-accept-redis-1",
+          "hostname": "71c4b8a73916",
+          "service": "redis",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.3"
+          ]
+        },
+        {
+          "containerId": "2debb36adc15120b4cb4285b3b64b212ac2a454f347264b395ce671cc8cbcac4",
+          "containerName": "sic-replica-accept-workflow-service-1",
+          "hostname": "2debb36adc15",
+          "service": "workflow-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.11"
+          ]
+        },
+        {
+          "containerId": "e78002ab487aa337c10656517681a09dbf80aeb0af250131d25469109a9db18f",
+          "containerName": "sic-replica-accept-workflow-service-2",
+          "hostname": "e78002ab487a",
+          "service": "workflow-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.16.15"
+          ]
+        }
+      ],
+      "registrations": [
+        {
+          "service": "workflow-service",
+          "instanceId": "e78002ab487a:workflow-service:9003",
+          "ip": "192.168.16.15",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "e78002ab487aa337c10656517681a09dbf80aeb0af250131d25469109a9db18f"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "2debb36adc15:workflow-service:9003",
+          "ip": "192.168.16.11",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "2debb36adc15120b4cb4285b3b64b212ac2a454f347264b395ce671cc8cbcac4"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "75c9daae4675:material-service:9004",
+          "ip": "192.168.16.12",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "75c9daae4675a0af1ea1ff05f1674c64b0b9701592cb7352bb894b6af96b24c5"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "52d57db41c6a:iam-service:9001",
+          "ip": "192.168.16.8",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "52d57db41c6a0aa67614a604bad71d9b1160b99e5434084470299d47b459a282"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "509a1d990cec:project-service:9002",
+          "ip": "192.168.16.14",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "509a1d990cec7ef34d896f2d880a1656f373c5586780c22e37b47f19c05626aa"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "b49bc166c901:project-service:9002",
+          "ip": "192.168.16.9",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "b49bc166c901d870d945800290a29303843c89b3dea26ef653dff2e3652e1d8d"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "36fe855f6112:gateway-service:8080",
+          "ip": "192.168.16.13",
+          "port": 8080,
+          "status": "UP",
+          "containerId": "36fe855f61121b9196335e6a0966cc60dc91d5f3a26e9608dd4f7f45792d1f92"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "87805ce97e5e:notification-service:9005",
+          "ip": "192.168.16.10",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "87805ce97e5ec1ed029ac99c09419d000c5701797ffde0846fc62f33f8ee42f2"
+        }
+      ]
+    }
+  },
+  "phase": "verification",
+  "freshResetCompleted": false,
+  "finishedAt": "2026-10-12T10:39:42.848875+00:00"
+}

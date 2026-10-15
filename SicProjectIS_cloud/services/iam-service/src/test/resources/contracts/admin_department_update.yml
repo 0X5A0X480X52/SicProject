@@ -1,0 +1,25 @@
+description: department update keeps the response structure
+name: admin_department_update
+request:
+  method: PUT
+  url: /api/admin/departments/3
+  headers:
+    Content-Type: application/json
+  body:
+    deptCode: SCI
+    deptName: Science
+    parentDeptId: null
+    enabled: true
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      deptId: 3
+      deptCode: SCI
+      deptName: Science
+      parentDeptId: null
+      enabled: true
+    message: OK

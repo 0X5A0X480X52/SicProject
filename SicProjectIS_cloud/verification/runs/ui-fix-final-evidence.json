@@ -1,0 +1,46 @@
+{
+  "localAcceptancePassed": true,
+  "liveProject": "sic-localdev",
+  "liveGateway": "http://127.0.0.1:8080",
+  "tests": 138,
+  "skipped": 0,
+  "iamTextFieldsRepaired": 36,
+  "remoteCiExecuted": false,
+  "evidence": [
+    {
+      "path": "ui-regression-test-gate.json",
+      "sha256": "78c8bfbdb50be8be4fc7f6cff10d96a1fb3fe5c9522847c2bd5a40b95a254d12",
+      "passed": true
+    },
+    {
+      "path": "ui-regression-schema.json",
+      "sha256": "55d1e3b7a0ed4d0db6dd9c9c0798e5300b7f121cf3c8f911938a3d0d003ab9de",
+      "passed": true
+    },
+    {
+      "path": "ui-regression-business.json",
+      "sha256": "730606e832d98fd90520b11197ebbad3242e33a1a130a1a2f04c570607597e84",
+      "passed": true
+    },
+    {
+      "path": "ui-regression-business-database.json",
+      "sha256": "56a7bd008be661d6c01f5abf0013a5e8c8d29cbdc61f48d7e79171763b4d8f04",
+      "passed": true
+    },
+    {
+      "path": "localdev-iam-text-repair.json",
+      "sha256": "61dfeaa5f9bce2c68e38b9e2cd7bcbc58f05e7002042b7576cb6771260d63b23",
+      "passed": true
+    },
+    {
+      "path": "localdev-ui-fix-public-reads.json",
+      "sha256": "8810af757b5da8d6100accd4628748703adb81e0c4ae0e8190aad57979ac8bf5",
+      "passed": true
+    },
+    {
+      "path": "localdev-ui-fix-readiness.json",
+      "sha256": "277d3b3497422792e2bc7c1aab5d8cd8708ee1d912b50a808db888d6ab3ada06",
+      "passed": true
+    }
+  ]
+}

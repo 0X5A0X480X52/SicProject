@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: notification-service
+  config:
+    import: ${CONFIG_IMPORT:optional:configserver:http://localhost:8888}
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml

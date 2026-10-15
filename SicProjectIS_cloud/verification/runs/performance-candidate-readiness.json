@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-10T14:08:37.594248+00:00",
+  "project": "sic-perf-candidate-20261010",
+  "checks": [
+    {
+      "name": "registry propagation",
+      "passed": true,
+      "services": [
+        "GATEWAY-SERVICE",
+        "IAM-SERVICE",
+        "MATERIAL-SERVICE",
+        "NOTIFICATION-SERVICE",
+        "PROJECT-SERVICE",
+        "WORKFLOW-SERVICE"
+      ]
+    },
+    {
+      "name": "/api/auth/me",
+      "passed": true,
+      "status": 200,
+      "traceId": "2e8da611-20f0-448c-8476-924de0a29638"
+    },
+    {
+      "name": "/api/projects",
+      "passed": true,
+      "status": 200,
+      "traceId": "7f649bb4-a532-49b1-b291-5e7b063f458b"
+    },
+    {
+      "name": "/api/workflow-definitions",
+      "passed": true,
+      "status": 200,
+      "traceId": "afa6c3d1-b6e0-4cd7-9232-fbfc1923cd0c"
+    },
+    {
+      "name": "/api/projects/0/materials",
+      "passed": true,
+      "status": 403,
+      "traceId": "a9404239-da30-4e5f-a29c-7c1856e3c0c0"
+    }
+  ],
+  "registryStableSeconds": 65,
+  "finishedAt": "2026-10-10T14:10:42.236268+00:00"
+}

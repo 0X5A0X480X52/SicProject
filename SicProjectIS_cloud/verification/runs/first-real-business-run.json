@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "caseId": "E2E-BIZ-001",
+  "runId": "20261010081125049dba",
+  "startedAt": "2026-10-10T08:11:25.304982+00:00",
+  "gateway": "http://127.0.0.1:18080",
+  "overallPassed": false,
+  "workflowTraversalPassed": false,
+  "businessDataPassed": false,
+  "requests": [
+    {
+      "actor": "<redacted>istrator",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": null,
+      "traceId": null,
+      "durationMs": 2032
+    }
+  ],
+  "checks": [
+    {
+      "name": "accounts, roles and qualifications",
+      "passed": false,
+      "error": "POST /api/auth/login: transport failure (ConnectionError); write was not retried"
+    }
+  ],
+  "fixtures": {
+    "projectId": 0,
+    "modules": {},
+    "materialVersions": {}
+  },
+  "error": "POST /api/auth/login: transport failure (ConnectionError); write was not retried",
+  "finishedAt": "2026-10-10T08:11:27.331358+00:00"
+}

@@ -1,0 +1,438 @@
+{
+  "passed": true,
+  "projectName": "sic-eureka-ha-accept",
+  "checkedAt": "2026-10-14T14:12:25.226169+00:00",
+  "checks": [
+    {
+      "name": "gateway-readiness",
+      "passed": true,
+      "durationMs": 32,
+      "error": null
+    },
+    {
+      "name": "compose-container-health",
+      "passed": true,
+      "durationMs": 155,
+      "error": null
+    },
+    {
+      "name": "config-and-discovery",
+      "passed": true,
+      "durationMs": 1327,
+      "error": null
+    },
+    {
+      "name": "gateway-unauthenticated-wrapper",
+      "passed": true,
+      "durationMs": 30,
+      "error": null
+    },
+    {
+      "name": "admin-login-and-jwt",
+      "passed": true,
+      "durationMs": 94,
+      "error": null
+    },
+    {
+      "name": "authenticated-service-routes",
+      "passed": true,
+      "durationMs": 1469,
+      "error": null
+    },
+    {
+      "name": "sse-query-token-relay",
+      "passed": true,
+      "durationMs": 561,
+      "error": null
+    },
+    {
+      "name": "logout-jti-blacklist",
+      "passed": true,
+      "durationMs": 63,
+      "error": null
+    }
+  ],
+  "error": null,
+  "expectedReplicas": {
+    "mysql": 1,
+    "rabbitmq": 1,
+    "redis": 1,
+    "minio": 1,
+    "discovery-server": 1,
+    "discovery-peer": 1,
+    "config-server": 1,
+    "iam-service": 1,
+    "project-service": 1,
+    "workflow-service": 1,
+    "material-service": 1,
+    "notification-service": 1,
+    "gateway-service": 1
+  },
+  "instances": {
+    "containers": [
+      {
+        "containerId": "b78288c4c17cad880fa3d45d4535b538802a5e2214b19656a6c6cb7185652e58",
+        "containerName": "sic-eureka-ha-accept-config-server-1",
+        "hostname": "b78288c4c17c",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "config-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.7"
+        ]
+      },
+      {
+        "containerId": "13fc6e373c72a3ca2b22a2937a09b1ddf80f7f0f7aedb35779a90fc0986a032b",
+        "containerName": "sic-eureka-ha-accept-discovery-peer-1",
+        "hostname": "discovery-peer",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "discovery-peer",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.8"
+        ]
+      },
+      {
+        "containerId": "eff6555780d7f2c42a7c3057b4020911aa87fae49c371b4e702a7f68c36d3978",
+        "containerName": "sic-eureka-ha-accept-discovery-server-1",
+        "hostname": "discovery-server",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "discovery-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.15"
+        ]
+      },
+      {
+        "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f",
+        "containerName": "sic-eureka-ha-accept-gateway-service-1",
+        "hostname": "a227d21d503f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "gateway-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.14"
+        ]
+      },
+      {
+        "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93",
+        "containerName": "sic-eureka-ha-accept-iam-service-1",
+        "hostname": "378731fa8f3f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "iam-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.9"
+        ]
+      },
+      {
+        "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f",
+        "containerName": "sic-eureka-ha-accept-material-service-1",
+        "hostname": "4fbcf14268ad",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "material-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.13"
+        ]
+      },
+      {
+        "containerId": "3121bdb4d893c5c9d6cccae85306e91d2d0736d3e3d03d17ce14be1978425bfc",
+        "containerName": "sic-eureka-ha-accept-minio-1",
+        "hostname": "3121bdb4d893",
+        "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+        "imageId": "sha256:a98a9d647e700e45c1d3d2e44709f23952a39c199731d84e623eb558fd5501f4",
+        "service": "minio",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.4"
+        ]
+      },
+      {
+        "containerId": "81586a4c6c624cd5cf5e933c105c7f85f5df142de0a630b46a7f7ffe0abefb9f",
+        "containerName": "sic-eureka-ha-accept-mysql-1",
+        "hostname": "81586a4c6c62",
+        "image": "mysql:8.4",
+        "imageId": "sha256:bced325a4ab7aec848f4688371c7433351dcb5dba26fbcc29c67727d898ae5cb",
+        "service": "mysql",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.2"
+        ]
+      },
+      {
+        "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd",
+        "containerName": "sic-eureka-ha-accept-notification-service-1",
+        "hostname": "dc4405bd0477",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "notification-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.10"
+        ]
+      },
+      {
+        "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8",
+        "containerName": "sic-eureka-ha-accept-project-service-1",
+        "hostname": "045f1b8d180e",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.11"
+        ]
+      },
+      {
+        "containerId": "9aacbd1d5582ed56b1f26755dbfbf0bad08f0d6cbbd0982a112b50336d549a4c",
+        "containerName": "sic-eureka-ha-accept-rabbitmq-1",
+        "hostname": "9aacbd1d5582",
+        "image": "rabbitmq:4.1-management",
+        "imageId": "sha256:046fd3423a7668fc201318bca3bdad234aa0769cccc1c2427feb12f3c1239d2e",
+        "service": "rabbitmq",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.6"
+        ]
+      },
+      {
+        "containerId": "fe66f73051472cb103cb890b95ff73801cdd0e7068dc52d9ab7dda280bc2cc4a",
+        "containerName": "sic-eureka-ha-accept-redis-1",
+        "hostname": "fe66f7305147",
+        "image": "redis:8.2-alpine",
+        "imageId": "sha256:9b9bc2eb5b8859235a68b8d72b81977748d243badee819a91c18280612c3495c",
+        "service": "redis",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.3"
+        ]
+      },
+      {
+        "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4",
+        "containerName": "sic-eureka-ha-accept-workflow-service-1",
+        "hostname": "2649514d7c6f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "workflow-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.12"
+        ]
+      }
+    ],
+    "registrations": [
+      {
+        "service": "discovery-server",
+        "instanceId": "discovery-server:8761",
+        "ip": "172.18.0.8",
+        "port": 8761,
+        "status": "UP"
+      },
+      {
+        "service": "discovery-server",
+        "instanceId": "discovery-peer:8761",
+        "ip": "172.18.0.8",
+        "port": 8761,
+        "status": "UP"
+      },
+      {
+        "service": "workflow-service",
+        "instanceId": "2649514d7c6f:workflow-service:9003",
+        "ip": "172.18.0.12",
+        "port": 9003,
+        "status": "UP",
+        "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4"
+      },
+      {
+        "service": "material-service",
+        "instanceId": "4fbcf14268ad:material-service:9004",
+        "ip": "172.18.0.13",
+        "port": 9004,
+        "status": "UP",
+        "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f"
+      },
+      {
+        "service": "iam-service",
+        "instanceId": "378731fa8f3f:iam-service:9001",
+        "ip": "172.18.0.9",
+        "port": 9001,
+        "status": "UP",
+        "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "045f1b8d180e:project-service:9002",
+        "ip": "172.18.0.11",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8"
+      },
+      {
+        "service": "gateway-service",
+        "instanceId": "a227d21d503f:gateway-service:8080",
+        "ip": "172.18.0.14",
+        "port": 8080,
+        "status": "UP",
+        "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f"
+      },
+      {
+        "service": "notification-service",
+        "instanceId": "dc4405bd0477:notification-service:9005",
+        "ip": "172.18.0.10",
+        "port": 9005,
+        "status": "UP",
+        "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd"
+      }
+    ],
+    "registries": {
+      "discovery-server": [
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-server:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-peer:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "2649514d7c6f:workflow-service:9003",
+          "ip": "172.18.0.12",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "4fbcf14268ad:material-service:9004",
+          "ip": "172.18.0.13",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "378731fa8f3f:iam-service:9001",
+          "ip": "172.18.0.9",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "045f1b8d180e:project-service:9002",
+          "ip": "172.18.0.11",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "a227d21d503f:gateway-service:8080",
+          "ip": "172.18.0.14",
+          "port": 8080,
+          "status": "UP",
+          "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "dc4405bd0477:notification-service:9005",
+          "ip": "172.18.0.10",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd"
+        }
+      ],
+      "discovery-peer": [
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-peer:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-server:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "2649514d7c6f:workflow-service:9003",
+          "ip": "172.18.0.12",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "4fbcf14268ad:material-service:9004",
+          "ip": "172.18.0.13",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "378731fa8f3f:iam-service:9001",
+          "ip": "172.18.0.9",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "045f1b8d180e:project-service:9002",
+          "ip": "172.18.0.11",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "a227d21d503f:gateway-service:8080",
+          "ip": "172.18.0.14",
+          "port": 8080,
+          "status": "UP",
+          "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "dc4405bd0477:notification-service:9005",
+          "ip": "172.18.0.10",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd"
+        }
+      ]
+    }
+  }
+}

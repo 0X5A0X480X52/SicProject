@@ -1,0 +1,12 @@
+description: authenticated SSE subscription preserves event name and payload
+name: sse_subscribe
+request:
+  method: GET
+  url: /api/sse/subscribe
+  headers:
+    Accept: text/event-stream
+response:
+  status: 200
+  headers:
+    Content-Type: text/event-stream
+  body: "event:CONNECTED\ndata:{\"connected\":true}\n\nevent:MODULE_STATE_CHANGED\ndata:{\"moduleInstanceId\":20,\"state\":\"APPROVED\"}\n\n"

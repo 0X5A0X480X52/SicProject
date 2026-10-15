@@ -1,0 +1,79 @@
+{
+  "passed": false,
+  "mode": "history",
+  "startedAt": "2026-10-12T10:57:14.202143+00:00",
+  "projectName": "sic-replica-accept",
+  "envFile": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-replica.env",
+  "composeFiles": [
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\docker-compose.yml",
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-image.compose.yaml"
+  ],
+  "replicas": {
+    "mysql": 1,
+    "rabbitmq": 1,
+    "redis": 1,
+    "minio": 1,
+    "discovery-server": 1,
+    "config-server": 1,
+    "iam-service": 2,
+    "project-service": 12,
+    "workflow-service": 2,
+    "material-service": 2,
+    "notification-service": 2,
+    "gateway-service": 1
+  },
+  "replicaSources": {
+    "mysql": "default",
+    "rabbitmq": "default",
+    "redis": "default",
+    "minio": "default",
+    "discovery-server": "default",
+    "config-server": "default",
+    "iam-service": "replica-config:C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\replicas.multi.example.json",
+    "project-service": "command-line",
+    "workflow-service": "replica-config:C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\replicas.multi.example.json",
+    "material-service": "replica-config:C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\replicas.multi.example.json",
+    "notification-service": "replica-config:C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\replicas.multi.example.json",
+    "gateway-service": "default"
+  },
+  "gatewayBaseUrl": "http://127.0.0.1:18080",
+  "artifacts": {
+    "discovery-server": {
+      "image": "sic-replica-accept-discovery-server",
+      "jar": null
+    },
+    "config-server": {
+      "image": "sic-replica-accept-config-server",
+      "jar": null
+    },
+    "iam-service": {
+      "image": "sic-replica-accept-iam-service",
+      "jar": null
+    },
+    "project-service": {
+      "image": "sic-replica-accept-project-service",
+      "jar": null
+    },
+    "workflow-service": {
+      "image": "sic-replica-accept-workflow-service",
+      "jar": null
+    },
+    "material-service": {
+      "image": "sic-replica-accept-material-service",
+      "jar": null
+    },
+    "notification-service": {
+      "image": "sic-replica-accept-notification-service",
+      "jar": null
+    },
+    "gateway-service": {
+      "image": "sic-replica-accept-gateway-service",
+      "jar": null
+    }
+  },
+  "deploymentMode": "image",
+  "error": "Replica connection pools exceed MySQL max_connections; reduce DB_POOL_SIZE or explicitly configure MySQL",
+  "phase": "startup",
+  "freshResetCompleted": false,
+  "finishedAt": "2026-10-12T10:57:18.981194+00:00"
+}

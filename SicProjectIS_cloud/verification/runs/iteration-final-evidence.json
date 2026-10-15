@@ -1,0 +1,91 @@
+{
+  "recordedAt": "2026-10-10T16:47:44.758432+00:00",
+  "localAcceptancePassed": true,
+  "scope": "Isolated local acceptance; performance compared with the preceding accepted stability release",
+  "applicationRelease": "runtime-batch-candidate",
+  "releaseManifestSha256": "a39b3fe4bbd1569994691bc79c5e65a4fc03a1efd59b72c2ea774a22673bf3f9",
+  "tests": 128,
+  "skipped": 0,
+  "evidence": [
+    {
+      "path": "runtime-batch-real-mysql-test-gate.json",
+      "passed": true,
+      "sha256": "69ef96cd61493f468c9c5d87ef2d66e867b226199814b5cffa53e5d22dc2787e"
+    },
+    {
+      "path": "runtime-batch-schema.json",
+      "passed": true,
+      "sha256": "71ba2f01704b0a3cae6103e86a1702bd11eed60afbe8dade50862c5490c635df"
+    },
+    {
+      "path": "runtime-batch-business-negative.json",
+      "passed": true,
+      "sha256": "41494cd6673e1294d00357afd0a752748468bc50034b4fec0bb9953a3dfb08bf"
+    },
+    {
+      "path": "runtime-batch-business-negative-database.json",
+      "passed": true,
+      "sha256": "30e35fe28104538a5b5d8c3883099a0f35e6a588ba384929b6443224e98229e3"
+    },
+    {
+      "path": "runtime-batch-return-reject.json",
+      "passed": true,
+      "sha256": "fbaf2dde26ca69a7258b1177ae8b62641dfca1b3927ceba771209aba646c3c5b"
+    },
+    {
+      "path": "runtime-batch-return-reject-database.json",
+      "passed": true,
+      "sha256": "ec76623b9e4626301143dae6b65df9026166085bf358758210e94e662699a6e4"
+    },
+    {
+      "path": "runtime-batch-write-faults.json",
+      "passed": true,
+      "sha256": "fa15b1a2d4523907c57033b267bb377e9e5ecf5a04e376a09809872ab0a0e6ed"
+    },
+    {
+      "path": "runtime-batch-application-rollback-quiescent.json",
+      "passed": true,
+      "sha256": "58c3e00c6a016fbf2f942b09831f9cd4c057a9fec4f4514a918d3a32846f5b53"
+    },
+    {
+      "path": "runtime-batch-fullsql-backup-restore.json",
+      "passed": true,
+      "sha256": "a01ba1cdbabe77d3a3a496f8615554cc2774d3ebb2771f319758cf99188ddf77"
+    },
+    {
+      "path": "precision-stable-baseline-load.json",
+      "passed": true,
+      "sha256": "6b49a5a87cdbf940ac3a1b4b0e95f6f791ffcde870c58e857520d3181cf33819"
+    },
+    {
+      "path": "precision-stable-baseline-database.json",
+      "passed": true,
+      "sha256": "3a2358526a28293ab2477a61dde751016a443020fc453aea84a6ddd3687757a9"
+    },
+    {
+      "path": "precision-candidate-load.json",
+      "passed": true,
+      "sha256": "44609bb0532db5b58b2de67a87fe6f9d3fa3acf15a6787a6ce0631c3c3c30b8d"
+    },
+    {
+      "path": "precision-candidate-database.json",
+      "passed": true,
+      "sha256": "3d2cde0338b69640f1d5c56ecc90ca34f6947cd1041dd132230e6035992c6c7b"
+    },
+    {
+      "path": "precision-performance-comparison.json",
+      "passed": true,
+      "sha256": "9a2a89a7460d6b0a791b9e46817553a1dbec94fae733ed86dc2d0e679101d2c0"
+    }
+  ],
+  "retainedFailures": [
+    "performance-runtime-batch-comparison.json",
+    "precision-baseline-load.json",
+    "precision-baseline-deadlock-evidence.json",
+    "runtime-batch-application-rollback.json"
+  ],
+  "remoteCiExecuted": false,
+  "productionCutoverExecuted": false,
+  "productionCapacityEstablished": false,
+  "phaseCommitsCreated": false
+}

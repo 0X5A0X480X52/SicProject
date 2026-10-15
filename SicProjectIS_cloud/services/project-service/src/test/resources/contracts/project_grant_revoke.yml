@@ -1,0 +1,16 @@
+description: single grant revocation returns authorization detail
+name: project_grant_revoke
+request:
+  method: POST
+  url: /api/projects/10/grants/5/revoke
+  headers: { Content-Type: application/json }
+  body: { reason: Revoke }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      project: { projectId: 10 }
+      capabilities: { canManageExperts: true }
+    message: OK

@@ -1,0 +1,40 @@
+description: current user expert qualification query preserves flags and applications
+name: expert_qualification_mine
+request:
+  method: GET
+  url: /api/expert-qualification/my
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      expert: false
+      hasActiveApplication: true
+      applications:
+        - applicationId: 11
+          applicant:
+            userId: 7
+            username: bob
+            realName: Bob
+            deptId: 3
+            deptName: Science
+            roleCodes: []
+          applicantDeptId: 3
+          applicantDeptName: Science
+          specialty: AI
+          professionalTitle: Engineer
+          applicationReason: Project review
+          status: PENDING_DEPT_REVIEW
+          deptReviewer: null
+          deptReviewOpinion: null
+          deptReviewRemark: null
+          deptReviewedAt: null
+          scienceReviewer: null
+          scienceReviewOpinion: null
+          scienceReviewRemark: null
+          scienceReviewedAt: null
+          createdAt: "2030-01-02T03:04:05"
+          updatedAt: "2030-01-02T03:04:05"
+    message: OK

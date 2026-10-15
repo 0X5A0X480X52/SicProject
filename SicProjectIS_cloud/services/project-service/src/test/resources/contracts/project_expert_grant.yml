@@ -1,0 +1,16 @@
+description: expert grant accepts module scope and returns authorization detail
+name: project_expert_grant
+request:
+  method: POST
+  url: /api/projects/10/expert-grants
+  headers: { Content-Type: application/json }
+  body: { userId: 7, moduleType: APPLICATION, roundNo: 1, taskNodeId: review, reason: Assign }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      project: { projectId: 10 }
+      capabilities: { canManageExperts: true }
+    message: OK

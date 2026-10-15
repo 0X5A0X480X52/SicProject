@@ -1,0 +1,30 @@
+description: material list keeps metadata fields, download URL and null snapshots
+name: material_list
+request:
+  method: GET
+  url: /api/projects/10/materials
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      - materialId: 30
+        projectId: 10
+        materialTypeId: 3
+        materialTypeCode: APPLICATION_FORM
+        materialTypeName: Application form
+        moduleType: APPLICATION
+        allowedFileTypes: null
+        maxFileSizeMb: 20
+        materialVersionId: 40
+        versionNo: 1
+        fileName: demo.txt
+        fileUrl: /api/material-versions/40/download
+        fileHash: abc123
+        uploadedBy: 1
+        uploadedByName: null
+        uploadedAt: "2030-01-02T03:04:05"
+        isCurrent: true
+    message: OK

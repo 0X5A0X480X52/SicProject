@@ -1,0 +1,25 @@
+description: department creation returns a complete department option
+name: admin_department_create
+request:
+  method: POST
+  url: /api/admin/departments
+  headers:
+    Content-Type: application/json
+  body:
+    deptCode: SCI
+    deptName: Science
+    parentDeptId: null
+    enabled: true
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      deptId: 3
+      deptCode: SCI
+      deptName: Science
+      parentDeptId: null
+      enabled: true
+    message: OK

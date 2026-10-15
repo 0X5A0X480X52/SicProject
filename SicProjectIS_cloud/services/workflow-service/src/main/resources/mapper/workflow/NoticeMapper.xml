@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.workflow.dao.NoticeMapper">
+  <!-- 公告 MyBatis 接口：公告写入、按全部/部门/用户范围查询与维护。 -->
+  <resultMap id="notice" type="java.util.LinkedHashMap" autoMapping="false">
+    <result column="id" property="noticeId" javaType="Long"/>
+    <result column="module_instance_id" property="moduleInstanceId" javaType="Long"/>
+    <result column="state_record_id" property="stateRecordId" javaType="Long"/>
+    <result column="module_type" property="moduleType" javaType="String"/>
+    <result column="notice_type" property="noticeType" javaType="String"/>
+    <result column="notice_title" property="noticeTitle" javaType="String"/>
+    <result column="notice_no" property="noticeNo" javaType="String"/>
+    <result column="publish_unit" property="publishUnit" javaType="String"/>
+    <result column="publish_user_id" property="publishUserId" javaType="Long"/>
+    <result column="publish_time" property="publishTime" javaType="java.time.LocalDateTime"/>
+    <result column="notice_scope" property="noticeScope" javaType="String"/>
+    <result column="target_dept_scope" property="targetDeptScope" javaType="String"/>
+    <result column="target_user_scope" property="targetUserScope" javaType="String"/>
+    <result column="project_category" property="projectCategory" javaType="String"/>
+    <result column="limited_project" property="isLimitedProject" javaType="Boolean"/>
+    <result column="limit_count" property="limitCount" javaType="Integer"/>
+    <result column="start_time" property="startTime" javaType="java.time.LocalDateTime"/>
+    <result column="deadline_time" property="deadlineTime" javaType="java.time.LocalDateTime"/>
+    <result column="material_requirement_summary" property="materialRequirementSummary" javaType="String"/>
+    <result column="content_summary" property="contentSummary" javaType="String"/>
+    <result column="remark" property="remark" javaType="String"/>
+    <result column="created_at" property="createdAt" javaType="java.time.LocalDateTime"/>
+    <result column="updated_at" property="updatedAt" javaType="java.time.LocalDateTime"/>
+  </resultMap>
+  <!-- 按可选模块类型查公告，以发布时间（为空用创建时间）和 ID 倒序返回供后续可见性过滤。 -->
+  <select id="list" resultMap="notice">SELECT * FROM notice_record <if test="module != null">WHERE module_type=#{module}</if> ORDER BY COALESCE(publish_time,created_at) DESC,id DESC</select>
+  <!-- 按公告 ID 读取完整记录，供详情及修改前校验使用。 -->
+  <select id="find" resultMap="notice">SELECT * FROM notice_record WHERE id=#{id}</select>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO notice_record(module_type,notice_type,notice_title,notice_no,publish_unit,publish_user_id,publish_time,notice_scope,target_dept_scope,target_user_scope,project_category,limited_project,limit_count,start_time,deadline_time,material_requirement_summary,content_summary,remark) VALUES(#{moduleType},#{noticeType},#{noticeTitle},#{noticeNo},#{publishUnit},#{actor},#{publishTime},#{noticeScope},#{targetDeptScope},#{targetUserScope},#{projectCategory},#{isLimitedProject},#{limitCount},#{startTime},#{deadlineTime},#{materialRequirementSummary},#{contentSummary},#{remark})</insert>
+  <update id="update">UPDATE notice_record SET module_type=#{moduleType},notice_type=#{noticeType},notice_title=#{noticeTitle},notice_no=#{noticeNo},publish_unit=#{publishUnit},publish_user_id=#{actor},publish_time=#{publishTime},notice_scope=#{noticeScope},target_dept_scope=#{targetDeptScope},target_user_scope=#{targetUserScope},project_category=#{projectCategory},limited_project=#{isLimitedProject},limit_count=#{limitCount},start_time=#{startTime},deadline_time=#{deadlineTime},material_requirement_summary=#{materialRequirementSummary},content_summary=#{contentSummary},remark=#{remark} WHERE id=#{id}</update>
+</mapper>

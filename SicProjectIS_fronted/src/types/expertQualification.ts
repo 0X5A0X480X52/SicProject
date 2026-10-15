@@ -1,3 +1,6 @@
+/**
+ * 描述资格申请及分阶段审批结果，资格状态与已分配的 EXPERT 角色是相关但不同的数据。
+ */
 import type { UserSummary } from './project'
 
 export interface ExpertQualificationApplication {

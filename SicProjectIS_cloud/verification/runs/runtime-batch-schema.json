@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "release": "1.0.0-baseline",
+  "project": "sic-perf-runtime-batch-20261010",
+  "checkedAt": "2026-10-10T15:33:06.832376+00:00",
+  "passed": true,
+  "tableCount": 52,
+  "differences": []
+}

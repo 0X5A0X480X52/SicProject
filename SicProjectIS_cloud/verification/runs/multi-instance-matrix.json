@@ -1,0 +1,233 @@
+{
+  "project": "sic-replica-accept",
+  "passed": true,
+  "startedAt": "2026-10-12T10:34:47.109289+00:00",
+  "stages": [
+    {
+      "name": "default-single",
+      "exitCode": 0,
+      "log": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-matrix-default-single.log",
+      "passed": true,
+      "startupManifest": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\verification\\runs\\startup-sic-replica-accept-20261012-183448.json",
+      "existingBusinessPassed": true,
+      "dataSnapshot": {
+        "volumes": {
+          "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+        },
+        "businessCounts": [
+          19,
+          4,
+          6,
+          22
+        ]
+      },
+      "dataPreserved": true
+    },
+    {
+      "name": "partial-double",
+      "exitCode": 0,
+      "log": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-matrix-partial-double.log",
+      "passed": true,
+      "startupManifest": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\verification\\runs\\startup-sic-replica-accept-20261012-183747.json",
+      "existingBusinessPassed": true,
+      "dataSnapshot": {
+        "volumes": {
+          "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+        },
+        "businessCounts": [
+          19,
+          4,
+          6,
+          22
+        ]
+      },
+      "dataPreserved": true
+    },
+    {
+      "name": "all-double",
+      "exitCode": 0,
+      "log": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-matrix-all-double.log",
+      "passed": true,
+      "startupManifest": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\verification\\runs\\startup-sic-replica-accept-20261012-183944.json",
+      "existingBusinessPassed": true,
+      "dataSnapshot": {
+        "volumes": {
+          "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+        },
+        "businessCounts": [
+          19,
+          4,
+          6,
+          22
+        ]
+      },
+      "dataPreserved": true
+    },
+    {
+      "name": "back-single",
+      "exitCode": 0,
+      "log": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-matrix-back-single.log",
+      "passed": true,
+      "startupManifest": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\verification\\runs\\startup-sic-replica-accept-20261012-184146.json",
+      "existingBusinessPassed": true,
+      "dataSnapshot": {
+        "volumes": {
+          "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+        },
+        "businessCounts": [
+          19,
+          4,
+          6,
+          22
+        ]
+      },
+      "dataPreserved": true
+    },
+    {
+      "name": "scoped-stop",
+      "exitCode": 0,
+      "log": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-matrix-scoped-stop.log",
+      "passed": true,
+      "dataSnapshot": {
+        "volumes": {
+          "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+        }
+      },
+      "dataPreserved": true,
+      "businessVerification": "deferred until restart; database is stopped"
+    },
+    {
+      "name": "restart-recovery",
+      "exitCode": 0,
+      "log": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-matrix-restart-recovery.log",
+      "passed": true,
+      "startupManifest": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\verification\\runs\\startup-sic-replica-accept-20261012-184831.json",
+      "existingBusinessPassed": true,
+      "dataSnapshot": {
+        "volumes": {
+          "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+        },
+        "businessCounts": [
+          19,
+          4,
+          6,
+          22
+        ]
+      },
+      "dataPreserved": true
+    },
+    {
+      "name": "scoped-stop",
+      "exitCode": 0,
+      "log": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-matrix-scoped-stop.log",
+      "passed": true,
+      "dataSnapshot": {
+        "volumes": {
+          "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+        }
+      },
+      "dataPreserved": true,
+      "businessVerification": "deferred until restart; database is stopped"
+    },
+    {
+      "name": "restart-single",
+      "exitCode": 0,
+      "log": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-matrix-restart-single.log",
+      "passed": true,
+      "startupManifest": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\verification\\runs\\startup-sic-replica-accept-20261012-185130.json",
+      "existingBusinessPassed": true,
+      "dataSnapshot": {
+        "volumes": {
+          "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+        },
+        "businessCounts": [
+          19,
+          4,
+          6,
+          22
+        ]
+      },
+      "dataPreserved": true
+    },
+    {
+      "name": "image-all-double",
+      "exitCode": 0,
+      "log": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-matrix-image-all-double.log",
+      "passed": true,
+      "startupManifest": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\verification\\runs\\startup-sic-replica-accept-20261012-185416.json",
+      "existingBusinessPassed": true,
+      "dataSnapshot": {
+        "volumes": {
+          "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+          "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+        },
+        "businessCounts": [
+          19,
+          4,
+          6,
+          22
+        ]
+      },
+      "dataPreserved": true
+    },
+    {
+      "name": "capacity-rejection",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "startupManifest": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\verification\\runs\\startup-sic-replica-accept-20261012-185714.json",
+      "error": "Replica connection pools exceed MySQL max_connections; reduce DB_POOL_SIZE or explicitly configure MySQL",
+      "runningContainers": 17,
+      "dataPreserved": true,
+      "passed": true
+    }
+  ],
+  "baseline": {
+    "volumes": {
+      "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+      "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+      "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+      "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+    },
+    "businessCounts": [
+      19,
+      4,
+      6,
+      22
+    ]
+  },
+  "attempts": [
+    {
+      "name": "restart-single",
+      "exitCode": 1,
+      "log": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-matrix-restart-single.log",
+      "passed": false
+    }
+  ],
+  "finishedAt": "2026-10-12T10:57:19.564085+00:00"
+}

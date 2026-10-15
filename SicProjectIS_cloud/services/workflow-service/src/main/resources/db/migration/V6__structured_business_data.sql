@@ -1,0 +1,63 @@
+CREATE TABLE project_achievement (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    project_id BIGINT NOT NULL,
+    module_instance_id BIGINT NULL,
+    acceptance_id BIGINT NULL,
+    achievement_type VARCHAR(64) NOT NULL,
+    achievement_title VARCHAR(300) NOT NULL,
+    author_list VARCHAR(1000) NULL,
+    achievement_level VARCHAR(100) NULL,
+    publish_or_grant_date DATE NULL,
+    proof_material_version_id BIGINT NULL,
+    remark VARCHAR(2000) NULL,
+    created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    INDEX idx_achievement_project(project_id, id)
+);
+
+CREATE TABLE acceptance_financial_settlement (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    acceptance_id BIGINT NULL,
+    project_id BIGINT NOT NULL,
+    module_instance_id BIGINT NOT NULL,
+    state_record_id BIGINT NULL,
+    approved_amount DECIMAL(18,2) NULL,
+    received_amount DECIMAL(18,2) NOT NULL,
+    spent_amount DECIMAL(18,2) NOT NULL,
+    surplus_amount DECIMAL(18,2) NOT NULL,
+    execution_rate DECIMAL(8,2) NOT NULL,
+    settlement_result VARCHAR(64) NULL,
+    finance_operator_id BIGINT NOT NULL,
+    finance_review_comment VARCHAR(2000) NULL,
+    settled_at TIMESTAMP(6) NOT NULL,
+    created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    INDEX idx_financial_settlement_project(project_id, id)
+);
+
+CREATE TABLE notice_record (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    module_instance_id BIGINT NULL,
+    state_record_id BIGINT NULL,
+    module_type VARCHAR(64) NOT NULL,
+    notice_type VARCHAR(64) NOT NULL,
+    notice_title VARCHAR(300) NOT NULL,
+    notice_no VARCHAR(100) NULL,
+    publish_unit VARCHAR(200) NULL,
+    publish_user_id BIGINT NOT NULL,
+    publish_time TIMESTAMP(6) NULL,
+    notice_scope VARCHAR(100) NULL,
+    target_dept_scope TEXT NULL,
+    target_user_scope TEXT NULL,
+    project_category VARCHAR(100) NULL,
+    limited_project BOOLEAN NULL,
+    limit_count INT NULL,
+    start_time TIMESTAMP(6) NULL,
+    deadline_time TIMESTAMP(6) NULL,
+    material_requirement_summary TEXT NULL,
+    content_summary TEXT NULL,
+    remark TEXT NULL,
+    created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    INDEX idx_notice_module_type(module_type, publish_time)
+);

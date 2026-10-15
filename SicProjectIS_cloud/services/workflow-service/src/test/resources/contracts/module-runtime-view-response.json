@@ -1,0 +1,60 @@
+{
+  "success": true,
+  "data": {
+    "context": {
+      "moduleInstanceId": 20,
+      "projectId": 10,
+      "moduleType": "APPLICATION",
+      "workflowDefinitionId": 7,
+      "currentSeq": 2,
+      "currentRoundNo": 1,
+      "currentState": "DEPT_REVIEW",
+      "currentNodeId": "department_review",
+      "currentWorkflowNodeId": 70,
+      "currentNodeName": "Department review",
+      "currentNodeType": "USER_TASK",
+      "currentCandidateRoleCode": "DEPT_ADMIN",
+      "currentLaneName": null,
+      "currentResponsibleActorName": null,
+      "currentOperationMode": null,
+      "currentRepresentedActorName": null,
+      "lastEventType": "SUBMIT",
+      "lastResult": "SUBMITTED",
+      "lastSummary": "Ready",
+      "lastTransitionTime": "2030-01-02T03:04:05",
+      "startedAt": "2030-01-01T00:00:00",
+      "finishedAt": null
+    },
+    "canOperate": true,
+    "availableTransitions": [{
+      "transitionId": "approve",
+      "eventType": "APPROVE",
+      "result": "APPROVED",
+      "targetRef": "science_review",
+      "targetStateCode": "SCIENCE_REVIEW",
+      "conditionType": null,
+      "conditionKey": null,
+      "conditionValue": null,
+      "conditionHandlerKey": null,
+      "actionKeys": []
+    }],
+    "materialRequirements": [],
+    "nodeForms": [],
+    "openTasks": [],
+    "history": [{
+      "stateRecordId": 101,
+      "moduleInstanceId": 20,
+      "seq": 2,
+      "roundNo": 1,
+      "eventType": "SUBMIT",
+      "fromState": "DRAFT",
+      "toState": "DEPT_REVIEW",
+      "fromNodeId": "application_draft",
+      "toNodeId": "department_review",
+      "result": "SUBMITTED",
+      "summary": "Ready",
+      "createdAt": "2030-01-02T03:04:05"
+    }]
+  },
+  "message": "OK"
+}

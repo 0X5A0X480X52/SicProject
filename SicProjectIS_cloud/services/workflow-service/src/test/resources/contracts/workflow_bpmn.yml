@@ -1,0 +1,15 @@
+description: BPMN source response keeps its identifiers
+name: workflow_bpmn
+request:
+  method: GET
+  url: /api/workflow-definitions/7/bpmn
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      workflowDefinitionId: 7
+      bpmnXml: '<definitions id="application"/>'
+    message: OK

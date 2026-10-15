@@ -1,0 +1,48 @@
+description: project authorization detail preserves all authorization collections and capabilities
+name: project_authorization_detail
+request:
+  method: GET
+  url: /api/projects/10/authorization
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      project:
+        projectId: 10
+        projectCode: P-001
+        projectName: Demo
+        deptId: null
+        deptName: null
+        leaderUserId: 1
+        leaderRealName: Alice
+        projectType: null
+        projectLevel: null
+        lifecycleStage: APPLICATION
+      leader:
+        userId: 7
+        username: bob
+        realName: Bob
+        deptId: 3
+        deptName: Science
+        roleCodes: [EXPERT]
+      members: []
+      expertGrants: []
+      financeGrants: []
+      proxyGrants: []
+      users:
+        - userId: 7
+          username: bob
+          realName: Bob
+          deptId: 3
+          deptName: Science
+          roleCodes: [EXPERT]
+      capabilities:
+        canManageLeader: true
+        canManageMembers: true
+        canManageExperts: true
+        canManageFinance: false
+        canManageProxy: true
+    message: OK

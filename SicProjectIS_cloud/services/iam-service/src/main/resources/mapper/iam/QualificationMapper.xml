@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.iam.dao.QualificationMapper">
+  <!-- 专家资格 MyBatis 接口：锁定申请人、判断是否有生效申请、插入与筛选申请、部门/科技处审核写回，以及授权版本读取与递增。 -->
+  <!-- QualificationMapper.lockApplicant 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 按申请人用户 ID 锁定账号行，供资格申请和审核事务串行处理。 -->
+  <select id="lockApplicant" resultType="java.lang.Long">SELECT id FROM app_user WHERE id=#{id} FOR UPDATE</select>
+  <!-- 统计用户待部门审核或待科研审核的资格申请数，检查是否存在在途申请。 -->
+  <select id="active" resultType="Integer">SELECT COUNT(*) FROM expert_qualification WHERE user_id=#{id}
+    AND status IN ('PENDING_DEPT_REVIEW','PENDING_SCIENCE_REVIEW')</select>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    INSERT INTO expert_qualification(user_id,applicant_dept_id,specialty,professional_title,application_reason,status)
+    VALUES(#{userId},#{departmentId,jdbcType=BIGINT},#{specialty},#{professionalTitle},#{reason},'PENDING_DEPT_REVIEW')
+  </insert>
+  <!-- 按申请 ID、用户和可选部门范围查询资格申请，补充申请人与审核人的身份、角色，按申请 ID 倒序返回。 -->
+  <select id="applications" resultType="java.util.LinkedHashMap">
+    SELECT q.*,d.name applicant_dept_name,au.username applicant_username,au.real_name applicant_real_name,
+      du.username dept_username,du.real_name dept_real_name,su.username science_username,su.real_name science_real_name,
+      (SELECT GROUP_CONCAT(r.code ORDER BY r.code SEPARATOR ',') FROM user_role ur JOIN app_role r ON r.id=ur.role_id WHERE ur.user_id=q.user_id) applicant_roles,
+      (SELECT GROUP_CONCAT(r.code ORDER BY r.code SEPARATOR ',') FROM user_role ur JOIN app_role r ON r.id=ur.role_id WHERE ur.user_id=q.dept_reviewer_user_id) dept_roles,
+      (SELECT GROUP_CONCAT(r.code ORDER BY r.code SEPARATOR ',') FROM user_role ur JOIN app_role r ON r.id=ur.role_id WHERE ur.user_id=q.science_reviewer_user_id) science_roles
+    FROM expert_qualification q LEFT JOIN department d ON d.id=q.applicant_dept_id
+    JOIN app_user au ON au.id=q.user_id LEFT JOIN app_user du ON du.id=q.dept_reviewer_user_id
+    LEFT JOIN app_user su ON su.id=q.science_reviewer_user_id
+    <where>
+      <if test="filter.id != null">q.id=#{filter.id}</if>
+      <if test="filter.userId != null">AND q.user_id=#{filter.userId}</if>
+      <if test="filter.departmentOnly == true">AND q.applicant_dept_id=#{filter.departmentId,jdbcType=BIGINT}</if>
+    </where>
+    ORDER BY q.id DESC
+  </select>
+  <update id="departmentReview">
+    UPDATE expert_qualification SET dept_reviewer_user_id=#{actor},dept_review_opinion=#{opinion},dept_review_remark=#{remark},
+      dept_reviewed_at=CURRENT_TIMESTAMP(6),status=#{status},updated_at=CURRENT_TIMESTAMP(6)
+    WHERE id=#{id} AND status='PENDING_DEPT_REVIEW'
+  </update>
+  <update id="scienceReview">
+    UPDATE expert_qualification SET science_reviewer_user_id=#{actor},science_review_opinion=#{opinion},science_review_remark=#{remark},
+      science_reviewed_at=CURRENT_TIMESTAMP(6),status=#{status},updated_at=CURRENT_TIMESTAMP(6)
+    WHERE id=#{id} AND status='PENDING_SCIENCE_REVIEW'
+  </update>
+  <update id="incrementVersion">UPDATE app_user SET auth_version=auth_version+1 WHERE id=#{id}</update>
+  <!-- 读取申请人当前授权版本，供资格或角色变更后的会话版本同步使用。 -->
+  <select id="version" resultType="java.lang.Long">SELECT auth_version FROM app_user WHERE id=#{id}</select>
+</mapper>

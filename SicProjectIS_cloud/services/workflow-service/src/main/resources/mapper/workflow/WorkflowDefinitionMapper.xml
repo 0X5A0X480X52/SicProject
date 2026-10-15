@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.workflow.dao.WorkflowDefinitionMapper">
+  <!-- 定义 MyBatis 接口：定义与版本状态写入、发布/停用切换、BPMN XML 读取，以及节点与连线配置的删除重建。 -->
+  <resultMap id="definition" type="com.amatrix.sic.workflow.entity.DefinitionRow"><constructor>
+    <arg column="id" javaType="Long"/><arg column="code" javaType="String"/><arg column="name" javaType="String"/>
+    <arg column="version" javaType="_int"/><arg column="status" javaType="String"/><arg column="published" javaType="_boolean"/><arg column="bpmn_xml" javaType="String"/>
+  </constructor></resultMap>
+  <!-- 按定义 ID 读取完整记录，供定义详情和生命周期操作使用。 -->
+  <select id="find" resultMap="definition">SELECT * FROM workflow_definition WHERE id=#{id}</select>
+  <!-- 按 ID 列出全部定义，供定义管理和资产列表组装使用。 -->
+  <select id="all" resultMap="definition">SELECT * FROM workflow_definition ORDER BY id</select>
+  <!-- 按编码读取版本最高的已发布定义，供创建实例时选择定义使用。 -->
+  <select id="latest" resultMap="definition">SELECT * FROM workflow_definition WHERE code=#{code} AND published=TRUE ORDER BY version DESC,id DESC LIMIT 1</select>
+  <!-- 按编码和版本号定位定义 ID，供发行资产安装和版本重复检查。 -->
+  <select id="versionId" resultType="Long">SELECT id FROM workflow_definition WHERE code=#{code} AND version=#{version}</select>
+  <!-- 统计指定编码下已有节点配置的定义数，供启动检查发行流程是否已安装。 -->
+  <select id="installed" resultType="Integer">SELECT COUNT(*) FROM workflow_definition d WHERE d.code=#{code}
+    AND EXISTS(SELECT 1 FROM workflow_node_config n WHERE n.workflow_definition_id=d.id)</select>
+  <!-- 判断是否存在版本号更高的已发布定义，供补齐资产时避免覆盖发布选择。 -->
+  <select id="newerPublished" resultType="Boolean">SELECT EXISTS(SELECT 1 FROM workflow_definition WHERE code=#{code} AND version&gt;#{version} AND published=TRUE)</select>
+  <!-- 统计定义节点配置数，供模型完整性和资产初始化检查使用。 -->
+  <select id="nodeCount" resultType="Integer">SELECT COUNT(*) FROM workflow_node_config WHERE workflow_definition_id=#{id}</select>
+  <!-- 统计引用定义的实例数，供定义修改及资产替换前检查使用。 -->
+  <select id="moduleCount" resultType="Integer">SELECT COUNT(*) FROM module_instance WHERE definition_id=#{id}</select>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO workflow_definition(code,name,version,status,published,bpmn_xml,definition_json)
+    VALUES(#{code},#{name},#{version},#{status},#{published},#{bpmn},#{json})</insert>
+  <!-- 仅补齐允许恢复的空定义；是否已有配置或正在被实例使用由启动用例先校验。 -->
+  <update id="replaceEmpty">UPDATE workflow_definition SET name=#{name},status=#{status},published=#{published},bpmn_xml=#{bpmn},definition_json=#{json} WHERE id=#{id}</update>
+  <update id="deactivate">UPDATE workflow_definition SET status='INACTIVE',published=FALSE WHERE code=#{code} AND id&lt;&gt;#{id} AND published=TRUE</update>
+  <update id="publish">UPDATE workflow_definition SET code=#{code},name=#{name},version=#{version},status='ACTIVE',published=TRUE,definition_json=#{json} WHERE id=#{id}</update>
+  <delete id="deleteTransitions">DELETE FROM workflow_transition_config WHERE workflow_definition_id=#{id}</delete>
+  <delete id="deleteNodes">DELETE FROM workflow_node_config WHERE workflow_definition_id=#{id}</delete>
+  <insert id="insertNode">INSERT INTO workflow_node_config(workflow_definition_id,node_id,node_name,node_type,state_code,lane_name,responsible_actor_code,
+    responsible_actor_name,candidate_role_code,operation_mode,represented_actor_code,represented_actor_name,material_requirements_json,document_configs_json)
+    VALUES(#{definition},#{node.nodeId},#{node.nodeName},#{node.nodeType},#{node.stateCode},#{node.laneName},#{node.responsibleActorCode},#{node.responsibleActorName},
+      #{node.candidateRoleCode},#{node.operationMode},#{node.representedActorCode},#{node.representedActorName},#{materials},#{documents})</insert>
+  <insert id="insertTransition">INSERT INTO workflow_transition_config(workflow_definition_id,transition_id,source_ref,target_ref,source_state_code,target_state_code,
+    event_type,result_code,condition_type,condition_key,condition_value,condition_handler_key,condition_expression,action_keys_json)
+    VALUES(#{definition},#{transition.transitionId},#{transition.sourceRef},#{transition.targetRef},#{transition.sourceStateCode},#{transition.targetStateCode},
+      #{transition.eventType},#{transition.result},#{transition.conditionType},#{transition.conditionKey},#{transition.conditionValue},#{transition.conditionHandlerKey},
+      #{transition.conditionExpression},#{actions})</insert>
+</mapper>

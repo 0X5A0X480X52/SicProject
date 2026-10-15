@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "runId": "202610100944023145b9",
+  "project": "sic-iteration-20261010",
+  "restoreSchemas": {
+    "sic_iam": "sic_restore_202610100944023145b9_iam",
+    "sic_project": "sic_restore_202610100944023145b9_project",
+    "sic_workflow": "sic_restore_202610100944023145b9_workflow",
+    "sic_material": "sic_restore_202610100944023145b9_material",
+    "sic_notification": "sic_restore_202610100944023145b9_notification"
+  },
+  "tableCount": 57,
+  "differences": [],
+  "backupBytes": 635906,
+  "backupSha256": "72c90f22479d15cb4ebcbf69fad2cba6be3e5e4ad1ffe412c0adde2a884c1214"
+}

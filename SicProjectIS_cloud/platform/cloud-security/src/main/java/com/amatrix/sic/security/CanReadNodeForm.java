@@ -1,0 +1,17 @@
+package com.amatrix.sic.security;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+
+/**
+ * 方法权限元注解：按 projectId/moduleInstanceId 调用 projectAccessPolicy.canAccessForm。
+ */
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize("@projectAccessPolicy.canAccessForm(@actorContextResolver.from(authentication), #projectId, #moduleInstanceId)")
+public @interface CanReadNodeForm {
+}

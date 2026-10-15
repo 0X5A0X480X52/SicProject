@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 提交注册信息并建立初始登录状态；部门、业务角色与专家资格在后续管理和审批流程中取得。
+ */
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { ApiError } from '../api/client'

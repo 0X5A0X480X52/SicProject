@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "gateway": "http://127.0.0.1:8080",
+  "checks": [
+    {
+      "path": "/api/workflow-workbench/query?view=VISIBLE",
+      "status": 200,
+      "count": 4,
+      "traceId": "b421757f-4cd2-49bb-a7b9-e7fbc648b8ed"
+    },
+    {
+      "path": "/api/workflow-workbench/query?view=TODO",
+      "status": 200,
+      "count": 1,
+      "traceId": "89e481bd-ed72-41b2-a1c1-b8646349a133"
+    },
+    {
+      "path": "/api/workflow-workbench/query?view=OPERATED",
+      "status": 200,
+      "count": 1,
+      "traceId": "05488e77-c696-4b95-84ea-0a2e43cc6685"
+    },
+    {
+      "path": "/api/workflow-workbench/query?view=FINISHED",
+      "status": 200,
+      "count": 3,
+      "traceId": "fa9178d7-2eeb-4725-bbb7-80ee753fcd0c"
+    },
+    {
+      "path": "/api/expert-reviews/my-assignments",
+      "status": 200,
+      "count": 0,
+      "traceId": "dd6de226-c9f2-47fe-b2eb-cbd4ab8136d9"
+    }
+  ],
+  "applicationMountsMatchRelease": true,
+  "frozenReleaseManifestSha256": "66f0d0bb1b56d6c84c2811ba6cc7d56ddf9507494873ea4d6b514ed5a5ad3a28",
+  "legacyDepartmentUnchanged": true,
+  "frontendServed": true
+}

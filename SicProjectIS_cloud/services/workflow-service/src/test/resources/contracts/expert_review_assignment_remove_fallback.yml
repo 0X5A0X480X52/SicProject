@@ -1,0 +1,16 @@
+description: expert assignment compatibility POST returns refreshed detail
+name: expert_review_assignment_remove_fallback
+request:
+  method: POST
+  url: /api/expert-reviews/assignments/40/remove
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      batch: { batchId: 30 }
+      assignments:
+        - assignment: { assignmentId: 40, expertUserId: 7, reviewStatus: ASSIGNED }
+          scores: []
+    message: OK

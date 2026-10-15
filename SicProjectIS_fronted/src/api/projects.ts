@@ -1,3 +1,6 @@
+/**
+ * 封装项目列表、成员和范围授权，以及申请 Saga 入口；批量接口保持同步整体提交，不在客户端拆成逐条写入。
+ */
 import { apiRequest } from './client'
 import type {
   AssignProjectExpertRequest,
@@ -17,6 +20,15 @@ import type {
 
 export function listProjects(signal?: AbortSignal) {
   return apiRequest<ProjectSummary[]>('/projects', { signal })
+}
+
+/**
+ * 提交历史项目的空部门补充及原因，已有部门的覆盖由后端拒绝；不借此修改负责人身份部门。
+ */
+export function assignMissingProjectDepartment(projectId: number, deptId: number, reason: string) {
+  return apiRequest<{ projectId: number; deptId: number; deptName: string }>(`/projects/${projectId}/department`, {
+    method: 'PUT', body: JSON.stringify({ deptId, reason }),
+  })
 }
 
 export function getProjectAuthorization(projectId: number) {
@@ -110,6 +122,9 @@ export function revokeProjectGrants(projectId: number, request: BatchRevokeProje
   })
 }
 
+/**
+ * 通过 Project 的申请 Saga 创建项目与首个模块，不额外调用通用模块创建接口。部门及账号有效性由后端读取当前 IAM 数据。
+ */
 export function startProjectApplication(request: StartProjectApplicationRequest) {
   return apiRequest<StartProjectApplicationResponse>('/project-applications/start', {
     method: 'POST',

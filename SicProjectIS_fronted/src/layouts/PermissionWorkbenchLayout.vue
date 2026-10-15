@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 组织权限管理工作台的布局与导航，具体角色、成员和授权变更由对应页面及后端接口处理。
+ */
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { DataAnalysis, Key, List, Management, Medal, OfficeBuilding, User } from '@element-plus/icons-vue'

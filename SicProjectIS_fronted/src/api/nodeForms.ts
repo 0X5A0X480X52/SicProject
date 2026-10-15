@@ -1,3 +1,6 @@
+/**
+ * 按 formCode 及运行时上下文读写节点表单；草稿保存、记录维护与正式流程提交是不同操作。
+ */
 import { apiRequest } from './client'
 import type {
   NodeFormContext,

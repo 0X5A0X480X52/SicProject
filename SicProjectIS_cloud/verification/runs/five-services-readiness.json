@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-10T11:03:07.454405+00:00",
+  "project": "sic-fullsql-20261010",
+  "checks": [
+    {
+      "name": "registry propagation",
+      "passed": true,
+      "services": [
+        "GATEWAY-SERVICE",
+        "IAM-SERVICE",
+        "MATERIAL-SERVICE",
+        "NOTIFICATION-SERVICE",
+        "PROJECT-SERVICE",
+        "WORKFLOW-SERVICE"
+      ]
+    },
+    {
+      "name": "/api/auth/me",
+      "passed": true,
+      "status": 200,
+      "traceId": "935477c2-49ac-4d87-803d-b544078f67a2"
+    },
+    {
+      "name": "/api/projects",
+      "passed": true,
+      "status": 200,
+      "traceId": "8db081f5-596a-4a8d-94f4-4b16afb2c2b3"
+    },
+    {
+      "name": "/api/workflow-definitions",
+      "passed": true,
+      "status": 200,
+      "traceId": "a6a8f32d-f416-422e-8a54-07a51df3f1da"
+    },
+    {
+      "name": "/api/projects/0/materials",
+      "passed": true,
+      "status": 403,
+      "traceId": "cb3ea574-2ee1-4d2d-906b-0b8a08e93bda"
+    }
+  ],
+  "registryStableSeconds": 65,
+  "finishedAt": "2026-10-10T11:04:15.033557+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "project": "sic-localdev",
+  "applied": true,
+  "passed": true,
+  "eligibleFields": 36,
+  "changedFields": 36,
+  "backupPath": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\iam-text-repair\\20261011035142-be2ef1.sql",
+  "backupSha256": "4e35e3c7ae77d4e73bef9d005f57074e49f2b17554655c034b1766076d2da50d",
+  "textVerified": true,
+  "accessStateUnchanged": true
+}

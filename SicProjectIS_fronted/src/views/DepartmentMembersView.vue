@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 管理后端返回的可管理部门与成员，区分仅分配部门和明确替换可编辑角色，防止部门调整意外丢失身份角色。
+ */
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'
@@ -307,6 +310,7 @@ onMounted(loadMembers)
               </el-table-column>
               <el-table-column label="操作" width="190" fixed="right">
                 <template #default="{ row }">
+                  <el-button link type="primary" :disabled="memberManagementDisabled || row.deptId == null" @click="openRoleDialog(row)">编辑角色</el-button>
                   <el-button link type="danger" :disabled="memberManagementDisabled || row.deptId == null" @click="removeMember(row)">移除</el-button>
                 </template>
               </el-table-column>

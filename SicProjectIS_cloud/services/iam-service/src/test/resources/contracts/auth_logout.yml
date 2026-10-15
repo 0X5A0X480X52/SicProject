@@ -1,0 +1,13 @@
+description: logout keeps the null data success wrapper
+name: auth_logout
+request:
+  method: POST
+  url: /api/auth/logout
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data: null
+    message: OK

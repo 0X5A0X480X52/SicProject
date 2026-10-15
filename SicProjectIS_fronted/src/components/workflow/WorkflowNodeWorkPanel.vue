@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 从当前节点表单定义组织可写字段、材料及办理动作；系统字段不作为用户输入，专家评审和文档节点使用专门展示。
+ */
 import { computed, ref, watch } from 'vue'
 import ExpertReviewPanel from './ExpertReviewPanel.vue'
 import MaterialRequirementPanel from './MaterialRequirementPanel.vue'
@@ -57,7 +60,7 @@ const isReadOnlyForm = computed(() => !selectedForm.value || selectedForm.value.
 const isExpertForm = computed(() => dataKind.value === 'EXPERT_REVIEW')
 const hasWritableFields = computed(() => Boolean(selectedForm.value && !isReadOnlyForm.value && !isExpertForm.value))
 
-/** User-writable field entries for the current dataKind (system fields excluded). */
+/** 当前 dataKind 的可编辑字段，已排除系统字段。 */
 const writableFields = computed<Array<[string, string]>>(() =>
   hasWritableFields.value ? filteredFieldsForKind(dataKind.value) : [],
 )
@@ -95,6 +98,9 @@ function isRequiredField(key: string) {
   return requiredFieldsForKind(dataKind.value).includes(key)
 }
 
+/**
+ * 只为当前可写的普通表单生成请求，关联 ID 使用运行时上下文；只读、文档和专家表单由各自路径处理。
+ */
 function buildRequest(): WorkflowNodeSubmitPayload {
   const definition = selectedForm.value
   if (!definition || isReadOnlyForm.value || isExpertForm.value) {
@@ -106,7 +112,7 @@ function buildRequest(): WorkflowNodeSubmitPayload {
   const result = approved ? 'APPROVED' : 'REJECTED'
   const remark = props.remark || (props.formModel.remark as string) || ''
 
-  // Merge formModel with explicit approved/remark overrides
+  // 用本次明确选择的审批结果和意见覆盖表单模型，再按共享契约转换请求。
   const flatForm = {
     ...defaultsForKind(kind),
     ...props.formModel,
@@ -136,7 +142,7 @@ function validateAndSubmit() {
   emit('submit')
 }
 
-// Emit payload whenever form data changes
+// 数据变化后把派生请求交给父页面，正式提交仍由父页面统一处理。
 watch(
   () => [props.formModel, props.remark, selectedForm.value?.formCode],
   () => emit('payload-change', buildRequest()),

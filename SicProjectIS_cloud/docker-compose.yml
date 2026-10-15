@@ -1,0 +1,317 @@
+x-service-environment: &service-environment
+  CONFIG_SERVER_URL: http://config-server:8888
+  CONFIG_IMPORT: optional:configserver:http://config-server:8888
+  EUREKA_URL: http://discovery-server:8761/eureka/,http://discovery-peer:8761/eureka/
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+  RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+  REDIS_HOST: redis
+  REDIS_PASSWORD: ${REDIS_PASSWORD}
+  JWT_ISSUER: ${JWT_ISSUER:-sic-iam}
+  JWT_AUDIENCE: ${JWT_AUDIENCE:-sic-api}
+  JWK_SET_URI: http://iam-service:9001/.well-known/jwks.json
+  SERVICE_TOKEN_BOOTSTRAP_SECRET: ${SERVICE_TOKEN_BOOTSTRAP_SECRET}
+  DB_POOL_SIZE: ${DB_POOL_SIZE:-10}
+  SIC_LB_EVIDENCE_ENABLED: ${SIC_LB_EVIDENCE_ENABLED:-false}
+
+x-business-dependencies: &business-dependencies
+  config-server:
+    condition: service_healthy
+  mysql:
+    condition: service_healthy
+  rabbitmq:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+
+x-java-healthcheck: &java-healthcheck
+  test: ["CMD-SHELL", "wget -qO- http://localhost:$${SERVER_PORT}/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
+  interval: 15s
+  timeout: 5s
+  retries: 20
+  start_period: 45s
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      IAM_DB_PASSWORD: ${IAM_DB_PASSWORD}
+      PROJECT_DB_PASSWORD: ${PROJECT_DB_PASSWORD}
+      WORKFLOW_DB_PASSWORD: ${WORKFLOW_DB_PASSWORD}
+      MATERIAL_DB_PASSWORD: ${MATERIAL_DB_PASSWORD}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      TZ: Asia/Shanghai
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./infra/mysql/init-databases.sh:/docker-entrypoint-initdb.d/01-init-databases.sh:ro
+      - ./infra/mysql/schema:/sic-release/schema:ro
+      - ./infra/mysql/seed:/sic-release/seed:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:4.1-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:8.2-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$${REDIS_PASSWORD}\" redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio:RELEASE.2025-07-23T15-54-02Z
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    ports:
+      - "9000:9000"
+      - "9006:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  discovery-server:
+    build:
+      context: .
+      args:
+        MODULE: platform/discovery-server
+    environment:
+      SERVER_PORT: 8761
+      SPRING_PROFILES_ACTIVE: ha
+      EUREKA_HOSTNAME: discovery-server
+      EUREKA_PEER_URL: http://discovery-peer:8761/eureka/
+    hostname: discovery-server
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    healthcheck:
+      <<: *java-healthcheck
+
+  discovery-peer:
+    build:
+      context: .
+      args:
+        MODULE: platform/discovery-server
+    environment:
+      SERVER_PORT: 8761
+      SPRING_PROFILES_ACTIVE: ha
+      EUREKA_HOSTNAME: discovery-peer
+      EUREKA_PEER_URL: http://discovery-server:8761/eureka/
+    hostname: discovery-peer
+    restart: unless-stopped
+    ports:
+      - "8762:8761"
+    healthcheck:
+      <<: *java-healthcheck
+
+  config-server:
+    build:
+      context: .
+      args:
+        MODULE: platform/config-server
+    environment:
+      SERVER_PORT: 8888
+    ports:
+      - "8888:8888"
+    healthcheck:
+      <<: *java-healthcheck
+
+  iam-service:
+    scale: ${SIC_IAM_REPLICAS:-1}
+    build:
+      context: .
+      args:
+        MODULE: services/iam-service
+    environment:
+      <<: *service-environment
+      SERVER_PORT: 9001
+      IAM_DB_PASSWORD: ${IAM_DB_PASSWORD}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      BOOTSTRAP_ADMIN_REAL_NAME: ${BOOTSTRAP_ADMIN_REAL_NAME:-系统管理员}
+    depends_on:
+      <<: *business-dependencies
+    healthcheck:
+      <<: *java-healthcheck
+
+  project-service:
+    scale: ${SIC_PROJECT_REPLICAS:-1}
+    build:
+      context: .
+      args:
+        MODULE: services/project-service
+    environment:
+      <<: *service-environment
+      SERVER_PORT: 9002
+      PROJECT_DB_PASSWORD: ${PROJECT_DB_PASSWORD}
+    depends_on:
+      <<: *business-dependencies
+      iam-service:
+        condition: service_healthy
+    healthcheck:
+      <<: *java-healthcheck
+
+  workflow-service:
+    scale: ${SIC_WORKFLOW_REPLICAS:-1}
+    build:
+      context: .
+      args:
+        MODULE: services/workflow-service
+    environment:
+      <<: *service-environment
+      SERVER_PORT: 9003
+      WORKFLOW_DB_PASSWORD: ${WORKFLOW_DB_PASSWORD}
+    depends_on:
+      <<: *business-dependencies
+      iam-service:
+        condition: service_healthy
+      project-service:
+        condition: service_healthy
+    healthcheck:
+      <<: *java-healthcheck
+
+  material-service:
+    scale: ${SIC_MATERIAL_REPLICAS:-1}
+    build:
+      context: .
+      args:
+        MODULE: services/material-service
+    environment:
+      <<: *service-environment
+      SERVER_PORT: 9004
+      MATERIAL_DB_PASSWORD: ${MATERIAL_DB_PASSWORD}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    depends_on:
+      <<: *business-dependencies
+      iam-service:
+        condition: service_healthy
+      project-service:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      <<: *java-healthcheck
+
+  notification-service:
+    scale: ${SIC_NOTIFICATION_REPLICAS:-1}
+    build:
+      context: .
+      args:
+        MODULE: services/notification-service
+    environment:
+      <<: *service-environment
+      SERVER_PORT: 9005
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+    depends_on:
+      <<: *business-dependencies
+      iam-service:
+        condition: service_healthy
+    healthcheck:
+      <<: *java-healthcheck
+
+  gateway-service:
+    build:
+      context: .
+      args:
+        MODULE: services/gateway-service
+    environment:
+      <<: *service-environment
+      SERVER_PORT: 8080
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    depends_on:
+      config-server:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      iam-service:
+        condition: service_healthy
+      project-service:
+        condition: service_healthy
+      workflow-service:
+        condition: service_healthy
+      material-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    healthcheck:
+      <<: *java-healthcheck
+
+  migration-tool:
+    profiles: ["migration"]
+    build:
+      context: .
+      args:
+        MODULE: platform/migration-tool
+    environment:
+      MIGRATION_JDBC_URL: jdbc:mysql://mysql:3306/sic_legacy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      MIGRATION_DB_USER: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-sic-materials}
+      LEGACY_UPLOADS_ROOT: /legacy-uploads
+    volumes:
+      - ${LEGACY_UPLOADS_PATH:-./migration-input/uploads}:/legacy-uploads:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  dlq-recovery-tool:
+    profiles: ["operations"]
+    build:
+      context: .
+      args:
+        MODULE: platform/dlq-recovery-tool
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      DLQ_REPLAY_CONFIRM: ${DLQ_REPLAY_CONFIRM:-}
+      DLQ_REPLAY_MAX_MESSAGES: ${DLQ_REPLAY_MAX_MESSAGES:-10}
+      DLQ_REPLAY_CONFIRM_TIMEOUT: ${DLQ_REPLAY_CONFIRM_TIMEOUT:-10s}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  mysql-data:
+  rabbitmq-data:
+  redis-data:
+  minio-data:

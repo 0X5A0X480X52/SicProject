@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "projectName": "sic-replica-accept",
+  "passed": true,
+  "ordinaryTests": 188,
+  "mysqlTests": 22,
+  "pythonTests": 20,
+  "skippedTests": 0,
+  "matrixReport": "multi-instance-matrix.json",
+  "modeReports": {
+    "lb-20261012101723-96d2c9": {
+      "mode": "balance",
+      "passed": true,
+      "deploymentMode": "jar"
+    },
+    "lb-20261012101852-bd75be": {
+      "mode": "business",
+      "passed": true,
+      "deploymentMode": "jar"
+    },
+    "lb-20261012102051-218889": {
+      "mode": "fault",
+      "passed": true,
+      "deploymentMode": "jar"
+    },
+    "lb-20261012105817-ec5745": {
+      "mode": "balance",
+      "passed": true,
+      "deploymentMode": "image"
+    },
+    "lb-20261012105818-a84b86": {
+      "mode": "business",
+      "passed": true,
+      "deploymentMode": "image"
+    },
+    "lb-20261012110241-d5984c": {
+      "mode": "fault",
+      "passed": true,
+      "deploymentMode": "image"
+    },
+    "lb-20261012112316-1e4b43": {
+      "mode": "balance",
+      "passed": true,
+      "deploymentMode": "image"
+    }
+  },
+  "environmentStopped": true,
+  "retainedContainerCount": 17,
+  "retainedVolumes": {
+    "sic-replica-accept_mysql-data": "2026-10-12T10:11:51Z",
+    "sic-replica-accept_redis-data": "2026-10-12T10:11:51Z",
+    "sic-replica-accept_rabbitmq-data": "2026-10-12T10:11:51Z",
+    "sic-replica-accept_minio-data": "2026-10-12T10:11:51Z"
+  },
+  "secretsScanPassed": true,
+  "finishedAt": "2026-10-12T11:30:16.720231+00:00"
+}

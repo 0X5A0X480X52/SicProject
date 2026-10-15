@@ -1,0 +1,889 @@
+{
+  "schemaVersion": 1,
+  "caseId": "E2E-BIZ-001",
+  "status": "RESEARCH_SPEC_NOT_EXECUTED",
+  "transport": "HTTP_THROUGH_GATEWAY",
+  "createdOn": "2026-10-10",
+  "requestRecipeSource": "../../docs/full-business-e2e-test-case.md",
+  "baseUrlEnvironment": "SIC_E2E_GATEWAY_BASE_URL",
+  "apiPrefix": "/api",
+  "administrator": {
+    "usernameEnvironment": "SIC_E2E_ADMIN_USERNAME",
+    "passwordEnvironment": "SIC_E2E_ADMIN_PASSWORD"
+  },
+  "runIsolation": {
+    "usernamePrefix": "e2e_<runId>_",
+    "projectCode": "E2E_<runId>",
+    "departmentCode": "E2E_<runId>"
+  },
+  "accounts": [
+    {
+      "alias": "science",
+      "roleCodesBeforeQualification": [
+        "SCIENCE_ADMIN"
+      ],
+      "department": "testDepartment"
+    },
+    {
+      "alias": "department",
+      "roleCodesBeforeQualification": [
+        "DEPT_ADMIN"
+      ],
+      "department": "testDepartment"
+    },
+    {
+      "alias": "leader",
+      "roleCodesBeforeQualification": [
+        "PROJECT_LEADER"
+      ],
+      "department": "testDepartment"
+    },
+    {
+      "alias": "finance",
+      "roleCodesBeforeQualification": [
+        "FINANCE_ADMIN"
+      ],
+      "department": "testDepartment"
+    },
+    {
+      "alias": "expert1",
+      "roleCodesBeforeQualification": [],
+      "department": "testDepartment"
+    },
+    {
+      "alias": "expert2",
+      "roleCodesBeforeQualification": [],
+      "department": "testDepartment"
+    }
+  ],
+  "qualification": {
+    "applicants": [
+      "expert1",
+      "expert2"
+    ],
+    "departmentReviewer": "department",
+    "scienceReviewer": "science",
+    "mustReach": "APPROVED",
+    "reloginAfterApproval": true
+  },
+  "projectStart": {
+    "creator": "leader",
+    "finalLeader": "leader",
+    "body": {
+      "projectCode": "E2E_<runId>",
+      "projectName": "E2E lifecycle <runId>",
+      "projectType": "VERTICAL",
+      "projectLevel": "PROVINCIAL",
+      "approvedAmount": 1000,
+      "startDate": "2026-01-01",
+      "endDate": "2027-12-31",
+      "applicationTitle": "E2E limited application",
+      "isLimitedProject": true,
+      "applicationSummary": "HTTP-only full lifecycle fixture"
+    }
+  },
+  "financeGrant": {
+    "actor": "administrator",
+    "user": "finance",
+    "body": {
+      "moduleType": "ACCEPTANCE",
+      "roundNo": null,
+      "taskNodeId": null,
+      "reason": "E2E finance access"
+    }
+  },
+  "expertBatch": {
+    "createBodyDefaults": {
+      "ruleType": "AVERAGE",
+      "minExpertCount": 0,
+      "expectedExpertCount": 0,
+      "passScore": 60,
+      "recommendScore": 85
+    },
+    "workflowNodeIdSource": "runtimeView.context.currentWorkflowNodeId",
+    "assignBeforeEnteringReview": [
+      "expert1",
+      "expert2"
+    ],
+    "scores": {
+      "expert1": 90,
+      "expert2": 80
+    },
+    "expectedSubmittedCount": 2,
+    "expectedValidCount": 2,
+    "expectedFinalScore": 85,
+    "expectedFinalResult": "RECOMMENDED",
+    "batchCount": 3
+  },
+  "uploadFixture": {
+    "pathFromCloudRoot": "output/pdf/blank-upload.pdf",
+    "multipartField": "file",
+    "contentType": "application/pdf",
+    "bytes": 535,
+    "sha256": "f3e09f653591a16d4eaa1b6b26c0e89921ce9ea7079c25596f2165e2c3bfe86d"
+  },
+  "responseBindings": {
+    "userId": "data.user.userId",
+    "token": "data.token",
+    "qualificationId": "data.applicationId",
+    "projectId": "data.projectId",
+    "initialModuleId": "data.moduleInstanceId",
+    "batchId": "data.batch.batchId",
+    "assignmentId": "data.assignments[].assignment.assignmentId",
+    "materialVersionId": "data.context.materialVersionId"
+  },
+  "pollingProposal": {
+    "intervalSeconds": 0.5,
+    "timeoutSeconds": 30,
+    "observer": "science or next-node operator",
+    "waitFor": [
+      "IAM role snapshots",
+      "expert auto transition",
+      "successor module",
+      "project lifecycle"
+    ]
+  },
+  "frontendParity": {
+    "jsonAccept": "application/json",
+    "bearerPerActor": true,
+    "expectedSeqFromFreshRuntimeView": true,
+    "formDataFrom": "useNodeFormHelpers.buildRequestFromFlatForm",
+    "doNotCallInternalApis": true,
+    "doNotInjectSchoolLevelFlag": true
+  },
+  "modules": [
+    {
+      "moduleType": "APPLICATION",
+      "asset": "项目申请_辅助标签版.bpmn",
+      "assetSha256": "7df657819b8484107be8ca5b52d00166bb9b9b6c478adb926dac9b6e9ca95aad",
+      "initialNodeId": "SubmitApplicationTask",
+      "finalState": "APPLICATION_APPROVED",
+      "steps": [
+        {
+          "nodeId": "SubmitApplicationTask",
+          "nodeName": "填报并提交项目申请书",
+          "state": "APPLICATION_DRAFT",
+          "actor": "leader",
+          "candidateRole": "PROJECT_LEADER",
+          "action": "TRANSITION",
+          "eventType": "USER_CONFIRMED_SUBMIT",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "PROJECT_APPLICATION_FORM",
+            "dataKind": "APPLICATION_DRAFT",
+            "writeMode": "SINGLE_INSTANCE"
+          },
+          "requiredMaterials": [
+            "PROJECT_APPLICATION_FORM"
+          ],
+          "nextNodeId": "DeptReviewTask",
+          "nextState": "APPLICATION_DEPT_REVIEWING"
+        },
+        {
+          "nodeId": "DeptReviewTask",
+          "nodeName": "二级单位形式审核",
+          "state": "APPLICATION_DEPT_REVIEWING",
+          "actor": "department",
+          "candidateRole": "DEPT_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "DEPT_REVIEW_FINISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "DEPT_APPLICATION_REVIEW_FORM",
+            "dataKind": "CHECK_ITEM",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "DeptExpertAssignTask",
+          "nextState": "APPLICATION_DEPT_EXPERT_ASSIGNING"
+        },
+        {
+          "nodeId": "DeptExpertAssignTask",
+          "nodeName": "二级单位分配评审专家",
+          "state": "APPLICATION_DEPT_EXPERT_ASSIGNING",
+          "actor": "department",
+          "candidateRole": "DEPT_ADMIN",
+          "action": "EXPERT_ASSIGN_AND_TRANSITION",
+          "eventType": "DEPT_EXPERT_ASSIGNED",
+          "result": "ASSIGNED",
+          "form": {
+            "formCode": "DEPT_EXPERT_ASSIGN_FORM",
+            "dataKind": "EXPERT_REVIEW",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "DeptExpertReviewTask",
+          "nextState": "APPLICATION_DEPT_EXPERT_REVIEWING"
+        },
+        {
+          "nodeId": "DeptExpertReviewTask",
+          "nodeName": "二级单位专家审核提交",
+          "state": "APPLICATION_DEPT_EXPERT_REVIEWING",
+          "actor": "expert1+expert2",
+          "candidateRole": "EXPERT",
+          "action": "SCORE_BOTH_AND_WAIT_AUTO_TRANSITION",
+          "eventType": "DEPT_EXPERT_REVIEW_SUBMITTED",
+          "result": "REVIEW_SUBMITTED",
+          "form": {
+            "formCode": "DEPT_EXPERT_REVIEW_FORM",
+            "dataKind": "EXPERT_REVIEW",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "DeptExpertSummaryTask",
+          "nextState": "APPLICATION_DEPT_EXPERT_SUMMARIZING"
+        },
+        {
+          "nodeId": "DeptExpertSummaryTask",
+          "nodeName": "二级单位汇总提交专家评审结果",
+          "state": "APPLICATION_DEPT_EXPERT_SUMMARIZING",
+          "actor": "department",
+          "candidateRole": "DEPT_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "DEPT_EXPERT_REVIEW_FINISHED",
+          "result": "REVIEW_FINISHED",
+          "form": {
+            "formCode": "DEPT_EXPERT_SUMMARY_FORM",
+            "dataKind": "EXPERT_REVIEW",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "ScienceOfficeInitialReviewTask",
+          "nextState": "APPLICATION_SCIENCE_INITIAL_REVIEWING"
+        },
+        {
+          "nodeId": "ScienceOfficeInitialReviewTask",
+          "nodeName": "科技处初审",
+          "state": "APPLICATION_SCIENCE_INITIAL_REVIEWING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "SCIENCE_INITIAL_REVIEW_FINISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "SCIENCE_INITIAL_REVIEW_FORM",
+            "dataKind": "CHECK_ITEM",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "ScienceExpertAssignTask",
+          "nextState": "APPLICATION_SCIENCE_EXPERT_ASSIGNING"
+        },
+        {
+          "nodeId": "ScienceExpertAssignTask",
+          "nodeName": "科技处分配评审专家",
+          "state": "APPLICATION_SCIENCE_EXPERT_ASSIGNING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "EXPERT_ASSIGN_AND_TRANSITION",
+          "eventType": "SCIENCE_EXPERT_ASSIGNED",
+          "result": "ASSIGNED",
+          "form": {
+            "formCode": "SCIENCE_EXPERT_ASSIGN_FORM",
+            "dataKind": "EXPERT_REVIEW",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "ScienceExpertReviewTask",
+          "nextState": "APPLICATION_SCIENCE_EXPERT_REVIEWING"
+        },
+        {
+          "nodeId": "ScienceExpertReviewTask",
+          "nodeName": "科技处专家审核提交",
+          "state": "APPLICATION_SCIENCE_EXPERT_REVIEWING",
+          "actor": "expert1+expert2",
+          "candidateRole": "EXPERT",
+          "action": "SCORE_BOTH_AND_WAIT_AUTO_TRANSITION",
+          "eventType": "SCIENCE_EXPERT_REVIEW_SUBMITTED",
+          "result": "REVIEW_SUBMITTED",
+          "form": {
+            "formCode": "SCIENCE_EXPERT_REVIEW_FORM",
+            "dataKind": "EXPERT_REVIEW",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "ScienceExpertSummaryTask",
+          "nextState": "APPLICATION_SCIENCE_EXPERT_SUMMARIZING"
+        },
+        {
+          "nodeId": "ScienceExpertSummaryTask",
+          "nodeName": "科技处汇总提交专家评审结果",
+          "state": "APPLICATION_SCIENCE_EXPERT_SUMMARIZING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "SCIENCE_EXPERT_REVIEW_FINISHED",
+          "result": "REVIEW_FINISHED",
+          "form": {
+            "formCode": "SCIENCE_EXPERT_SUMMARY_FORM",
+            "dataKind": "EXPERT_REVIEW",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "ScienceOfficePublicityTask",
+          "nextState": "APPLICATION_PUBLICITY"
+        },
+        {
+          "nodeId": "ScienceOfficePublicityTask",
+          "nodeName": "科技处择优推荐并公示",
+          "state": "APPLICATION_PUBLICITY",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "PUBLICITY_FINISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "APPLICATION_PUBLICITY_FORM",
+            "dataKind": "PUBLICITY",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "ScienceOfficeSubmitTask",
+          "nextState": "APPLICATION_SCIENCE_SUBMITTING"
+        },
+        {
+          "nodeId": "ScienceOfficeSubmitTask",
+          "nodeName": "科技处审核上报",
+          "state": "APPLICATION_SCIENCE_SUBMITTING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "SCIENCE_SUBMIT_TO_AUTHORITY",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "APPLICATION_SUBMISSION_REVIEW_FORM",
+            "dataKind": "CHECK_ITEM",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "AuthorityReviewTask",
+          "nextState": "APPLICATION_AUTHORITY_REVIEWING"
+        },
+        {
+          "nodeId": "AuthorityReviewTask",
+          "nodeName": "主管部门或第三方机构审核结果登记",
+          "state": "APPLICATION_AUTHORITY_REVIEWING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "AUTHORITY_REVIEW_FINISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "APPLICATION_AUTHORITY_RESULT_FORM",
+            "dataKind": "EXTERNAL_RESULT",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "AUTHORITY_APPROVAL_FILE"
+          ],
+          "nextNodeId": "SignAndSealTask",
+          "nextState": "APPLICATION_SIGN_SEALING"
+        },
+        {
+          "nodeId": "SignAndSealTask",
+          "nodeName": "打印申请书、签字并申请用章",
+          "state": "APPLICATION_SIGN_SEALING",
+          "actor": "leader",
+          "candidateRole": "PROJECT_LEADER",
+          "action": "TRANSITION",
+          "eventType": "SIGN_AND_SEAL_COMPLETED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "APPLICATION_SEAL_FORM",
+            "dataKind": "SEAL",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "SIGNED_APPLICATION_FORM"
+          ],
+          "nextNodeId": "SubmitFinalMaterialsTask",
+          "nextState": "APPLICATION_FINAL_MATERIAL_SUBMITTING"
+        },
+        {
+          "nodeId": "SubmitFinalMaterialsTask",
+          "nodeName": "报送主管部门或第三方机构",
+          "state": "APPLICATION_FINAL_MATERIAL_SUBMITTING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "FINAL_MATERIALS_SUBMITTED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "APPLICATION_FINAL_SUBMISSION_FORM",
+            "dataKind": "SUBMISSION",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "FINAL_APPLICATION_MATERIALS"
+          ],
+          "nextNodeId": "ApprovedEndEvent",
+          "nextState": "APPLICATION_APPROVED"
+        }
+      ]
+    },
+    {
+      "moduleType": "CONTRACT",
+      "asset": "纵向项目合同_辅助标签版.bpmn",
+      "assetSha256": "4d3f5ca34dc1d69a357a7ad1ae6b105c959cd678f2092e2a03b083adce9ddb9f",
+      "initialNodeId": "AuthorityApproveProjectTask",
+      "finalState": "CONTRACT_APPROVED",
+      "steps": [
+        {
+          "nodeId": "AuthorityApproveProjectTask",
+          "nodeName": "批准立项",
+          "state": "CONTRACT_PROJECT_APPROVED",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "PROJECT_APPROVAL_REGISTERED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "PROJECT_APPROVAL_FORM",
+            "dataKind": "EXTERNAL_RESULT",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "PROJECT_APPROVAL_FILE"
+          ],
+          "nextNodeId": "FillContractTask",
+          "nextState": "CONTRACT_DRAFT"
+        },
+        {
+          "nodeId": "FillContractTask",
+          "nodeName": "填写项目合同",
+          "state": "CONTRACT_DRAFT",
+          "actor": "leader",
+          "candidateRole": "PROJECT_LEADER",
+          "action": "TRANSITION",
+          "eventType": "CONTRACT_CONFIRMED_SUBMIT",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "CONTRACT_DRAFT_FORM",
+            "dataKind": "CONTRACT_DRAFT",
+            "writeMode": "SINGLE_INSTANCE"
+          },
+          "requiredMaterials": [
+            "CONTRACT_DRAFT"
+          ],
+          "nextNodeId": "DeptReviewTask",
+          "nextState": "CONTRACT_DEPT_REVIEWING"
+        },
+        {
+          "nodeId": "DeptReviewTask",
+          "nodeName": "二级单位审核",
+          "state": "CONTRACT_DEPT_REVIEWING",
+          "actor": "department",
+          "candidateRole": "DEPT_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "DEPT_CONTRACT_REVIEW_FINISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "CONTRACT_DEPT_REVIEW_FORM",
+            "dataKind": "CHECK_ITEM",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "ScienceOfficeReviewTask",
+          "nextState": "CONTRACT_SCIENCE_REVIEWING"
+        },
+        {
+          "nodeId": "ScienceOfficeReviewTask",
+          "nodeName": "科技处审核",
+          "state": "CONTRACT_SCIENCE_REVIEWING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "SCIENCE_CONTRACT_REVIEW_FINISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "CONTRACT_SCIENCE_REVIEW_FORM",
+            "dataKind": "CHECK_ITEM",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "AuthorityReviewTask",
+          "nextState": "CONTRACT_AUTHORITY_REVIEWING"
+        },
+        {
+          "nodeId": "AuthorityReviewTask",
+          "nodeName": "主管部门或专业机构审核",
+          "state": "CONTRACT_AUTHORITY_REVIEWING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "AUTHORITY_CONTRACT_REVIEW_FINISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "CONTRACT_AUTHORITY_REVIEW_FORM",
+            "dataKind": "EXTERNAL_RESULT",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "PrintPdfContractTask",
+          "nextState": "CONTRACT_PDF_PRINTING"
+        },
+        {
+          "nodeId": "PrintPdfContractTask",
+          "nodeName": "打印PDF合同书",
+          "state": "CONTRACT_PDF_PRINTING",
+          "actor": "leader",
+          "candidateRole": "PROJECT_LEADER",
+          "action": "TRANSITION",
+          "eventType": "CONTRACT_PDF_PRINTED",
+          "result": "PDF_PRINTED",
+          "form": {
+            "formCode": "CONTRACT_PDF_PRINT_FORM",
+            "dataKind": "DOCUMENT",
+            "writeMode": "READ_ONLY"
+          },
+          "requiredMaterials": [
+            "CONTRACT_PDF"
+          ],
+          "nextNodeId": "LeaderSignTask",
+          "nextState": "CONTRACT_LEADER_SIGNING"
+        },
+        {
+          "nodeId": "LeaderSignTask",
+          "nodeName": "项目负责人签字",
+          "state": "CONTRACT_LEADER_SIGNING",
+          "actor": "leader",
+          "candidateRole": "PROJECT_LEADER",
+          "action": "TRANSITION",
+          "eventType": "LEADER_SIGN_COMPLETED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "CONTRACT_LEADER_SIGN_FORM",
+            "dataKind": "SEAL",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "LEADER_SIGNED_CONTRACT"
+          ],
+          "nextNodeId": "SchoolSealTask",
+          "nextState": "CONTRACT_SCHOOL_SEALING"
+        },
+        {
+          "nodeId": "SchoolSealTask",
+          "nodeName": "学校盖章",
+          "state": "CONTRACT_SCHOOL_SEALING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "SCHOOL_SEAL_COMPLETED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "CONTRACT_SCHOOL_SEAL_FORM",
+            "dataKind": "SEAL",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "SCHOOL_SEALED_CONTRACT"
+          ],
+          "nextNodeId": "AuthoritySealTask",
+          "nextState": "CONTRACT_AUTHORITY_SEALING"
+        },
+        {
+          "nodeId": "AuthoritySealTask",
+          "nodeName": "主管部门或专业机构盖章",
+          "state": "CONTRACT_AUTHORITY_SEALING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "AUTHORITY_SEAL_COMPLETED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "CONTRACT_AUTHORITY_SEAL_FORM",
+            "dataKind": "EXTERNAL_RESULT",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "AUTHORITY_SEALED_CONTRACT"
+          ],
+          "nextNodeId": "ArchiveContractTask",
+          "nextState": "CONTRACT_ARCHIVING"
+        },
+        {
+          "nodeId": "ArchiveContractTask",
+          "nodeName": "返回科技处、项目负责人存档",
+          "state": "CONTRACT_ARCHIVING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "CONTRACT_ARCHIVED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "CONTRACT_ARCHIVE_FORM",
+            "dataKind": "ARCHIVE",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "ARCHIVED_CONTRACT"
+          ],
+          "nextNodeId": "ApprovedEndEvent",
+          "nextState": "CONTRACT_APPROVED"
+        }
+      ]
+    },
+    {
+      "moduleType": "ACCEPTANCE",
+      "asset": "项目结题_辅助标签版.bpmn",
+      "assetSha256": "1f100982f6ab231ca76622503efcd2808dd73a9aadb4eff3a9806f2c5e1607e6",
+      "initialNodeId": "PublishAcceptanceNoticeTask",
+      "finalState": "ACCEPTANCE_ACCEPTED",
+      "steps": [
+        {
+          "nodeId": "PublishAcceptanceNoticeTask",
+          "nodeName": "发布结题验收通知",
+          "state": "ACCEPTANCE_NOTICE_PUBLISHING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "ACCEPTANCE_NOTICE_PUBLISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "ACCEPTANCE_NOTICE_FORM",
+            "dataKind": "NOTICE",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "DeptNotifyLeaderTask",
+          "nextState": "ACCEPTANCE_DEPT_NOTIFYING"
+        },
+        {
+          "nodeId": "DeptNotifyLeaderTask",
+          "nodeName": "通知项目负责人",
+          "state": "ACCEPTANCE_DEPT_NOTIFYING",
+          "actor": "department",
+          "candidateRole": "DEPT_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "DEPT_LEADER_NOTIFIED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "ACCEPTANCE_NOTIFY_LEADER_FORM",
+            "dataKind": "CHECK_ITEM",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "FinancialSettlementTask",
+          "nextState": "ACCEPTANCE_FINANCIAL_SETTLEMENT"
+        },
+        {
+          "nodeId": "FinancialSettlementTask",
+          "nodeName": "办理经费决算并打印报销清单",
+          "state": "ACCEPTANCE_FINANCIAL_SETTLEMENT",
+          "actor": "finance",
+          "candidateRole": "FINANCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "FINANCIAL_SETTLEMENT_COMPLETED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "FINANCIAL_SETTLEMENT_FORM",
+            "dataKind": "FINANCIAL_SETTLEMENT",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "FINANCIAL_SETTLEMENT_LIST"
+          ],
+          "nextNodeId": "SubmitAcceptanceMaterialsTask",
+          "nextState": "ACCEPTANCE_MATERIAL_DRAFT"
+        },
+        {
+          "nodeId": "SubmitAcceptanceMaterialsTask",
+          "nodeName": "填报结题验收材料",
+          "state": "ACCEPTANCE_MATERIAL_DRAFT",
+          "actor": "leader",
+          "candidateRole": "PROJECT_LEADER",
+          "action": "TRANSITION",
+          "eventType": "ACCEPTANCE_CONFIRMED_SUBMIT",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "ACCEPTANCE_APPLICATION_FORM",
+            "dataKind": "ACCEPTANCE_DRAFT",
+            "writeMode": "SINGLE_INSTANCE"
+          },
+          "requiredMaterials": [
+            "ACCEPTANCE_APPLICATION_FORM",
+            "ACCEPTANCE_REPORT"
+          ],
+          "nextNodeId": "DeptReviewTask",
+          "nextState": "ACCEPTANCE_DEPT_REVIEWING"
+        },
+        {
+          "nodeId": "DeptReviewTask",
+          "nodeName": "二级单位审核",
+          "state": "ACCEPTANCE_DEPT_REVIEWING",
+          "actor": "department",
+          "candidateRole": "DEPT_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "DEPT_ACCEPTANCE_REVIEW_FINISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "ACCEPTANCE_DEPT_REVIEW_FORM",
+            "dataKind": "CHECK_ITEM",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "ScienceOfficeReviewTask",
+          "nextState": "ACCEPTANCE_SCIENCE_REVIEWING"
+        },
+        {
+          "nodeId": "ScienceOfficeReviewTask",
+          "nodeName": "科技处审核",
+          "state": "ACCEPTANCE_SCIENCE_REVIEWING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "SCIENCE_ACCEPTANCE_REVIEW_FINISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "ACCEPTANCE_SCIENCE_REVIEW_FORM",
+            "dataKind": "CHECK_ITEM",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "AuthorityReviewTask",
+          "nextState": "ACCEPTANCE_AUTHORITY_REVIEWING"
+        },
+        {
+          "nodeId": "AuthorityReviewTask",
+          "nodeName": "主管部门或第三方机构审核",
+          "state": "ACCEPTANCE_AUTHORITY_REVIEWING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "AUTHORITY_ACCEPTANCE_REVIEW_FINISHED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "ACCEPTANCE_AUTHORITY_REVIEW_FORM",
+            "dataKind": "EXTERNAL_RESULT",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "SignSealAcceptanceTask",
+          "nextState": "ACCEPTANCE_SIGN_SEALING"
+        },
+        {
+          "nodeId": "SignSealAcceptanceTask",
+          "nodeName": "打印结题材料签字并申请用章",
+          "state": "ACCEPTANCE_SIGN_SEALING",
+          "actor": "leader",
+          "candidateRole": "PROJECT_LEADER",
+          "action": "TRANSITION",
+          "eventType": "ACCEPTANCE_SIGN_SEAL_COMPLETED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "ACCEPTANCE_SEAL_FORM",
+            "dataKind": "SEAL",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "SIGNED_ACCEPTANCE_MATERIALS"
+          ],
+          "nextNodeId": "SubmitFinalMaterialsTask",
+          "nextState": "ACCEPTANCE_FINAL_MATERIAL_SUBMITTING"
+        },
+        {
+          "nodeId": "SubmitFinalMaterialsTask",
+          "nodeName": "报送主管部门或第三方机构",
+          "state": "ACCEPTANCE_FINAL_MATERIAL_SUBMITTING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "ACCEPTANCE_FINAL_MATERIALS_SUBMITTED",
+          "result": "APPROVED",
+          "form": {
+            "formCode": "ACCEPTANCE_FINAL_SUBMISSION_FORM",
+            "dataKind": "SUBMISSION",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [
+            "FINAL_ACCEPTANCE_MATERIALS"
+          ],
+          "nextNodeId": "ExpertAssignTask",
+          "nextState": "ACCEPTANCE_EXPERT_ASSIGNING"
+        },
+        {
+          "nodeId": "ExpertAssignTask",
+          "nodeName": "科技处或二级单位分配评审专家",
+          "state": "ACCEPTANCE_EXPERT_ASSIGNING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "EXPERT_ASSIGN_AND_TRANSITION",
+          "eventType": "EXPERT_ACCEPTANCE_ASSIGNED",
+          "result": "ASSIGNED",
+          "form": {
+            "formCode": "EXPERT_ACCEPTANCE_ASSIGN_FORM",
+            "dataKind": "EXPERT_REVIEW",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "ExpertReviewTask",
+          "nextState": "ACCEPTANCE_EXPERT_REVIEWING"
+        },
+        {
+          "nodeId": "ExpertReviewTask",
+          "nodeName": "评审专家审核提交",
+          "state": "ACCEPTANCE_EXPERT_REVIEWING",
+          "actor": "expert1+expert2",
+          "candidateRole": "EXPERT",
+          "action": "SCORE_BOTH_AND_WAIT_AUTO_TRANSITION",
+          "eventType": "EXPERT_ACCEPTANCE_REVIEW_SUBMITTED",
+          "result": "REVIEW_SUBMITTED",
+          "form": {
+            "formCode": "EXPERT_ACCEPTANCE_REVIEW_FORM",
+            "dataKind": "EXPERT_REVIEW",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "ExpertSummaryTask",
+          "nextState": "ACCEPTANCE_EXPERT_SUMMARIZING"
+        },
+        {
+          "nodeId": "ExpertSummaryTask",
+          "nodeName": "科技处或二级单位汇总提交专家评审结果",
+          "state": "ACCEPTANCE_EXPERT_SUMMARIZING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "EXPERT_ACCEPTANCE_REVIEW_FINISHED",
+          "result": "REVIEW_FINISHED",
+          "form": {
+            "formCode": "EXPERT_ACCEPTANCE_REVIEW_SUMMARY_FORM",
+            "dataKind": "EXPERT_REVIEW",
+            "writeMode": "HISTORY_RECORD"
+          },
+          "requiredMaterials": [],
+          "nextNodeId": "IssueCertificateTask",
+          "nextState": "ACCEPTANCE_CERTIFICATE_ISSUING"
+        },
+        {
+          "nodeId": "IssueCertificateTask",
+          "nodeName": "发放验收证书或下达结题通过文件",
+          "state": "ACCEPTANCE_CERTIFICATE_ISSUING",
+          "actor": "science",
+          "candidateRole": "SCIENCE_ADMIN",
+          "action": "TRANSITION",
+          "eventType": "ACCEPTANCE_CERTIFICATE_ISSUED",
+          "result": "PROCESS_COMPLETED",
+          "form": {
+            "formCode": "ACCEPTANCE_CERTIFICATE_DOCUMENT",
+            "dataKind": "DOCUMENT",
+            "writeMode": "READ_ONLY"
+          },
+          "requiredMaterials": [
+            "ACCEPTANCE_CERTIFICATE"
+          ],
+          "nextNodeId": "AcceptedEndEvent",
+          "nextState": "ACCEPTANCE_ACCEPTED"
+        }
+      ]
+    }
+  ],
+  "expectedFinalLifecycleStage": "PROJECT_FINISHED",
+  "strictFrontendRegressions": [
+    "Leader-created initial task starts at SubmitApplicationTask",
+    "Form submission can be read back using formCode",
+    "School-level acceptance selection has an actual frontend request field"
+  ],
+  "executionWarning": "This JSON is a declarative test design, not an executable runner or a passing test report."
+}

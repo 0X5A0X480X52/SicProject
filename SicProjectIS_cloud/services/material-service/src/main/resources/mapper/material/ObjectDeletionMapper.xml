@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.material.dao.ObjectDeletionMapper">
+  <!-- 对象删除任务 MyBatis 接口：取 PENDING 任务、标记完成或失败退避，以及待处理与失败计数。 -->
+  <resultMap id="job" type="com.amatrix.sic.material.entity.ObjectDeletionJob"><constructor>
+    <arg column="id" javaType="_long"/><arg column="object_key" javaType="String"/><arg column="attempts" javaType="_int"/>
+  </constructor></resultMap>
+  <!-- 按创建时间取最多 100 条已到重试时间的 PENDING 对象删除任务，供清理任务执行。 -->
+  <select id="pending" resultMap="job">SELECT id,object_key,attempts FROM object_deletion_job WHERE status='PENDING'
+    AND (next_attempt_at IS NULL OR next_attempt_at&lt;=CURRENT_TIMESTAMP) ORDER BY created_at LIMIT 100</select>
+  <update id="complete">UPDATE object_deletion_job SET status='COMPLETED',completed_at=CURRENT_TIMESTAMP,last_error=NULL WHERE id=#{id} AND status='PENDING'</update>
+  <update id="failed">UPDATE object_deletion_job SET attempts=attempts+1,next_attempt_at=#{next},last_error=#{error} WHERE id=#{id} AND status='PENDING'</update>
+  <!-- 统计尚未完成的 PENDING 对象删除任务数，供积压指标使用。 -->
+  <select id="pendingCount" resultType="Long">SELECT COUNT(*) FROM object_deletion_job WHERE status='PENDING'</select>
+  <!-- 统计仍为 PENDING 且已有失败尝试的任务数，供删除失败积压指标使用。 -->
+  <select id="failedCount" resultType="Long">SELECT COUNT(*) FROM object_deletion_job WHERE status='PENDING' AND attempts&gt;0</select>
+</mapper>

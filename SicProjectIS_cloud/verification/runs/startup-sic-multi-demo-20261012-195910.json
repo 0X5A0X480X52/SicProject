@@ -1,0 +1,1001 @@
+{
+  "passed": true,
+  "mode": "fresh",
+  "startedAt": "2026-10-12T11:59:10.807122+00:00",
+  "projectName": "sic-multi-demo",
+  "envFile": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-demo.env",
+  "composeFiles": [
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\docker-compose.yml",
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\multi-demo.compose.yaml"
+  ],
+  "replicas": {
+    "mysql": 1,
+    "rabbitmq": 1,
+    "redis": 1,
+    "minio": 1,
+    "discovery-server": 1,
+    "config-server": 1,
+    "iam-service": 2,
+    "project-service": 2,
+    "workflow-service": 2,
+    "material-service": 2,
+    "notification-service": 2,
+    "gateway-service": 1
+  },
+  "replicaSources": {
+    "mysql": "default",
+    "rabbitmq": "default",
+    "redis": "default",
+    "minio": "default",
+    "discovery-server": "default",
+    "config-server": "default",
+    "iam-service": "replica-config:C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\replicas.multi.example.json",
+    "project-service": "replica-config:C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\replicas.multi.example.json",
+    "workflow-service": "replica-config:C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\replicas.multi.example.json",
+    "material-service": "replica-config:C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\replicas.multi.example.json",
+    "notification-service": "replica-config:C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\replicas.multi.example.json",
+    "gateway-service": "default"
+  },
+  "gatewayBaseUrl": "http://127.0.0.1:18080",
+  "artifacts": {
+    "discovery-server": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-demo\\discovery-server\\application.jar",
+      "sha256": "913fedc62a0c2a6e6383d5cc5974ad243ddd2837037623923bf9d042da0c107e"
+    },
+    "config-server": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-demo\\config-server\\application.jar",
+      "sha256": "dd1c84835d2f88273c0b78771cc3e7fe4a14bc1baff58bee00c2061637fc56af"
+    },
+    "iam-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-demo\\iam-service\\application.jar",
+      "sha256": "509b90c82395bc46b4462f5344ea7ec89da011532d09a8d3a43751859ffa6828"
+    },
+    "project-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-demo\\project-service\\application.jar",
+      "sha256": "a015b4e761fd557da63b914fcdf4446a1959443adf8f08503b63c5671a55d837"
+    },
+    "workflow-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-demo\\workflow-service\\application.jar",
+      "sha256": "2d404d0e2daa8cd391d9195bcd38e20db126df6d259ca4363bea9c9de41035fd"
+    },
+    "material-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-demo\\material-service\\application.jar",
+      "sha256": "4f60b0bee9fcf5329309451d5e9ba1141834c8979d786604efcf4cc58507ca33"
+    },
+    "notification-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-demo\\notification-service\\application.jar",
+      "sha256": "094c653c9319806b8bfa75d6e36af4b34e24fdb2d79d134b0ae7431a63bbb59a"
+    },
+    "gateway-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\multi-demo\\gateway-service\\application.jar",
+      "sha256": "d1667998e3f55b3fb7b42263c5d0aae3e095dcb66f1d91f15b7dfd804648a227"
+    }
+  },
+  "deploymentMode": "jar",
+  "connectionBudget": {
+    "applicationMaximum": 100,
+    "operationsReserve": 20,
+    "mysqlMaxConnections": 151
+  },
+  "initialInstances": {
+    "containers": [
+      {
+        "containerId": "2695b9e0375fb67af466c2d17c9f0d55f8e6513ea3f46a22f24d9e429c84e04d",
+        "containerName": "sic-multi-demo-config-server-1",
+        "hostname": "2695b9e0375f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "config-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.5"
+        ]
+      },
+      {
+        "containerId": "fc4802b2f475fb1ea255ac0cc245858f3c10b306833c872ff430f91eabbafde7",
+        "containerName": "sic-multi-demo-discovery-server-1",
+        "hostname": "fc4802b2f475",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "discovery-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.3"
+        ]
+      },
+      {
+        "containerId": "42096f4fdc9d8779db0515c549f11e35c3ea1429397ec04683d30affee4545c6",
+        "containerName": "sic-multi-demo-gateway-service-1",
+        "hostname": "42096f4fdc9d",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "gateway-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.13"
+        ]
+      },
+      {
+        "containerId": "474b5b63e52b44881000cf2f8e770b6475b151001a0a613d72c0b4f5c2167733",
+        "containerName": "sic-multi-demo-iam-service-1",
+        "hostname": "474b5b63e52b",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "iam-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.8"
+        ]
+      },
+      {
+        "containerId": "709ac02cf85ca94be2a8cb98d1c94bb47368c8f8b7c8f26423845a379836c51c",
+        "containerName": "sic-multi-demo-material-service-1",
+        "hostname": "709ac02cf85c",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "material-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.12"
+        ]
+      },
+      {
+        "containerId": "dc3dc4bdf59c18538f476df828b722e069ae15d452e3e3bba0398c1b03e23517",
+        "containerName": "sic-multi-demo-minio-1",
+        "hostname": "dc3dc4bdf59c",
+        "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+        "imageId": "sha256:a98a9d647e700e45c1d3d2e44709f23952a39c199731d84e623eb558fd5501f4",
+        "service": "minio",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.7"
+        ]
+      },
+      {
+        "containerId": "cf2854cf5a50dfeab965713b1dc291c2e077c2da3d8a0029afa93aae02c71eda",
+        "containerName": "sic-multi-demo-mysql-1",
+        "hostname": "cf2854cf5a50",
+        "image": "mysql:8.4",
+        "imageId": "sha256:bced325a4ab7aec848f4688371c7433351dcb5dba26fbcc29c67727d898ae5cb",
+        "service": "mysql",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.4"
+        ]
+      },
+      {
+        "containerId": "056c11a756f0d680106d6968f5fbe5bc7698497b1376213b01fab8a52439804d",
+        "containerName": "sic-multi-demo-notification-service-1",
+        "hostname": "056c11a756f0",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "notification-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.10"
+        ]
+      },
+      {
+        "containerId": "d48a564cea282b98834aeefdce3294f9df6e5b5d63a2c897290a1ca94eb725f6",
+        "containerName": "sic-multi-demo-project-service-1",
+        "hostname": "d48a564cea28",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.9"
+        ]
+      },
+      {
+        "containerId": "7a06aac516617e96b40b9ed6e392533923162bf0d85d45e18c3fb81fc69c84f3",
+        "containerName": "sic-multi-demo-rabbitmq-1",
+        "hostname": "7a06aac51661",
+        "image": "rabbitmq:4.1-management",
+        "imageId": "sha256:046fd3423a7668fc201318bca3bdad234aa0769cccc1c2427feb12f3c1239d2e",
+        "service": "rabbitmq",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.2"
+        ]
+      },
+      {
+        "containerId": "bfb5cdae67022a89925f5e6af35988474559ebf90add3607f7b8acf8bca94d57",
+        "containerName": "sic-multi-demo-redis-1",
+        "hostname": "bfb5cdae6702",
+        "image": "redis:8.2-alpine",
+        "imageId": "sha256:9b9bc2eb5b8859235a68b8d72b81977748d243badee819a91c18280612c3495c",
+        "service": "redis",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.6"
+        ]
+      },
+      {
+        "containerId": "36c9f09d531e69380e25a6fb9e5c2fa8b1cd6375cfbbe806fe0fa3ee2e105f10",
+        "containerName": "sic-multi-demo-workflow-service-1",
+        "hostname": "36c9f09d531e",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "workflow-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.11"
+        ]
+      }
+    ],
+    "registrations": [
+      {
+        "service": "workflow-service",
+        "instanceId": "36c9f09d531e:workflow-service:9003",
+        "ip": "192.168.32.11",
+        "port": 9003,
+        "status": "UP",
+        "containerId": "36c9f09d531e69380e25a6fb9e5c2fa8b1cd6375cfbbe806fe0fa3ee2e105f10"
+      },
+      {
+        "service": "material-service",
+        "instanceId": "709ac02cf85c:material-service:9004",
+        "ip": "192.168.32.12",
+        "port": 9004,
+        "status": "UP",
+        "containerId": "709ac02cf85ca94be2a8cb98d1c94bb47368c8f8b7c8f26423845a379836c51c"
+      },
+      {
+        "service": "iam-service",
+        "instanceId": "474b5b63e52b:iam-service:9001",
+        "ip": "192.168.32.8",
+        "port": 9001,
+        "status": "UP",
+        "containerId": "474b5b63e52b44881000cf2f8e770b6475b151001a0a613d72c0b4f5c2167733"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "d48a564cea28:project-service:9002",
+        "ip": "192.168.32.9",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "d48a564cea282b98834aeefdce3294f9df6e5b5d63a2c897290a1ca94eb725f6"
+      },
+      {
+        "service": "gateway-service",
+        "instanceId": "42096f4fdc9d:gateway-service:8080",
+        "ip": "192.168.32.13",
+        "port": 8080,
+        "status": "UP",
+        "containerId": "42096f4fdc9d8779db0515c549f11e35c3ea1429397ec04683d30affee4545c6"
+      },
+      {
+        "service": "notification-service",
+        "instanceId": "056c11a756f0:notification-service:9005",
+        "ip": "192.168.32.10",
+        "port": 9005,
+        "status": "UP",
+        "containerId": "056c11a756f0d680106d6968f5fbe5bc7698497b1376213b01fab8a52439804d"
+      }
+    ]
+  },
+  "instances": {
+    "containers": [
+      {
+        "containerId": "2695b9e0375fb67af466c2d17c9f0d55f8e6513ea3f46a22f24d9e429c84e04d",
+        "containerName": "sic-multi-demo-config-server-1",
+        "hostname": "2695b9e0375f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "config-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.5"
+        ]
+      },
+      {
+        "containerId": "fc4802b2f475fb1ea255ac0cc245858f3c10b306833c872ff430f91eabbafde7",
+        "containerName": "sic-multi-demo-discovery-server-1",
+        "hostname": "fc4802b2f475",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "discovery-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.3"
+        ]
+      },
+      {
+        "containerId": "42096f4fdc9d8779db0515c549f11e35c3ea1429397ec04683d30affee4545c6",
+        "containerName": "sic-multi-demo-gateway-service-1",
+        "hostname": "42096f4fdc9d",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "gateway-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.13"
+        ]
+      },
+      {
+        "containerId": "474b5b63e52b44881000cf2f8e770b6475b151001a0a613d72c0b4f5c2167733",
+        "containerName": "sic-multi-demo-iam-service-1",
+        "hostname": "474b5b63e52b",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "iam-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.8"
+        ]
+      },
+      {
+        "containerId": "def8c3505ddc0915f2494e00eed75aaa6179f49140c9cacf9cf74200d01a4c74",
+        "containerName": "sic-multi-demo-iam-service-2",
+        "hostname": "def8c3505ddc",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "iam-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.14"
+        ]
+      },
+      {
+        "containerId": "709ac02cf85ca94be2a8cb98d1c94bb47368c8f8b7c8f26423845a379836c51c",
+        "containerName": "sic-multi-demo-material-service-1",
+        "hostname": "709ac02cf85c",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "material-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.12"
+        ]
+      },
+      {
+        "containerId": "3723d30a8500c4d2491cfc659e20b8877df5bbaaf56c7b29ac3185ac3997c961",
+        "containerName": "sic-multi-demo-material-service-2",
+        "hostname": "3723d30a8500",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "material-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.18"
+        ]
+      },
+      {
+        "containerId": "dc3dc4bdf59c18538f476df828b722e069ae15d452e3e3bba0398c1b03e23517",
+        "containerName": "sic-multi-demo-minio-1",
+        "hostname": "dc3dc4bdf59c",
+        "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+        "imageId": "sha256:a98a9d647e700e45c1d3d2e44709f23952a39c199731d84e623eb558fd5501f4",
+        "service": "minio",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.7"
+        ]
+      },
+      {
+        "containerId": "cf2854cf5a50dfeab965713b1dc291c2e077c2da3d8a0029afa93aae02c71eda",
+        "containerName": "sic-multi-demo-mysql-1",
+        "hostname": "cf2854cf5a50",
+        "image": "mysql:8.4",
+        "imageId": "sha256:bced325a4ab7aec848f4688371c7433351dcb5dba26fbcc29c67727d898ae5cb",
+        "service": "mysql",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.4"
+        ]
+      },
+      {
+        "containerId": "056c11a756f0d680106d6968f5fbe5bc7698497b1376213b01fab8a52439804d",
+        "containerName": "sic-multi-demo-notification-service-1",
+        "hostname": "056c11a756f0",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "notification-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.10"
+        ]
+      },
+      {
+        "containerId": "6f0620c522d4b4b00d2b1d690e546ed1b9ae5aa89aeda2d918ea8d7ecf0d238e",
+        "containerName": "sic-multi-demo-notification-service-2",
+        "hostname": "6f0620c522d4",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "notification-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.15"
+        ]
+      },
+      {
+        "containerId": "d48a564cea282b98834aeefdce3294f9df6e5b5d63a2c897290a1ca94eb725f6",
+        "containerName": "sic-multi-demo-project-service-1",
+        "hostname": "d48a564cea28",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.9"
+        ]
+      },
+      {
+        "containerId": "d8185902eaea130226244ad1e06f4ca1f5b94fc2f9c89a5fafd8235765345730",
+        "containerName": "sic-multi-demo-project-service-2",
+        "hostname": "d8185902eaea",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.16"
+        ]
+      },
+      {
+        "containerId": "7a06aac516617e96b40b9ed6e392533923162bf0d85d45e18c3fb81fc69c84f3",
+        "containerName": "sic-multi-demo-rabbitmq-1",
+        "hostname": "7a06aac51661",
+        "image": "rabbitmq:4.1-management",
+        "imageId": "sha256:046fd3423a7668fc201318bca3bdad234aa0769cccc1c2427feb12f3c1239d2e",
+        "service": "rabbitmq",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.2"
+        ]
+      },
+      {
+        "containerId": "bfb5cdae67022a89925f5e6af35988474559ebf90add3607f7b8acf8bca94d57",
+        "containerName": "sic-multi-demo-redis-1",
+        "hostname": "bfb5cdae6702",
+        "image": "redis:8.2-alpine",
+        "imageId": "sha256:9b9bc2eb5b8859235a68b8d72b81977748d243badee819a91c18280612c3495c",
+        "service": "redis",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.6"
+        ]
+      },
+      {
+        "containerId": "36c9f09d531e69380e25a6fb9e5c2fa8b1cd6375cfbbe806fe0fa3ee2e105f10",
+        "containerName": "sic-multi-demo-workflow-service-1",
+        "hostname": "36c9f09d531e",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "workflow-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.11"
+        ]
+      },
+      {
+        "containerId": "938fdc3dbd18b47b33152062aec13c404b5cae0c3122288a074d083d73bc5de0",
+        "containerName": "sic-multi-demo-workflow-service-2",
+        "hostname": "938fdc3dbd18",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "workflow-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "192.168.32.17"
+        ]
+      }
+    ],
+    "registrations": [
+      {
+        "service": "workflow-service",
+        "instanceId": "36c9f09d531e:workflow-service:9003",
+        "ip": "192.168.32.11",
+        "port": 9003,
+        "status": "UP",
+        "containerId": "36c9f09d531e69380e25a6fb9e5c2fa8b1cd6375cfbbe806fe0fa3ee2e105f10"
+      },
+      {
+        "service": "workflow-service",
+        "instanceId": "938fdc3dbd18:workflow-service:9003",
+        "ip": "192.168.32.17",
+        "port": 9003,
+        "status": "UP",
+        "containerId": "938fdc3dbd18b47b33152062aec13c404b5cae0c3122288a074d083d73bc5de0"
+      },
+      {
+        "service": "material-service",
+        "instanceId": "3723d30a8500:material-service:9004",
+        "ip": "192.168.32.18",
+        "port": 9004,
+        "status": "UP",
+        "containerId": "3723d30a8500c4d2491cfc659e20b8877df5bbaaf56c7b29ac3185ac3997c961"
+      },
+      {
+        "service": "material-service",
+        "instanceId": "709ac02cf85c:material-service:9004",
+        "ip": "192.168.32.12",
+        "port": 9004,
+        "status": "UP",
+        "containerId": "709ac02cf85ca94be2a8cb98d1c94bb47368c8f8b7c8f26423845a379836c51c"
+      },
+      {
+        "service": "iam-service",
+        "instanceId": "474b5b63e52b:iam-service:9001",
+        "ip": "192.168.32.8",
+        "port": 9001,
+        "status": "UP",
+        "containerId": "474b5b63e52b44881000cf2f8e770b6475b151001a0a613d72c0b4f5c2167733"
+      },
+      {
+        "service": "iam-service",
+        "instanceId": "def8c3505ddc:iam-service:9001",
+        "ip": "192.168.32.14",
+        "port": 9001,
+        "status": "UP",
+        "containerId": "def8c3505ddc0915f2494e00eed75aaa6179f49140c9cacf9cf74200d01a4c74"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "d48a564cea28:project-service:9002",
+        "ip": "192.168.32.9",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "d48a564cea282b98834aeefdce3294f9df6e5b5d63a2c897290a1ca94eb725f6"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "d8185902eaea:project-service:9002",
+        "ip": "192.168.32.16",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "d8185902eaea130226244ad1e06f4ca1f5b94fc2f9c89a5fafd8235765345730"
+      },
+      {
+        "service": "gateway-service",
+        "instanceId": "42096f4fdc9d:gateway-service:8080",
+        "ip": "192.168.32.13",
+        "port": 8080,
+        "status": "UP",
+        "containerId": "42096f4fdc9d8779db0515c549f11e35c3ea1429397ec04683d30affee4545c6"
+      },
+      {
+        "service": "notification-service",
+        "instanceId": "056c11a756f0:notification-service:9005",
+        "ip": "192.168.32.10",
+        "port": 9005,
+        "status": "UP",
+        "containerId": "056c11a756f0d680106d6968f5fbe5bc7698497b1376213b01fab8a52439804d"
+      },
+      {
+        "service": "notification-service",
+        "instanceId": "6f0620c522d4:notification-service:9005",
+        "ip": "192.168.32.15",
+        "port": 9005,
+        "status": "UP",
+        "containerId": "6f0620c522d4b4b00d2b1d690e546ed1b9ae5aa89aeda2d918ea8d7ecf0d238e"
+      }
+    ]
+  },
+  "smoke": {
+    "passed": true,
+    "projectName": "sic-multi-demo",
+    "checkedAt": "2026-10-12T12:04:47.565564+00:00",
+    "checks": [
+      {
+        "name": "gateway-readiness",
+        "passed": true,
+        "durationMs": 77,
+        "error": null
+      },
+      {
+        "name": "compose-container-health",
+        "passed": true,
+        "durationMs": 172,
+        "error": null
+      },
+      {
+        "name": "config-and-discovery",
+        "passed": true,
+        "durationMs": 2171,
+        "error": null
+      },
+      {
+        "name": "gateway-unauthenticated-wrapper",
+        "passed": true,
+        "durationMs": 15,
+        "error": null
+      },
+      {
+        "name": "admin-login-and-jwt",
+        "passed": true,
+        "durationMs": 1109,
+        "error": null
+      },
+      {
+        "name": "authenticated-service-routes",
+        "passed": true,
+        "durationMs": 4453,
+        "error": null
+      },
+      {
+        "name": "sse-query-token-relay",
+        "passed": true,
+        "durationMs": 655,
+        "error": null
+      },
+      {
+        "name": "logout-jti-blacklist",
+        "passed": true,
+        "durationMs": 219,
+        "error": null
+      }
+    ],
+    "error": null,
+    "expectedReplicas": {
+      "mysql": 1,
+      "rabbitmq": 1,
+      "redis": 1,
+      "minio": 1,
+      "discovery-server": 1,
+      "config-server": 1,
+      "iam-service": 2,
+      "project-service": 2,
+      "workflow-service": 2,
+      "material-service": 2,
+      "notification-service": 2,
+      "gateway-service": 1
+    },
+    "instances": {
+      "containers": [
+        {
+          "containerId": "2695b9e0375fb67af466c2d17c9f0d55f8e6513ea3f46a22f24d9e429c84e04d",
+          "containerName": "sic-multi-demo-config-server-1",
+          "hostname": "2695b9e0375f",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "config-server",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.5"
+          ]
+        },
+        {
+          "containerId": "fc4802b2f475fb1ea255ac0cc245858f3c10b306833c872ff430f91eabbafde7",
+          "containerName": "sic-multi-demo-discovery-server-1",
+          "hostname": "fc4802b2f475",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "discovery-server",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.3"
+          ]
+        },
+        {
+          "containerId": "42096f4fdc9d8779db0515c549f11e35c3ea1429397ec04683d30affee4545c6",
+          "containerName": "sic-multi-demo-gateway-service-1",
+          "hostname": "42096f4fdc9d",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "gateway-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.13"
+          ]
+        },
+        {
+          "containerId": "474b5b63e52b44881000cf2f8e770b6475b151001a0a613d72c0b4f5c2167733",
+          "containerName": "sic-multi-demo-iam-service-1",
+          "hostname": "474b5b63e52b",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "iam-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.8"
+          ]
+        },
+        {
+          "containerId": "def8c3505ddc0915f2494e00eed75aaa6179f49140c9cacf9cf74200d01a4c74",
+          "containerName": "sic-multi-demo-iam-service-2",
+          "hostname": "def8c3505ddc",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "iam-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.14"
+          ]
+        },
+        {
+          "containerId": "709ac02cf85ca94be2a8cb98d1c94bb47368c8f8b7c8f26423845a379836c51c",
+          "containerName": "sic-multi-demo-material-service-1",
+          "hostname": "709ac02cf85c",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "material-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.12"
+          ]
+        },
+        {
+          "containerId": "3723d30a8500c4d2491cfc659e20b8877df5bbaaf56c7b29ac3185ac3997c961",
+          "containerName": "sic-multi-demo-material-service-2",
+          "hostname": "3723d30a8500",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "material-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.18"
+          ]
+        },
+        {
+          "containerId": "dc3dc4bdf59c18538f476df828b722e069ae15d452e3e3bba0398c1b03e23517",
+          "containerName": "sic-multi-demo-minio-1",
+          "hostname": "dc3dc4bdf59c",
+          "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+          "imageId": "sha256:a98a9d647e700e45c1d3d2e44709f23952a39c199731d84e623eb558fd5501f4",
+          "service": "minio",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.7"
+          ]
+        },
+        {
+          "containerId": "cf2854cf5a50dfeab965713b1dc291c2e077c2da3d8a0029afa93aae02c71eda",
+          "containerName": "sic-multi-demo-mysql-1",
+          "hostname": "cf2854cf5a50",
+          "image": "mysql:8.4",
+          "imageId": "sha256:bced325a4ab7aec848f4688371c7433351dcb5dba26fbcc29c67727d898ae5cb",
+          "service": "mysql",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.4"
+          ]
+        },
+        {
+          "containerId": "056c11a756f0d680106d6968f5fbe5bc7698497b1376213b01fab8a52439804d",
+          "containerName": "sic-multi-demo-notification-service-1",
+          "hostname": "056c11a756f0",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "notification-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.10"
+          ]
+        },
+        {
+          "containerId": "6f0620c522d4b4b00d2b1d690e546ed1b9ae5aa89aeda2d918ea8d7ecf0d238e",
+          "containerName": "sic-multi-demo-notification-service-2",
+          "hostname": "6f0620c522d4",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "notification-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.15"
+          ]
+        },
+        {
+          "containerId": "d48a564cea282b98834aeefdce3294f9df6e5b5d63a2c897290a1ca94eb725f6",
+          "containerName": "sic-multi-demo-project-service-1",
+          "hostname": "d48a564cea28",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "project-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.9"
+          ]
+        },
+        {
+          "containerId": "d8185902eaea130226244ad1e06f4ca1f5b94fc2f9c89a5fafd8235765345730",
+          "containerName": "sic-multi-demo-project-service-2",
+          "hostname": "d8185902eaea",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "project-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.16"
+          ]
+        },
+        {
+          "containerId": "7a06aac516617e96b40b9ed6e392533923162bf0d85d45e18c3fb81fc69c84f3",
+          "containerName": "sic-multi-demo-rabbitmq-1",
+          "hostname": "7a06aac51661",
+          "image": "rabbitmq:4.1-management",
+          "imageId": "sha256:046fd3423a7668fc201318bca3bdad234aa0769cccc1c2427feb12f3c1239d2e",
+          "service": "rabbitmq",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.2"
+          ]
+        },
+        {
+          "containerId": "bfb5cdae67022a89925f5e6af35988474559ebf90add3607f7b8acf8bca94d57",
+          "containerName": "sic-multi-demo-redis-1",
+          "hostname": "bfb5cdae6702",
+          "image": "redis:8.2-alpine",
+          "imageId": "sha256:9b9bc2eb5b8859235a68b8d72b81977748d243badee819a91c18280612c3495c",
+          "service": "redis",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.6"
+          ]
+        },
+        {
+          "containerId": "36c9f09d531e69380e25a6fb9e5c2fa8b1cd6375cfbbe806fe0fa3ee2e105f10",
+          "containerName": "sic-multi-demo-workflow-service-1",
+          "hostname": "36c9f09d531e",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "workflow-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.11"
+          ]
+        },
+        {
+          "containerId": "938fdc3dbd18b47b33152062aec13c404b5cae0c3122288a074d083d73bc5de0",
+          "containerName": "sic-multi-demo-workflow-service-2",
+          "hostname": "938fdc3dbd18",
+          "image": "eclipse-temurin:21-jre-alpine",
+          "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+          "service": "workflow-service",
+          "running": true,
+          "health": "healthy",
+          "addresses": [
+            "192.168.32.17"
+          ]
+        }
+      ],
+      "registrations": [
+        {
+          "service": "workflow-service",
+          "instanceId": "36c9f09d531e:workflow-service:9003",
+          "ip": "192.168.32.11",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "36c9f09d531e69380e25a6fb9e5c2fa8b1cd6375cfbbe806fe0fa3ee2e105f10"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "938fdc3dbd18:workflow-service:9003",
+          "ip": "192.168.32.17",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "938fdc3dbd18b47b33152062aec13c404b5cae0c3122288a074d083d73bc5de0"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "3723d30a8500:material-service:9004",
+          "ip": "192.168.32.18",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "3723d30a8500c4d2491cfc659e20b8877df5bbaaf56c7b29ac3185ac3997c961"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "709ac02cf85c:material-service:9004",
+          "ip": "192.168.32.12",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "709ac02cf85ca94be2a8cb98d1c94bb47368c8f8b7c8f26423845a379836c51c"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "474b5b63e52b:iam-service:9001",
+          "ip": "192.168.32.8",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "474b5b63e52b44881000cf2f8e770b6475b151001a0a613d72c0b4f5c2167733"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "def8c3505ddc:iam-service:9001",
+          "ip": "192.168.32.14",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "def8c3505ddc0915f2494e00eed75aaa6179f49140c9cacf9cf74200d01a4c74"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "d48a564cea28:project-service:9002",
+          "ip": "192.168.32.9",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "d48a564cea282b98834aeefdce3294f9df6e5b5d63a2c897290a1ca94eb725f6"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "d8185902eaea:project-service:9002",
+          "ip": "192.168.32.16",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "d8185902eaea130226244ad1e06f4ca1f5b94fc2f9c89a5fafd8235765345730"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "42096f4fdc9d:gateway-service:8080",
+          "ip": "192.168.32.13",
+          "port": 8080,
+          "status": "UP",
+          "containerId": "42096f4fdc9d8779db0515c549f11e35c3ea1429397ec04683d30affee4545c6"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "056c11a756f0:notification-service:9005",
+          "ip": "192.168.32.10",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "056c11a756f0d680106d6968f5fbe5bc7698497b1376213b01fab8a52439804d"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "6f0620c522d4:notification-service:9005",
+          "ip": "192.168.32.15",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "6f0620c522d4b4b00d2b1d690e546ed1b9ae5aa89aeda2d918ea8d7ecf0d238e"
+        }
+      ]
+    }
+  },
+  "phase": "verification",
+  "freshResetCompleted": true,
+  "finishedAt": "2026-10-12T12:04:47.573485+00:00"
+}

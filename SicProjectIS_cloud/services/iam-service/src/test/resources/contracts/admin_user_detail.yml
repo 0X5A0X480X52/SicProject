@@ -1,0 +1,24 @@
+description: admin user detail preserves nullable contact fields
+name: admin_user_detail
+request:
+  method: GET
+  url: /api/admin/users/7
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      userId: 7
+      username: bob
+      realName: Bob
+      deptId: 3
+      deptName: Science
+      enabled: true
+      roleCodes: [PROJECT_LEADER]
+      canEditRoles: true
+      canToggleStatus: true
+      phone: "13800000000"
+      email: null
+    message: OK

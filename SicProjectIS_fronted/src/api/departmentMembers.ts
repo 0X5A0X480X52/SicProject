@@ -1,3 +1,6 @@
+/**
+ * 封装部门与成员管理，部门筛选和可编辑角色范围由后端返回；分配部门时省略 roleCodes 与显式替换角色含义不同。
+ */
 import { apiRequest } from './client'
 import type {
   DepartmentMember,

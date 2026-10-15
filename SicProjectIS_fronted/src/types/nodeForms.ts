@@ -1,4 +1,7 @@
-﻿export type NodeFormModuleType = 'APPLICATION' | 'CONTRACT' | 'ACCEPTANCE'
+﻿/**
+ * 声明运行时、表单定义、业务数据、任务和材料版本契约；多种 ID 和序号不能互换，写入模式与 canOperate 共同约束界面操作。
+ */
+export type NodeFormModuleType = 'APPLICATION' | 'CONTRACT' | 'ACCEPTANCE'
 export type NodeFormWriteMode = 'SINGLE_INSTANCE' | 'HISTORY_RECORD' | 'READ_ONLY'
 export type NodeFormDataKind =
   | 'NOTICE'
@@ -18,12 +21,14 @@ export type NodeFormDataKind =
   | 'DOCUMENT'
 
 export interface NodeFormDefinition {
+  /** 注册表单代码；与 BPMN nodeId、业务 dataKind 分别关联。 */
   formCode: string
   moduleType: NodeFormModuleType
   nodeId: string
   stateCode: string
   title: string
   dataKind: NodeFormDataKind
+  /** 单实例、历史记录或只读模式，决定界面使用的保存入口。 */
   writeMode: NodeFormWriteMode
   supportsFiles: boolean
   materialTypeCodes: string[]
@@ -84,6 +89,7 @@ export interface MaterialContextView {
   moduleType: string
   allowedFileTypes?: string
   maxFileSizeMb?: number
+  /** 文件具体版本主键，流程引用提交此值而非 materialId。 */
   materialVersionId: number
   versionNo: number
   fileName: string
@@ -133,10 +139,13 @@ export interface RuntimeContextView {
   projectId: number
   moduleType: NodeFormModuleType
   workflowDefinitionId: number
+  /** 最近成功状态序号，后续提交 expectedSeq 使用这个值。 */
   currentSeq?: number
+  /** 退回重提形成的业务轮次，不能与状态序号混用。 */
   currentRoundNo?: number
   currentState?: string
   currentNodeId?: string
+  /** 当前节点配置的数据库主键，与 currentNodeId 的 BPMN 代码不同。 */
   currentWorkflowNodeId?: number
   currentNodeName?: string
   currentNodeType?: string
@@ -179,6 +188,8 @@ export interface MaterialRequirementView {
 }
 
 export interface RuntimeViewResponse {
+  /** 财务节点的配置情况，仅报告候选人是否就绪，不自动创建授权或推进节点。 */
+  taskConfiguration?: { ready: boolean; status: string; handlerCount: number; message: string }
   context: RuntimeContextView
   canOperate: boolean
   availableTransitions: AvailableTransition[]
@@ -190,11 +201,13 @@ export interface RuntimeViewResponse {
 
 export interface StateTransitionRequest {
   eventType: string
+  /** 本次读取到的状态序号；冲突后重读，避免拿旧界面结果直接重试写请求。 */
   expectedSeq?: number
   result?: string
   remark?: string
   materialVersionIds?: number[]
   formCode?: string
+  /** 正式迁移随请求落库的节点表单，与仅保存草稿的接口分开处理。 */
   nodeFormData?: NodeFormSaveRequest
 }
 

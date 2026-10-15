@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.material.dao.MaterialMapper">
+  <!-- 材料 MyBatis 接口：材料类型的确保与生成及查询、材料行加锁获取、版本号递增与旧版本 SUPERSEDED、版本插入/加锁读取/删除，以及生成单据与预留占用判定。 -->
+  <resultMap id="type" type="com.amatrix.sic.material.entity.MaterialTypeRow"><constructor>
+    <arg column="id" javaType="java.lang.Long"/><arg column="code" javaType="String"/><arg column="name" javaType="String"/>
+    <arg column="module_type" javaType="String"/><arg column="allowed_file_types" javaType="String"/><arg column="max_file_size_mb" javaType="_int"/>
+  </constructor></resultMap>
+  <resultMap id="version" type="com.amatrix.sic.material.entity.MaterialVersionRow"><constructor>
+    <arg column="object_key" javaType="String"/><arg column="original_filename" javaType="String"/><arg column="content_type" javaType="String"/>
+    <arg column="size_bytes" javaType="_long"/><arg column="project_id" javaType="java.lang.Long"/>
+  </constructor></resultMap>
+  <insert id="ensureType">INSERT INTO material_type(code,name,enabled) VALUES(#{code},#{code},TRUE) ON DUPLICATE KEY UPDATE code=VALUES(code)</insert>
+  <insert id="generatedType">INSERT INTO material_type(code,name,module_type,allowed_file_types,enabled) VALUES(#{code},#{name},#{module},'pdf',TRUE)
+    ON DUPLICATE KEY UPDATE name=VALUES(name),module_type=COALESCE(module_type,VALUES(module_type)),allowed_file_types='pdf',enabled=TRUE</insert>
+  <!-- 按类型编码读取材料配置及文件类型、大小限制，供上传校验使用。 -->
+  <select id="type" resultMap="type">SELECT id,code,name,module_type,allowed_file_types,max_file_size_mb FROM material_type WHERE code=#{code}</select>
+  <!-- MaterialMapper.material 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 按项目和材料类型取最早的材料 ID；lock 为 true 时加行锁，供版本创建事务使用。 -->
+  <select id="material" resultType="Long">SELECT id FROM material WHERE project_id=#{project} AND material_type_code=#{code} ORDER BY id LIMIT 1 <if test="lock">FOR UPDATE</if></select>
+  <insert id="insertMaterial" useGeneratedKeys="true" keyProperty="id" keyColumn="id">INSERT INTO material(project_id,material_type_code,title,created_by) VALUES(#{project},#{code},#{title},#{actor})</insert>
+  <!-- MaterialMapper.maximumVersion 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 读取材料最大版本号，无版本时返回 0；使用锁读取供新版本号计算。 -->
+  <select id="maximumVersion" resultType="Integer">SELECT COALESCE(MAX(version_no),0) FROM material_version WHERE material_id=#{id} FOR UPDATE</select>
+  <update id="supersede">UPDATE material_version SET file_status='SUPERSEDED' WHERE material_id=#{id} AND file_status='ACTIVE'</update>
+  <insert id="insertVersion" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    INSERT INTO material_version(material_id,version_no,original_filename,content_type,size_bytes,sha256,object_key,file_status,uploaded_by)
+    VALUES(#{material},#{number},#{filename},#{contentType},#{size},#{sha256},#{key},'ACTIVE',#{actor})
+  </insert>
+  <resultMap id="context" type="java.util.LinkedHashMap">
+    <result column="materialId" property="materialId" javaType="Long"/><result column="projectId" property="projectId" javaType="Long"/>
+    <result column="materialTypeId" property="materialTypeId" javaType="Long"/><result column="materialTypeCode" property="materialTypeCode" javaType="String"/>
+    <result column="materialTypeName" property="materialTypeName" javaType="String"/><result column="moduleType" property="moduleType" javaType="String"/>
+    <result column="allowedFileTypes" property="allowedFileTypes" javaType="String"/><result column="maxFileSizeMb" property="maxFileSizeMb" javaType="Integer"/>
+    <result column="materialVersionId" property="materialVersionId" javaType="Long"/><result column="versionNo" property="versionNo" javaType="Integer"/>
+    <result column="fileName" property="fileName" javaType="String"/><result column="fileHash" property="fileHash" javaType="String"/>
+    <result column="uploadedBy" property="uploadedBy" javaType="Long"/><result column="uploadedAt" property="uploadedAt" javaType="java.time.LocalDateTime"/>
+    <result column="isCurrent" property="isCurrent" javaType="Boolean"/>
+  </resultMap>
+  <!-- 按可选项目、材料或版本条件查询未删除版本，补充类型、哈希和上传信息并标记当前版本。 -->
+  <select id="contexts" resultMap="context">
+    SELECT m.id materialId,m.project_id projectId,t.id materialTypeId,t.code materialTypeCode,t.name materialTypeName,
+      t.module_type moduleType,t.allowed_file_types allowedFileTypes,t.max_file_size_mb maxFileSizeMb,v.id materialVersionId,
+      v.version_no versionNo,v.original_filename fileName,v.sha256 fileHash,v.uploaded_by uploadedBy,v.created_at uploadedAt,
+      (v.file_status='ACTIVE') isCurrent FROM material m JOIN material_type t ON t.code=m.material_type_code
+      JOIN material_version v ON v.material_id=m.id
+    <where>
+      <if test="project != null">AND m.project_id=#{project}</if>
+      <if test="material != null">AND m.id=#{material}</if>
+      <if test="version != null">AND v.id=#{version}</if>
+      AND v.file_status&lt;&gt;'DELETED'
+    </where> ORDER BY m.id,v.version_no DESC
+  </select>
+  <!-- MaterialMapper.version 的锁读取需位于调用方事务中；读取结果后仍要复核业务状态。 -->
+  <!-- 查询未删除版本的对象键、文件名、类型、大小和项目；lock 为 true 时加行锁。 -->
+  <select id="version" resultMap="version">SELECT v.object_key,v.original_filename,v.content_type,v.size_bytes,m.project_id
+    FROM material_version v JOIN material m ON m.id=v.material_id WHERE v.id=#{id} AND v.file_status&lt;&gt;'DELETED'
+    <if test="lock">FOR UPDATE</if></select>
+  <!-- 统计版本关联的生成单据记录，供删除前判断是否为受保护的生成文件。 -->
+  <select id="generated" resultType="Integer">SELECT COUNT(*) FROM generated_document WHERE material_version_id=#{id}</select>
+  <!-- 删除前检查有效预留或已确认引用，防止材料正在流转期间被删除。 -->
+  <!-- 统计版本处于 RESERVED 或 CONFIRMED 的引用预留数，供删除前检查占用使用。 -->
+  <select id="reserved" resultType="Integer">SELECT COUNT(*) FROM material_reservation_item i JOIN material_reservation r ON r.reservation_id=i.reservation_id
+    WHERE i.material_version_id=#{id} AND r.status IN ('RESERVED','CONFIRMED')</select>
+  <update id="deleteVersion">UPDATE material_version SET file_status='DELETED' WHERE id=#{id}</update>
+  <!-- 在材料业务删除事务中记录对象删除任务，MinIO 实际删除由清理用例执行。 -->
+  <insert id="scheduleDeletion">INSERT INTO object_deletion_job(material_version_id,object_key,status) VALUES(#{id},#{key},'PENDING')</insert>
+</mapper>

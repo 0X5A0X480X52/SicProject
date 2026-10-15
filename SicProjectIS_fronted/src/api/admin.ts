@@ -1,3 +1,6 @@
+/**
+ * 封装用户角色、启停、权限矩阵、概览和审计接口；这里描述请求契约，实际管理权限由后端判定。
+ */
 import { apiRequest } from './client'
 import type {
   AdminOverview,

@@ -1,0 +1,26 @@
+description: workflow node response keeps nullable actor metadata and collection fields
+name: workflow_nodes
+request:
+  method: GET
+  url: /api/workflow-definitions/7/nodes
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      - nodeId: department_review
+        nodeName: Department review
+        nodeType: USER_TASK
+        stateCode: DEPT_REVIEW
+        laneName: null
+        responsibleActorCode: null
+        responsibleActorName: null
+        candidateRoleCode: DEPT_ADMIN
+        operationMode: null
+        representedActorCode: null
+        representedActorName: null
+        materialRequirements: []
+        documentConfigs: []
+    message: OK

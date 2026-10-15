@@ -1,0 +1,16 @@
+description: member upsert returns project authorization detail
+name: project_member_upsert
+request:
+  method: PUT
+  url: /api/projects/10/members
+  headers: { Content-Type: application/json }
+  body: { userId: 7, responsibility: Reviewer }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      project: { projectId: 10 }
+      capabilities: { canManageLeader: true, canManageMembers: true, canManageExperts: true, canManageFinance: false, canManageProxy: true }
+    message: OK

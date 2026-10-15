@@ -1,0 +1,18 @@
+description: single instance node form save returns complete form data
+name: node_form_save
+request:
+  method: PUT
+  url: /api/node-forms/PROJECT_APPLICATION_FORM
+  headers: { Content-Type: application/json }
+  body: { moduleInstanceId: 20, applicationDraft: { title: Demo application } }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      definition: { formCode: PROJECT_APPLICATION_FORM, writeMode: SINGLE_INSTANCE }
+      context: { moduleInstanceId: 20 }
+      applicationDraft: { title: Demo application }
+      materials: []
+    message: OK

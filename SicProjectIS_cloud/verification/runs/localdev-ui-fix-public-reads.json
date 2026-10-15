@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": {
+    "administratorDepartmentText": true,
+    "initialDepartmentView": true,
+    "permissionTexts": true,
+    "roleTexts": true,
+    "workflowNodes": true,
+    "workflowBpmn": true
+  }
+}

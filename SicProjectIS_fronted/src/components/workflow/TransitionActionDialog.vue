@@ -1,4 +1,7 @@
 ﻿<script setup lang="ts">
+/**
+ * 收集迁移动作、意见及材料版本等提交信息，通过组件事件交由父页面调用运行时接口。
+ */
 import { reactive, watch } from 'vue'
 import type { AvailableTransition, StateTransitionRequest } from '../../types/nodeForms'
 

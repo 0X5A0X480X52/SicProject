@@ -1,0 +1,20 @@
+description: current user keeps the nullable department fields
+name: auth_current_user
+request:
+  method: GET
+  url: /api/auth/me
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      userId: 1
+      username: alice
+      realName: Alice
+      deptId: null
+      deptName: null
+      roleCodes: [PROJECT_LEADER]
+      permissionCodes: [PERM_PROJECT_CREATE]
+    message: OK

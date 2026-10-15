@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "release": "1.0.0-baseline",
+  "project": "sic-iteration-20261010",
+  "checkedAt": "2026-10-10T08:32:07.403217+00:00",
+  "passed": true,
+  "tableCount": 52,
+  "differences": []
+}

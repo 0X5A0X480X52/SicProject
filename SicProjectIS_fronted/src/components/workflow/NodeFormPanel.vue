@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 按服务端表单定义展示节点数据并提交对应契约，区分只读、草稿及记录维护；实际可写范围由后端再次校验。
+ */
 import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { buildRequestFromFlatForm } from '../../composables/useNodeFormHelpers'

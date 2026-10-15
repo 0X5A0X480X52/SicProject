@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.project.dao.ProjectScopeMapper">
+  <!-- 批量判权 MyBatis 接口：按项目 ID 集合取项目版本与负责人、当前用户的成员关系、有效授权范围。 -->
+  <resultMap id="project" type="com.amatrix.sic.project.entity.ProjectScopeRow"><constructor>
+    <arg column="id" javaType="java.lang.Long"/><arg column="version" javaType="_long"/>
+    <arg column="owner_user_id" javaType="java.lang.Long"/><arg column="owner_name_snapshot" javaType="String"/>
+    <arg column="dept_id" javaType="java.lang.Long"/>
+  </constructor></resultMap>
+  <resultMap id="grant" type="com.amatrix.sic.project.entity.ProjectGrantScopeRow"><constructor>
+    <arg column="project_id" javaType="java.lang.Long"/><arg column="grant_role_code" javaType="String"/>
+    <arg column="module_type" javaType="String"/><arg column="round_no" javaType="java.lang.Integer"/>
+    <arg column="task_node_id" javaType="String"/>
+  </constructor></resultMap>
+  <!-- 复用候选项目 ID 集合的参数化 IN 列表，供批量范围查询使用。 -->
+  <sql id="ids"><foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach></sql>
+  <!-- 批量读取候选 ACTIVE 项目的版本、负责人和部门，供项目范围判权使用。 -->
+  <select id="projects" resultMap="project">SELECT id,version,owner_user_id,owner_name_snapshot,dept_id FROM project
+    WHERE lifecycle_status='ACTIVE' AND id IN <include refid="ids"/></select>
+  <!-- 查询用户在候选项目集合中的成员项目 ID，供批量访问判断使用。 -->
+  <select id="memberships" resultType="Long">SELECT project_id FROM project_member WHERE user_id=#{userId} AND project_id IN <include refid="ids"/></select>
+  <!-- 读取当前有效 grant 供 Policy 按操作和目标范围判断，SQL 结果本身不是最终权限结论。 -->
+  <!-- 读取用户在候选项目内处于有效期的 ACTIVE 授权范围，供策略层进一步判权。 -->
+  <select id="grants" resultMap="grant">SELECT project_id,grant_role_code,module_type,round_no,task_node_id FROM project_access_grant
+    WHERE grantee_user_id=#{userId} AND project_id IN <include refid="ids"/> AND status='ACTIVE'
+    AND (effective_from IS NULL OR effective_from&lt;=CURRENT_TIMESTAMP(6))
+    AND (effective_to IS NULL OR effective_to&gt;CURRENT_TIMESTAMP(6))</select>
+</mapper>

@@ -1,6 +1,10 @@
 <script setup lang="ts">
+/**
+ * 通用流程页中的指派与评分入口，任务范围取自当前模块和轮次；本人评分提交后转到专用历史页，避免继续请求已失去权限的项目详情。
+ */
 import { computed, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { useRouter } from 'vue-router';
 import { getProjectAuthorization } from "../../api/projects";
 import {
   assignExpertToBatch,
@@ -23,6 +27,7 @@ const props = withDefaults(
 );
 const emit = defineEmits<{ changed: [] }>();
 const auth = useAuthStore();
+const router = useRouter();
 const loading = ref(false);
 const detail = ref<ProjectAuthorizationDetail | null>(null);
 const batch = ref<any | null>(null);
@@ -322,7 +327,7 @@ async function submitScore() {
     batch.value = response.batch;
     assignments.value = response.assignments;
     ElMessage.success("专家评分已提交");
-    emit("changed");
+    router.push({ name: 'expert-reviews' });
   } catch (error) {
     ElMessage.error(
       error instanceof Error ? error.message : "专家评分提交失败",

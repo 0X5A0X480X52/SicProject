@@ -1,0 +1,292 @@
+{
+  "gate": "mysql",
+  "passed": true,
+  "tests": 125,
+  "skipped": 0,
+  "failures": [],
+  "suites": [
+    {
+      "name": "CloudMessagingAutoConfigurationTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "ConsumedEventGuardTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "JdbcLatencyObserverTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "OutboxPublisherTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "ActorContextResolverTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "CloudResourceServerSecurityTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "RequestContextPropagationTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "WorkflowPermissionMetaAnnotationTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "DeadLetterReplayPropertiesTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "DeadLetterReplayServiceTest",
+      "tests": 5,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "FrontendApiSurfaceTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "FullSchemaEquivalenceTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "InfrastructureIntegrationTest",
+      "tests": 4,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "MysqlMapperIntegrationTest",
+      "tests": 13,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "SessionRedisIntegrationTest",
+      "tests": 4,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "LegacyFileMigrationToolTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "GatewayErrorAndRateLimitTest",
+      "tests": 4,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "GatewayPayloadPassThroughTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "GatewaySecurityConfigTest",
+      "tests": 4,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "SessionValidityAuthorizationManagerTest",
+      "tests": 4,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "SseTokenRelayWebFilterTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "IamSecurityConfigTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "JwtTokenIssuerTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "AuthApplicationServiceTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "SessionVersionServiceTest",
+      "tests": 4,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "MaterialDeletionTransactionTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "ObjectDeletionServiceTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "GeneratedDocumentRendererTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "MaterialReservationServiceTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "NotificationEventConsumersTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "PendingNotificationDeliveryServiceTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "ProjectExpertAccessEndedConsumerTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "MethodSecurityProxyTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "ProjectAccessPolicyTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "ProjectQueryServiceTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "ProjectApplicationSagaServiceTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "ApplicationSagaCompensationTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "NodeFormBusinessDataTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "NodeFormCatalogTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "NodeFormTransitionPersistenceTest",
+      "tests": 4,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "ModuleSuccessorPolicyTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "WorkflowOperationPolicyTest",
+      "tests": 2,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "WorkflowDefinitionModelTest",
+      "tests": 3,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "WorkflowTransitionActionServiceTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "WorkflowAssetRestartTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "WorkflowExpectedSequenceConcurrencyTest",
+      "tests": 4,
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "name": "WorkflowReleaseSeedTest",
+      "tests": 1,
+      "skipped": 0,
+      "failures": 0
+    }
+  ],
+  "expectedSourceSuites": 47
+}

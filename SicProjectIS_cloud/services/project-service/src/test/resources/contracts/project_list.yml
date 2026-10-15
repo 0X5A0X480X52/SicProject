@@ -1,0 +1,23 @@
+description: accessible project list keeps the frontend fields and nulls
+name: project_list
+request:
+  method: GET
+  url: /api/projects
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      - projectId: 10
+        projectCode: P-001
+        projectName: Demo
+        deptId: null
+        deptName: null
+        leaderUserId: 1
+        leaderRealName: Alice
+        projectType: null
+        projectLevel: null
+        lifecycleStage: APPLICATION
+    message: OK

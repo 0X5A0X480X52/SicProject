@@ -1,0 +1,19 @@
+description: batch grant revocation preserves mutation response
+name: project_grants_revoke_batch
+request:
+  method: POST
+  url: /api/projects/10/grants/revoke-batch
+  headers: { Content-Type: application/json }
+  body: { grantIds: [5], reason: Revoke }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      detail:
+        project: { projectId: 10 }
+      diff: { added: ["7"], removed: [] }
+      affectedCount: 1
+      summaryMessage: Updated 1 record
+    message: OK

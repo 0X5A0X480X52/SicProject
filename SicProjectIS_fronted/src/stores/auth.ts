@@ -1,3 +1,6 @@
+/**
+ * 管理当前 token 和身份的持久化、登录更新及退出清理。身份用于页面展示与入口提示，最终业务权限仍由服务端校验。
+ */
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
@@ -26,6 +29,9 @@ export const useAuthStore = defineStore('auth', () => {
     applyLoginResponse(response.token, response.user)
   }
 
+  /**
+   * 同时替换内存身份与 localStorage，使后续 API 和 SSE 使用同一新 token；角色变更后需要重新登录走此路径。
+   */
   function applyLoginResponse(nextToken: string, nextUser: CurrentUser) {
     token.value = nextToken
     user.value = nextUser
@@ -42,6 +48,9 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem(userKey, JSON.stringify(user.value))
   }
 
+  /**
+   * 尝试撤销当前 token，无论接口成功与否都在 finally 清理本地会话。
+   */
   async function logout() {
     try {
       if (token.value) {
@@ -52,6 +61,9 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  /**
+   * 清空响应式身份及两个持久化键，触发页面与连接订阅更新。
+   */
   function clearSession() {
     token.value = null
     user.value = null

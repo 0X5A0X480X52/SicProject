@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: dlq-recovery-tool
+  main:
+    web-application-type: none
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:sic}
+    password: ${RABBITMQ_PASSWORD}
+
+sic:
+  dlq-replay:
+    confirmation: ${DLQ_REPLAY_CONFIRM:}
+    max-messages: ${DLQ_REPLAY_MAX_MESSAGES:10}
+    confirm-timeout: ${DLQ_REPLAY_CONFIRM_TIMEOUT:10s}

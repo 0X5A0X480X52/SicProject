@@ -1,0 +1,12 @@
+description: material download keeps bytes, content type and UTF-8 filename header
+name: material_download
+request:
+  method: GET
+  url: /api/material-versions/40/download
+response:
+  status: 200
+  headers:
+    Content-Type: text/plain
+    Content-Disposition: "attachment; filename*=UTF-8''demo.txt"
+    Content-Length: "5"
+  body: hello

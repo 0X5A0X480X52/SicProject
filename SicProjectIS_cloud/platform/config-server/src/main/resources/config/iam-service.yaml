@@ -1,0 +1,22 @@
+server:
+  port: 9001
+
+spring:
+  datasource:
+    url: ${IAM_DB_URL:jdbc:mysql://mysql:3306/sic_iam?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${IAM_DB_USERNAME:sic_iam}
+    password: ${IAM_DB_PASSWORD}
+
+sic:
+  jwt:
+    issuer: ${JWT_ISSUER:sic-iam}
+    audience: ${JWT_AUDIENCE:sic-api}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}
+    private-key: ${JWT_PRIVATE_KEY:}
+    public-key: ${JWT_PUBLIC_KEY:}
+  service-token:
+    bootstrap-secret: ${SERVICE_TOKEN_BOOTSTRAP_SECRET}
+  bootstrap-admin:
+    username: ${BOOTSTRAP_ADMIN_USERNAME:}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+    real-name: ${BOOTSTRAP_ADMIN_REAL_NAME:系统管理员}

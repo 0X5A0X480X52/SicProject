@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 按过滤条件读取身份和项目授权审计；展示服务端已有记录，不在前端重建或补写审计事实。
+ */
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'

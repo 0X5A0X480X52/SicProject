@@ -1,0 +1,29 @@
+description: admin user query keeps role options and list item fields
+name: admin_users
+request:
+  method: GET
+  url: /api/admin/users
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      roles:
+        - roleId: 2
+          roleCode: PROJECT_LEADER
+          roleName: Project leader
+          roleDesc: null
+          enabled: true
+      users:
+        - userId: 7
+          username: bob
+          realName: Bob
+          deptId: 3
+          deptName: Science
+          enabled: true
+          roleCodes: [PROJECT_LEADER]
+          canEditRoles: true
+          canToggleStatus: true
+    message: OK

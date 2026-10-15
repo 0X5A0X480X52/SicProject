@@ -1,0 +1,115 @@
+{
+  "recordedAt": "2026-10-10T14:12:09.971636+00:00",
+  "project": "sic-perf-candidate-20261010",
+  "release": {
+    "schemaVersion": 1,
+    "label": "selector-cache-candidate-20261010",
+    "createdAt": "2026-10-10T14:07:03.981352+00:00",
+    "schemaManifestSha256": "6591c612e0f35a1a3e9df02f41671050a335d5b4d52e2194f2fcf04d7b806ae0",
+    "applications": {
+      "config-server": {
+        "file": "config-server/application.jar",
+        "sha256": "563125e0089d6b756c4f4d81288bce76e9b73cc80961039f78fa84a9ead944d4",
+        "sizeBytes": 45153131
+      },
+      "discovery-server": {
+        "file": "discovery-server/application.jar",
+        "sha256": "28860df02914a0bfb8cb38ad5ec2dc8420a3f0ebc2348212a90d3c119cc5a2f9",
+        "sizeBytes": 60475365
+      },
+      "gateway-service": {
+        "file": "gateway-service/application.jar",
+        "sha256": "aac61899489347b93a9a2c7ded982315501a772656bd61ae83fea08584aae369",
+        "sizeBytes": 78065107
+      },
+      "iam-service": {
+        "file": "iam-service/application.jar",
+        "sha256": "b00fa40f2fd1403c06e0d6b3d3962ec513bf6c090e55275d3e0125db48726f67",
+        "sizeBytes": 74109204
+      },
+      "project-service": {
+        "file": "project-service/application.jar",
+        "sha256": "1e93e8fb48430179f66eb1c7e38313ba208bf8d460bb793ae23844a73870ee45",
+        "sizeBytes": 71140771
+      },
+      "workflow-service": {
+        "file": "workflow-service/application.jar",
+        "sha256": "a7f8fb6adbf9d8fbd6804978b266c308d03368240cd5b5742e924dc60261c846",
+        "sizeBytes": 78493566
+      },
+      "material-service": {
+        "file": "material-service/application.jar",
+        "sha256": "f156e6f1fbb960eacb562aea3c6663df3ed84e3e3ec25fcb2d4c00b40e1105b8",
+        "sizeBytes": 80613415
+      },
+      "notification-service": {
+        "file": "notification-service/application.jar",
+        "sha256": "2eb677c2819a2ff5b2baf51f2bfce0c862d510c0b5aea403fb1c319326a25322",
+        "sizeBytes": 65323009
+      }
+    }
+  },
+  "initialRows": {
+    "sic_iam.app_permission": 23,
+    "sic_iam.app_role": 6,
+    "sic_iam.app_user": 1,
+    "sic_iam.consumed_event": 0,
+    "sic_iam.department": 1,
+    "sic_iam.expert_qualification": 0,
+    "sic_iam.outbox_event": 0,
+    "sic_iam.role_permission": 47,
+    "sic_iam.user_role": 1,
+    "sic_material.consumed_event": 0,
+    "sic_material.generated_document": 0,
+    "sic_material.material": 0,
+    "sic_material.material_reservation": 0,
+    "sic_material.material_reservation_item": 0,
+    "sic_material.material_type": 0,
+    "sic_material.material_version": 0,
+    "sic_material.object_deletion_job": 0,
+    "sic_material.outbox_event": 0,
+    "sic_notification.consumed_event": 0,
+    "sic_notification.outbox_event": 0,
+    "sic_notification.pending_notification": 0,
+    "sic_project.admin_operation_log": 0,
+    "sic_project.application_saga": 0,
+    "sic_project.consumed_event": 0,
+    "sic_project.outbox_event": 0,
+    "sic_project.project": 0,
+    "sic_project.project_access_grant": 0,
+    "sic_project.project_access_log": 0,
+    "sic_project.project_member": 0,
+    "sic_project.user_snapshot": 0,
+    "sic_workflow.acceptance_financial_settlement": 0,
+    "sic_workflow.acceptance_form": 0,
+    "sic_workflow.consumed_event": 0,
+    "sic_workflow.contract_form": 0,
+    "sic_workflow.expert_review": 0,
+    "sic_workflow.expert_review_assignment": 0,
+    "sic_workflow.expert_review_batch": 0,
+    "sic_workflow.expert_review_score": 0,
+    "sic_workflow.module_instance": 0,
+    "sic_workflow.node_form": 0,
+    "sic_workflow.notice_record": 0,
+    "sic_workflow.outbox_event": 0,
+    "sic_workflow.project_achievement": 0,
+    "sic_workflow.project_application": 0,
+    "sic_workflow.project_snapshot": 0,
+    "sic_workflow.state_record": 0,
+    "sic_workflow.user_snapshot": 0,
+    "sic_workflow.workflow_definition": 3,
+    "sic_workflow.workflow_material_reference": 0,
+    "sic_workflow.workflow_node_config": 62,
+    "sic_workflow.workflow_task": 0,
+    "sic_workflow.workflow_transition_config": 73
+  },
+  "resources": {
+    "dockerServerVersion": "27.0.3",
+    "cpus": 16,
+    "memoryBytes": 8325890048,
+    "mysqlVersion": "8.4.11",
+    "javaHeap": "-Xms64m -Xmx384m",
+    "poolSize": 10
+  },
+  "schemaTableCount": 52
+}

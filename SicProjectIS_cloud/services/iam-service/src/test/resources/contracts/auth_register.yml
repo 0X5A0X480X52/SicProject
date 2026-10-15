@@ -1,0 +1,32 @@
+description: registration keeps the existing frontend response contract
+name: auth_register_success
+request:
+  method: POST
+  url: /api/auth/register
+  headers:
+    Content-Type: application/json
+  body:
+    username: alice
+    password: secret123
+    realName: Alice
+    deptId: null
+    phone: null
+    email: null
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      token: contract.jwt.token
+      expiresAt: "2030-01-02T03:04:05Z"
+      user:
+        userId: 1
+        username: alice
+        realName: Alice
+        deptId: null
+        deptName: null
+        roleCodes: [PROJECT_LEADER]
+        permissionCodes: [PERM_PROJECT_CREATE]
+    message: OK

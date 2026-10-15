@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.project.dao.ProjectAuthorizationMapper">
+  <!-- 授权中心 MyBatis 接口：读取与加锁项目、可管理项目、成员与授权查询、负责人更换、部门指派、财务候选人、成员升降级与增删、grant 幂等插入与撤销、专家访问结束、版本与生命周期更新。 -->
+  <!-- 由已锁定且确认部门为空的补充用例调用；同时递增项目版本以传播归属变更。 -->
+  <update id="assignDepartment">UPDATE project SET dept_id=#{deptId},dept_name_snapshot=#{name},version=version+1 WHERE id=#{id} AND dept_id IS NULL</update>
+  <!-- 只筛选有效时间与目标模块、轮次、节点匹配的财务 grant；IAM 当前角色还需在事务外另行核对。 -->
+  <!-- 读取有效期内且匹配项目、模块、轮次、节点的财务办理授权用户，去重返回供后续 IAM 角色校验。 -->
+  <select id="financeCandidates" resultType="Long">
+    SELECT DISTINCT grantee_user_id FROM project_access_grant
+     WHERE project_id=#{projectId} AND grant_role_code='PROJECT_FINANCE_HANDLER_ASSIGNMENT' AND status='ACTIVE'
+       AND (module_type IS NULL OR module_type=#{moduleType}) AND (round_no IS NULL OR round_no=#{roundNo})
+       AND (task_node_id IS NULL OR task_node_id=#{node})
+       AND (effective_from IS NULL OR effective_from&lt;=CURRENT_TIMESTAMP(6))
+       AND (effective_to IS NULL OR effective_to&gt;CURRENT_TIMESTAMP(6))
+     ORDER BY grantee_user_id
+  </select>
+  <resultMap id="project" type="com.amatrix.sic.project.entity.ProjectRecord"><constructor>
+    <arg column="id" javaType="java.lang.Long"/><arg column="project_code" javaType="String"/>
+    <arg column="project_name" javaType="String"/><arg column="dept_id" javaType="java.lang.Long"/>
+    <arg column="dept_name_snapshot" javaType="String"/><arg column="owner_user_id" javaType="java.lang.Long"/>
+    <arg column="owner_name_snapshot" javaType="String"/><arg column="project_type" javaType="String"/>
+    <arg column="project_level" javaType="String"/><arg column="business_status" javaType="String"/>
+  </constructor></resultMap>
+  <!-- 复用 ACTIVE 项目主数据查询及字段别名，供授权详情和可管理项目查询使用。 -->
+  <sql id="projectColumns">SELECT id,project_code,project_name,dept_id,dept_name_snapshot,owner_user_id,owner_name_snapshot,
+    project_type,project_level,business_status FROM project WHERE lifecycle_status='ACTIVE'</sql>
+  <!-- 按项目 ID 读取 ACTIVE 项目主数据，供授权管理和范围校验使用。 -->
+  <select id="project" resultMap="project"><include refid="projectColumns"/> AND id=#{id}</select>
+  <!-- 先锁定活动项目，再修改成员或 grant；专家回收消费也遵守项目→grant 的顺序。 -->
+  <!-- 按项目 ID 锁定并读取 ACTIVE 项目，供成员及授权变更事务使用。 -->
+  <select id="lockProject" resultMap="project"><include refid="projectColumns"/> AND id=#{id} FOR UPDATE</select>
+  <!-- 按全局管理开关或部门管理范围查询可管理的 ACTIVE 项目，按项目 ID 倒序返回。 -->
+  <select id="manageable" resultMap="project"><include refid="projectColumns"/>
+    AND (#{global}=TRUE OR (#{department}=TRUE AND dept_id=#{deptId,jdbcType=BIGINT})) ORDER BY id DESC</select>
+  <resultMap id="member" type="java.util.LinkedHashMap">
+    <result column="projectMemberId" property="projectMemberId" javaType="Long"/>
+    <result column="userId" property="userId" javaType="Long"/>
+    <result column="memberRole" property="memberRole" javaType="String"/>
+    <result column="responsibility" property="responsibility" javaType="String"/>
+    <result column="joinedAt" property="joinedAt" javaType="java.time.LocalDateTime"/>
+  </resultMap>
+  <!-- 按项目 ID 列出成员角色、职责及加入时间，供项目成员管理使用。 -->
+  <select id="members" resultMap="member">SELECT id projectMemberId,user_id userId,member_role memberRole,
+    responsibility,created_at joinedAt FROM project_member WHERE project_id=#{id} ORDER BY id</select>
+  <resultMap id="grant" type="java.util.LinkedHashMap">
+    <result column="projectRoleGrantId" property="projectRoleGrantId" javaType="Long"/>
+    <result column="grantRoleCode" property="grantRoleCode" javaType="String"/>
+    <result column="grantScope" property="grantScope" javaType="String"/>
+    <result column="moduleType" property="moduleType" javaType="String"/>
+    <result column="roundNo" property="roundNo" javaType="Integer"/>
+    <result column="taskNodeId" property="taskNodeId" javaType="String"/>
+    <result column="status" property="status" javaType="String"/>
+    <result column="grantReason" property="grantReason" javaType="String"/>
+    <result column="effectiveFrom" property="effectiveFrom" javaType="java.time.LocalDateTime"/>
+    <result column="effectiveTo" property="effectiveTo" javaType="java.time.LocalDateTime"/>
+    <result column="granteeId" property="granteeId" javaType="Long"/>
+    <result column="grantedById" property="grantedById" javaType="Long"/>
+  </resultMap>
+  <!-- 按项目和授权角色列出授权状态、有效期和作用范围，按 ID 倒序返回，包含非 ACTIVE 记录。 -->
+  <select id="grants" resultMap="grant">SELECT id projectRoleGrantId,grant_role_code grantRoleCode,grant_scope grantScope,
+    module_type moduleType,round_no roundNo,task_node_id taskNodeId,status,grant_reason grantReason,
+    effective_from effectiveFrom,effective_to effectiveTo,grantee_user_id granteeId,granted_by grantedById
+    FROM project_access_grant WHERE project_id=#{id} AND grant_role_code=#{role} ORDER BY id DESC</select>
+  <resultMap id="count" type="java.util.LinkedHashMap">
+    <result column="key" property="key" javaType="String"/>
+    <result column="label" property="label" javaType="String"/>
+    <result column="count" property="count" javaType="Long"/>
+  </resultMap>
+  <!-- 按授权角色统计状态为 ACTIVE 的记录数，供授权分布概览使用。 -->
+  <select id="grantCounts" resultMap="count">SELECT grant_role_code `key`,grant_role_code label,COUNT(*) `count`
+    FROM project_access_grant WHERE status='ACTIVE' GROUP BY grant_role_code</select>
+  <update id="changeLeader">UPDATE project SET owner_user_id=#{userId},owner_name_snapshot=#{name},version=version+1 WHERE id=#{id}</update>
+  <update id="demoteMember">UPDATE project_member SET member_role='MEMBER' WHERE project_id=#{id} AND user_id=#{userId}</update>
+  <insert id="upsertMember">INSERT INTO project_member(project_id,user_id,member_role,responsibility,user_name_snapshot)
+    VALUES(#{projectId},#{userId},#{role},#{responsibility},#{name}) ON DUPLICATE KEY UPDATE
+    member_role=VALUES(member_role),responsibility=VALUES(responsibility),user_name_snapshot=VALUES(user_name_snapshot)</insert>
+  <delete id="deleteMember">DELETE FROM project_member WHERE project_id=#{id} AND user_id=#{userId}</delete>
+  <!-- 复用项目、用户、角色和 ACTIVE 条件，以 NULL 安全比较精确匹配模块、轮次、节点范围。 -->
+  <sql id="scope">project_id=#{projectId} AND grantee_user_id=#{userId} AND grant_role_code=#{role} AND status='ACTIVE'
+    AND (module_type&lt;=&gt;#{moduleType}) AND (round_no&lt;=&gt;#{roundNo,jdbcType=INTEGER}) AND (task_node_id&lt;=&gt;#{node})</sql>
+  <!-- 按授权用户及范围检测有效重复 grant，命令复用不等于扩大范围。 -->
+  <!-- 统计同项目、用户、角色及相同模块、轮次、节点范围的 ACTIVE 授权，供重复授权检查。 -->
+  <select id="duplicateGrant" resultType="int">SELECT COUNT(*) FROM project_access_grant WHERE <include refid="scope"/></select>
+  <insert id="insertGrant" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    INSERT INTO project_access_grant(project_id,grantee_user_id,grantee_name_snapshot,grant_role_code,grant_scope,
+      module_type,round_no,task_node_id,grant_reason,granted_by,granted_by_name_snapshot)
+    VALUES(#{projectId},#{userId},#{name},#{role},#{grantScope},#{moduleType},#{roundNo,jdbcType=INTEGER},#{node},#{reason},#{operatorId},#{operatorName})
+  </insert>
+  <!-- 按授权 ID 和项目 ID 读取角色编码，供撤销前校验授权归属与类型。 -->
+  <select id="grantRole" resultType="String">SELECT grant_role_code FROM project_access_grant WHERE id=#{id} AND project_id=#{projectId}</select>
+  <update id="revokeGrant">UPDATE project_access_grant SET status='REVOKED',effective_to=CURRENT_TIMESTAMP(6) WHERE id=#{id}</update>
+  <update id="revokeExpert">UPDATE project_access_grant SET status='REVOKED',effective_to=CURRENT_TIMESTAMP(6) WHERE <include refid="scope"/></update>
+  <!-- 根据结束批次的专家与范围回收临时权限，不撤销项目永久成员关系。 -->
+  <update id="endExpertAccess">UPDATE project_access_grant SET status='REVOKED',effective_to=CURRENT_TIMESTAMP(6)
+    WHERE project_id=#{projectId} AND grant_role_code='PROJECT_MODULE_EXPERT_ASSIGNMENT' AND status='ACTIVE'
+    AND module_type=#{moduleType} AND round_no=#{roundNo}
+    <choose><when test="node != null">AND task_node_id=#{node}</when><otherwise>
+      AND grantee_user_id IN <foreach collection="experts" item="id" open="(" close=")" separator=",">#{id}</foreach>
+    </otherwise></choose>
+  </update>
+  <update id="touch">UPDATE project SET version=version+1,updated_at=CURRENT_TIMESTAMP(6) WHERE id=#{id}</update>
+  <!-- 按项目 ID 读取版本号，供授权变更事件和版本协调使用。 -->
+  <select id="version" resultType="Long">SELECT version FROM project WHERE id=#{id}</select>
+  <update id="lifecycle">UPDATE project SET business_status=#{stage},version=version+1 WHERE id=#{id} AND lifecycle_status='ACTIVE'</update>
+</mapper>

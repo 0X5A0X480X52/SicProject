@@ -1,3 +1,6 @@
+/**
+ * 声明项目主数据、申请和成员授权请求；项目归属部门不随账号部门调整自动改变，授权范围限定模块、轮次和节点。
+ */
 export interface ProjectSummary {
   projectId: number
   projectCode: string

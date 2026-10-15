@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 按节点与状态历史构建进度展示；展示顺序用于阅读流程，不承担后继模块创建或状态推进。
+ */
 import { computed, type PropType } from 'vue'
 
 export type WorkflowProcessStepStatus = 'done' | 'current' | 'returned' | 'rejected' | 'waiting'

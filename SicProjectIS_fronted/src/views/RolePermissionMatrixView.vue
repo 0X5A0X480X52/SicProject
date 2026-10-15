@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 编辑角色对应权限并提交后台校验；权限变更影响授权版本，界面不能沿用旧 token 假定身份持续有效。
+ */
 import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import PermissionWorkbenchLayout from '../layouts/PermissionWorkbenchLayout.vue'

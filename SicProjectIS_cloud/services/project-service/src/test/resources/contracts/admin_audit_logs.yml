@@ -1,0 +1,34 @@
+description: audit log query preserves nullable snapshots and user summaries
+name: admin_audit_logs
+request:
+  method: GET
+  url: /api/admin/audit-logs
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      logs:
+        - logId: "101"
+          scopeType: PROJECT
+          actionType: PROJECT_MEMBER_UPDATED
+          projectId: 10
+          projectName: Demo
+          operatorUser:
+            userId: 1
+            username: alice
+            realName: Alice
+          targetUser:
+            userId: 7
+            username: bob
+            realName: Bob
+          grantType: null
+          roleCode: null
+          permissionCode: null
+          beforeSnapshot: null
+          afterSnapshot: "{}"
+          remark: Updated
+          createdAt: "2030-01-02T03:04:05"
+    message: OK

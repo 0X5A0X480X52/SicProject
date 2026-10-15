@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-10T16:40:01.746855+00:00",
+  "project": "sic-precision-candidate-20261011",
+  "checks": [
+    {
+      "name": "registry propagation",
+      "passed": true,
+      "services": [
+        "GATEWAY-SERVICE",
+        "IAM-SERVICE",
+        "MATERIAL-SERVICE",
+        "NOTIFICATION-SERVICE",
+        "PROJECT-SERVICE",
+        "WORKFLOW-SERVICE"
+      ]
+    },
+    {
+      "name": "/api/auth/me",
+      "passed": true,
+      "status": 200,
+      "traceId": "e12d0e7c-ae30-4533-a606-407ffd52b79f"
+    },
+    {
+      "name": "/api/projects",
+      "passed": true,
+      "status": 200,
+      "traceId": "787c0c9f-9748-4580-8ef7-2b1d07ac368d"
+    },
+    {
+      "name": "/api/workflow-definitions",
+      "passed": true,
+      "status": 200,
+      "traceId": "473cad36-1e2b-4ccb-aecf-d9eff343f039"
+    },
+    {
+      "name": "/api/projects/0/materials",
+      "passed": true,
+      "status": 403,
+      "traceId": "cc048a59-edb7-4a0e-8d4f-fb4760803df7"
+    }
+  ],
+  "registryStableSeconds": 65,
+  "finishedAt": "2026-10-10T16:41:12.111399+00:00"
+}

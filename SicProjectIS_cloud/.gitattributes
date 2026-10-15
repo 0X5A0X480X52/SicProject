@@ -1,0 +1,8 @@
+# Release SQL/BPMN hashes and executable scripts must survive Windows checkouts.
+*.sql text eol=lf
+*.json text eol=lf
+*.bpmn text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+# The blank fixture is mostly ASCII; newline conversion would corrupt its xref offsets.
+*.pdf binary

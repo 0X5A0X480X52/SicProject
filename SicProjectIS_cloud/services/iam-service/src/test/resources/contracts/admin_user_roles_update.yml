@@ -1,0 +1,49 @@
+description: role update preserves user diff and refreshed query sections
+name: admin_user_roles_update
+request:
+  method: PUT
+  url: /api/admin/users/7/roles
+  headers:
+    Content-Type: application/json
+  body:
+    roleCodes: [PROJECT_LEADER]
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      user:
+        userId: 7
+        username: bob
+        realName: Bob
+        deptId: 3
+        deptName: Science
+        enabled: true
+        roleCodes: [PROJECT_LEADER]
+        canEditRoles: true
+        canToggleStatus: true
+        phone: "13800000000"
+        email: null
+      diff:
+        added: [PROJECT_LEADER]
+        removed: []
+      query:
+        roles:
+          - roleId: 2
+            roleCode: PROJECT_LEADER
+            roleName: Project leader
+            roleDesc: null
+            enabled: true
+        users:
+          - userId: 7
+            username: bob
+            realName: Bob
+            deptId: 3
+            deptName: Science
+            enabled: true
+            roleCodes: [PROJECT_LEADER]
+            canEditRoles: true
+            canToggleStatus: true
+    message: OK

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 展示已提交状态记录的时间线，seq、roundNo 和 stateRecordId 分别代表迁移序号、业务轮次和记录主键。
+ */
 import type { PropType } from 'vue'
 
 export interface WorkflowDisplayRecord {

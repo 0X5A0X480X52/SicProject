@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.messaging.dao.MessagingMapper">
+  <!-- 本模块 MyBatis 接口：Outbox 插入、候选查询与租约领取，发布成功/失败回写，消费去重插入及待发/失败/最老年龄计数。 -->
+  <resultMap id="entry" type="com.amatrix.sic.messaging.entity.OutboxEntry">
+    <constructor>
+      <arg column="event_id" javaType="String"/>
+      <arg column="event_type" javaType="String"/>
+      <arg column="routing_key" javaType="String"/>
+      <arg column="payload_json" javaType="String"/>
+      <arg column="created_at" javaType="java.time.Instant"/>
+      <arg column="attempts" javaType="_int"/>
+    </constructor>
+  </resultMap>
+  <!-- 待发送事件与调用方业务写入同事务保存；这里只入库，不发送 RabbitMQ。 -->
+  <insert id="insertOutbox">
+    INSERT INTO outbox_event(event_id,event_type,routing_key,payload_json,created_at,attempts)
+    VALUES(#{id},#{type},#{route},#{payload},#{now},0)
+  </insert>
+  <select id="candidates" resultMap="entry">
+    SELECT event_id,event_type,routing_key,payload_json,created_at,attempts FROM outbox_event
+    WHERE published_at IS NULL AND (next_attempt_at IS NULL OR next_attempt_at &lt;= #{now})
+      AND (locked_until IS NULL OR locked_until &lt; #{now}) ORDER BY created_at,event_id LIMIT #{limit}
+  </select>
+  <!-- 条件更新竞争租约；读取同一候选的多实例中，仅更新成功者获得发送资格。 -->
+  <update id="claim">
+    UPDATE outbox_event SET lock_owner=#{owner},locked_until=#{until} WHERE event_id=#{id} AND published_at IS NULL
+      AND (next_attempt_at IS NULL OR next_attempt_at &lt;= #{now}) AND (locked_until IS NULL OR locked_until &lt; #{now})
+  </update>
+  <!-- 只允许当前 owner 标记已发送，避免旧发送线程覆盖已转移的租约。 -->
+  <update id="published">
+    UPDATE outbox_event SET published_at=#{now},last_error=NULL,lock_owner=NULL,locked_until=NULL WHERE event_id=#{id} AND lock_owner=#{owner}
+  </update>
+  <!-- 仅当前 owner 记录错误与下次尝试时间，释放发送租约后允许再次领取。 -->
+  <update id="failed">
+    UPDATE outbox_event SET attempts=attempts+1,last_error=#{error},next_attempt_at=#{next},lock_owner=NULL,locked_until=NULL
+    WHERE event_id=#{id} AND lock_owner=#{owner}
+  </update>
+  <!-- event_id 与 consumer_name 的唯一约束用于 Inbox 去重；与消费业务写入同事务。 -->
+  <insert id="consume">INSERT INTO consumed_event(event_id,consumer_name,consumed_at) VALUES(#{id},#{consumer},#{now})</insert>
+  <select id="pending" resultType="long">SELECT COUNT(*) FROM outbox_event WHERE published_at IS NULL</select>
+  <select id="failedCount" resultType="long">SELECT COUNT(*) FROM outbox_event WHERE published_at IS NULL AND attempts&gt;0</select>
+  <select id="oldestAge" resultType="long">SELECT COALESCE(TIMESTAMPDIFF(SECOND,MIN(created_at),CURRENT_TIMESTAMP),0) FROM outbox_event WHERE published_at IS NULL</select>
+</mapper>

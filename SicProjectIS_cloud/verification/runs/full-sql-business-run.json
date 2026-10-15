@@ -1,0 +1,2233 @@
+{
+  "schemaVersion": 1,
+  "caseId": "E2E-BIZ-001",
+  "runId": "2026101008392857d6f5",
+  "startedAt": "2026-10-10T08:39:28.266344+00:00",
+  "gateway": "http://127.0.0.1:18080",
+  "overallPassed": true,
+  "workflowTraversalPassed": true,
+  "businessDataPassed": true,
+  "requests": [
+    {
+      "actor": "<redacted>istrator",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "ff9a073b-1f79-4b68-a05e-d02a92da3a54",
+      "durationMs": 2062
+    },
+    {
+      "actor": "<redacted>istrator",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "traceId": "80360ac0-1277-4305-b839-4467b1db925a",
+      "durationMs": 563
+    },
+    {
+      "actor": "<redacted>istrator",
+      "method": "POST",
+      "path": "/api/<redacted>/departments",
+      "status": 200,
+      "traceId": "34f5b456-5032-414b-ab38-92d86b90c35a",
+      "durationMs": 218
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/auth/register",
+      "status": 200,
+      "traceId": "d5aa82c5-4b98-4ea4-a86c-4c7a125195ac",
+      "durationMs": 110
+    },
+    {
+      "actor": "<redacted>istrator",
+      "method": "PUT",
+      "path": "/api/<redacted>/users/2/roles",
+      "status": 200,
+      "traceId": "2645abe4-65e2-45fa-af38-8bfa59308b86",
+      "durationMs": 62
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "traceId": "b8aba732-f089-48b3-ab3c-ac61ea3b2d6a",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "638a5abc-e528-4120-ae36-a60e193aa9e2",
+      "durationMs": 62
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "traceId": "0b5ac2ee-4d61-4063-b6d2-60188a19ed04",
+      "durationMs": 31
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/auth/register",
+      "status": 200,
+      "traceId": "5343bb0f-73ac-4366-b4c4-9e19a15dcb55",
+      "durationMs": 94
+    },
+    {
+      "actor": "<redacted>istrator",
+      "method": "PUT",
+      "path": "/api/<redacted>/users/3/roles",
+      "status": 200,
+      "traceId": "ceb97f24-b614-4b7a-b594-6efa70a21605",
+      "durationMs": 15
+    },
+    {
+      "actor": "department",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "traceId": "8ba91338-4821-4654-b5ac-10f2294155ad",
+      "durationMs": 15
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "01da66bc-ca5e-4088-8d82-383e520f758f",
+      "durationMs": 78
+    },
+    {
+      "actor": "department",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "traceId": "cf52042a-b281-46b9-9771-e2022cb8c428",
+      "durationMs": 0
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/auth/register",
+      "status": 200,
+      "traceId": "29cc8d05-5d5c-48d5-96e9-b6a1d2515221",
+      "durationMs": 94
+    },
+    {
+      "actor": "<redacted>istrator",
+      "method": "PUT",
+      "path": "/api/<redacted>/users/4/roles",
+      "status": 200,
+      "traceId": "eda78231-1949-4156-a52c-3df346e86554",
+      "durationMs": 16
+    },
+    {
+      "actor": "leader",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "traceId": "dd87e7e3-643e-43eb-a766-46f233ad4b1b",
+      "durationMs": 0
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "178eb4e6-3224-4349-8ea1-5757efedd3db",
+      "durationMs": 78
+    },
+    {
+      "actor": "leader",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "traceId": "00c788ba-dabc-42be-abc2-814f344e3158",
+      "durationMs": 16
+    },
+    {
+      "actor": "finance",
+      "method": "POST",
+      "path": "/api/auth/register",
+      "status": 200,
+      "traceId": "1eb0f301-95b0-438e-969c-ea80635fdfdc",
+      "durationMs": 94
+    },
+    {
+      "actor": "<redacted>istrator",
+      "method": "PUT",
+      "path": "/api/<redacted>/users/5/roles",
+      "status": 200,
+      "traceId": "eb393666-5873-480b-9f4d-12a555c61fd5",
+      "durationMs": 31
+    },
+    {
+      "actor": "finance",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "traceId": "4a8a6074-8c32-4b48-8f8d-29fb03382a18",
+      "durationMs": 0
+    },
+    {
+      "actor": "finance",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "d1067355-13c3-4746-b701-d3cd4b71e229",
+      "durationMs": 63
+    },
+    {
+      "actor": "finance",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "traceId": "5074419e-33cc-4502-aa5e-579dc948660f",
+      "durationMs": 15
+    },
+    {
+      "actor": "expert1",
+      "method": "POST",
+      "path": "/api/auth/register",
+      "status": 200,
+      "traceId": "d468c3bb-d0b7-4812-a4b4-a53549798a75",
+      "durationMs": 78
+    },
+    {
+      "actor": "<redacted>istrator",
+      "method": "PUT",
+      "path": "/api/<redacted>/users/6/roles",
+      "status": 200,
+      "traceId": "fb4ed280-081a-4a6f-bb61-1ad53e8098c4",
+      "durationMs": 31
+    },
+    {
+      "actor": "expert1",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "traceId": "4155fbe5-fb3a-426c-b1d5-7640c12dd5cc",
+      "durationMs": 16
+    },
+    {
+      "actor": "expert1",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "f07351db-e784-4b55-a21c-e55425fe14e3",
+      "durationMs": 78
+    },
+    {
+      "actor": "expert1",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "traceId": "8cc5bdce-61e7-41ec-9de0-909417772b64",
+      "durationMs": 0
+    },
+    {
+      "actor": "expert2",
+      "method": "POST",
+      "path": "/api/auth/register",
+      "status": 200,
+      "traceId": "aa764c6d-36ee-4058-bf19-c3898947c1b9",
+      "durationMs": 93
+    },
+    {
+      "actor": "<redacted>istrator",
+      "method": "PUT",
+      "path": "/api/<redacted>/users/7/roles",
+      "status": 200,
+      "traceId": "8d1cc358-0cab-4c6b-9b21-784a17bf90af",
+      "durationMs": 32
+    },
+    {
+      "actor": "expert2",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "traceId": "47df1446-edec-4095-bdeb-0901b2d681dc",
+      "durationMs": 16
+    },
+    {
+      "actor": "expert2",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "f520b809-6be4-4008-83b9-1d4c9aaaf025",
+      "durationMs": 63
+    },
+    {
+      "actor": "expert2",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "traceId": "31605f01-03df-498a-9cba-d3d81ddfcd3a",
+      "durationMs": 15
+    },
+    {
+      "actor": "expert1",
+      "method": "POST",
+      "path": "/api/expert-qualification/applications",
+      "status": 200,
+      "traceId": "ff556e6b-d5d0-4ee3-bb97-8bbe0630977b",
+      "durationMs": 47
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/<redacted>/expert-qualification/applications/1/dept-review",
+      "status": 200,
+      "traceId": "c503ba59-2c31-4bbe-9e00-d23edb4a5cf8",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/<redacted>/expert-qualification/applications/1/science-review",
+      "status": 200,
+      "traceId": "0a5af95b-e09a-424a-8bb6-84680214fc37",
+      "durationMs": 31
+    },
+    {
+      "actor": "expert1",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "traceId": "33b21fc6-d0dc-46f2-931e-39a433129bcc",
+      "durationMs": 16
+    },
+    {
+      "actor": "expert1",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "32845388-dc9f-4983-91d8-6a637e66495f",
+      "durationMs": 78
+    },
+    {
+      "actor": "expert1",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "traceId": "fe2de42e-1252-4cdd-ad65-7c3855e1beb9",
+      "durationMs": 16
+    },
+    {
+      "actor": "expert1",
+      "method": "GET",
+      "path": "/api/expert-qualification/my",
+      "status": 200,
+      "traceId": "00ec8e8d-9346-4dc2-8e19-f9e340bd2cae",
+      "durationMs": 16
+    },
+    {
+      "actor": "expert2",
+      "method": "POST",
+      "path": "/api/expert-qualification/applications",
+      "status": 200,
+      "traceId": "2e81cc6f-68e4-4d1b-9c14-92c9c1f0c87a",
+      "durationMs": 31
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/<redacted>/expert-qualification/applications/2/dept-review",
+      "status": 200,
+      "traceId": "e651752b-b551-4785-ad1b-ccc5608ebfac",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/<redacted>/expert-qualification/applications/2/science-review",
+      "status": 200,
+      "traceId": "d5b72242-113c-419d-b8e9-d7a5678e2d5f",
+      "durationMs": 31
+    },
+    {
+      "actor": "expert2",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "traceId": "d19923e2-edaa-43d0-99a3-44024342ad83",
+      "durationMs": 0
+    },
+    {
+      "actor": "expert2",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "c068ef2e-3afc-4476-ab52-68f832002fa2",
+      "durationMs": 62
+    },
+    {
+      "actor": "expert2",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "traceId": "effc9308-3131-4bf6-ab3a-da5f34edd6c7",
+      "durationMs": 16
+    },
+    {
+      "actor": "expert2",
+      "method": "GET",
+      "path": "/api/expert-qualification/my",
+      "status": 200,
+      "traceId": "f238a5d9-4176-401a-b6cf-5f021281a3fa",
+      "durationMs": 16
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/project-applications/start",
+      "status": 200,
+      "traceId": "8890e914-ccb0-48f6-bbb1-3641e042e661",
+      "durationMs": 875
+    },
+    {
+      "actor": "<redacted>istrator",
+      "method": "POST",
+      "path": "/api/projects/1/finance-grants",
+      "status": 200,
+      "traceId": "2353455d-af8e-4e18-b7db-a396006e4ddd",
+      "durationMs": 188
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/projects/1/authorization",
+      "status": 200,
+      "traceId": "ae2ba7da-b187-4586-802b-900f532caaf6",
+      "durationMs": 15
+    },
+    {
+      "actor": "leader",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "bbea2cc4-e219-4615-8e7e-2687a9fe3a27",
+      "durationMs": 265
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/projects/1/materials/PROJECT_APPLICATION_FORM/versions",
+      "status": 200,
+      "traceId": "c2e978a8-bc7d-40d9-8177-f974bb249bc9",
+      "durationMs": 1453
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "b306b287-d635-4a9d-bf4a-dab81fe1b412",
+      "durationMs": 157
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "8f64c1b7-d281-4ec0-a300-32a7b8eb082d",
+      "durationMs": 46
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/PROJECT_APPLICATION_FORM?projectId=1&moduleInstanceId=1",
+      "status": 200,
+      "traceId": "4da8dbb6-d31d-438a-b4fc-21327d781a23",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/business-data",
+      "status": 200,
+      "traceId": "aea3a0c6-b9ee-4f8d-849c-03a93c464394",
+      "durationMs": 16
+    },
+    {
+      "actor": "department",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "1fc2629f-8040-4e46-9667-48595cf3f854",
+      "durationMs": 16
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "565fab67-f462-45db-98ef-564615861ab2",
+      "durationMs": 62
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "ddbd8d31-e106-494d-9833-962f4fdbc89e",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/DEPT_APPLICATION_REVIEW_FORM?projectId=1&moduleInstanceId=1",
+      "status": 200,
+      "traceId": "29bbbe17-bd6a-463f-b852-c6b24317d48c",
+      "durationMs": 32
+    },
+    {
+      "actor": "department",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "0d0ce27a-8118-4268-9531-60a4513310ab",
+      "durationMs": 31
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/expert-reviews/batches",
+      "status": 200,
+      "traceId": "4e88f592-098b-4e5c-b1d8-dbe08b78084a",
+      "durationMs": 47
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/expert-reviews/batches/1/assignments",
+      "status": 200,
+      "traceId": "bfe59c6c-d460-4431-a1f6-b59030319804",
+      "durationMs": 78
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/expert-reviews/batches/1/assignments",
+      "status": 200,
+      "traceId": "110bddb5-d142-4250-8f1a-6578502b4f07",
+      "durationMs": 47
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "a3e10a75-e958-4da2-961e-88ad29b0bd4d",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "236911f9-caa8-49c5-9c08-637e4b41878f",
+      "durationMs": 31
+    },
+    {
+      "actor": "expert1",
+      "method": "POST",
+      "path": "/api/expert-reviews/assignments/1/scores",
+      "status": 200,
+      "traceId": "f5bd621c-5ad6-489c-8d9a-31295d27b6fd",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "020ed301-2cf6-47b9-9492-990a6f7f0640",
+      "durationMs": 31
+    },
+    {
+      "actor": "expert2",
+      "method": "POST",
+      "path": "/api/expert-reviews/assignments/2/scores",
+      "status": 200,
+      "traceId": "2a965502-0443-484e-a029-6976c46e2892",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "22f3bee3-3e5c-44c8-a9e9-59ba3322a63a",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "ec6db05f-3287-4cd6-96ce-b68dca020e8a",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "c28ae9ad-35a2-44b9-b03d-d0cf3c82e8cb",
+      "durationMs": 16
+    },
+    {
+      "actor": "department",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "b0ed2884-ba28-4601-b2c3-92cddee0b47c",
+      "durationMs": 31
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "3ea495a8-f18e-4b43-9c42-e60158c2aaeb",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "847c3c70-7ab5-4b62-9ed2-b03a0964b7cc",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "08ac793b-99d8-46f5-bb2e-d327302844c5",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "31fe1b7c-26b6-4503-98ab-b351b4dbfb52",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "ae13058d-637a-4753-ad50-830a67070939",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/SCIENCE_INITIAL_REVIEW_FORM?projectId=1&moduleInstanceId=1",
+      "status": 200,
+      "traceId": "24a3795f-38fa-46d2-82c8-20383fb6d293",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "46837157-c7c5-4908-b0ed-8719d8c6fa17",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/expert-reviews/batches",
+      "status": 200,
+      "traceId": "fb876205-3f6f-493c-bee5-da7ad8018e22",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/expert-reviews/batches/2/assignments",
+      "status": 200,
+      "traceId": "781da597-035b-42b8-a78a-00a33a1b2add",
+      "durationMs": 63
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/expert-reviews/batches/2/assignments",
+      "status": 200,
+      "traceId": "75ba6c66-6325-4569-a9e1-076a277c82be",
+      "durationMs": 62
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "2fe75eda-01b6-497c-8b60-d9dd1d17343d",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "21778c35-f7f2-4696-b876-ae3381182faa",
+      "durationMs": 31
+    },
+    {
+      "actor": "expert1",
+      "method": "POST",
+      "path": "/api/expert-reviews/assignments/3/scores",
+      "status": 200,
+      "traceId": "003160fc-d7ab-40cd-a6e5-700af2577473",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "0c9ccfe4-bb27-443d-adea-deb9419acd23",
+      "durationMs": 15
+    },
+    {
+      "actor": "expert2",
+      "method": "POST",
+      "path": "/api/expert-reviews/assignments/4/scores",
+      "status": 200,
+      "traceId": "9feb21a0-e403-4cdb-8baa-cdcb7f20f76e",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "5dba644d-697c-47dd-a15a-6d67c3d01193",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "ce32feea-62f2-4430-8a18-00f3c421d224",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "19223ed0-acf7-4428-9266-b259deeec728",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "c2090212-75ba-4a1f-904a-b36d9eb11dd0",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "56b083b0-626d-4909-bb7c-53c797122fd9",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "3d57dec3-f732-405e-8b59-fbe43d739b5f",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "4f9639fb-25ab-4712-a318-87fff11a522c",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "b24400c8-853d-4ed1-802b-0435ed60f6bb",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "c31ff5a3-ec5d-4a19-833e-bcce5953481f",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/APPLICATION_PUBLICITY_FORM?projectId=1&moduleInstanceId=1",
+      "status": 200,
+      "traceId": "97a82ca0-69a3-4c39-b84a-9e4bc3fd8786",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "324f9817-7987-4999-a9c9-6ba5673ff853",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "3f0973a7-297f-4ac5-a13d-68681f78005f",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "aae4295a-785a-4752-9453-5a92a5dfd8fa",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/APPLICATION_SUBMISSION_REVIEW_FORM?projectId=1&moduleInstanceId=1",
+      "status": 200,
+      "traceId": "e624f679-47a2-4367-a2ec-e8850faced18",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "dc8a6b79-89ea-40a0-912a-24d8c5624ace",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/projects/1/materials/AUTHORITY_APPROVAL_FILE/versions",
+      "status": 200,
+      "traceId": "5a0987da-41fb-40d3-a48f-8e52d3b00ddd",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "2d6f3020-17df-4d24-9716-7429b715e16f",
+      "durationMs": 78
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "70001520-eaf4-4f1a-b5a9-4a9aa0ade7d8",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/APPLICATION_AUTHORITY_RESULT_FORM?projectId=1&moduleInstanceId=1",
+      "status": 200,
+      "traceId": "771e9942-4484-412d-a07f-6858804e2a32",
+      "durationMs": 15
+    },
+    {
+      "actor": "leader",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "5ce69850-8ba0-42b7-b029-b655c6a0a4d4",
+      "durationMs": 32
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/projects/1/materials/SIGNED_APPLICATION_FORM/versions",
+      "status": 200,
+      "traceId": "a2012042-dea2-4975-b1cf-1cedea4200c7",
+      "durationMs": 47
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "84472390-d788-4ea3-b5a5-938aec1c9b23",
+      "durationMs": 63
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "c7da93e2-f422-4102-ad11-a6b09842f9a6",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/APPLICATION_SEAL_FORM?projectId=1&moduleInstanceId=1",
+      "status": 200,
+      "traceId": "346fa79b-ebff-4c47-baf1-d4eb0b9ac381",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "c01f4f0b-768b-4c54-989d-abb8fc838db2",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/projects/1/materials/FINAL_APPLICATION_MATERIALS/versions",
+      "status": 200,
+      "traceId": "0040af3c-1029-4bd9-a9ad-0d43f7d30b65",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/1/transitions",
+      "status": 200,
+      "traceId": "24c54434-c51a-4cab-a6dd-89ea0916f8cc",
+      "durationMs": 62
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "a302a34d-742c-4c7a-aea3-3d9a9878f0f5",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/APPLICATION_FINAL_SUBMISSION_FORM?projectId=1&moduleInstanceId=1",
+      "status": 200,
+      "traceId": "ad3ca6cf-5e66-46ff-9d7e-85f67f265e02",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "3b65cd4b-34a8-42e3-a27e-54bcc8cac0c0",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/workflow-workbench/items",
+      "status": 200,
+      "traceId": "bb5d6b07-8079-4ce8-989c-783f802d041b",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "5624cc60-4f57-4d40-b0cc-41532e3cd958",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/projects/1/materials/PROJECT_APPROVAL_FILE/versions",
+      "status": 200,
+      "traceId": "ddf1c614-c7aa-4729-ad36-e32712e6ca21",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/2/transitions",
+      "status": 200,
+      "traceId": "e4c2410a-2e41-437e-874c-495106d83c59",
+      "durationMs": 63
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "484d198b-94fa-4e6c-afba-59f34fca1b13",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/PROJECT_APPROVAL_FORM?projectId=1&moduleInstanceId=2",
+      "status": 200,
+      "traceId": "126a1b97-c69b-4820-8ef9-34c1656ee3b1",
+      "durationMs": 16
+    },
+    {
+      "actor": "leader",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "f201e7a0-6807-4826-80bd-0f4bce8986b0",
+      "durationMs": 31
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/projects/1/materials/CONTRACT_DRAFT/versions",
+      "status": 200,
+      "traceId": "206a0c66-912a-4847-9929-49fd890e3b11",
+      "durationMs": 31
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/module-instances/2/transitions",
+      "status": 200,
+      "traceId": "a55571d0-a74a-41e6-8b9a-c415b4f90224",
+      "durationMs": 62
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "9fb46ddc-232d-4dae-8e5b-1b6c11ae5f5f",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/CONTRACT_DRAFT_FORM?projectId=1&moduleInstanceId=2",
+      "status": 200,
+      "traceId": "176c7dbb-825e-49a5-8040-da7ec73693e5",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/business-data",
+      "status": 200,
+      "traceId": "d0b2a8ab-f398-446b-87c0-b25554b77234",
+      "durationMs": 15
+    },
+    {
+      "actor": "department",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "5e187780-83b9-42cf-af58-5f4710e92c64",
+      "durationMs": 32
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/module-instances/2/transitions",
+      "status": 200,
+      "traceId": "b3fefba5-a301-4c28-a145-a2f15c710268",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "c19a3497-b6a6-401d-87b4-6d5990d9c8e5",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/CONTRACT_DEPT_REVIEW_FORM?projectId=1&moduleInstanceId=2",
+      "status": 200,
+      "traceId": "cd1b458c-534d-419b-a9e8-2e2840ed69ca",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "a25ccae0-9366-4c27-bc3a-028838b3643d",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/2/transitions",
+      "status": 200,
+      "traceId": "5fc88d65-d547-4e6a-be23-be5803991709",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "649c344d-f10b-4fea-b673-0af84e1809d2",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/CONTRACT_SCIENCE_REVIEW_FORM?projectId=1&moduleInstanceId=2",
+      "status": 200,
+      "traceId": "22d70c7f-eb60-4f40-8eae-30a155788e2f",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "1224cf1f-7dfd-4693-9057-50ebdcf6b0d5",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/2/transitions",
+      "status": 200,
+      "traceId": "c501f6f4-e5ea-4736-8eff-e6b39ff96119",
+      "durationMs": 63
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "cb058456-f5a1-4728-ae85-b2102cbd2072",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/CONTRACT_AUTHORITY_REVIEW_FORM?projectId=1&moduleInstanceId=2",
+      "status": 200,
+      "traceId": "c2bc9cf3-52ed-44aa-9197-acf1356f1f42",
+      "durationMs": 31
+    },
+    {
+      "actor": "leader",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "bfc1b5b8-deab-4c7f-bad0-59caa713f69b",
+      "durationMs": 32
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/projects/1/materials/CONTRACT_PDF/versions",
+      "status": 200,
+      "traceId": "5c0d8575-50bb-4a6b-b0fe-1ebb45645e33",
+      "durationMs": 47
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/module-instances/2/transitions",
+      "status": 200,
+      "traceId": "8c4f5854-257e-4a8c-8e83-772d02426d53",
+      "durationMs": 63
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "9455b435-f837-4a8b-ba79-b86f9a4f74d6",
+      "durationMs": 0
+    },
+    {
+      "actor": "leader",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "8f20f625-6a38-4a47-bf05-97e4dc964259",
+      "durationMs": 31
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/projects/1/materials/LEADER_SIGNED_CONTRACT/versions",
+      "status": 200,
+      "traceId": "34d12e5b-bb18-4f92-a4df-29f7b3415ffe",
+      "durationMs": 31
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/module-instances/2/transitions",
+      "status": 200,
+      "traceId": "bae88ae0-90d5-45ef-a2a2-339219d4d0cb",
+      "durationMs": 62
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "fabb4c8c-933e-4be9-91f7-3c6152f25106",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/CONTRACT_LEADER_SIGN_FORM?projectId=1&moduleInstanceId=2",
+      "status": 200,
+      "traceId": "38dd7492-8c8b-4841-9d3a-c64c433400d4",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "f8e430dd-e9ff-41f1-a9c6-e4f7eb64a4b3",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/projects/1/materials/SCHOOL_SEALED_CONTRACT/versions",
+      "status": 200,
+      "traceId": "14a42edb-ff22-4c00-b7b0-3d1cf1ed3c5e",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/2/transitions",
+      "status": 200,
+      "traceId": "d9b192fa-f33a-408d-8180-3850d17bfa70",
+      "durationMs": 63
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "79769939-68e0-4a85-b90a-6b050db0f82f",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/CONTRACT_SCHOOL_SEAL_FORM?projectId=1&moduleInstanceId=2",
+      "status": 200,
+      "traceId": "e3966495-a902-4150-aef2-b730fc1b44a4",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "5dbba90b-d1a4-48dd-8ef8-55f7c65ffa3d",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/projects/1/materials/AUTHORITY_SEALED_CONTRACT/versions",
+      "status": 200,
+      "traceId": "6fd592ff-7a86-4685-86e4-5c00709245f3",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/2/transitions",
+      "status": 200,
+      "traceId": "3b6d45bf-e80f-498f-a996-2f22f8d1e169",
+      "durationMs": 62
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "f73f34fd-7b0e-40c9-bd44-bc6750c13afe",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/CONTRACT_AUTHORITY_SEAL_FORM?projectId=1&moduleInstanceId=2",
+      "status": 200,
+      "traceId": "44097468-a699-44a7-9bd0-ec0a3f725b79",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "41987bfe-bd29-4a29-8862-d7967988e4df",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/projects/1/materials/ARCHIVED_CONTRACT/versions",
+      "status": 200,
+      "traceId": "27531e6d-25d9-45e0-b343-3fb070ef7de4",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/2/transitions",
+      "status": 200,
+      "traceId": "5fc1a543-3bf3-439b-a934-b8873df999bc",
+      "durationMs": 78
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "b8380612-3cad-418c-b350-5ca68efc0218",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/CONTRACT_ARCHIVE_FORM?projectId=1&moduleInstanceId=2",
+      "status": 200,
+      "traceId": "20c57473-7744-40c0-9faf-ffcc111ea3db",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/2/runtime-view",
+      "status": 200,
+      "traceId": "17ee37c9-21bf-4cff-85be-a99863497ee4",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/workflow-workbench/items",
+      "status": 200,
+      "traceId": "cadf9ab6-0012-4371-b873-280a8e949e69",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "06053935-56d1-404a-8a12-558eabb49b6f",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "2a9f45fe-a152-443e-ad5c-6a891b7893ac",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "251716a5-fac7-42a4-8df3-22bff917a611",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/ACCEPTANCE_NOTICE_FORM?projectId=1&moduleInstanceId=3",
+      "status": 200,
+      "traceId": "35386847-7e1e-4bec-9e32-9ad0d1ef5c26",
+      "durationMs": 31
+    },
+    {
+      "actor": "department",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "fd05b3d3-ba9e-4992-9cd2-40bc76f2537a",
+      "durationMs": 32
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "b70c6d6a-35d4-4801-87d1-ab23eeb7b4f9",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "9aa170c3-a546-4e87-b923-626c3f01c955",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/ACCEPTANCE_NOTIFY_LEADER_FORM?projectId=1&moduleInstanceId=3",
+      "status": 200,
+      "traceId": "404bcb64-7ae1-4168-97db-6506bf380c95",
+      "durationMs": 16
+    },
+    {
+      "actor": "finance",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "5cfa17f2-e7f7-4a5a-a938-f4ec85850d29",
+      "durationMs": 31
+    },
+    {
+      "actor": "finance",
+      "method": "POST",
+      "path": "/api/projects/1/materials/FINANCIAL_SETTLEMENT_LIST/versions",
+      "status": 200,
+      "traceId": "51703fc0-5e6b-47f4-8f7d-993e2214aa5d",
+      "durationMs": 32
+    },
+    {
+      "actor": "finance",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "7f8b8602-e6fb-45c1-bac5-7fd5fea9960e",
+      "durationMs": 94
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "b9bc90ac-b1d4-4100-b406-6c57a19f57c0",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/FINANCIAL_SETTLEMENT_FORM?projectId=1&moduleInstanceId=3",
+      "status": 200,
+      "traceId": "5fe43e43-732c-47b1-9d6e-30b92be1f90e",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/projects/1/acceptance-financial-settlements",
+      "status": 200,
+      "traceId": "e6503f06-2a51-4b77-aee9-0111c2860833",
+      "durationMs": 32
+    },
+    {
+      "actor": "leader",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "86c42b3f-6103-4d9f-b4e9-49e6e60a71c0",
+      "durationMs": 47
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/projects/1/materials/ACCEPTANCE_APPLICATION_FORM/versions",
+      "status": 200,
+      "traceId": "d669d3ac-d87b-4537-9294-73fe4b35f338",
+      "durationMs": 31
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/projects/1/materials/ACCEPTANCE_REPORT/versions",
+      "status": 200,
+      "traceId": "ad35f864-4ba2-47bc-9e19-bbbfdc3d2bcf",
+      "durationMs": 31
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "35d81664-729d-4686-9acb-241282ae139a",
+      "durationMs": 63
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "b47367fe-4688-47d3-a12b-5e00c2e59b28",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/ACCEPTANCE_APPLICATION_FORM?projectId=1&moduleInstanceId=3",
+      "status": 200,
+      "traceId": "b75c47f3-2d7a-4881-a53b-90cefb680f00",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/business-data",
+      "status": 200,
+      "traceId": "c9605afd-8454-446c-87bb-47310adb2a44",
+      "durationMs": 15
+    },
+    {
+      "actor": "department",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "6eb2c111-a0f4-450a-9522-f8e8bbdfbec2",
+      "durationMs": 31
+    },
+    {
+      "actor": "department",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "3ef9933b-1efc-4f5c-ae4b-3aa7a62f6f49",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "b06a2278-e30b-4332-94a8-393713f65926",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/ACCEPTANCE_DEPT_REVIEW_FORM?projectId=1&moduleInstanceId=3",
+      "status": 200,
+      "traceId": "d3ad0b8b-ef77-49a1-83e2-cc162d98042b",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "37f892a9-4443-4268-8fc4-e2d0a370b5ad",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "e5170e2a-cb9d-49f3-8a66-218c43779f87",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "e66971f2-8bc8-4085-ab27-dd4a9c59e856",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/ACCEPTANCE_SCIENCE_REVIEW_FORM?projectId=1&moduleInstanceId=3",
+      "status": 200,
+      "traceId": "c2f5a13e-bba4-4167-937a-6776cee5e8b9",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "4cb4e7a5-1991-4fb5-aac5-071f695d0165",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "c2dc54d6-39da-40b6-a37c-8c5654f90b5a",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "478e40d0-9222-45be-b292-23eb7cc18ddf",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/ACCEPTANCE_AUTHORITY_REVIEW_FORM?projectId=1&moduleInstanceId=3",
+      "status": 200,
+      "traceId": "847648aa-3c43-4f90-bf0b-40b2b7769983",
+      "durationMs": 31
+    },
+    {
+      "actor": "leader",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "95f2e1e0-8970-43a5-b563-b2854337b107",
+      "durationMs": 31
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/projects/1/materials/SIGNED_ACCEPTANCE_MATERIALS/versions",
+      "status": 200,
+      "traceId": "6495c131-84b2-4ba5-90f1-639314e47580",
+      "durationMs": 31
+    },
+    {
+      "actor": "leader",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "b95d50b3-75be-41c1-baaa-2bda2c51ddce",
+      "durationMs": 62
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "7ddcdbe7-ccd9-4e8b-a9d0-ea30bc0278fc",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/ACCEPTANCE_SEAL_FORM?projectId=1&moduleInstanceId=3",
+      "status": 200,
+      "traceId": "450c681f-bc8b-47e0-9067-9677fd7330dc",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "c9a06267-4f85-4a38-9719-38368c9bae1f",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/projects/1/materials/FINAL_ACCEPTANCE_MATERIALS/versions",
+      "status": 200,
+      "traceId": "6f9e60d6-4aa0-4f7c-9e68-ed8eb90d80a0",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "bc4fa804-61d3-43f5-9789-c5bb2f872168",
+      "durationMs": 62
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "3a38d681-604d-4f94-ad3b-bdd5cd846f20",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/node-forms/ACCEPTANCE_FINAL_SUBMISSION_FORM?projectId=1&moduleInstanceId=3",
+      "status": 200,
+      "traceId": "10e2c03c-1540-410e-b597-3de2374654fa",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "7ebf59b9-0b35-43c1-beed-a232df01d0a8",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/expert-reviews/batches",
+      "status": 200,
+      "traceId": "c755b94d-f21e-42a2-adaa-65922b49a367",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/expert-reviews/batches/3/assignments",
+      "status": 200,
+      "traceId": "66add623-e2d8-48d8-b37a-b0075ff077ae",
+      "durationMs": 46
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/expert-reviews/batches/3/assignments",
+      "status": 200,
+      "traceId": "5d40bcad-2b9d-4f2c-af9d-76dc48f3ca84",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "6f881975-9409-4a52-b9a9-2971792a373e",
+      "durationMs": 47
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "b5c9d961-1ecc-4953-938a-40ee26f943c3",
+      "durationMs": 15
+    },
+    {
+      "actor": "expert1",
+      "method": "POST",
+      "path": "/api/expert-reviews/assignments/5/scores",
+      "status": 200,
+      "traceId": "62cd0e2d-9dc2-45a0-b894-f3c582068372",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "11e9fdf3-1a2e-4210-8a77-eff97ea74bdd",
+      "durationMs": 31
+    },
+    {
+      "actor": "expert2",
+      "method": "POST",
+      "path": "/api/expert-reviews/assignments/6/scores",
+      "status": 200,
+      "traceId": "a4f58911-e8e3-4af0-a45d-0c4e8df9282b",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "ba5713c1-1833-42cf-9563-690c12828c6f",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "5b3ae7a9-afb4-404c-b039-1b68315bd080",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "fe8ad198-5ef3-406a-b91f-1cf7046f2cc9",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "d4a429cf-47ef-42e7-8da9-7262ec3f90c3",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "fa7d76be-b3ea-48a3-93d8-f9c839f0ff91",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "7006ae6a-a087-4c3e-94d3-f3ee1930e6c1",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "d4dfa637-ed95-414c-ab5d-e7dbf7f687ad",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/projects/1/materials/ACCEPTANCE_CERTIFICATE/versions",
+      "status": 200,
+      "traceId": "253148fe-5670-46d1-b2a7-4cc114622882",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "POST",
+      "path": "/api/module-instances/3/transitions",
+      "status": 200,
+      "traceId": "080c74f2-f028-40c4-8348-bb31414a6556",
+      "durationMs": 63
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "072b03b4-3704-42f6-bffc-824ee1c55915",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/module-instances/3/runtime-view",
+      "status": 200,
+      "traceId": "f3215856-92c3-4787-93e5-21b1a2b523f3",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/projects/1/authorization",
+      "status": 200,
+      "traceId": "6e31c59a-d6b4-4fd2-a635-f0afab64d4cf",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/projects/1/authorization",
+      "status": 200,
+      "traceId": "8c8b0f08-a17e-4197-a6b2-2ed7cfc5372f",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/1/download",
+      "status": 200,
+      "traceId": "653d0e26-69a8-4004-810d-1d165fc08cef",
+      "durationMs": 32
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/2/download",
+      "status": 200,
+      "traceId": "cef03b1d-26e6-48c1-b37e-b54e205e9719",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/3/download",
+      "status": 200,
+      "traceId": "b37b5184-f20f-439d-8442-a1b4a42c1f94",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/4/download",
+      "status": 200,
+      "traceId": "5049f53c-7907-412c-95dc-c797e2c5fc5b",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/5/download",
+      "status": 200,
+      "traceId": "a362f144-e06c-454c-9023-97742e1f6e2c",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/7/download",
+      "status": 200,
+      "traceId": "6a6bc7a6-ea42-4938-b797-3d5297f63c12",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/8/download",
+      "status": 200,
+      "traceId": "5fcf97cf-5145-479b-8026-1b90fa949370",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/9/download",
+      "status": 200,
+      "traceId": "737967e6-8250-4bd4-bfea-bbdabb9b3d0f",
+      "durationMs": 0
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/10/download",
+      "status": 200,
+      "traceId": "a85121ec-fa39-4050-abdb-251fb57ea701",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/11/download",
+      "status": 200,
+      "traceId": "931f9d31-c6fa-4082-8613-77106131bba5",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/12/download",
+      "status": 200,
+      "traceId": "eca003ea-af05-4cfb-9445-29a17741a737",
+      "durationMs": 0
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/13/download",
+      "status": 200,
+      "traceId": "6cf77dfb-89d2-41d8-a690-2e534d79b217",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/16/download",
+      "status": 200,
+      "traceId": "5b0503ff-b7a5-4d4f-ad65-3b57dd4371c5",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/17/download",
+      "status": 200,
+      "traceId": "d8cf1b2d-acc2-4285-b79f-e7b323b2338f",
+      "durationMs": 15
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/18/download",
+      "status": 200,
+      "traceId": "bdc108e8-6bc3-4a5e-ab20-73a21984c8b8",
+      "durationMs": 16
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/19/download",
+      "status": 200,
+      "traceId": "a99564f4-f245-462a-a0b0-b8fc4460733a",
+      "durationMs": 31
+    },
+    {
+      "actor": "science",
+      "method": "GET",
+      "path": "/api/material-versions/20/download",
+      "status": 200,
+      "traceId": "f493b64e-bb6b-4005-8498-7c31b7e4669c",
+      "durationMs": 16
+    }
+  ],
+  "checks": [
+    {
+      "name": "accounts, roles and qualifications",
+      "passed": true
+    },
+    {
+      "name": "project and finance authorization",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/SubmitApplicationTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/DeptReviewTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/DeptExpertAssignTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/DeptExpertReviewTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/DeptExpertSummaryTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/ScienceOfficeInitialReviewTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/ScienceExpertAssignTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/ScienceExpertReviewTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/ScienceExpertSummaryTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/ScienceOfficePublicityTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/ScienceOfficeSubmitTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/AuthorityReviewTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/SignAndSealTask",
+      "passed": true
+    },
+    {
+      "name": "APPLICATION/SubmitFinalMaterialsTask",
+      "passed": true
+    },
+    {
+      "name": "CONTRACT/AuthorityApproveProjectTask",
+      "passed": true
+    },
+    {
+      "name": "CONTRACT/FillContractTask",
+      "passed": true
+    },
+    {
+      "name": "CONTRACT/DeptReviewTask",
+      "passed": true
+    },
+    {
+      "name": "CONTRACT/ScienceOfficeReviewTask",
+      "passed": true
+    },
+    {
+      "name": "CONTRACT/AuthorityReviewTask",
+      "passed": true
+    },
+    {
+      "name": "CONTRACT/PrintPdfContractTask",
+      "passed": true
+    },
+    {
+      "name": "CONTRACT/LeaderSignTask",
+      "passed": true
+    },
+    {
+      "name": "CONTRACT/SchoolSealTask",
+      "passed": true
+    },
+    {
+      "name": "CONTRACT/AuthoritySealTask",
+      "passed": true
+    },
+    {
+      "name": "CONTRACT/ArchiveContractTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/PublishAcceptanceNoticeTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/DeptNotifyLeaderTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/FinancialSettlementTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/SubmitAcceptanceMaterialsTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/DeptReviewTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/ScienceOfficeReviewTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/AuthorityReviewTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/SignSealAcceptanceTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/SubmitFinalMaterialsTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/ExpertAssignTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/ExpertReviewTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/ExpertSummaryTask",
+      "passed": true
+    },
+    {
+      "name": "ACCEPTANCE/IssueCertificateTask",
+      "passed": true
+    },
+    {
+      "name": "final business assertions",
+      "passed": true
+    }
+  ],
+  "fixtures": {
+    "departmentId": 2,
+    "actors": {
+      "administrator": {
+        "userId": 1
+      },
+      "science": {
+        "userId": 2
+      },
+      "department": {
+        "userId": 3
+      },
+      "leader": {
+        "userId": 4
+      },
+      "finance": {
+        "userId": 5
+      },
+      "expert1": {
+        "userId": 6
+      },
+      "expert2": {
+        "userId": 7
+      }
+    },
+    "projectId": 1,
+    "modules": {
+      "APPLICATION": 1,
+      "CONTRACT": 2,
+      "ACCEPTANCE": 3
+    },
+    "materialVersions": {
+      "PROJECT_APPLICATION_FORM": 1,
+      "AUTHORITY_APPROVAL_FILE": 2,
+      "SIGNED_APPLICATION_FORM": 3,
+      "FINAL_APPLICATION_MATERIALS": 4,
+      "PROJECT_APPROVAL_FILE": 5,
+      "CONTRACT_DRAFT": 7,
+      "CONTRACT_PDF": 8,
+      "LEADER_SIGNED_CONTRACT": 9,
+      "SCHOOL_SEALED_CONTRACT": 10,
+      "AUTHORITY_SEALED_CONTRACT": 11,
+      "ARCHIVED_CONTRACT": 12,
+      "FINANCIAL_SETTLEMENT_LIST": 13,
+      "ACCEPTANCE_APPLICATION_FORM": 16,
+      "ACCEPTANCE_REPORT": 17,
+      "SIGNED_ACCEPTANCE_MATERIALS": 18,
+      "FINAL_ACCEPTANCE_MATERIALS": 19,
+      "ACCEPTANCE_CERTIFICATE": 20
+    },
+    "batchIds": [
+      1,
+      2,
+      3
+    ],
+    "fixtureSha256": "f3e09f653591a16d4eaa1b6b26c0e89921ce9ea7079c25596f2165e2c3bfe86d"
+  },
+  "error": null,
+  "finishedAt": "2026-10-10T08:39:50.615777+00:00"
+}

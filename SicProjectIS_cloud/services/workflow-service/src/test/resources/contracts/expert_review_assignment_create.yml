@@ -1,0 +1,18 @@
+description: expert assignment returns refreshed batch detail
+name: expert_review_assignment_create
+request:
+  method: POST
+  url: /api/expert-reviews/batches/30/assignments
+  headers: { Content-Type: application/json }
+  body: { expertUserId: 7, expertName: Bob, expertOrg: Science, expertTitle: Engineer }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      batch: { batchId: 30 }
+      assignments:
+        - assignment: { assignmentId: 40, expertUserId: 7, reviewStatus: ASSIGNED }
+          scores: []
+    message: OK

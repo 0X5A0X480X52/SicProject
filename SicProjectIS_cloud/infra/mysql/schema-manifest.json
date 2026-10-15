@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "release": "1.0.0-baseline",
+  "mysqlVersion": "8.4",
+  "domains": {
+    "iam": {
+      "tableCount": 9,
+      "tables": [
+        "outbox_event",
+        "consumed_event",
+        "department",
+        "app_user",
+        "app_role",
+        "app_permission",
+        "user_role",
+        "role_permission",
+        "expert_qualification"
+      ],
+      "migrationSourceSha256": {
+        "platform/cloud-messaging/src/main/resources/db/common/V1__outbox_and_inbox.sql": "f7e3159411e7d3e2996c40fc16614bd1a3962a674cccdf26dcba2e3084e0e1bd",
+        "services/iam-service/src/main/resources/db/migration/V2__iam_domain.sql": "612e1189bb301f9f2d8981434784bc474896d3f7283aeab3e9341b843cce34ae",
+        "platform/cloud-messaging/src/main/resources/db/common/V100__outbox_claim_and_retry.sql": "e4b82c00e8ab226af5f178ab6b9cdfe019aad6fb59f7d52771dc129c28b1a33e"
+      },
+      "schemaSha256": "5b086fac46b1c2655925d4a8c9934f3dcb6c67098fbe569f5ffd2fc94a841805"
+    },
+    "project": {
+      "tableCount": 9,
+      "tables": [
+        "outbox_event",
+        "consumed_event",
+        "project",
+        "project_member",
+        "project_access_grant",
+        "project_access_log",
+        "admin_operation_log",
+        "application_saga",
+        "user_snapshot"
+      ],
+      "migrationSourceSha256": {
+        "platform/cloud-messaging/src/main/resources/db/common/V1__outbox_and_inbox.sql": "f7e3159411e7d3e2996c40fc16614bd1a3962a674cccdf26dcba2e3084e0e1bd",
+        "services/project-service/src/main/resources/db/migration/V2__project_domain.sql": "f0d019f778d021e1f442cec04049ded5f76507c307122128be2a877b0cafa966",
+        "platform/cloud-messaging/src/main/resources/db/common/V100__outbox_claim_and_retry.sql": "e4b82c00e8ab226af5f178ab6b9cdfe019aad6fb59f7d52771dc129c28b1a33e"
+      },
+      "schemaSha256": "4ab2ae70ddbf47bce95009aa4b0542b8ad2c6cd9815bd712fda0b08bb0c498a2"
+    },
+    "workflow": {
+      "tableCount": 22,
+      "tables": [
+        "outbox_event",
+        "consumed_event",
+        "workflow_definition",
+        "module_instance",
+        "state_record",
+        "workflow_task",
+        "node_form",
+        "project_application",
+        "contract_form",
+        "acceptance_form",
+        "expert_review",
+        "workflow_material_reference",
+        "user_snapshot",
+        "project_snapshot",
+        "expert_review_batch",
+        "expert_review_assignment",
+        "expert_review_score",
+        "workflow_node_config",
+        "workflow_transition_config",
+        "project_achievement",
+        "acceptance_financial_settlement",
+        "notice_record"
+      ],
+      "migrationSourceSha256": {
+        "platform/cloud-messaging/src/main/resources/db/common/V1__outbox_and_inbox.sql": "f7e3159411e7d3e2996c40fc16614bd1a3962a674cccdf26dcba2e3084e0e1bd",
+        "services/workflow-service/src/main/resources/db/migration/V2__workflow_domain.sql": "dd6d551a2d9ff9a583d63338e5b8dac6d77735f564101bb6fdfa169843012ec1",
+        "services/workflow-service/src/main/resources/db/migration/V3__expert_review.sql": "e973d35545d1919464b5be39661c37c7f440341442ad830c09da45bee39cd27a",
+        "services/workflow-service/src/main/resources/db/migration/V4__workflow_definition_model.sql": "0e895507a2cf12c3691eb7b5a7a61853d77a4a0a9d710843600bb022b57d7fbf",
+        "services/workflow-service/src/main/resources/db/migration/V5__workflow_definition_lifecycle.sql": "128ca444fe43718e6fd9196dcaf1ab3f34070ff1e1ca0f72f2ea9f6995c138c8",
+        "services/workflow-service/src/main/resources/db/migration/V6__structured_business_data.sql": "009354e2169531f00288b1ae6e3b51b2d07ba4259ebc407198f2da84b37eec5b",
+        "platform/cloud-messaging/src/main/resources/db/common/V100__outbox_claim_and_retry.sql": "e4b82c00e8ab226af5f178ab6b9cdfe019aad6fb59f7d52771dc129c28b1a33e",
+        "services/workflow-service/src/main/resources/db/migration/V101__unique_project_module.sql": "e6adc07578f46da1d2e5f4ab67b71fc66b691862ef3a3735b95684c51af9d947",
+        "services/workflow-service/src/main/resources/db/migration/V102__project_authorization_snapshot.sql": "3d7b793ecd6f7557064ebef8096fd56c327d5056fab110dbec8a6b68e10c4485"
+      },
+      "schemaSha256": "a548f155869aaf55ab55c433bc31b149f6a6b18c9cfc696777ca647345c36678"
+    },
+    "material": {
+      "tableCount": 9,
+      "tables": [
+        "outbox_event",
+        "consumed_event",
+        "material_type",
+        "material",
+        "material_version",
+        "generated_document",
+        "material_reservation",
+        "material_reservation_item",
+        "object_deletion_job"
+      ],
+      "migrationSourceSha256": {
+        "platform/cloud-messaging/src/main/resources/db/common/V1__outbox_and_inbox.sql": "f7e3159411e7d3e2996c40fc16614bd1a3962a674cccdf26dcba2e3084e0e1bd",
+        "services/material-service/src/main/resources/db/migration/V2__material_domain.sql": "24fc1396169cd9dd0d9abb7cac6ebbb8c93f041ba9d52e056d6f691954d665c5",
+        "services/material-service/src/main/resources/db/migration/V3__durable_object_deletion.sql": "275b3c509765bc1a77ec330b94e80bebff08fffdb9f36d511bd8494318c67f44",
+        "platform/cloud-messaging/src/main/resources/db/common/V100__outbox_claim_and_retry.sql": "e4b82c00e8ab226af5f178ab6b9cdfe019aad6fb59f7d52771dc129c28b1a33e",
+        "services/material-service/src/main/resources/db/migration/V101__generated_document_idempotency.sql": "c3bdb54ef54bfa23b77c5b0dccef591f355fd211c914671d0df1b3bca8cbb2bb"
+      },
+      "schemaSha256": "bc6aa46a1f93e215d0226153949e56875fd2b0693e46038a2faa096d58a87b57"
+    },
+    "notification": {
+      "tableCount": 3,
+      "tables": [
+        "outbox_event",
+        "consumed_event",
+        "pending_notification"
+      ],
+      "migrationSourceSha256": {
+        "platform/cloud-messaging/src/main/resources/db/common/V1__outbox_and_inbox.sql": "f7e3159411e7d3e2996c40fc16614bd1a3962a674cccdf26dcba2e3084e0e1bd",
+        "services/notification-service/src/main/resources/db/migration/V2__notification_domain.sql": "eca4f4a0f952175711bd843d222eeae512ea455c7c8b54d9bb2d25ea89d3387a",
+        "platform/cloud-messaging/src/main/resources/db/common/V100__outbox_claim_and_retry.sql": "e4b82c00e8ab226af5f178ab6b9cdfe019aad6fb59f7d52771dc129c28b1a33e"
+      },
+      "schemaSha256": "25cce39cfe609dda74dd4c8a717a5cac78d17c007c5bdf640ac29101bcd5facd"
+    }
+  },
+  "initializationMode": "full-sql",
+  "requiredEquivalenceGate": "FullSchemaEquivalenceTest",
+  "seedSha256": {
+    "workflow-assets.sql": "ac23ad554fa096ac26e13f58bb7b77ff422c6e0a09fa4b946487a95b46a967a3",
+    "workflow-missing-assets.sql": "924c0abc01cec5ba1768a0843b02d80ac8528dbf6d9db2b92cbacfe2f86c9ee9"
+  }
+}

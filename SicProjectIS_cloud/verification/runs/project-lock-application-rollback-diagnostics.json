@@ -1,0 +1,279 @@
+{
+  "passed": false,
+  "project": "sic-perf-project-lock-20261010",
+  "changedApplications": [
+    "project-service"
+  ],
+  "checks": [],
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "traceId": "dbe36d38-cd21-491d-ba72-7acfc364e31c"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/1/authorization",
+      "status": 200,
+      "traceId": "86c4d74e-8706-4372-9271-be2091e0b214"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "3fffafa5-7e3c-4c37-8cce-f5a0761dcc00"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/6/runtime-view",
+      "status": 200,
+      "traceId": "806822bf-96b0-48e3-acfc-a1f98082d949"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/7/runtime-view",
+      "status": 200,
+      "traceId": "76f0824e-0318-4e10-9b6f-5608ea98a2c9"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/1/download",
+      "status": 200,
+      "traceId": "6b9b8f04-8c3e-4c8e-9c04-b4c2e83ca56c"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/2/download",
+      "status": 200,
+      "traceId": "b36eba2d-999f-41eb-9abe-96e3785de232"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/3/download",
+      "status": 200,
+      "traceId": "5c5160a1-183d-4904-a56d-de9394491d89"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/4/download",
+      "status": 200,
+      "traceId": "cd323a50-c267-4abf-b5a1-c243aea0024c"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/6/download",
+      "status": 200,
+      "traceId": "ac589d86-d3d5-4ddd-b5ed-16a8bc25951e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/7/download",
+      "status": 200,
+      "traceId": "35fc307a-9493-4192-a066-863c57037c97"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/8/download",
+      "status": 200,
+      "traceId": "c0757e3c-5728-4697-b5eb-f22aa402be77"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/9/download",
+      "status": 200,
+      "traceId": "d6ebb9f2-09a1-481c-8513-8d543ad1992b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/10/download",
+      "status": 200,
+      "traceId": "828ec3ca-0c57-458c-943b-4aa1c02c70df"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/11/download",
+      "status": 200,
+      "traceId": "5a983e37-4a8d-4bed-af27-cbf68fa7e351"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/12/download",
+      "status": 200,
+      "traceId": "3dba4da8-145e-4609-bb31-34f4a8eea4d3"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/15/download",
+      "status": 200,
+      "traceId": "886c7ed3-f0a6-4d66-b54c-f150f29aba1b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/16/download",
+      "status": 200,
+      "traceId": "fc8362ee-26ef-4602-8bfc-44849db67bf0"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/17/download",
+      "status": 200,
+      "traceId": "7f9df63d-6aa7-4110-bb67-9a0ac94973fe"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/18/download",
+      "status": 200,
+      "traceId": "3b6b0eac-9984-40fd-bbb0-6457c69e4d22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/19/download",
+      "status": 200,
+      "traceId": "6d49e6c3-a007-4aa4-8398-4d6b1c57c388"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/20/download",
+      "status": 200,
+      "traceId": "f01e0f5c-80dc-4f3e-836a-42a49d49100b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/1/authorization",
+      "status": 200,
+      "traceId": "64d46167-5a51-4829-b325-33784f7719c7"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/1/runtime-view",
+      "status": 200,
+      "traceId": "95499d74-ba5a-4f4f-9435-6d1c0efc677d"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/6/runtime-view",
+      "status": 200,
+      "traceId": "8a95dd30-b881-4b40-a7af-eeb7d29e1da3"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-instances/7/runtime-view",
+      "status": 200,
+      "traceId": "1c207e35-c739-48bb-b332-cdbf939949d9"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/1/download",
+      "status": 200,
+      "traceId": "64860478-eb6e-48cf-a017-5d979f978a97"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/2/download",
+      "status": 200,
+      "traceId": "3b25505f-7d3d-4138-a250-08619a21fb0a"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/3/download",
+      "status": 200,
+      "traceId": "dc32d4e1-ce6c-4708-ba7c-7ab01716e682"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/4/download",
+      "status": 200,
+      "traceId": "68e47a3b-0d04-4afa-86c0-3933567a53fe"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/6/download",
+      "status": 200,
+      "traceId": "1df8e174-a622-4c19-8065-5ab14f5d607a"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/7/download",
+      "status": 200,
+      "traceId": "75fd928a-115a-49fd-8ce6-4caacc5f83fe"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/8/download",
+      "status": 200,
+      "traceId": "b77ca6d4-cf3d-43a7-9af6-9a853965065d"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/9/download",
+      "status": 200,
+      "traceId": "c5c9ccde-090a-450a-aa9f-bc04667348bd"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/10/download",
+      "status": 200,
+      "traceId": "d2a3e5af-ffed-44a8-94e0-0f1431a05ee7"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/11/download",
+      "status": 200,
+      "traceId": "40b019f3-718c-469a-94ff-3e9558a48ada"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/12/download",
+      "status": 200,
+      "traceId": "f16b9d5b-4416-4c0c-a1c9-7e11a30a2d8b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/15/download",
+      "status": 200,
+      "traceId": "a6d55a5a-767b-41d3-bf99-ce5b1035fd27"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/16/download",
+      "status": 200,
+      "traceId": "a0f22fdd-a407-46d6-9afa-89efaf23eb2e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/17/download",
+      "status": 200,
+      "traceId": "5c92823b-6460-4c5c-99eb-6145734672b6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/18/download",
+      "status": 200,
+      "traceId": "d5280d00-ecd7-4a09-a773-78640bef91ca"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/19/download",
+      "status": 200,
+      "traceId": "23400a77-add4-48d9-ade8-170fa0560abb"
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-versions/20/download",
+      "status": 200,
+      "traceId": "27317de4-0221-44f2-a819-65ea6e6902c2"
+    }
+  ],
+  "checksumDifferences": [
+    {
+      "table": "sic_notification.pending_notification",
+      "before": "449906192",
+      "after": "3824892732"
+    }
+  ],
+  "error": {
+    "stage": "baseline rollback",
+    "type": "ValueError"
+  }
+}

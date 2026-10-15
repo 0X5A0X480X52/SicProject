@@ -1,22 +1,29 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+/**
+ * 按当前权限分页展示可见流程、待办、办理历史和已结束模块。取消旧请求防止过期响应覆盖，新申请要求所属部门，SSE 只触发重查。
+ */
+import { computed, onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { DocumentAdd, Refresh } from '@element-plus/icons-vue'
 import AppShell from '../layouts/AppShell.vue'
 import { startProjectApplication } from '../api/projects'
-import { listWorkflowWorkbenchItems } from '../api/workflowWorkbench'
+import { queryWorkflowWorkbench } from '../api/workflowWorkbench'
+import { useAuthStore } from '../stores/auth'
 import { useWorkflowEvents } from '../composables/useWorkflowEvents'
 import type { StartProjectApplicationRequest } from '../types/project'
 import type { WorkflowWorkbenchItem } from '../types/workflow'
-import { moduleTypeLabel, roleLabel } from '../utils/displayLabels'
+import { lifecycleLabel, moduleTypeLabel, roleLabel } from '../utils/displayLabels'
 
 const router = useRouter()
+const auth = useAuthStore()
+const canApply = computed(() => auth.user?.deptId != null)
+const hasMore = ref(false)
 const loading = ref(false)
 const applying = ref(false)
 const applicationDialogOpen = ref(false)
 const items = ref<WorkflowWorkbenchItem[]>([])
-const filters = reactive({ moduleType: 'ALL', keyword: '', status: 'ALL' })
+const filters = reactive({ moduleType: 'ALL', keyword: '', status: 'VISIBLE' })
 const page = reactive({ current: 1, size: 10 })
 
 const applicationForm = reactive<StartProjectApplicationRequest>({
@@ -41,30 +48,13 @@ const moduleOptions = [
 
 
 
-const filteredItems = computed(() => {
-  const keyword = filters.keyword.trim().toLowerCase()
-  return items.value.filter((item) => {
-    if (filters.moduleType !== 'ALL' && item.moduleType !== filters.moduleType) return false
-    if (filters.status === 'TODO' && !item.todo) return false
-    if (filters.status === 'FINISHED' && !item.finished) return false
-    if (filters.status === 'RUNNING' && item.finished) return false
-    if (!keyword) return true
-    return [item.projectCode, item.projectName, item.currentNodeName, item.currentState]
-      .filter(Boolean)
-      .some((value) => String(value).toLowerCase().includes(keyword))
-  })
-})
-
-const pagedItems = computed(() => {
-  const start = (page.current - 1) * page.size
-  return filteredItems.value.slice(start, start + page.size)
-})
+const pagedItems = computed(() => items.value)
 
 const stats = computed(() => [
-  { label: '全部事项', value: items.value.length, type: '' },
-  { label: '我的待办', value: items.value.filter((item) => item.todo).length, type: 'warning' },
-  { label: '运行中', value: items.value.filter((item) => !item.finished).length, type: 'primary' },
-  { label: '已完成', value: items.value.filter((item) => item.finished).length, type: 'success' },
+  { label: '本页事项', value: items.value.length, type: '' },
+  { label: '本页我的待办', value: items.value.filter((item) => item.todo).length, type: 'warning' },
+  { label: '本页运行中模块', value: items.value.filter((item) => !item.finished).length, type: 'primary' },
+  { label: '本页已结束模块', value: items.value.filter((item) => item.finished).length, type: 'success' },
 ])
 
 function moduleLabel(moduleType: string) {
@@ -72,25 +62,35 @@ function moduleLabel(moduleType: string) {
 }
 
 function statusTag(item: WorkflowWorkbenchItem) {
-  if (item.finished) return { label: '已完成', type: 'success' }
+  if (item.finished) return { label: '模块已结束', type: 'success' }
   if (item.todo) return { label: '待办理', type: 'warning' }
   return { label: '运行中', type: 'primary' }
 }
 
+let abort: AbortController | null = null
+/**
+ * 取消上一轮列表读取，并只应用尚未取消请求的授权分页结果，防止快速切换筛选后旧响应覆盖新页面。
+ */
 async function loadItems(showMessage = false) {
+  abort?.abort(); abort = new AbortController()
+  const signal = abort.signal
   loading.value = true
   try {
-    items.value = await listWorkflowWorkbenchItems()
+    const response = await queryWorkflowWorkbench(filters.status, filters.moduleType, filters.keyword, page.current, page.size, signal)
+    if (signal.aborted) return
+    items.value = response.items; hasMore.value = response.hasMore
     if (showMessage) ElMessage.success('业务事项已刷新')
   } catch (error) {
+    if (signal.aborted) return
     ElMessage.error(error instanceof Error ? error.message : '业务事项加载失败')
   } finally {
-    loading.value = false
+    if (!signal.aborted) loading.value = false
   }
 }
 
 
 function openApplicationDialog() {
+  if (!canApply.value) { ElMessage.warning('请先联系管理员分配部门'); return }
   applicationDialogOpen.value = true
 }
 
@@ -109,7 +109,11 @@ function cleanApplicationRequest(): StartProjectApplicationRequest {
   }
 }
 
+/**
+ * 检查当前显示身份的部门及项目名后发起申请；成功跳转返回的首个模块，最终部门资格由 Project 再验证。
+ */
 async function submitApplicationStart() {
+  if (!canApply.value) { ElMessage.warning('请先联系管理员分配部门'); return }
   if (!applicationForm.projectName?.trim()) {
     ElMessage.warning('请填写项目名称')
     return
@@ -134,6 +138,14 @@ function openDetail(item: WorkflowWorkbenchItem) {
 }
 
 const workflowEvents = useWorkflowEvents(() => loadItems())
+let filterTimer: ReturnType<typeof setTimeout> | null = null
+watch(() => [filters.status, filters.moduleType, filters.keyword, page.size], () => {
+  page.current = 1
+  if (filterTimer) clearTimeout(filterTimer)
+  filterTimer = setTimeout(() => loadItems(), 250)
+})
+watch(() => page.current, () => loadItems())
+onBeforeUnmount(() => { abort?.abort(); if (filterTimer) clearTimeout(filterTimer) })
 
 onMounted(() => {
   loadItems()
@@ -147,10 +159,11 @@ onMounted(() => {
       <div>
         <p class="eyebrow">Workflow</p>
         <h2>流程办理工作台</h2>
-        <p class="helper-text">按后端运行时视图展示业务事项、当前节点和待办状态。</p>
+        <p class="helper-text">查看可见流程、我的待办和办理历史。模块结束后仍可查阅详情。</p>
+        <p v-if="!canApply" class="helper-text">请先联系管理员分配部门，再发起项目申请。</p>
       </div>
       <div class="workflow-head-actions">
-        <el-button type="primary" :icon="DocumentAdd" @click="openApplicationDialog">
+        <el-button type="primary" :icon="DocumentAdd" :disabled="!canApply" @click="openApplicationDialog">
           发起项目申请
         </el-button>
 
@@ -176,10 +189,10 @@ onMounted(() => {
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="filters.status" style="width: 140px">
-            <el-option label="全部" value="ALL" />
+            <el-option label="可见流程" value="VISIBLE" />
             <el-option label="我的待办" value="TODO" />
-            <el-option label="运行中" value="RUNNING" />
-            <el-option label="已完成" value="FINISHED" />
+            <el-option label="我已办理" value="OPERATED" />
+            <el-option label="已结束流程" value="FINISHED" />
           </el-select>
         </el-form-item>
         <el-form-item label="关键字">
@@ -206,26 +219,25 @@ onMounted(() => {
         <el-table-column label="候选角色" width="150">
           <template #default="{ row }">{{ roleLabel(row.candidateRoleCode) }}</template>
         </el-table-column>
+        <el-table-column label="项目生命周期" min-width="130">
+          <template #default="{ row }">{{ lifecycleLabel(row.lifecycleStage) }}</template>
+        </el-table-column>
         <el-table-column label="轮次" width="80" align="center">
           <template #default="{ row }">{{ row.currentRoundNo || 1 }}</template>
         </el-table-column>
         <el-table-column label="更新时间" width="180" prop="lastTransitionTime" />
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="openDetail(row)">进入办理</el-button>
+            <el-button type="primary" link @click="openDetail(row)">{{ row.canOperate ? '进入办理' : '查看详情' }}</el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <div class="workflow-pagination">
-        <el-pagination
-          v-model:current-page="page.current"
-          v-model:page-size="page.size"
-          background
-          layout="total, sizes, prev, pager, next"
-          :total="filteredItems.length"
-          :page-sizes="[10, 20, 50]"
-        />
+        <el-button :disabled="loading || page.current === 1" @click="page.current--">上一页</el-button>
+        <span>第 {{ page.current }} 页</span>
+        <el-select v-model="page.size" style="width: 110px"><el-option v-for="size in [10,20,50]" :key="size" :value="size" :label="`${size} 条/页`" /></el-select>
+        <el-button :disabled="loading || !hasMore" @click="page.current++">下一页</el-button>
       </div>
     </el-card>
 

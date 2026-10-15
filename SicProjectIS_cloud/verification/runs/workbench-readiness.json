@@ -1,0 +1,22 @@
+{
+  "passed": false,
+  "startedAt": "2026-10-11T08:01:35.306874+00:00",
+  "project": "sic-workbench-20261011",
+  "checks": [
+    {
+      "name": "registry propagation",
+      "passed": true,
+      "services": [
+        "GATEWAY-SERVICE",
+        "IAM-SERVICE",
+        "MATERIAL-SERVICE",
+        "NOTIFICATION-SERVICE",
+        "PROJECT-SERVICE",
+        "WORKFLOW-SERVICE"
+      ]
+    }
+  ],
+  "registryStableSeconds": 65,
+  "error": "Readiness login returned HTTP 502",
+  "finishedAt": "2026-10-11T08:03:08.749900+00:00"
+}

@@ -1,0 +1,16 @@
+description: finance grant preserves nullable scope fields and detail response
+name: project_finance_grant
+request:
+  method: POST
+  url: /api/projects/10/finance-grants
+  headers: { Content-Type: application/json }
+  body: { userId: 7, moduleType: null, roundNo: null, taskNodeId: null, reason: Assign }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      project: { projectId: 10 }
+      capabilities: { canManageFinance: false }
+    message: OK

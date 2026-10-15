@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-10T15:31:54.773118+00:00",
+  "project": "sic-perf-runtime-batch-20261010",
+  "checks": [
+    {
+      "name": "registry propagation",
+      "passed": true,
+      "services": [
+        "GATEWAY-SERVICE",
+        "IAM-SERVICE",
+        "MATERIAL-SERVICE",
+        "NOTIFICATION-SERVICE",
+        "PROJECT-SERVICE",
+        "WORKFLOW-SERVICE"
+      ]
+    },
+    {
+      "name": "/api/auth/me",
+      "passed": true,
+      "status": 200,
+      "traceId": "af7e33a3-af7a-46ab-b8bc-77d77c6cdbbf"
+    },
+    {
+      "name": "/api/projects",
+      "passed": true,
+      "status": 200,
+      "traceId": "ba04d4ad-8eb6-44ef-b727-18049555ca3a"
+    },
+    {
+      "name": "/api/workflow-definitions",
+      "passed": true,
+      "status": 200,
+      "traceId": "a918f038-62a9-4b7d-8762-c5d23deb2b3e"
+    },
+    {
+      "name": "/api/projects/0/materials",
+      "passed": true,
+      "status": 403,
+      "traceId": "e9c1f96d-21b0-458e-a7b2-353ba76edf63"
+    }
+  ],
+  "registryStableSeconds": 65,
+  "finishedAt": "2026-10-10T15:33:06.682300+00:00"
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.workflow.dao.WorkflowCatalogMapper">
+  <!-- 目录查询 MyBatis 接口：按模块码取最新已发布定义的 BPMN XML（id 与 bpmnXml），或按定义 ID 取 BPMN XML，供运行期解析模型。 -->
+  <resultMap id="source" type="com.amatrix.sic.workflow.entity.WorkflowDefinitionSource">
+    <constructor><arg column="id" javaType="java.lang.Long"/><arg column="bpmn_xml" javaType="java.lang.String"/></constructor>
+  </resultMap>
+  <!-- 按模块类型取版本最高的已发布定义 ID 和 BPMN XML，供运行时加载使用。 -->
+  <select id="active" resultMap="source">
+    SELECT id,bpmn_xml FROM workflow_definition WHERE code=#{moduleType} AND published=TRUE ORDER BY version DESC,id DESC LIMIT 1
+  </select>
+  <!-- 按定义 ID 读取 BPMN XML，供指定版本模型加载使用。 -->
+  <select id="bpmn" resultType="java.lang.String">SELECT bpmn_xml FROM workflow_definition WHERE id=#{id}</select>
+</mapper>

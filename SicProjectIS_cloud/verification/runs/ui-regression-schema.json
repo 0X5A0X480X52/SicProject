@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "release": "1.0.0-baseline",
+  "project": "sic-ui-regression-20261011",
+  "checkedAt": "2026-10-11T03:55:34.462591+00:00",
+  "passed": true,
+  "tableCount": 52,
+  "differences": []
+}

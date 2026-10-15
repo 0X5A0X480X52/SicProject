@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 展示本人资格申请与审批进度；申请提交成功后等待审批，不自行添加专家角色或跳过部门审批。
+ */
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import AppShell from '../layouts/AppShell.vue'

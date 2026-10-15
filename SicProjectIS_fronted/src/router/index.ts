@@ -1,3 +1,6 @@
+/**
+ * 定义前端页面路由与登录守卫；守卫只控制未登录入口，不承担项目范围或当前节点的服务端授权判断。
+ */
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import LoginView from '../views/LoginView.vue'
@@ -15,6 +18,7 @@ import WorkflowDetailView from '../views/WorkflowDetailView.vue'
 import ExpertQualificationView from '../views/ExpertQualificationView.vue'
 import AdminExpertQualificationView from '../views/AdminExpertQualificationView.vue'
 import DepartmentMembersView from '../views/DepartmentMembersView.vue'
+import ExpertReviewWorkbenchView from '../views/ExpertReviewWorkbenchView.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -25,6 +29,7 @@ export const router = createRouter({
     { path: '/dashboard', name: 'dashboard', component: DashboardView },
     { path: '/projects', name: 'projects', component: ProjectsView },
     { path: '/workflow', name: 'workflow', component: WorkflowWorkbenchView },
+    { path: '/expert-reviews', name: 'expert-reviews', component: ExpertReviewWorkbenchView },
     { path: '/workflow/modules/:moduleInstanceId', name: 'workflow-detail', component: WorkflowDetailView },
     { path: '/expert-qualification', name: 'expert-qualification', component: ExpertQualificationView },
     {

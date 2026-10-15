@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 读取当前可访问项目并按生命周期展示；项目可读不意味着可以操作其所有流程节点。
+ */
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppShell from '../layouts/AppShell.vue'
@@ -19,7 +22,7 @@ const lifecycleOptions = computed(() => uniqueOptions(projects.value.map((projec
 const deptOptions = computed(() => uniqueOptions(projects.value.map((project) => project.deptName)))
 const leaderCount = computed(() => new Set(projects.value.map((project) => project.leaderUserId).filter(Boolean)).size)
 const activeCount = computed(() =>
-  projects.value.filter((project) => !['ARCHIVED', 'FINISHED', 'CLOSED'].includes(String(project.lifecycleStage ?? '').toUpperCase())).length,
+  projects.value.filter((project) => !['ARCHIVED', 'FINISHED', 'CLOSED', 'PROJECT_FINISHED'].includes(String(project.lifecycleStage ?? '').toUpperCase())).length,
 )
 const filteredProjects = computed(() => {
   const text = keyword.value.trim().toLowerCase()

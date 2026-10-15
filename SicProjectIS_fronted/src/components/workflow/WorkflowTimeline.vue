@@ -1,4 +1,7 @@
 ﻿<script setup lang="ts">
+/**
+ * 组合节点与历史的流程时间线，供浏览已发生的业务动作；历史可见性由父页面读取权限决定。
+ */
 import { eventLabel, stateLabel } from '../../utils/displayLabels'
 import type { ModuleStateRecord } from '../../types/nodeForms'
 

@@ -1,0 +1,38 @@
+description: admin expert qualification query preserves the applications wrapper
+name: admin_expert_qualification_list
+request:
+  method: GET
+  url: /api/admin/expert-qualification/applications
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data:
+      applications:
+        - applicationId: 11
+          applicant:
+            userId: 7
+            username: bob
+            realName: Bob
+            deptId: 3
+            deptName: Science
+            roleCodes: []
+          applicantDeptId: 3
+          applicantDeptName: Science
+          specialty: AI
+          professionalTitle: Engineer
+          applicationReason: Project review
+          status: PENDING_DEPT_REVIEW
+          deptReviewer: null
+          deptReviewOpinion: null
+          deptReviewRemark: null
+          deptReviewedAt: null
+          scienceReviewer: null
+          scienceReviewOpinion: null
+          scienceReviewRemark: null
+          scienceReviewedAt: null
+          createdAt: "2030-01-02T03:04:05"
+          updatedAt: "2030-01-02T03:04:05"
+    message: OK

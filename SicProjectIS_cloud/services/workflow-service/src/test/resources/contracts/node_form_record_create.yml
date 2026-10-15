@@ -1,0 +1,20 @@
+description: history node form creation returns record id and nested data
+name: node_form_record_create
+request:
+  method: POST
+  url: /api/node-forms/APPLICATION_NOTICE_FORM/records
+  headers: { Content-Type: application/json }
+  body: { moduleInstanceId: 20, notices: [{ title: Application notice }] }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      definition: { formCode: APPLICATION_NOTICE_FORM, writeMode: HISTORY_RECORD }
+      recordId: 5
+      data:
+        context: { moduleInstanceId: 20 }
+        notices: [{ title: Application notice }]
+        materials: []
+    message: OK

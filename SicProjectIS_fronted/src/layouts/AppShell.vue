@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 提供业务页面导航及当前身份菜单。角色与权限决定前端入口提示，页面存在不等于当前账号具有后台操作资格。
+ */
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
@@ -19,6 +22,7 @@ const isAdminWorkspaceVisible = computed(
 )
 
 const currentMainTab = computed(() => {
+  if (route.path.startsWith('/expert-reviews')) return 'expert-reviews'
   if (route.path.startsWith('/admin')) {
     return 'admin'
   }
@@ -49,6 +53,7 @@ async function handleLogout() {
 }
 
 function handleTabSelect(index: string) {
+  if (index === 'expert-reviews') { router.push({ name: 'expert-reviews' }); return }
   if (index === 'dashboard') {
     router.push({ name: 'dashboard' })
     return
@@ -117,6 +122,9 @@ function handleTabSelect(index: string) {
       <el-menu-item index="expert-qualification">
         <el-icon><Medal /></el-icon>
         <span>Expert</span>
+      </el-menu-item>
+      <el-menu-item index="expert-reviews">
+        <el-icon><Medal /></el-icon><span>我的评审</span>
       </el-menu-item>
       <el-menu-item v-if="isAdminWorkspaceVisible" index="admin">
         <el-icon><Lock /></el-icon>

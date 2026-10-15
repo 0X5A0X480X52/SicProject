@@ -1,3 +1,6 @@
+/**
+ * 把后台状态、角色和业务代码映射为展示文本；保留未知代码回退，显示文本不参加权限或状态机判断。
+ */
 export type LabelDictionary = Record<string, string>
 
 export const roleLabels: LabelDictionary = {

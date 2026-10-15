@@ -1,0 +1,13 @@
+description: material deletion keeps the null success wrapper
+name: material_delete
+request:
+  method: DELETE
+  url: /api/material-versions/40
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    success: true
+    data: null
+    message: OK

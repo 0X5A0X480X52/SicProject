@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: project-service
+  config:
+    import: ${CONFIG_IMPORT:optional:configserver:http://localhost:8888}

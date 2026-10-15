@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 组合模块运行时、节点表单、材料与可执行动作；正式提交使用当前序号和选中版本，提交成功后重新读取状态，纯专家使用专用评审入口。
+ */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElNotification } from 'element-plus'
@@ -18,10 +21,12 @@ import WorkflowNodeWorkPanel from '../components/workflow/WorkflowNodeWorkPanel.
 import ExpertReviewPanel from '../components/workflow/ExpertReviewPanel.vue'
 import type { AvailableTransition, MaterialContextView, MaterialRequirementView, ModuleStateRecord, NodeFormSaveRequest, RuntimeViewResponse, StateTransitionRequest } from '../types/nodeForms'
 import type { ProjectSummary } from '../types/project'
+import { useAuthStore } from '../stores/auth'
 import type { WorkflowNodeDefinition } from '../types/workflow'
 import { eventLabel, lifecycleLabel, moduleTypeLabel, operationModeLabel, resultLabel, roleLabel, stateLabel } from '../utils/displayLabels'
 
 type DraftKey = string
+const auth = useAuthStore()
 interface MaterialSummaryItem { key: string; name: string; required: boolean; count: number; latest?: MaterialContextView; requirement: MaterialRequirementView; missing: boolean }
 interface WorkflowNodeFormModel { approved?: boolean; title?: string; summary?: string; remark?: string; externalActorCode?: string; externalActorName?: string; resultDocumentNo?: string; operationType?: string; operationTarget?: string; archiveType?: string; approvedAmount?: number | null; receivedAmount?: number | null; spentAmount?: number | null; settlementResult?: string; financeReviewComment?: string; settlementAmount?: number | null; scoreValue?: number | null; reviewResult?: string; isLimitedProject?: boolean }
 interface WorkflowNodeSubmitPayload { formCode?: string; data?: NodeFormSaveRequest; result?: string; remark?: string }
@@ -388,9 +393,12 @@ async function quickSubmitFinancialSettlement() {
 
 let loadAbortController: AbortController | null = null
 
+/**
+ * 取消上一轮请求，先取得当前运行时，再并行读取项目、材料和同版本流程图。保留当前节点草稿，避免一次实时刷新清空输入。
+ */
 async function loadDetail(showMessage = false) {
   if (!Number.isFinite(moduleInstanceId.value)) { ElMessage.error('模块实例 ID 无效'); return }
-  // Cancel any in-flight requests from a previous loadDetail call
+  // 切换模块或重复刷新时取消上一轮请求，减少离开页面后的无效读取。
   loadAbortController?.abort()
   loadAbortController = new AbortController()
   const signal = loadAbortController.signal
@@ -401,9 +409,8 @@ async function loadDetail(showMessage = false) {
     runtimeView.value = view
     ensureDraft(view)
 
-    // All secondary requests run in parallel — no reason to serialize them.
-    // Previously nodes/bpmn waited for projectSummary + materials, which
-    // delayed them and caused requests to fire after the user left the page.
+    // 运行时已确定项目与定义版本；其余读取共享本轮 signal 并行执行，
+    // 不让材料或项目摘要请求串行阻塞流程图加载。
     const tasks: Promise<unknown>[] = [
       loadProjectSummary(view.context.projectId, signal),
       loadMaterials(view.context.projectId, signal),
@@ -436,6 +443,9 @@ function validateRequiredMaterials() {
   if (missing.length) { ElMessage.warning(`请先选择或上传必填材料的当前版本：${missing.map((item) => item.materialTypeName || item.materialTypeCode).join('、')}`); return false }
   return true
 }
+/**
+ * 以当前序号、当前草稿及去重后的版本 ID 正式提交；成功清理该草稿，失败保留输入并重读状态，不自动重试迁移。
+ */
 async function submitCurrentDraft() {
   const view = runtimeView.value
   const transition = selectedTransition.value
@@ -450,7 +460,12 @@ async function submitCurrentDraft() {
 }
 watch(processNodes, (nodes) => { if (nodes.length && (!selectedNodeId.value || !nodes.some((node) => node.id === selectedNodeId.value))) selectedNodeId.value = nodes.find((node) => node.status === 'current')?.id ?? nodes[nodes.length - 1].id })
 const workflowEvents = useWorkflowEvents((event) => { if (!event.moduleInstanceId || event.moduleInstanceId === moduleInstanceId.value) loadDetail() })
-onMounted(() => { loadDetail(); workflowEvents.connect() })
+onMounted(() => {
+  if (auth.user?.roleCodes.includes('EXPERT') && !auth.user.roleCodes.some(role => ['SYSTEM_ADMIN','SCIENCE_ADMIN','DEPT_ADMIN','PROJECT_LEADER'].includes(role))) {
+    router.replace({ name: 'expert-reviews' }); return
+  }
+  loadDetail(); workflowEvents.connect()
+})
 </script>
 
 <template>
@@ -478,6 +493,9 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
         </div>
       </section>
 
+      <el-alert v-if="runtimeView.taskConfiguration?.ready === false" type="warning" :closable="false" show-icon :title="runtimeView.taskConfiguration.message">
+        <router-link v-if="auth.user?.roleCodes.some(role => ['SYSTEM_ADMIN','SCIENCE_ADMIN'].includes(role))" :to="{ name: 'project-authorization', params: { projectId: runtimeView.context.projectId } }">配置本项目财务办理人</router-link>
+      </el-alert>
       <section class="workflow-detail-stack-summary-strip">
         <div v-for="item in summaryItems" :key="item.label" class="workflow-detail-stack-summary-item">
           <span>{{ item.label }}</span>

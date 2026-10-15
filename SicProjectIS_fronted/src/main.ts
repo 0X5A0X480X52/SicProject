@@ -1,3 +1,6 @@
+/**
+ * 装配 Vue、Pinia、Router 与 Element Plus 并挂载应用；业务请求经公共客户端访问 Gateway。
+ */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'

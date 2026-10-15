@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "runId": "20261010150910a65371",
+  "project": "sic-perf-project-lock-20261010",
+  "restoreSchemas": {
+    "sic_iam": "sic_restore_20261010150910a65371_iam",
+    "sic_project": "sic_restore_20261010150910a65371_project",
+    "sic_workflow": "sic_restore_20261010150910a65371_workflow",
+    "sic_material": "sic_restore_20261010150910a65371_material",
+    "sic_notification": "sic_restore_20261010150910a65371_notification"
+  },
+  "tableCount": 52,
+  "differences": [],
+  "backupBytes": 22334185,
+  "backupSha256": "0c6bb4580e8ad2d88cfe8ac59688bdbd2370a6644dee67284e475c9f13e7c34e"
+}

@@ -1,0 +1,19 @@
+description: batch proxy grant preserves mutation response
+name: project_proxy_grants_batch
+request:
+  method: POST
+  url: /api/projects/10/proxy-grants/batch
+  headers: { Content-Type: application/json }
+  body: { userIds: [7], moduleType: null, roundNo: null, taskNodeId: null, reason: Assign }
+response:
+  status: 200
+  headers: { Content-Type: application/json }
+  body:
+    success: true
+    data:
+      detail:
+        project: { projectId: 10 }
+      diff: { added: ["7"], removed: [] }
+      affectedCount: 1
+      summaryMessage: Updated 1 record
+    message: OK

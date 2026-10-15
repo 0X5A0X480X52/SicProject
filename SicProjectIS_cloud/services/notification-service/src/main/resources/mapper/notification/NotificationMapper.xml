@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amatrix.sic.notification.dao.NotificationMapper">
+  <!-- 通知 MyBatis 接口：插入待投递记录、按用户取 QUEUED（区分定向与广播）、按 eventId 标记投递或重试，以及待投递数与最老年龄计数。 -->
+  <resultMap id="notification" type="com.amatrix.sic.notification.entity.PendingNotification">
+    <constructor>
+      <arg column="event_id" javaType="String"/>
+      <arg column="user_id" javaType="java.lang.Long"/>
+      <arg column="event_name" javaType="String"/>
+      <arg column="payload_json" javaType="String"/>
+    </constructor>
+  </resultMap>
+  <insert id="insert">
+    INSERT INTO pending_notification(event_id,user_id,event_name,payload_json,status)
+    VALUES(#{eventId},#{userId},'MODULE_STATE_CHANGED',#{payload},'QUEUED')
+  </insert>
+  <!-- 读取待投递通知；实时通道不可用时继续保留记录，不以已入库推断用户已看到。 -->
+  <!-- 按创建时间和 ID 取最多 100 条 QUEUED 通知；userScoped 为 true 时仅查指定用户，供重连补发或定时重试。 -->
+  <select id="queued" resultMap="notification">
+    SELECT event_id,user_id,event_name,payload_json FROM pending_notification WHERE status='QUEUED'
+    <if test="userScoped">AND user_id=#{userId}</if>
+    ORDER BY created_at,id LIMIT 100
+  </select>
+  <update id="delivered">
+    UPDATE pending_notification SET status=#{status},delivered_at=CURRENT_TIMESTAMP(6) WHERE event_id=#{eventId} AND status='QUEUED'
+  </update>
+  <update id="retry">UPDATE pending_notification SET retry_count=retry_count+1 WHERE event_id=#{eventId} AND status='QUEUED'</update>
+  <!-- 统计待投递 QUEUED 通知数，供通知积压指标使用。 -->
+  <select id="queuedCount" resultType="long">SELECT COUNT(*) FROM pending_notification WHERE status='QUEUED'</select>
+  <!-- 计算最早 QUEUED 通知距当前的秒数，无记录时返回 0，供积压年龄指标使用。 -->
+  <select id="oldestAge" resultType="long">SELECT COALESCE(TIMESTAMPDIFF(SECOND,MIN(created_at),CURRENT_TIMESTAMP),0) FROM pending_notification WHERE status='QUEUED'</select>
+</mapper>

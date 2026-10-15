@@ -1,4 +1,7 @@
 <script setup lang="ts">
+/**
+ * 组合当前身份和项目等概览信息，提供业务导航；概览计数不代替分页工作台的完整记录。
+ */
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppShell from '../layouts/AppShell.vue'
