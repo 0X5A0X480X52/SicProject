@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-14T14:12:25.391778+00:00",
+  "project": "sic-eureka-ha-accept",
+  "checks": [
+    {
+      "name": "registry propagation",
+      "passed": true,
+      "services": [
+        "GATEWAY-SERVICE",
+        "IAM-SERVICE",
+        "MATERIAL-SERVICE",
+        "NOTIFICATION-SERVICE",
+        "PROJECT-SERVICE",
+        "WORKFLOW-SERVICE"
+      ],
+      "nodes": [
+        "discovery-server",
+        "discovery-peer"
+      ]
+    },
+    {
+      "name": "/api/auth/me",
+      "passed": true,
+      "status": 200,
+      "traceId": "80846a34-ae53-48b8-9e4c-d676f58215a9"
+    },
+    {
+      "name": "/api/projects",
+      "passed": true,
+      "status": 200,
+      "traceId": "7da21be1-fb61-4b2c-aaf0-181a70746c31"
+    },
+    {
+      "name": "/api/workflow-definitions",
+      "passed": true,
+      "status": 200,
+      "traceId": "43a0d7e9-fd26-4b1d-84d5-1218aa590d51"
+    },
+    {
+      "name": "/api/projects/0/materials",
+      "passed": true,
+      "status": 403,
+      "traceId": "6d87d197-b06d-452b-9513-2943aa9e6e8d"
+    }
+  ],
+  "registryStableSeconds": 65,
+  "finishedAt": "2026-10-14T14:13:31.916897+00:00"
+}

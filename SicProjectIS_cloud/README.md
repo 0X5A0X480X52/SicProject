@@ -10,7 +10,7 @@ cd C:\UserFiles\CS\Java\SicProject\SicProjectIS_cloud
 
 如果这台机器已有 `sic-localdev` 环境，先看 [已有环境启动](#4-已有环境启动和日常操作)，不要重新生成凭据或初始化数据库。
 
-需要多实例或验证负载均衡时，参见 [多实例启动、状态与验收](docs/multi-instance-startup.md)。原命令仍默认单实例；五个业务服务支持 `.env`、JSON 和命令行设置副本，新增按项目的状态、停止及 `balance/business/fault` 独立验证入口。
+需要多实例或验证负载均衡时，参见 [多实例启动、状态与验收](docs/multi-instance-startup.md)。五个业务服务默认单副本，支持 `.env`、JSON 和命令行设置副本；主部署 Eureka 默认双容器，配置与故障验收见 [Eureka 高可用](docs/eureka-ha.md)。
 
 本轮实际运行结果见 [多实例验收记录](docs/multi-instance-verification-report.md)。
 
@@ -57,34 +57,34 @@ SicProject/
 
 ### 服务职责和端口
 
-| 模块 | 职责 | 容器内端口 |
-| --- | --- | --- |
-| [Gateway](services/gateway-service/README.md) | API 路由、JWT 与会话有效性检查、限流、SSE 转发 | 8080 |
-| [IAM](services/iam-service/README.md) | 注册登录、用户部门、角色权限、专家资格申请与审批 | 9001 |
-| [Project](services/project-service/README.md) | 项目主数据、成员与项目授权、申请 Saga、审计 | 9002 |
-| [Workflow](services/workflow-service/README.md) | BPMN 与任务流转、表单落库、专家指派评分、工作台与本人评审历史 | 9003 |
-| [Material](services/material-service/README.md) | 文件上传下载、材料版本、引用预留与确认、单据及对象删除 | 9004 |
-| [Notification](services/notification-service/README.md) | 消息消费、通知持久化及 SSE 实时投递 | 9005 |
-| Config Server | 提供公共配置及各服务配置 | 8888 |
-| Eureka | 服务注册与发现 | 8761 |
+| 模块                                                   | 职责                                                          | 容器内端口                   |
+| ------------------------------------------------------ | ------------------------------------------------------------- | ---------------------------- |
+| [Gateway](services/gateway-service/README.md)           | API 路由、JWT 与会话有效性检查、限流、SSE 转发                | 8080                         |
+| [IAM](services/iam-service/README.md)                   | 注册登录、用户部门、角色权限、专家资格申请与审批              | 9001                         |
+| [Project](services/project-service/README.md)           | 项目主数据、成员与项目授权、申请 Saga、审计                   | 9002                         |
+| [Workflow](services/workflow-service/README.md)         | BPMN 与任务流转、表单落库、专家指派评分、工作台与本人评审历史 | 9003                         |
+| [Material](services/material-service/README.md)         | 文件上传下载、材料版本、引用预留与确认、单据及对象删除        | 9004                         |
+| [Notification](services/notification-service/README.md) | 消息消费、通知持久化及 SSE 实时投递                           | 9005                         |
+| Config Server                                          | 提供公共配置及各服务配置                                      | 8888                         |
+| Eureka 双节点                                          | 服务注册与发现                                                | 8761 / 8762（容器内均 8761） |
 
 主源码通常位于模块的 `src/main/java/com/amatrix/sic/...`，接口在 `controller`，业务编排与本地事务在 `service`，MyBatis 接口在 `dao`，SQL 在 `src/main/resources/mapper`，消息入口在 `messaging`。各服务的具体目录略有差异，逐类说明见 [类职责清单](docs/class-responsibilities.md)。
 
 业务服务分别使用 `sic_iam`、`sic_project`、`sic_workflow`、`sic_material`、`sic_notification` 五个 Schema。当前完整结构为 52 张表，以 [结构清单](infra/mysql/schema-manifest.json) 为准。服务通过 OpenFeign 调用，通过 RabbitMQ 与 Outbox/Inbox 交换事件；Redis 用于会话、权限版本等状态，MinIO 保存材料文件。已接入 Resilience4j，调用超时和熔断等配置可在 Config Server 的配置目录查看。
 
-普通启动共 **12 个容器**：8 个 Java 应用，加 MySQL、RabbitMQ、Redis、MinIO。`migration-tool` 和 `dlq-recovery-tool` 只在明确启用 `migration`、`operations` profile 时运行，日常启动无需启用。
+普通启动共 **13 个容器**：9 个 Java 进程（两个 Eureka 容器复用同一应用），加 MySQL、RabbitMQ、Redis、MinIO；仍发布八个不同 Java 应用包。`migration-tool` 和 `dlq-recovery-tool` 只在明确启用 `migration`、`operations` profile 时运行，日常启动无需启用。
 
 ## 2. 环境要求与配置
 
-| 工具 | 用途与要求 |
-| --- | --- |
-| Docker Desktop | Windows 上启动 Linux 容器引擎；`docker version` 应能连接服务端 |
-| Docker Compose v2 | 使用 `docker compose`；JAR 挂载方式要求支持 `!reset`、`!override` 标签 |
-| JDK 21、Maven 3.9.x | 本机编译 Java；选择 Docker 内构建方式时无需主机安装这两项 |
-| Python 3.11+ | 本地环境生成、就绪检查、启动器与业务测试 |
-| Node.js 22.16+、npm | 前端开发及构建；本项目曾在 Node 22.16 环境验证 |
-| PowerShell 5.1+ | 本文命令及 Windows 辅助脚本 |
-| OpenSSL | 手动生成 JWT 密钥和使用双模式启动器时需要；自动环境生成方式不依赖它 |
+| 工具                | 用途与要求                                                                  |
+| ------------------- | --------------------------------------------------------------------------- |
+| Docker Desktop      | Windows 上启动 Linux 容器引擎；`docker version` 应能连接服务端            |
+| Docker Compose v2   | 使用`docker compose`；JAR 挂载方式要求支持 `!reset`、`!override` 标签 |
+| JDK 21、Maven 3.9.x | 本机编译 Java；选择 Docker 内构建方式时无需主机安装这两项                   |
+| Python 3.11+        | 本地环境生成、就绪检查、启动器与业务测试                                    |
+| Node.js 22.16+、npm | 前端开发及构建；本项目曾在 Node 22.16 环境验证                              |
+| PowerShell 5.1+     | 本文命令及 Windows 辅助脚本                                                 |
+| OpenSSL             | 手动生成 JWT 密钥和使用双模式启动器时需要；自动环境生成方式不依赖它         |
 
 检查工具，并安装 Python 依赖：
 
@@ -103,34 +103,36 @@ python -m pip install -r scripts/requirements-verification.txt
 
 ### 配置文件的区别
 
-| 文件 | 用途 |
-| --- | --- |
-| `.env.example` | 模板；不直接作为运行环境使用 |
-| `.env` | 手动配置、Docker 内构建与双模式启动器使用 |
-| `target/local-dev.env` | 推荐本地 JAR 启动方式生成的运行凭据 |
-| `target/local-dev.compose.yaml` | 指定冻结 JAR 的挂载路径和宿主机端口 |
+| 文件                              | 用途                                      |
+| --------------------------------- | ----------------------------------------- |
+| `.env.example`                  | 模板；不直接作为运行环境使用              |
+| `.env`                          | 手动配置、Docker 内构建与双模式启动器使用 |
+| `target/local-dev.env`          | 推荐本地 JAR 启动方式生成的运行凭据       |
+| `target/local-dev.compose.yaml` | 指定冻结 JAR 的挂载路径和宿主机端口       |
 
 两种启动方式各自使用对应配置，不要混用不同环境的密钥。Compose 项目名决定数据卷名称；日常环境本文统一使用 `sic-localdev`，后续启动、停止与检查均沿用这个名字。
 
 主要环境变量如下：
 
-| 配置 | 含义 |
-| --- | --- |
-| `MYSQL_ROOT_PASSWORD` | MySQL 管理账号密码 |
-| `IAM_DB_PASSWORD` 等五个 `*_DB_PASSWORD` | 各 Schema 的独立数据库账号密码 |
-| `RABBITMQ_USERNAME`、`RABBITMQ_PASSWORD` | 消息队列账号 |
-| `REDIS_PASSWORD` | Redis 认证密码 |
-| `MINIO_ACCESS_KEY`、`MINIO_SECRET_KEY`、`MINIO_BUCKET` | 材料对象存储配置 |
-| `SERVICE_TOKEN_BOOTSTRAP_SECRET` | 服务间认证引导密钥 |
-| `JWT_PRIVATE_KEY`、`JWT_PUBLIC_KEY` | 同一 RSA 密钥对的单行 Base64 DER：PKCS#8 私钥、X.509 公钥 |
-| `JWT_ISSUER`、`JWT_AUDIENCE` | JWT 签发者及接收方，默认 `sic-iam`、`sic-api` |
-| `BOOTSTRAP_ADMIN_USERNAME`、`BOOTSTRAP_ADMIN_PASSWORD`、`BOOTSTRAP_ADMIN_REAL_NAME` | 首次启动创建管理员的配置 |
+| 配置                                                                                      | 含义                                                      |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `MYSQL_ROOT_PASSWORD`                                                                   | MySQL 管理账号密码                                        |
+| `IAM_DB_PASSWORD` 等五个 `*_DB_PASSWORD`                                              | 各 Schema 的独立数据库账号密码                            |
+| `RABBITMQ_USERNAME`、`RABBITMQ_PASSWORD`                                              | 消息队列账号                                              |
+| `REDIS_PASSWORD`                                                                        | Redis 认证密码                                            |
+| `MINIO_ACCESS_KEY`、`MINIO_SECRET_KEY`、`MINIO_BUCKET`                              | 材料对象存储配置                                          |
+| `SERVICE_TOKEN_BOOTSTRAP_SECRET`                                                        | 服务间认证引导密钥                                        |
+| `JWT_PRIVATE_KEY`、`JWT_PUBLIC_KEY`                                                   | 同一 RSA 密钥对的单行 Base64 DER：PKCS#8 私钥、X.509 公钥 |
+| `JWT_ISSUER`、`JWT_AUDIENCE`                                                          | JWT 签发者及接收方，默认`sic-iam`、`sic-api`          |
+| `BOOTSTRAP_ADMIN_USERNAME`、`BOOTSTRAP_ADMIN_PASSWORD`、`BOOTSTRAP_ADMIN_REAL_NAME` | 首次启动创建管理员的配置                                  |
 
 新环境可以自动生成上述凭据。已有环境应保留原配置；修改配置文件中的密码不会同步修改数据卷内的数据库账号或已有管理员密码。凭据、JWT 私钥、SQL 备份不要提交 Git。
 
 ## 3. 首次编译与启动：本机 JAR + Docker
 
 这是当前本地环境使用的方式：主机编译 Java，Docker 运行冻结后的 JAR 和基础设施。应用运行时无需启动 IDEA 中的多个 Java 进程。
+
+统一使用生成配置 → Compose 启动 → 严格就绪检查，完整设置见 [统一 JAR 启动指南](docs/unified-jar-startup.md)，多副本与 Eureka 入口开关的本次实测见 [验收记录](docs/unified-jar-startup-verification.md)。
 
 ### 3.1 编译后端
 
@@ -149,7 +151,7 @@ python scripts/snapshot_verification_release.py --release-dir $releaseDir --labe
 
 冻结脚本复制八个 Java 应用，记录文件摘要，并拒绝覆盖已有发布目录。
 
-### 3.2 仅首次生成配置
+### 3.2 仅首次生成凭据和配置
 
 确认 `target/local-dev.env` 和 `target/local-dev.compose.yaml` 尚不存在后执行：
 
@@ -164,6 +166,32 @@ python scripts/prepare_verification_env.py `
 脚本生成随机密码及 RSA 密钥，不输出秘密值。初始管理员用户名通常为 `admin`，密码来自生成的 `BOOTSTRAP_ADMIN_PASSWORD`，需要登录时使用本地文本编辑器查看该配置字段；不存在统一默认密码。
 
 如果提示 `Refusing to replace existing verification configuration`，说明已有配置，直接进入 [已有环境启动](#4-已有环境启动和日常操作)。不要为消除这个提示而删除原凭据、换用新的密钥。
+
+生成后可以编辑 `target/local-dev.env` 中的部署设置；修改已有同名行，不重复追加键：
+
+```dotenv
+SIC_IAM_REPLICAS=2
+SIC_PROJECT_REPLICAS=3
+SIC_WORKFLOW_REPLICAS=2
+SIC_MATERIAL_REPLICAS=2
+SIC_NOTIFICATION_REPLICAS=2
+EUREKA_UI_ENABLED=true
+EUREKA_UI_BIND_IP=127.0.0.1
+EUREKA_UI_PORT_A=8761
+EUREKA_UI_PORT_B=8762
+```
+
+业务默认各一个副本，Compose 直接读取五个 `SIC_*_REPLICAS`；Gateway 固定一个，Eureka 固定 `discovery-server` 和 `discovery-peer` 两个节点。以上示例共 19 个容器。副本数必须是正整数；连接池总预算为五服务的 `DB_POOL_SIZE × 副本数` 之和，再加 20 个运维连接。
+
+Eureka 浏览器入口默认关闭。切换 `EUREKA_UI_ENABLED` 后，先更新同一个 override：
+
+```powershell
+python scripts/prepare_verification_env.py --update-override `
+    --env-file target/local-dev.env `
+    --compose-override target/local-dev.compose.yaml
+```
+
+该命令读取原 env、保持原冻结 JAR 挂载路径、备份并更新 override，不修改任何密码或 JWT 密钥。已启用界面时，端口和绑定 IP 使用 env 插值，修改后直接重新 `up` 即可。`127.0.0.1` 限本机访问；`0.0.0.0` 绑定所有宿主机接口。完整配置及更新流程见 [统一 JAR 启动指南](docs/unified-jar-startup.md)。
 
 ### 3.3 启动后端
 
@@ -190,7 +218,7 @@ python scripts/wait_verification_ready.py `
     --report-path verification/runs/local-dev-readiness.json
 ```
 
-就绪脚本默认包含 65 秒的注册稳定等待。该检查使用配置中的管理员凭据；若已修改管理员密码，应使用当前账号验证，不能把原引导密码当作最新密码。
+就绪脚本默认包含 65 秒的注册稳定等待，按 env 检查每个服务的精确副本数、所有容器健康、唯一实例 ID 和实际 IP/端口、双节点注册表一致、Eureka 实际宿主机端口及数据库连接池预算，再检查公开读路由。失败退出码为 1，报告保留原因；不会停止容器或删除数据。首次验收使用引导管理员；已有管理员密码变更后用 `--admin-username` 指定当前账号，并通过环境变量 `SIC_STARTUP_ADMIN_PASSWORD` 提供当前密码。
 
 ### 3.4 启动前端
 
@@ -204,16 +232,16 @@ npm run dev -- --port 5173 --strictPort
 
 打开 `http://localhost:5173`。使用 `--strictPort` 后，5173 被占用会明确报错，不会静默换成另一个端口。开发服务器默认将 `/api` 代理到 `http://127.0.0.1:8080`，通常无需设置 `VITE_API_BASE_URL`。
 
-单实例和多实例示例均默认对外使用 **8080**，前端无需额外设置。Gateway 对外端口可在部署 `.env` 中配置 `GATEWAY_PORT`，生成器通过 `--gateway-port` 指定初始值；新生成的 JAR override 读取该变量。历史 override 若固定写了端口，应同步修改。用 History 启动更新已有环境的端口。
+单实例和多实例示例均默认对外使用 **8080**，前端无需额外设置。Gateway 对外端口可在部署 `.env` 中配置 `GATEWAY_PORT`，生成器通过 `--gateway-port` 指定初始值；新生成的 JAR override 读取该变量。修改后用相同 Compose 命令 `up` 更新端口，并调整就绪检查的 `--gateway-base-url`；省略该参数时脚本从 Compose 推断 Gateway 地址。
 
 若自行改为 18080，在前端目录的 `.env.development.local` 中设置 `SIC_GATEWAY_PROXY_TARGET=http://127.0.0.1:18080`，再重新启动 `npm run dev`。也可在前端 PowerShell 中设置 `$env:SIC_GATEWAY_PROXY_TARGET = 'http://127.0.0.1:18080'`。此设置控制开发服务器代理，浏览器仍使用同源 `/api`；切回默认 8080 时移除旧配置和进程变量。具体配置见 [前端 README](../SicProjectIS_fronted/README.md)。
 
-| 地址 | 用途 |
-| --- | --- |
-| `http://localhost:5173` | 前端页面 |
-| `http://127.0.0.1:8080` | Gateway；业务 API 在 `/api` 下 |
+| 地址                      | 用途                            |
+| ------------------------- | ------------------------------- |
+| `http://localhost:5173` | 前端页面                        |
+| `http://127.0.0.1:8080` | Gateway；业务 API 在`/api` 下 |
 
-推荐方式只发布 Gateway 端口，Config Server、Eureka、RabbitMQ、MinIO 的宿主机端口由 override 隐藏；它们在容器网络中仍正常访问。MySQL、Redis和 IAM 等业务服务无需直接暴露给宿主机。
+推荐方式默认只发布 Gateway；Config Server、RabbitMQ、MinIO 及关闭时的 Eureka 宿主机端口由 override 隐藏，它们在容器网络中仍正常访问。启用 Eureka 入口后，本机浏览器可访问 `http://127.0.0.1:8761/` 和 `http://127.0.0.1:8762/`；端口发布同时开放 Eureka 界面及注册 API。MySQL、Redis和业务服务不直接发布宿主机端口。
 
 ### 3.5 另一种方式：Docker 内编译
 
@@ -234,7 +262,7 @@ python scripts/start_backend.py --mode fresh --project-name sic-cloud --env-file
 python scripts/start_backend.py --mode history --project-name sic-cloud --env-file .env --skip-build
 ```
 
-`history` 检查原数据卷，并提示输入当前管理员账号密码。升级镜像时省略 `--skip-build`。基础 Compose 还发布 8761、8888、9000、9006、15672；详细参数与 PowerShell 包装入口见 [双模式启动指南](docs/backend-startup-guide.md)。同一台机器不要让两套环境同时占用 8080。
+`history` 检查原数据卷，并提示输入当前管理员账号密码。升级镜像时省略 `--skip-build`。基础 Compose 还发布 8761、8762、8888、9000、9006、15672；详细参数与 PowerShell 包装入口见 [双模式启动指南](docs/backend-startup-guide.md)。同一台机器不要让两套环境同时占用 8080。
 
 ## 4. 已有环境启动和日常操作
 
@@ -247,6 +275,8 @@ docker compose -p sic-localdev --env-file target/local-dev.env `
 ```
 
 前端另开终端运行 `npm run dev -- --port 5173 --strictPort`，依赖没有变化时不用重复 `npm ci`。
+
+每次启动或调整副本后，继续执行第 3.3 节的 `wait_verification_ready.py` 命令；Compose 的 `--wait` 只检查容器就绪，不代替精确副本与服务发现验收。只改变业务副本数时，编辑 env 后直接 `up`；切换 Eureka 界面开关时先执行 `--update-override` 再 `up`。历史单节点 override 可以用该更新命令迁移到双节点，并保留原八个 JAR 路径。
 
 查看状态、最近日志：
 
@@ -263,7 +293,15 @@ docker compose -p sic-localdev --env-file target/local-dev.env `
 
 ### 修改代码后更新版本
 
-重新 `mvn -B -DskipTests package` 并冻结到**新的** release 目录；备份现有 `target/local-dev.compose.yaml`，将其中八个应用的 `/application/application.jar` 绑定源更新到新发布目录中的对应 JAR，再执行上述 `up`。只编译源码不会替换已冻结的运行包。
+重新 `mvn -B -DskipTests package` 并冻结到**新的** release 目录，再更新同一个部署文件：
+
+```powershell
+python scripts/prepare_verification_env.py --update-override `
+    --env-file target/local-dev.env --compose-override target/local-dev.compose.yaml `
+    --release-dir $releaseDir
+```
+
+随后执行原 Compose `config --quiet`、`up` 和就绪检查。省略 `--release-dir` 时更新命令会保留原 JAR；指定时先校验新发布清单再替换挂载路径。两个 Eureka 容器挂载同一个 discovery-server JAR。只编译源码不会替换已冻结的运行包。
 
 更新保留原 `.env` 文件、Compose 项目名和数据卷。涉及数据库结构时先备份，按补丁发布清单处理；已有库不能通过重跑完整 SQL 升级。旧版本的冻结包应保留到升级验证完成。
 
@@ -382,18 +420,18 @@ python scripts/verify_business_db.py `
 
 ## 8. 常见问题和进一步阅读
 
-| 现象 | 处理 |
-| --- | --- |
-| Docker 无法连接或不是 Linux 引擎 | 启动 Docker Desktop，确认 `docker version` 的服务端可用 |
-| `FileExistsError: ...local-dev.env` | 使用原配置直接 `up`；不要重新运行生成脚本覆盖凭据 |
-| Compose 不认识 `!override`、`!reset` | 使用支持这些标签的 Compose v2，先执行 `config --quiet` 检查 |
-| 8080 / 5173 被占用 | 检查是否项目已启动；不要误开第二套同端口环境。调整 Gateway 时同时调整前端代理和验收 URL |
-| 启动后暂时 503 | 先检查容器健康和日志，再执行就绪检查等待服务发现传播 |
-| 修改源码后运行行为没变 | 当前可能挂载冻结包，需要编译、冻结新版本并更新 override |
-| 管理员登录失败 | 核对正在运行的项目与凭据文件；已有账号改密码后原引导密码不再有效 |
-| 部门或角色变更后旧页面无权限 | 重新登录并刷新；财务另核对项目授权范围 |
-| 前端可打开，API 却连到旧服务 | 核对 `vite.config.mjs` 代理及自行设置的 `VITE_API_BASE_URL`，修改后重启 Vite |
-| 停止后数据库或材料不见了 | 核对 Compose 项目名、数据卷是否沿用；`stop` 本身不删除数据 |
+| 现象                                    | 处理                                                                                    |
+| --------------------------------------- | --------------------------------------------------------------------------------------- |
+| Docker 无法连接或不是 Linux 引擎        | 启动 Docker Desktop，确认`docker version` 的服务端可用                                |
+| `FileExistsError: ...local-dev.env`   | 使用原配置直接`up`；不要重新运行生成脚本覆盖凭据                                      |
+| Compose 不认识`!override`、`!reset` | 使用支持这些标签的 Compose v2，先执行`config --quiet` 检查                            |
+| 8080 / 5173 被占用                      | 检查是否项目已启动；不要误开第二套同端口环境。调整 Gateway 时同时调整前端代理和验收 URL |
+| 启动后暂时 503                          | 先检查容器健康和日志，再执行就绪检查等待服务发现传播                                    |
+| 修改源码后运行行为没变                  | 当前可能挂载冻结包，需要编译、冻结新版本并更新 override                                 |
+| 管理员登录失败                          | 核对正在运行的项目与凭据文件；已有账号改密码后原引导密码不再有效                        |
+| 部门或角色变更后旧页面无权限            | 重新登录并刷新；财务另核对项目授权范围                                                  |
+| 前端可打开，API 却连到旧服务            | 核对`vite.config.mjs` 代理及自行设置的 `VITE_API_BASE_URL`，修改后重启 Vite         |
+| 停止后数据库或材料不见了                | 核对 Compose 项目名、数据卷是否沿用；`stop` 本身不删除数据                            |
 
 更深入的说明：
 

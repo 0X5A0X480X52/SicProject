@@ -1,0 +1,761 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-15T08:10:59.505538+00:00",
+  "project": "sic-localdev",
+  "checks": [
+    {
+      "name": "registry propagation",
+      "passed": true,
+      "expectedReplicas": {
+        "mysql": 1,
+        "rabbitmq": 1,
+        "redis": 1,
+        "minio": 1,
+        "discovery-server": 1,
+        "discovery-peer": 1,
+        "config-server": 1,
+        "iam-service": 2,
+        "project-service": 3,
+        "workflow-service": 2,
+        "material-service": 2,
+        "notification-service": 2,
+        "gateway-service": 1
+      },
+      "nodes": [
+        "discovery-server",
+        "discovery-peer"
+      ]
+    },
+    {
+      "name": "database connection budget",
+      "passed": true
+    },
+    {
+      "name": "/api/auth/me",
+      "passed": true,
+      "status": 200,
+      "traceId": "114f9eff-3a92-4c78-81b8-d9d10620a870"
+    },
+    {
+      "name": "/api/projects",
+      "passed": true,
+      "status": 200,
+      "traceId": "82d3d704-a485-4624-b5fa-dc68fe5a339e"
+    },
+    {
+      "name": "/api/workflow-definitions",
+      "passed": true,
+      "status": 200,
+      "traceId": "4f48519f-c1ff-4616-bfa8-9aa20509600d"
+    },
+    {
+      "name": "/api/projects/0/materials",
+      "passed": true,
+      "status": 403,
+      "traceId": "73375c85-5787-42dc-bfec-e8ff8c04a344"
+    }
+  ],
+  "registryStableSeconds": 65,
+  "projectName": "sic-localdev",
+  "envFile": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\local-dev.env",
+  "composeFiles": [
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\docker-compose.yml",
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\local-dev.compose.yaml"
+  ],
+  "replicas": {
+    "mysql": 1,
+    "rabbitmq": 1,
+    "redis": 1,
+    "minio": 1,
+    "discovery-server": 1,
+    "discovery-peer": 1,
+    "config-server": 1,
+    "iam-service": 2,
+    "project-service": 3,
+    "workflow-service": 2,
+    "material-service": 2,
+    "notification-service": 2,
+    "gateway-service": 1
+  },
+  "replicaSources": {
+    "mysql": "default",
+    "rabbitmq": "default",
+    "redis": "default",
+    "minio": "default",
+    "discovery-server": "default",
+    "discovery-peer": "default",
+    "config-server": "default",
+    "iam-service": "env-file",
+    "project-service": "env-file",
+    "workflow-service": "env-file",
+    "material-service": "env-file",
+    "notification-service": "env-file",
+    "gateway-service": "default"
+  },
+  "gatewayBaseUrl": "http://127.0.0.1:8080",
+  "artifacts": {
+    "discovery-server": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\local-dev-ha-20261015-153828\\discovery-server\\application.jar",
+      "sha256": "66e199914c1ef283505e418118447a55649ffafc84bda0e68e43356135ff6810"
+    },
+    "discovery-peer": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\local-dev-ha-20261015-153828\\discovery-server\\application.jar",
+      "sha256": "66e199914c1ef283505e418118447a55649ffafc84bda0e68e43356135ff6810"
+    },
+    "config-server": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\local-dev-ha-20261015-153828\\config-server\\application.jar",
+      "sha256": "b7d26f926241bccda350a4755977007890b257e1d1c630ba7e00e13627799a05"
+    },
+    "iam-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\local-dev-ha-20261015-153828\\iam-service\\application.jar",
+      "sha256": "7e6a8414fe1f7cc7f59f318f9db5db32fe57be042b8cd8a865455f1e0e493416"
+    },
+    "project-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\local-dev-ha-20261015-153828\\project-service\\application.jar",
+      "sha256": "cd9d230a0b6ce041a3eabbc8cdd8428cad2871e7228481ae8ff9854d22c24d0e"
+    },
+    "workflow-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\local-dev-ha-20261015-153828\\workflow-service\\application.jar",
+      "sha256": "6d0e51eb173192eb1bee9f021184b8b777db6f47ed71269bc84055ea8a07c73e"
+    },
+    "material-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\local-dev-ha-20261015-153828\\material-service\\application.jar",
+      "sha256": "aedc1b381a279299dc607ef901fe62f3414e6e90af6bff8e199d0604cbb43fe8"
+    },
+    "notification-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\local-dev-ha-20261015-153828\\notification-service\\application.jar",
+      "sha256": "38bec2abc5f19ee196914ccf12e7c4902d1703eca9b095381247f1a55a8e53d3"
+    },
+    "gateway-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\releases\\local-dev-ha-20261015-153828\\gateway-service\\application.jar",
+      "sha256": "f673f2e8d9b32f680663e176ad861c8cbd7e238fece87938f109ac9a0a11537e"
+    }
+  },
+  "deploymentMode": "jar",
+  "eurekaUI": {
+    "enabled": true,
+    "bindIp": "127.0.0.1",
+    "ports": [
+      8761,
+      8762
+    ],
+    "actualBindings": {
+      "discovery-server": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "8761"
+        }
+      ],
+      "discovery-peer": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "8762"
+        }
+      ]
+    }
+  },
+  "instances": {
+    "containers": [
+      {
+        "containerId": "7fb6e690b088669cb849826bf0de37ab7235068301a3556d15830a29f13d7fe9",
+        "containerName": "sic-localdev-config-server-1",
+        "hostname": "7fb6e690b088",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "config-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.5"
+        ]
+      },
+      {
+        "containerId": "4d7e825a122c3a302ccd16d5e5a5e9abd0162da9097b6305cb63f503750816d0",
+        "containerName": "sic-localdev-discovery-peer-1",
+        "hostname": "discovery-peer",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "discovery-peer",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.6"
+        ]
+      },
+      {
+        "containerId": "1153c37fc610c373db82b8d88624a21a2ede16df7c367761c4bba7cef2818030",
+        "containerName": "sic-localdev-discovery-server-1",
+        "hostname": "discovery-server",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "discovery-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.8"
+        ]
+      },
+      {
+        "containerId": "836f187c2e5883feec373d385211ce86a45bd3ef2f1d1467639e0c14e0f81083",
+        "containerName": "sic-localdev-gateway-service-1",
+        "hostname": "836f187c2e58",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "gateway-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.20"
+        ]
+      },
+      {
+        "containerId": "d56cd412c8afbc94ae08ee0f4f5376f1f103585ebb2c5b393644c58d44b087ec",
+        "containerName": "sic-localdev-iam-service-1",
+        "hostname": "d56cd412c8af",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "iam-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.9"
+        ]
+      },
+      {
+        "containerId": "71f003eaa18bbd4f992c9e35e0aff10309c27bb3c739d75207c91dfcc0335ca6",
+        "containerName": "sic-localdev-iam-service-2",
+        "hostname": "71f003eaa18b",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "iam-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.10"
+        ]
+      },
+      {
+        "containerId": "d1c125ad565b74a8c96309eb6ecb5ff5020557d8f4efd292764cad241acd3c02",
+        "containerName": "sic-localdev-material-service-1",
+        "hostname": "d1c125ad565b",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "material-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.17"
+        ]
+      },
+      {
+        "containerId": "9f43141437b34a922ce454b284e3b75e00dbd153ee88e9d0c390622dc946f2c1",
+        "containerName": "sic-localdev-material-service-2",
+        "hostname": "9f43141437b3",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "material-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.18"
+        ]
+      },
+      {
+        "containerId": "1bda506ebbbb5448698418691de926379b5ba5d46cc3269d0456def5562e1a17",
+        "containerName": "sic-localdev-minio-1",
+        "hostname": "1bda506ebbbb",
+        "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+        "imageId": "sha256:a98a9d647e700e45c1d3d2e44709f23952a39c199731d84e623eb558fd5501f4",
+        "service": "minio",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.2"
+        ]
+      },
+      {
+        "containerId": "493d65a0bbb669b53b0360bdc14b7c6f0d1f68f9edb2d9c810e90d85cf2798db",
+        "containerName": "sic-localdev-mysql-1",
+        "hostname": "493d65a0bbb6",
+        "image": "mysql:8.4",
+        "imageId": "sha256:bced325a4ab7aec848f4688371c7433351dcb5dba26fbcc29c67727d898ae5cb",
+        "service": "mysql",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.7"
+        ]
+      },
+      {
+        "containerId": "d6ea38e6993300a91bb113b3e764614c2f76907b219a17ce531515b1e1c5d8ba",
+        "containerName": "sic-localdev-notification-service-1",
+        "hostname": "d6ea38e69933",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "notification-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.13"
+        ]
+      },
+      {
+        "containerId": "56540d25de27dc5896bceae8f5c6bdbbc2b04ca0402940d91188c7a6196fd9b4",
+        "containerName": "sic-localdev-notification-service-2",
+        "hostname": "56540d25de27",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "notification-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.11"
+        ]
+      },
+      {
+        "containerId": "04a81bbd9046400335fb69c5356adc1531d0134c804d497faa43c808edd811ed",
+        "containerName": "sic-localdev-project-service-1",
+        "hostname": "04a81bbd9046",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.12"
+        ]
+      },
+      {
+        "containerId": "0bceff944277f35276f2ae3a903c472fc01ea10b275e5605e37da39434ce6976",
+        "containerName": "sic-localdev-project-service-2",
+        "hostname": "0bceff944277",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.15"
+        ]
+      },
+      {
+        "containerId": "4c0ad69f83ffb5fef62a341cf9b60fa999625ffabe2e7406acafcde864798d1b",
+        "containerName": "sic-localdev-project-service-3",
+        "hostname": "4c0ad69f83ff",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.14"
+        ]
+      },
+      {
+        "containerId": "269a0595e8a6c00f2af9a5fb4d07a8d19e5bdd0dff8a4939b51d231b09b53b61",
+        "containerName": "sic-localdev-rabbitmq-1",
+        "hostname": "269a0595e8a6",
+        "image": "rabbitmq:4.1-management",
+        "imageId": "sha256:046fd3423a7668fc201318bca3bdad234aa0769cccc1c2427feb12f3c1239d2e",
+        "service": "rabbitmq",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.3"
+        ]
+      },
+      {
+        "containerId": "f686aef2539ae631245ec1d21c7acf2127140ba16658f01c0511a0ce3aededfd",
+        "containerName": "sic-localdev-redis-1",
+        "hostname": "f686aef2539a",
+        "image": "redis:8.2-alpine",
+        "imageId": "sha256:9b9bc2eb5b8859235a68b8d72b81977748d243badee819a91c18280612c3495c",
+        "service": "redis",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.4"
+        ]
+      },
+      {
+        "containerId": "5d7e1e99114778bd219e6c060aca221cd3290c21eb45ca7a096624cc3d4bb09c",
+        "containerName": "sic-localdev-workflow-service-1",
+        "hostname": "5d7e1e991147",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "workflow-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.19"
+        ]
+      },
+      {
+        "containerId": "579fe21833b066333aee272affd49dacba8d4d9b942818a30dfcb839d34240ee",
+        "containerName": "sic-localdev-workflow-service-2",
+        "hostname": "579fe21833b0",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "workflow-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.30.0.16"
+        ]
+      }
+    ],
+    "registrations": [
+      {
+        "service": "discovery-server",
+        "instanceId": "discovery-peer:8761",
+        "ip": "172.30.0.6",
+        "port": 8761,
+        "status": "UP"
+      },
+      {
+        "service": "discovery-server",
+        "instanceId": "discovery-server:8761",
+        "ip": "172.30.0.8",
+        "port": 8761,
+        "status": "UP"
+      },
+      {
+        "service": "workflow-service",
+        "instanceId": "5d7e1e991147:workflow-service:9003",
+        "ip": "172.30.0.19",
+        "port": 9003,
+        "status": "UP",
+        "containerId": "5d7e1e99114778bd219e6c060aca221cd3290c21eb45ca7a096624cc3d4bb09c"
+      },
+      {
+        "service": "workflow-service",
+        "instanceId": "579fe21833b0:workflow-service:9003",
+        "ip": "172.30.0.16",
+        "port": 9003,
+        "status": "UP",
+        "containerId": "579fe21833b066333aee272affd49dacba8d4d9b942818a30dfcb839d34240ee"
+      },
+      {
+        "service": "material-service",
+        "instanceId": "9f43141437b3:material-service:9004",
+        "ip": "172.30.0.18",
+        "port": 9004,
+        "status": "UP",
+        "containerId": "9f43141437b34a922ce454b284e3b75e00dbd153ee88e9d0c390622dc946f2c1"
+      },
+      {
+        "service": "material-service",
+        "instanceId": "d1c125ad565b:material-service:9004",
+        "ip": "172.30.0.17",
+        "port": 9004,
+        "status": "UP",
+        "containerId": "d1c125ad565b74a8c96309eb6ecb5ff5020557d8f4efd292764cad241acd3c02"
+      },
+      {
+        "service": "iam-service",
+        "instanceId": "d56cd412c8af:iam-service:9001",
+        "ip": "172.30.0.9",
+        "port": 9001,
+        "status": "UP",
+        "containerId": "d56cd412c8afbc94ae08ee0f4f5376f1f103585ebb2c5b393644c58d44b087ec"
+      },
+      {
+        "service": "iam-service",
+        "instanceId": "71f003eaa18b:iam-service:9001",
+        "ip": "172.30.0.10",
+        "port": 9001,
+        "status": "UP",
+        "containerId": "71f003eaa18bbd4f992c9e35e0aff10309c27bb3c739d75207c91dfcc0335ca6"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "04a81bbd9046:project-service:9002",
+        "ip": "172.30.0.12",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "04a81bbd9046400335fb69c5356adc1531d0134c804d497faa43c808edd811ed"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "0bceff944277:project-service:9002",
+        "ip": "172.30.0.15",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "0bceff944277f35276f2ae3a903c472fc01ea10b275e5605e37da39434ce6976"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "4c0ad69f83ff:project-service:9002",
+        "ip": "172.30.0.14",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "4c0ad69f83ffb5fef62a341cf9b60fa999625ffabe2e7406acafcde864798d1b"
+      },
+      {
+        "service": "gateway-service",
+        "instanceId": "836f187c2e58:gateway-service:8080",
+        "ip": "172.30.0.20",
+        "port": 8080,
+        "status": "UP",
+        "containerId": "836f187c2e5883feec373d385211ce86a45bd3ef2f1d1467639e0c14e0f81083"
+      },
+      {
+        "service": "notification-service",
+        "instanceId": "d6ea38e69933:notification-service:9005",
+        "ip": "172.30.0.13",
+        "port": 9005,
+        "status": "UP",
+        "containerId": "d6ea38e6993300a91bb113b3e764614c2f76907b219a17ce531515b1e1c5d8ba"
+      },
+      {
+        "service": "notification-service",
+        "instanceId": "56540d25de27:notification-service:9005",
+        "ip": "172.30.0.11",
+        "port": 9005,
+        "status": "UP",
+        "containerId": "56540d25de27dc5896bceae8f5c6bdbbc2b04ca0402940d91188c7a6196fd9b4"
+      }
+    ],
+    "registries": {
+      "discovery-server": [
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-peer:8761",
+          "ip": "172.30.0.6",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-server:8761",
+          "ip": "172.30.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "5d7e1e991147:workflow-service:9003",
+          "ip": "172.30.0.19",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "5d7e1e99114778bd219e6c060aca221cd3290c21eb45ca7a096624cc3d4bb09c"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "579fe21833b0:workflow-service:9003",
+          "ip": "172.30.0.16",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "579fe21833b066333aee272affd49dacba8d4d9b942818a30dfcb839d34240ee"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "9f43141437b3:material-service:9004",
+          "ip": "172.30.0.18",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "9f43141437b34a922ce454b284e3b75e00dbd153ee88e9d0c390622dc946f2c1"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "d1c125ad565b:material-service:9004",
+          "ip": "172.30.0.17",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "d1c125ad565b74a8c96309eb6ecb5ff5020557d8f4efd292764cad241acd3c02"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "d56cd412c8af:iam-service:9001",
+          "ip": "172.30.0.9",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "d56cd412c8afbc94ae08ee0f4f5376f1f103585ebb2c5b393644c58d44b087ec"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "71f003eaa18b:iam-service:9001",
+          "ip": "172.30.0.10",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "71f003eaa18bbd4f992c9e35e0aff10309c27bb3c739d75207c91dfcc0335ca6"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "04a81bbd9046:project-service:9002",
+          "ip": "172.30.0.12",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "04a81bbd9046400335fb69c5356adc1531d0134c804d497faa43c808edd811ed"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "0bceff944277:project-service:9002",
+          "ip": "172.30.0.15",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "0bceff944277f35276f2ae3a903c472fc01ea10b275e5605e37da39434ce6976"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "4c0ad69f83ff:project-service:9002",
+          "ip": "172.30.0.14",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "4c0ad69f83ffb5fef62a341cf9b60fa999625ffabe2e7406acafcde864798d1b"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "836f187c2e58:gateway-service:8080",
+          "ip": "172.30.0.20",
+          "port": 8080,
+          "status": "UP",
+          "containerId": "836f187c2e5883feec373d385211ce86a45bd3ef2f1d1467639e0c14e0f81083"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "d6ea38e69933:notification-service:9005",
+          "ip": "172.30.0.13",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "d6ea38e6993300a91bb113b3e764614c2f76907b219a17ce531515b1e1c5d8ba"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "56540d25de27:notification-service:9005",
+          "ip": "172.30.0.11",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "56540d25de27dc5896bceae8f5c6bdbbc2b04ca0402940d91188c7a6196fd9b4"
+        }
+      ],
+      "discovery-peer": [
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-server:8761",
+          "ip": "172.30.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-peer:8761",
+          "ip": "172.30.0.6",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "5d7e1e991147:workflow-service:9003",
+          "ip": "172.30.0.19",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "5d7e1e99114778bd219e6c060aca221cd3290c21eb45ca7a096624cc3d4bb09c"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "579fe21833b0:workflow-service:9003",
+          "ip": "172.30.0.16",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "579fe21833b066333aee272affd49dacba8d4d9b942818a30dfcb839d34240ee"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "9f43141437b3:material-service:9004",
+          "ip": "172.30.0.18",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "9f43141437b34a922ce454b284e3b75e00dbd153ee88e9d0c390622dc946f2c1"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "d1c125ad565b:material-service:9004",
+          "ip": "172.30.0.17",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "d1c125ad565b74a8c96309eb6ecb5ff5020557d8f4efd292764cad241acd3c02"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "d56cd412c8af:iam-service:9001",
+          "ip": "172.30.0.9",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "d56cd412c8afbc94ae08ee0f4f5376f1f103585ebb2c5b393644c58d44b087ec"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "71f003eaa18b:iam-service:9001",
+          "ip": "172.30.0.10",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "71f003eaa18bbd4f992c9e35e0aff10309c27bb3c739d75207c91dfcc0335ca6"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "04a81bbd9046:project-service:9002",
+          "ip": "172.30.0.12",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "04a81bbd9046400335fb69c5356adc1531d0134c804d497faa43c808edd811ed"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "0bceff944277:project-service:9002",
+          "ip": "172.30.0.15",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "0bceff944277f35276f2ae3a903c472fc01ea10b275e5605e37da39434ce6976"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "4c0ad69f83ff:project-service:9002",
+          "ip": "172.30.0.14",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "4c0ad69f83ffb5fef62a341cf9b60fa999625ffabe2e7406acafcde864798d1b"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "836f187c2e58:gateway-service:8080",
+          "ip": "172.30.0.20",
+          "port": 8080,
+          "status": "UP",
+          "containerId": "836f187c2e5883feec373d385211ce86a45bd3ef2f1d1467639e0c14e0f81083"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "d6ea38e69933:notification-service:9005",
+          "ip": "172.30.0.13",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "d6ea38e6993300a91bb113b3e764614c2f76907b219a17ce531515b1e1c5d8ba"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "56540d25de27:notification-service:9005",
+          "ip": "172.30.0.11",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "56540d25de27dc5896bceae8f5c6bdbbc2b04ca0402940d91188c7a6196fd9b4"
+        }
+      ]
+    }
+  },
+  "connectionBudget": {
+    "applicationMaximum": 110,
+    "operationsReserve": 20,
+    "mysqlMaxConnections": 151
+  },
+  "finishedAt": "2026-10-15T08:12:19.060228+00:00"
+}

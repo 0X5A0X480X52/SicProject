@@ -251,7 +251,7 @@ def inspect_state(runner: CommandRunner) -> tuple[list[dict[str, Any]], list[dic
 
 def validate_storage(project: str, containers: list[dict[str, Any]], volumes: list[dict[str, Any]], history: bool) -> None:
     expected = expected_volumes(project)
-    valid_services = {"mysql", "rabbitmq", "redis", "minio", "discovery-server", "config-server",
+    valid_services = {"mysql", "rabbitmq", "redis", "minio", "discovery-server", "discovery-peer", "config-server",
                       "iam-service", "project-service", "workflow-service", "material-service",
                       "notification-service", "gateway-service"}
     found = {volume.get("Name") for volume in volumes}
@@ -283,7 +283,7 @@ def validate_storage(project: str, containers: list[dict[str, Any]], volumes: li
 
 
 def validate_ports(project: str, containers: list[dict[str, Any]]) -> None:
-    required = {8080, 8761, 8888, 9000, 9006, 15672}
+    required = {8080, 8761, 8762, 8888, 9000, 9006, 15672}
     own: set[int] = set()
     for container in containers:
         if not (container.get("State") or {}).get("Running"):

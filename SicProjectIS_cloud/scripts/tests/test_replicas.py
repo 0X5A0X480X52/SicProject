@@ -8,11 +8,56 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from replica_common import (SERVICES, BUSINESS, resolve_replicas, check_container_health, check_registry,
-                            compose_files, compose_command, positive_count, strict_json, validate_deployment_ports)
+                            compose_files, compose_command, positive_count, strict_json, validate_deployment_ports,
+                            DISCOVERY, INFRASTRUCTURE, check_registries, check_artifacts)
 from startup_common import StartupError
 
 
 class ReplicaTests(unittest.TestCase):
+    def test_ha_topology_has_two_distinct_fixed_nodes_and_config_in_startup_phase(self):
+        self.assertEqual(len(SERVICES), 13)
+        self.assertTrue(set(DISCOVERY + ["config-server"]) <= set(INFRASTRUCTURE))
+        for node in DISCOVERY:
+            with self.assertRaisesRegex(StartupError, "single-instance"):
+                resolve_replicas({}, {}, {}, cli=[node + "=2"])
+
+    def test_both_registries_are_required_and_business_metadata_must_converge(self):
+        expected = {name: 1 for name in SERVICES}
+        rows = [{"service": "discovery-server", "instanceId": node + ":8761", "ip": "172.20.0.1",
+                 "port": 8761, "status": "UP"} for node in DISCOVERY]
+        rows += [{"service": "project-service", "instanceId": "project:9002", "ip": "172.20.0.3",
+                  "port": 9002, "status": "UP"}]
+        runner, deployment = Mock(), Mock(replicas=expected)
+        with patch("replica_common.internal_json", return_value={}) as read, patch("replica_common.check_registry", return_value=rows):
+            result = check_registries(runner, deployment, [])
+            self.assertEqual(set(result), set(DISCOVERY))
+            self.assertEqual([call.args[2] for call in read.call_args_list], DISCOVERY)
+        other = [dict(row) for row in rows]
+        other[-1]["instanceId"] = "other-project:9002"
+        with patch("replica_common.internal_json", return_value={}), patch("replica_common.check_registry", side_effect=[rows, other]):
+            with self.assertRaisesRegex(StartupError, "converged"):
+                check_registries(runner, deployment, [])
+        degraded = dict(expected, **{"discovery-server": 0})
+        with patch("replica_common.internal_json", return_value={}) as read, patch("replica_common.check_registry", return_value=rows):
+            self.assertEqual(set(check_registries(runner, deployment, [], degraded)), {"discovery-peer"})
+            self.assertEqual(read.call_count, 1)
+
+    def test_peer_uses_existing_discovery_artifact_manifest(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[2] / "target/startup-tests") as directory:
+            root = Path(directory)
+            jar = root / "discovery-server/application.jar"
+            jar.parent.mkdir(); jar.write_bytes(b"frozen-discovery")
+            digest = __import__("hashlib").sha256(jar.read_bytes()).hexdigest()
+            manifest = root / "release-manifest.json"
+            manifest.write_text(json.dumps({"applications": {"discovery-server": {
+                "file": "discovery-server/application.jar", "sha256": digest}}}))
+            deployment = Mock()
+            deployment.summary.return_value = {"artifacts": {"discovery-peer": {"jar": str(jar), "sha256": digest}}}
+            check_artifacts(deployment, Mock())
+            deployment.summary.return_value["artifacts"]["discovery-peer"]["sha256"] = "wrong"
+            with self.assertRaisesRegex(StartupError, "manifest/hash"):
+                check_artifacts(deployment, Mock())
+
     def test_stopped_project_port_release_is_bounded_and_foreign_container_is_rejected(self):
         container = {"Config": {"Labels": {"com.docker.compose.project": "own"}}, "State": {"Running": False},
                      "HostConfig": {"PortBindings": {"8080/tcp": [{"HostPort": "18080"}]}}}

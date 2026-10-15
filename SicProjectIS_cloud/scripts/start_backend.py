@@ -19,7 +19,7 @@ from startup_common import (CommandRunner, Redactor, RunLogger, StartupError, co
                             read_env, validate_env, validate_storage)
 from verify_compose_e2e import run_verification
 from replica_common import (add_deployment_arguments, compose_files, child_environment, load_deployment,
-                            check_artifacts, validate_deployment_ports, connection_budget, wait_instances, SERVICES, owned_container)
+                            check_artifacts, validate_deployment_ports, connection_budget, wait_instances, SERVICES, INFRASTRUCTURE, owned_container)
 
 
 def build_command(compose):
@@ -178,7 +178,7 @@ def main():
             manifest["plannedCommands"] = ([] if args.skip_build else [build_command(compose)])
             if mode == "fresh":
                 manifest["plannedCommands"].extend([compose + ["down", "--volumes", "--remove-orphans"],
-                    compose + ["up", "-d", "--no-build", *SERVICES[:6]],
+                    compose + ["up", "-d", "--no-build", *INFRASTRUCTURE],
                     compose + ["up", "-d", "--no-build", *deployment.scale_arguments(single=True), *SERVICES]])
             manifest["plannedCommands"].append(manifest["plannedCommand"])
             print(json.dumps(manifest, ensure_ascii=False, indent=2))
@@ -215,7 +215,7 @@ def main():
             reset_completed = True
         phase = "startup"
         up = compose + ["up", "-d", "--no-build", "--remove-orphans", "--wait", "--wait-timeout", str(args.startup_timeout)]
-        runner.stream(up + [*SERVICES[:6]])
+        runner.stream(up + INFRASTRUCTURE)
         manifest["connectionBudget"] = connection_budget(deployment, runner)
         if mode == "fresh":
             runner.stream(up + deployment.scale_arguments(single=True) + SERVICES)

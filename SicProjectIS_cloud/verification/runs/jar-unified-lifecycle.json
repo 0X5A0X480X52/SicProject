@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "browserChecks": [
+    {
+      "port": 18761,
+      "enabledStatus": 200,
+      "dashboardPresent": true,
+      "disabledUnreachable": true
+    },
+    {
+      "port": 18762,
+      "enabledStatus": 200,
+      "dashboardPresent": true,
+      "disabledUnreachable": true
+    }
+  ],
+  "negativeChecks": [
+    {
+      "name": "missing replica",
+      "rejected": true
+    },
+    {
+      "name": "UI flag changed without regenerating",
+      "rejected": true
+    }
+  ],
+  "envBytesPreservedDuringUpdate": true,
+  "credentialValuesPreserved": true
+}

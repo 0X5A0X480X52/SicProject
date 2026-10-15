@@ -143,10 +143,11 @@ $env:BOOTSTRAP_ADMIN_USERNAME = ""
 try {
     Push-Location $projectRoot
     try {
-        Invoke-Compose up -d mysql rabbitmq redis minio discovery-server config-server
+        Invoke-Compose up -d mysql rabbitmq redis minio discovery-server discovery-peer config-server
         Wait-ServiceHealthy mysql
         Wait-ServiceHealthy minio
         Wait-ServiceHealthy discovery-server
+        Wait-ServiceHealthy discovery-peer
         Wait-ServiceHealthy config-server
 
         Invoke-Compose exec -T mysql sh -lc 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS sic_legacy CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci"'

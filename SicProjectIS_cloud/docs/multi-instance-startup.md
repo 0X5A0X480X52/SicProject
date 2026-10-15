@@ -1,16 +1,16 @@
 # 多实例启动、状态与验收
 
-以下命令在 `SicProjectIS_cloud` 根目录执行。启动器、状态、停止及独立验证共用 `scripts/replica_common.py` 的配置解析。默认仍为每项一个实例，普通启动只检查健康、注册和 smoke。
+以下命令在 `SicProjectIS_cloud` 根目录执行。推荐使用 [统一 JAR 启动流程](unified-jar-startup.md)：生成配置、直接 Compose up、严格就绪检查。业务服务默认各一个实例，Eureka 默认两个独立容器。状态、停止及验收共用 `scripts/replica_common.py` 的配置解析。
 
 ## 支持范围
 
-IAM、Project、Workflow、Material、Notification 可扩容；Gateway、Eureka、Config Server、MySQL、Redis、RabbitMQ、MinIO 保持一个实例。五个业务服务共享 Docker MySQL 的五个 Schema、Redis、RabbitMQ、MinIO 和 JWT 密钥。禁止可扩容服务使用固定 `container_name`、宿主机网络或发布端口；数据库采用 Compose 网络中的 `mysql`，本入口不支持宿主机 MySQL。
+IAM、Project、Workflow、Material、Notification 可扩容；Gateway、Config Server、MySQL、Redis、RabbitMQ、MinIO 保持一个实例。Eureka 使用 `discovery-server`、`discovery-peer` 两个服务，每个固定一个容器，详见 [双节点配置与故障验收](eureka-ha.md)。五个业务服务共享 Docker MySQL 的五个 Schema、Redis、RabbitMQ、MinIO 和 JWT 密钥。禁止可扩容服务使用固定 `container_name`、宿主机网络或发布端口；数据库采用 Compose 网络中的 `mysql`，本入口不支持宿主机 MySQL。
 
-默认共 12 个容器，五业务服务全双副本共 17 个。应用连接池上限为各服务 `DB_POOL_SIZE × 副本数` 之和，再加 20 个运维连接；超出实际 MySQL `max_connections` 时停止启动/扩容，保留现场。默认池为 10，全双副本预计 100 + 20 个连接。此估算不是数据库性能承诺。
+默认共 13 个容器，五业务服务全双副本共 18 个。应用连接池上限为各服务 `DB_POOL_SIZE × 副本数` 之和，再加 20 个运维连接。直接 Compose 后的就绪检查会拒绝超出 MySQL `max_connections` 的部署并保留现场，不自动停止或回滚副本。默认池为 10，全双副本预计 100 + 20 个连接。此估算不是数据库性能承诺。
 
 ## 配置优先级
 
-按服务逐项覆盖：`--replicas` → `--replica-config` JSON → 指定 `.env` → 进程环境变量 → 合并后的 Compose `scale` / `deploy.replicas` → 1。某个文件未声明的服务保留低优先级配置。
+直接 Compose 从 env 中的五个副本变量读取 `scale`，未设置默认为 1；直接 Compose 不读取 JSON 或 Python 的 `--replicas` 参数。兼容 Python 启动器仍按服务逐项覆盖：`--replicas` → `--replica-config` JSON → 指定 env → 进程环境变量 → Compose 声明 → 1。就绪/状态/独立验收支持相同的 JSON 和参数，用于检查显式扩容的目标。
 
 | 服务                 | 环境变量                  |
 | -------------------- | ------------------------- |
@@ -34,14 +34,18 @@ mvn -B -pl '!platform/integration-tests' '-DskipTests' package
 python scripts/snapshot_verification_release.py --release-dir target/releases/multi-demo --label multi-demo
 python scripts/prepare_verification_env.py --env-file target/multi-demo.env --compose-override target/multi-demo.compose.yaml --gateway-port 8080 --release-dir target/releases/multi-demo
 
-$deployment = @('--project-name', 'sic-multi-demo', '--env-file', 'target/multi-demo.env', '--compose-file', 'target/multi-demo.compose.yaml', '--replica-config', 'replicas.multi.example.json')
-python scripts/start_backend.py @deployment --mode fresh --skip-build --dry-run
-python scripts/start_backend.py @deployment --mode fresh --skip-build --reset-confirmation RESET:sic-multi-demo
+# 编辑 multi-demo.env 的五个 SIC_*_REPLICAS，同名行替换为目标值。
+docker compose -p sic-multi-demo --env-file target/multi-demo.env `
+    -f docker-compose.yml -f target/multi-demo.compose.yaml config --quiet
+docker compose -p sic-multi-demo --env-file target/multi-demo.env `
+    -f docker-compose.yml -f target/multi-demo.compose.yaml up -d --no-build --wait --wait-timeout 600
+$deployment = @('--project-name', 'sic-multi-demo', '--env-file', 'target/multi-demo.env', '--compose-file', 'target/multi-demo.compose.yaml')
+python scripts/wait_verification_ready.py @deployment
 ```
 
-生成器拒绝覆盖已有环境文件；重复运行应复用文件，或选择新路径。Fresh 的 `RESET:项目名` 会精确重置该项目四个数据卷，先单副本初始化管理员、工作流及 bucket，再扩展目标副本。新管理员凭据保存在该 `.env` 的 `BOOTSTRAP_ADMIN_USERNAME/PASSWORD`；不要提交到 Git。
+生成器首次拒绝覆盖已有配置；重复启动复用文件。部署设置更新用 `--update-override` 备份并更新 override，保留 env 和 JAR。新管理员凭据保存在该 env 的 `BOOTSTRAP_ADMIN_USERNAME/PASSWORD`；不要提交到 Git。首次 IAM 多副本的管理员初始化由数据库角色行锁保护。
 
-示例 Gateway 默认为 **8080**，前端沿用默认 `/api`→`http://127.0.0.1:8080` 代理即可，浏览器访问 5173。对外端口通过该部署的 `.env` 中 `GATEWAY_PORT` 配置，生成器的 `--gateway-port` 指定初始值；修改已有 env 后用 History 启动应用更新端口，不重新生成凭据或运行 Fresh。基础 Compose 和新生成的 JAR override 都读取此变量；历史 override 若固定写了端口，需要先改为 `127.0.0.1:${GATEWAY_PORT:-8080}:8080`。
+示例 Gateway 默认为 **8080**，前端沿用默认 `/api`→`http://127.0.0.1:8080` 代理即可，浏览器访问 5173。对外端口通过 env 中 `GATEWAY_PORT` 配置，生成器的 `--gateway-port` 指定初始值；修改已有 env 后直接 Compose up 更新端口，不重新生成凭据。历史 override 固定端口时用 `--update-override` 更新为 env 插值。
 
 如果自行设置 `GATEWAY_PORT=18080`，前端需另行设置 `SIC_GATEWAY_PROXY_TARGET=http://127.0.0.1:18080`；使用默认 8080 时不要保留旧的 18080 进程变量或本地配置。详情见 [前端 README](../../SicProjectIS_fronted/README.md)。
 
@@ -54,6 +58,10 @@ python scripts/start_backend.py --project-name sic-image-demo --env-file target/
 须先创建有效的 `target/image-demo.env`，按照 README 环境生成方法填写全部密钥、基础设施凭据和管理员信息。默认宿主机端口来自基础 Compose；需要其他端口时提供自己的端口 override。镜像标识来自合并后的 Compose，冻结包按挂载文件与可用的 SHA-256 发布清单核对。
 
 ## 日常启动与调整副本
+
+统一 JAR 入口：修改 env 的五个副本数后，执行原 Compose up，再执行 `python scripts/wait_verification_ready.py @deployment`。启用/关闭 Eureka 界面前执行 `prepare_verification_env.py --update-override --env-file 原env --compose-override 原override`，设置及端口见 [统一指南](unified-jar-startup.md)。
+
+下面保留 Python 启动器的兼容用法，适用于 JSON/命令行副本覆盖或 Docker 内构建：
 
 History 直接收敛至目标数量，不先缩成一个实例，不重建数据库，不更新已有管理员密码或角色。需要当前管理员凭据用于 smoke；Python 入口交互输入，PowerShell 入口可用 `-AdminCredential`，CI 使用 `SIC_STARTUP_ADMIN_USERNAME/PASSWORD`。
 
@@ -85,7 +93,7 @@ python scripts/stop_backend.py @deployment
 
 ## 独立验收
 
-在测试 `.env` 中显式设置 `SIC_LB_EVIDENCE_ENABLED=true`，然后通过 History 重建应用使该开关生效。默认关闭；仅日志增加规范化 traceId、服务、容器 hostname、HTTP 方法、路径、状态、耗时，不记录请求体、query、Authorization 或凭据，不增加业务 API/响应字段。
+在测试 env 中显式设置 `SIC_LB_EVIDENCE_ENABLED=true`，然后通过原 Compose up 更新应用使该开关生效。默认关闭；仅日志增加规范化 traceId、服务、容器 hostname、HTTP 方法、路径、状态、耗时，不记录请求体、query、Authorization 或凭据，不增加业务 API/响应字段。
 
 ```powershell
 python scripts/verify_load_balancing.py @deployment --mode balance

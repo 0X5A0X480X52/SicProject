@@ -77,8 +77,9 @@ jobs:
         with: {python-version: '3.12'}
       - run: docker info >/dev/null
       - run: pip install -r scripts/requirements-verification.txt
+      - run: python -m unittest discover -s scripts/tests -p 'test_*.py'
       - run: mvn -B -DskipTests package
-      - run: python scripts/prepare_verification_env.py
+      - run: python scripts/prepare_verification_env.py --gateway-port 18080
       - run: docker compose --env-file target/verification.env -f docker-compose.yml -f target/verification.compose.yaml up -d --wait --wait-timeout 600
       - run: python scripts/wait_verification_ready.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/ci-readiness.json
       - run: python scripts/verify_schema.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/ci-schema.json
@@ -112,11 +113,13 @@ jobs:
       - run: docker info >/dev/null
       - run: pip install -r scripts/requirements-verification.txt
       - run: mvn -B -DskipTests package
-      - run: python scripts/prepare_verification_env.py
+      - run: python scripts/prepare_verification_env.py --gateway-port 18080
       - run: docker compose --env-file target/verification.env -f docker-compose.yml -f target/verification.compose.yaml up -d --wait --wait-timeout 600
       - run: python scripts/wait_verification_ready.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --report-path verification/runs/ci-readiness.json
       - name: Run mixed authorization and business load
         run: python scripts/verify_mixed_load.py --gateway-base-url http://127.0.0.1:18080 --env-file target/verification.env --minimum-load-seconds 90 --stability-project-name "$COMPOSE_PROJECT_NAME" --stability-compose-file docker-compose.yml --stability-compose-file target/verification.compose.yaml --report-path verification/runs/ci-load.json >target/ci-load.log 2>&1
+      - name: Verify Eureka peer replication and both node failures
+        run: python scripts/verify_eureka_ha.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file target/verification.compose.yaml --report-path verification/runs/ci-eureka-ha.json
       - run: python scripts/verify_business_db.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --business-report verification/runs/ci-load.json --report-path verification/runs/ci-load-database.json
       - run: python scripts/verify_dependency_faults.py --project-name "$COMPOSE_PROJECT_NAME" --env-file target/verification.env --compose-file docker-compose.yml --compose-file target/verification.compose.yaml --gateway-base-url http://127.0.0.1:18080 --business-report verification/runs/ci-load.json --confirm-isolated-faults --require-write-fault --report-path verification/runs/ci-faults.json
       - run: docker compose --env-file target/verification.env -f docker-compose.yml -f target/verification.compose.yaml stop gateway-service iam-service project-service workflow-service material-service notification-service

@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from startup_common import CommandRunner, Redactor, RunLogger, StartupError, read_env
 from replica_common import (BUSINESS, add_deployment_arguments, compose_files, child_environment, load_deployment,
-                            inspect_project, instance_rows, owned_container, internal_json, check_registry)
+                            inspect_project, instance_rows, owned_container, internal_json, registry_rows, DISCOVERY, check_registries)
 
 
 def main(action):
@@ -48,9 +48,20 @@ def main(action):
                 report["containers"] = instance_rows(inspect_project(runner, deployment))
             report["passed"] = True
         else:
+            report["discoveryNodes"] = {}
+            for node in DISCOVERY:
+                try:
+                    health = internal_json(runner, deployment, node, "/actuator/health/readiness", 8761)
+                    registry = internal_json(runner, deployment, node, "/eureka/apps", 8761)
+                    rows = registry_rows(registry)
+                    report["discoveryNodes"][node] = {"healthy": health.get("status") == "UP", "registrations": rows}
+                except (StartupError, ValueError, KeyError) as exc:
+                    report["discoveryNodes"][node] = {"healthy": False, "error": logger.redactor.redact(exc)}
+            available = sum(item["healthy"] for item in report["discoveryNodes"].values())
+            report["discoveryStatus"] = "healthy" if available == 2 else "degraded" if available == 1 else "unavailable"
             try:
-                registry = internal_json(runner, deployment, "discovery-server", "/eureka/apps", 8761)
-                report["registrations"] = check_registry(containers, registry, deployment.replicas)
+                report["registries"] = check_registries(runner, deployment, containers)
+                report["registrations"] = next(iter(report["registries"].values()))
                 from replica_common import check_container_health
                 check_container_health(containers, deployment.replicas)
                 report["passed"] = True

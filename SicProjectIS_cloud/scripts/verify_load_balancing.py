@@ -341,8 +341,8 @@ class ReplicaVerifier:
                             from replica_common import check_registry, check_container_health
                             current = inspect_project(self.runner, self.deployment)
                             check_container_health(current, expected)
-                            registry = internal_json(self.runner, self.deployment, "discovery-server", "/eureka/apps", 8761)
-                            check_registry(current, registry, expected)
+                            from replica_common import check_registries
+                            check_registries(self.runner, self.deployment, current, expected)
                             timeline["registryRemovalMs"] = round((time.monotonic() - started) * 1000)
                         except (StartupError, ValueError, KeyError):
                             successes = 0
@@ -384,8 +384,8 @@ class ReplicaVerifier:
             from replica_common import check_container_health, check_registry
             final = inspect_project(self.runner, self.deployment)
             check_container_health(final, self.deployment.replicas)
-            check_registry(final, internal_json(self.runner, self.deployment, "discovery-server", "/eureka/apps", 8761),
-                           self.deployment.replicas)
+            from replica_common import check_registries
+            self.report["finalRegistries"] = check_registries(self.runner, self.deployment, final)
             self.report["finalInstances"] = instance_rows(final)
             self.report["passed"] = True
         except Exception as exc:

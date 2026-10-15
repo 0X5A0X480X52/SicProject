@@ -26,7 +26,7 @@ from startup_common import CommandRunner, Redactor, RunLogger, StartupError, com
 from replica_common import (add_deployment_arguments, load_deployment, inspect_project, check_container_health,
                             internal_json, check_registry, wait_instances, compose_files, child_environment)
 
-EXPECTED_SERVICES = ["mysql", "rabbitmq", "redis", "minio", "discovery-server", "config-server",
+EXPECTED_SERVICES = ["mysql", "rabbitmq", "redis", "minio", "discovery-server", "discovery-peer", "config-server",
                      "iam-service", "project-service", "workflow-service", "material-service",
                      "notification-service", "gateway-service"]
 

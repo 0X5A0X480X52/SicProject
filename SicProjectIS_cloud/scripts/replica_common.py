@@ -14,11 +14,14 @@ from typing import Any
 
 from startup_common import StartupError, label, parse_json_bytes
 
-SERVICES = ["mysql", "rabbitmq", "redis", "minio", "discovery-server", "config-server",
+DISCOVERY = ["discovery-server", "discovery-peer"]
+SERVICES = ["mysql", "rabbitmq", "redis", "minio", *DISCOVERY, "config-server",
             "iam-service", "project-service", "workflow-service", "material-service",
             "notification-service", "gateway-service"]
 BUSINESS = ["iam-service", "project-service", "workflow-service", "material-service", "notification-service"]
-APPLICATIONS = ["discovery-server", "config-server", *BUSINESS, "gateway-service"]
+APPLICATIONS = [*DISCOVERY, "config-server", *BUSINESS, "gateway-service"]
+ARTIFACT_NAMES = {"discovery-peer": "discovery-server"}
+INFRASTRUCTURE = [name for name in SERVICES if name not in [*BUSINESS, "gateway-service"]]
 REPLICA_ENV = {service: "SIC_" + service.removesuffix("-service").upper() + "_REPLICAS" for service in BUSINESS}
 
 
@@ -161,7 +164,7 @@ def load_deployment(root, args, values, runner, process_env=None):
     command = compose_command(root, env_file, args.project_name, files)
     config = parse_json_bytes(runner.capture(command + ["config", "--format", "json"]), "Compose definition", runner.logger.redactor)
     if set(config.get("services", {})) != set(SERVICES):
-        raise StartupError("Compose must define exactly the existing twelve services without operation/migration profiles")
+        raise StartupError("Compose must define the thirteen HA services without operation/migration profiles")
     if set(config.get("volumes", {})) != {"mysql-data", "rabbitmq-data", "redis-data", "minio-data"}:
         raise StartupError("Compose must retain the existing four managed data volumes")
     for service in BUSINESS:
@@ -231,7 +234,7 @@ def check_container_health(containers, expected):
 
 
 def internal_json(runner, deployment, service, path, port):
-    body = runner.capture(deployment.compose + ["exec", "-T", "--index", "1", service, "wget", "-qO-",
+    body = runner.capture(deployment.compose + ["exec", "-T", "--index", "1", service, "wget", "-T", "5", "-qO-",
                           "--header=Accept: application/json", f"http://127.0.0.1:{port}{path}"])
     return parse_json_bytes(body, f"{service} internal HTTP", runner.logger.redactor)
 
@@ -248,6 +251,28 @@ def registry_rows(registry):
             rows.append({"service": app["name"].lower(), "instanceId": item.get("instanceId"), "ip": item.get("ipAddr"),
                          "port": int(port.get("$", 0) if isinstance(port, dict) else port), "status": item.get("status")})
     return rows
+
+
+def check_registries(runner, deployment, containers, expected=None):
+    """Check every expected peer, including one-to-one business instance mappings."""
+    expected = expected if expected is not None else deployment.replicas
+    result = {}
+    for node in DISCOVERY:
+        if expected.get(node, 0) > 0:
+            registry = internal_json(runner, deployment, node, "/eureka/apps", 8761)
+            result[node] = check_registry(containers, registry, expected)
+            peer_ids = {row["instanceId"] for row in result[node] if row["service"] == "discovery-server" and row["status"] == "UP"}
+            required = {f"{peer}:8761" for peer in DISCOVERY if expected.get(peer, 0) > 0}
+            if not required <= peer_ids:
+                raise StartupError(f"{node}: missing UP Eureka peers: {sorted(required - peer_ids)}")
+    if not result:
+        raise StartupError("At least one Eureka peer must be available")
+    signatures = [sorted((row["service"], row["instanceId"], row["ip"], row["port"], row["status"])
+                         for row in rows if row["service"] in [*BUSINESS, "gateway-service"])
+                  for rows in result.values()]
+    if any(signature != signatures[0] for signature in signatures[1:]):
+        raise StartupError("Eureka peers have not converged on the same business registrations")
+    return result
 
 
 def check_registry(containers, registry, expected):
@@ -285,12 +310,12 @@ def wait_instances(runner, deployment, timeout=600, expected=None, stable_second
         try:
             containers = inspect_project(runner, deployment)
             check_container_health(containers, expected)
-            registry = internal_json(runner, deployment, "discovery-server", "/eureka/apps", 8761)
-            registrations = check_registry(containers, registry, expected)
+            registries = check_registries(runner, deployment, containers, expected)
             if stable is None:
                 stable = time.monotonic()
             if time.monotonic() - stable >= stable_seconds:
-                return {"containers": instance_rows(containers), "registrations": registrations}
+                return {"containers": instance_rows(containers), "registrations": next(iter(registries.values())),
+                        "registries": registries}
         except (StartupError, ValueError, KeyError) as exc:
             stable, last_error = None, str(exc)
         if time.monotonic() - last_log >= 10:
@@ -360,7 +385,7 @@ def check_artifacts(deployment, runner, skip_build=False):
             manifest_path = path.parent.parent / "release-manifest.json"
             if manifest_path.is_file():
                 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-                entry = manifest.get("applications", {}).get(service)
+                entry = manifest.get("applications", {}).get(ARTIFACT_NAMES.get(service, service))
                 if not entry or (manifest_path.parent / entry["file"]).resolve() != path or entry["sha256"] != artifact["sha256"]:
                     raise StartupError(f"Frozen release manifest/hash mismatch for {service}")
         elif skip_build:

@@ -1,7 +1,7 @@
 x-service-environment: &service-environment
   CONFIG_SERVER_URL: http://config-server:8888
   CONFIG_IMPORT: optional:configserver:http://config-server:8888
-  EUREKA_URL: http://discovery-server:8761/eureka/
+  EUREKA_URL: http://discovery-server:8761/eureka/,http://discovery-peer:8761/eureka/
   RABBITMQ_HOST: rabbitmq
   RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
   RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
@@ -16,8 +16,6 @@ x-service-environment: &service-environment
 
 x-business-dependencies: &business-dependencies
   config-server:
-    condition: service_healthy
-  discovery-server:
     condition: service_healthy
   mysql:
     condition: service_healthy
@@ -108,8 +106,30 @@ services:
         MODULE: platform/discovery-server
     environment:
       SERVER_PORT: 8761
+      SPRING_PROFILES_ACTIVE: ha
+      EUREKA_HOSTNAME: discovery-server
+      EUREKA_PEER_URL: http://discovery-peer:8761/eureka/
+    hostname: discovery-server
+    restart: unless-stopped
     ports:
       - "8761:8761"
+    healthcheck:
+      <<: *java-healthcheck
+
+  discovery-peer:
+    build:
+      context: .
+      args:
+        MODULE: platform/discovery-server
+    environment:
+      SERVER_PORT: 8761
+      SPRING_PROFILES_ACTIVE: ha
+      EUREKA_HOSTNAME: discovery-peer
+      EUREKA_PEER_URL: http://discovery-server:8761/eureka/
+    hostname: discovery-peer
+    restart: unless-stopped
+    ports:
+      - "8762:8761"
     healthcheck:
       <<: *java-healthcheck
 
@@ -126,6 +146,7 @@ services:
       <<: *java-healthcheck
 
   iam-service:
+    scale: ${SIC_IAM_REPLICAS:-1}
     build:
       context: .
       args:
@@ -145,6 +166,7 @@ services:
       <<: *java-healthcheck
 
   project-service:
+    scale: ${SIC_PROJECT_REPLICAS:-1}
     build:
       context: .
       args:
@@ -161,6 +183,7 @@ services:
       <<: *java-healthcheck
 
   workflow-service:
+    scale: ${SIC_WORKFLOW_REPLICAS:-1}
     build:
       context: .
       args:
@@ -179,6 +202,7 @@ services:
       <<: *java-healthcheck
 
   material-service:
+    scale: ${SIC_MATERIAL_REPLICAS:-1}
     build:
       context: .
       args:
@@ -202,6 +226,7 @@ services:
       <<: *java-healthcheck
 
   notification-service:
+    scale: ${SIC_NOTIFICATION_REPLICAS:-1}
     build:
       context: .
       args:
@@ -229,8 +254,6 @@ services:
       - "${GATEWAY_PORT:-8080}:8080"
     depends_on:
       config-server:
-        condition: service_healthy
-      discovery-server:
         condition: service_healthy
       redis:
         condition: service_healthy

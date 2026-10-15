@@ -1,6 +1,8 @@
 # 后端双模式一键启动
 
-主入口为 [`../scripts/start_backend.py`](../scripts/start_backend.py)，[`../scripts/start-backend.ps1`](../scripts/start-backend.ps1) 是保留原参数与调用方式的兼容包装器。启动器负责 Gateway、IAM、Project、Workflow、Material、Notification、Eureka、Config Server，以及 MySQL、RabbitMQ、Redis、MinIO，共 12 个服务。成功后后端入口为 `http://127.0.0.1:8080`，现有 `SicProjectIS_fronted` 通过 `/api` 访问，无需修改前端源码或 API 类型。
+本页保留 `start_backend.py` 的兼容入口，适用于 Docker 内构建或显式 Fresh/History 操作。本机冻结 JAR 的推荐入口为 [统一 JAR + Docker 流程](unified-jar-startup.md)，直接 Compose 支持 env 指定业务副本，就绪脚本负责严格验收。
+
+主入口为 [`../scripts/start_backend.py`](../scripts/start_backend.py)，[`../scripts/start-backend.ps1`](../scripts/start-backend.ps1) 是保留原参数与调用方式的兼容包装器。启动器负责 Gateway、IAM、Project、Workflow、Material、Notification、双节点 Eureka、Config Server，以及 MySQL、RabbitMQ、Redis、MinIO，共 13 个服务。成功后后端入口为 `http://127.0.0.1:8080`，现有 `SicProjectIS_fronted` 通过 `/api` 访问，无需修改前端源码或 API 类型。已有单节点 JAR override 的升级方法见 [Eureka HA](eureka-ha.md)。
 
 | 模式        | 适用情况                                    | 数据行为                                                                                     |
 | ----------- | ------------------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -64,6 +66,7 @@ if (-not (Test-Path -LiteralPath .\.env)) {
 | --------- | ---------------------- |
 | `8080`  | Gateway，前端 API 入口 |
 | `8761`  | Eureka                 |
+| `8762`  | Eureka Peer            |
 | `8888`  | Config Server          |
 | `9000`  | MinIO 对象 API         |
 | `9006`  | MinIO 管理页面         |
@@ -158,7 +161,7 @@ Python 与 PowerShell 参数一一对应：
 .\scripts\start-backend.ps1 -Mode History -SkipBuild
 ```
 
-Python 启动器直接运行八项自动检查：Gateway 就绪、12 个容器健康、Config/Eureka、未登录响应包装、管理员登录与 JWT、跨服务路由、SSE 查询令牌转发、注销后的令牌失效。成功后输出后端入口及前端启动提示，JSON 报告保存在 `verification/compose-e2e.json`。也可用 `verify_compose_e2e.py` 单独验收；`verify-compose-e2e.ps1` 是其兼容包装器。
+Python 启动器直接运行八项自动检查：Gateway 就绪、13 个容器健康、Config/双节点 Eureka、未登录响应包装、管理员登录与 JWT、跨服务路由、SSE 查询令牌转发、注销后的令牌失效。成功后输出后端入口及前端启动提示，JSON 报告保存在 `verification/compose-e2e.json`。也可用 `verify_compose_e2e.py` 单独验收；`verify-compose-e2e.ps1` 是其兼容包装器。
 
 每次启动同时写入 `logs/startup-YYYYMMDD-HHMMSS.log` 和 `logs/latest.log`，自动保留最近 20 份时间戳日志。控制台与日志都会显示每个外部命令的脱敏后完整命令行、工作目录、耗时和退出码；镜像构建固定使用 plain progress。名称含 `PASSWORD`、`SECRET`、`KEY`、`TOKEN` 的配置值，以及 Authorization、JWT、SSE token 和登录密码会被脱敏。
 

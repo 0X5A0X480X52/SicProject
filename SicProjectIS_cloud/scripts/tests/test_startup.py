@@ -90,7 +90,10 @@ class StartupTests(unittest.TestCase):
 
     def test_command_display_keeps_argument_boundaries(self):
         rendered = display_command(["docker", "compose", "--env-file", "C:/a b/.env"])
-        self.assertIn('"C:/a b/.env"', rendered)
+        if os.name == "nt":
+            self.assertIn('"C:/a b/.env"', rendered)
+        else:
+            self.assertEqual(__import__("shlex").split(rendered)[-1], "C:/a b/.env")
 
     def test_build_command_uses_compose_global_plain_progress(self):
         command = build_command(["docker", "compose", "-p", "guard"])

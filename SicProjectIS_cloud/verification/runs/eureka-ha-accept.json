@@ -1,0 +1,1963 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-14T14:14:20.568452+00:00",
+  "checks": [
+    {
+      "name": "peer-replication",
+      "source": "discovery-server",
+      "target": "discovery-peer",
+      "passed": true,
+      "registration": {
+        "service": "sic-ha-probe",
+        "instanceId": "sic-eureka-ha-accept-ha-probe-527f19d5:8761",
+        "ip": "172.18.0.5",
+        "port": 8761,
+        "status": "UP"
+      },
+      "elapsedMs": 42594
+    },
+    {
+      "name": "peer-replication",
+      "source": "discovery-peer",
+      "target": "discovery-server",
+      "passed": true,
+      "registration": {
+        "service": "sic-ha-probe",
+        "instanceId": "sic-eureka-ha-accept-ha-probe-e460048c:8761",
+        "ip": "172.18.0.5",
+        "port": 8761,
+        "status": "UP"
+      },
+      "elapsedMs": 26265
+    }
+  ],
+  "faults": [
+    {
+      "failedNode": "discovery-server",
+      "survivor": "discovery-peer",
+      "passed": true,
+      "requests": [
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 250,
+          "passed": true,
+          "status": 200,
+          "traceId": "c3942982-90b5-46ef-a6c4-794ebefbb250"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 1281,
+          "passed": true,
+          "status": 200,
+          "traceId": "35a79b46-53b7-4392-bcf2-84348c939b99"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 2297,
+          "passed": true,
+          "status": 200,
+          "traceId": "9c07a49e-921c-453d-bc21-0da7772b6e2f"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 3375,
+          "passed": true,
+          "status": 200,
+          "traceId": "b67f4d8d-ff2c-48dd-9653-a8d4c52a4887"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 4390,
+          "passed": true,
+          "status": 200,
+          "traceId": "d8ca7279-4ec3-46fc-b27f-88740960c4f9"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 5422,
+          "passed": true,
+          "status": 200,
+          "traceId": "2231bc3c-fc14-41f2-8dba-f393c82d004e"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 6468,
+          "passed": true,
+          "status": 200,
+          "traceId": "4c95d766-4d7e-4888-a8f5-fb077e74d7e7"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 7500,
+          "passed": true,
+          "status": 200,
+          "traceId": "b12b009e-7401-43cd-addd-2c9989de5126"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 8515,
+          "passed": true,
+          "status": 200,
+          "traceId": "313ec9e6-62fd-4514-b4a3-085e09eb5899"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 9562,
+          "passed": true,
+          "status": 200,
+          "traceId": "ba07971e-ad81-4aba-8d61-6c28ec961441"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 10578,
+          "passed": true,
+          "status": 200,
+          "traceId": "697b4c64-f1b0-4369-baab-9b2e610ed3f7"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 11609,
+          "passed": true,
+          "status": 200,
+          "traceId": "40de9df0-0968-46b8-abc4-ecfc385dfd33"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 12656,
+          "passed": true,
+          "status": 200,
+          "traceId": "7e3a65d9-bff8-4ea8-b076-3e447146bae1"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 13672,
+          "passed": true,
+          "status": 200,
+          "traceId": "08f39ddf-11c9-495a-b55e-1489f29618a6"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 14687,
+          "passed": true,
+          "status": 200,
+          "traceId": "6c7e7c94-2659-43bf-a6b6-6ae7aa9f45d8"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 15718,
+          "passed": true,
+          "status": 200,
+          "traceId": "1828ea4f-f4ff-4de8-814e-d8a97ca0a703"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 16734,
+          "passed": true,
+          "status": 200,
+          "traceId": "72b4955e-589b-45f8-a180-1f078d57409a"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 17750,
+          "passed": true,
+          "status": 200,
+          "traceId": "7ba0b433-5be1-40e0-b5b7-03937e05f699"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 18797,
+          "passed": true,
+          "status": 200,
+          "traceId": "edfbe92f-89e0-4fec-b316-88a7373d47bf"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 19812,
+          "passed": true,
+          "status": 200,
+          "traceId": "bd8e6801-b90f-432e-851a-d16f1f05868b"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 20828,
+          "passed": true,
+          "status": 200,
+          "traceId": "6a3e6f23-c5be-4a40-9afc-43049dce3c4e"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 21875,
+          "passed": true,
+          "status": 200,
+          "traceId": "8719cd1f-7a56-4b9c-a6f5-cf6e6be9eaa3"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 22906,
+          "passed": true,
+          "status": 200,
+          "traceId": "a69a4a81-8748-4705-bf13-616af0430fbb"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 23922,
+          "passed": true,
+          "status": 200,
+          "traceId": "c3821a2c-f11d-4d07-afe4-156b15b4b1a2"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 24953,
+          "passed": true,
+          "status": 200,
+          "traceId": "1991daa6-1c9f-4f01-9b42-504ebbce8955"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 25984,
+          "passed": true,
+          "status": 200,
+          "traceId": "3518e6c0-7916-41ec-854c-bf09eba5c1af"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 27015,
+          "passed": true,
+          "status": 200,
+          "traceId": "eaba7cdf-da02-4959-802f-b4a0c8259ecf"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 28031,
+          "passed": true,
+          "status": 200,
+          "traceId": "f89f0365-3bd7-4448-94e2-fc122d0eef69"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 29062,
+          "passed": true,
+          "status": 200,
+          "traceId": "88f0e8c9-98a1-47d6-a7e6-482676467f07"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 30078,
+          "passed": true,
+          "status": 200,
+          "traceId": "948b1c0f-8ddc-4377-abc6-95db957feb01"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 31109,
+          "passed": true,
+          "status": 200,
+          "traceId": "c9a8599b-6553-4017-81f0-895fd8d64ff3"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 32125,
+          "passed": true,
+          "status": 200,
+          "traceId": "3a1357ad-84b4-4ec3-b86f-c0559041a19e"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 33172,
+          "passed": true,
+          "status": 200,
+          "traceId": "45dcde0f-6471-4e25-828a-649aeddcd39b"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 34203,
+          "passed": true,
+          "status": 200,
+          "traceId": "9bf66b69-e3fa-4d2f-9957-e0fd07a3eba7"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 35218,
+          "passed": true,
+          "status": 200,
+          "traceId": "7b50550f-e9d2-4213-bf3f-94b171113f78"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 36250,
+          "passed": true,
+          "status": 200,
+          "traceId": "fa1cb4d9-90d6-41bf-b8fc-9f58d426b53c"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 37281,
+          "passed": true,
+          "status": 200,
+          "traceId": "13042c16-e82c-42b1-9b55-2bcd8278fcef"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 38297,
+          "passed": true,
+          "status": 200,
+          "traceId": "f187c59a-c4cd-4009-8e3f-c546ea66e0f6"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 39328,
+          "passed": true,
+          "status": 200,
+          "traceId": "5a274669-4187-432f-a7a5-6d8b884e3da3"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 40359,
+          "passed": true,
+          "status": 200,
+          "traceId": "94999f8c-c0f7-4a15-888b-d2119c6bcd29"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 41375,
+          "passed": true,
+          "status": 200,
+          "traceId": "7fe65eac-1436-4b1d-8b15-44050799ff51"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 42390,
+          "passed": true,
+          "status": 200,
+          "traceId": "09ec89a6-020c-4753-bf41-67f8e192e6d4"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 43406,
+          "passed": true,
+          "status": 200,
+          "traceId": "12fcd644-25de-462c-ae84-c98b66e5d736"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 44437,
+          "passed": true,
+          "status": 200,
+          "traceId": "59808070-2eb4-4a99-8290-8696716e422f"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 45453,
+          "passed": true,
+          "status": 200,
+          "traceId": "9f693986-2969-40d1-b635-e6e45486d436"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 46484,
+          "passed": true,
+          "status": 200,
+          "traceId": "d04a0a25-aaef-42fc-b8d3-5a490fbca15f"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 47515,
+          "passed": true,
+          "status": 200,
+          "traceId": "7fb79cf0-0778-4da7-9f81-6f596a9d5b7e"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 48547,
+          "passed": true,
+          "status": 200,
+          "traceId": "8e755d62-7303-49c1-94f6-d9504d6cdcb0"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 49578,
+          "passed": true,
+          "status": 200,
+          "traceId": "f67c716f-9319-4c4f-a72d-413e0df245b0"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 50593,
+          "passed": true,
+          "status": 200,
+          "traceId": "e8a93a8f-571f-4f02-9fed-199e3257dc01"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 51609,
+          "passed": true,
+          "status": 200,
+          "traceId": "9044177a-24cf-4f5c-8e0a-d41da2436cd7"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 52625,
+          "passed": true,
+          "status": 200,
+          "traceId": "51e66268-5873-40e1-b0b2-89fb4fe6632c"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 53656,
+          "passed": true,
+          "status": 200,
+          "traceId": "ec8259b8-ab24-46dd-b921-63710f36a3f8"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 54672,
+          "passed": true,
+          "status": 200,
+          "traceId": "498f85a1-5fe9-48f8-a10a-2b296b3da962"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 55703,
+          "passed": true,
+          "status": 200,
+          "traceId": "7876074f-ec20-4795-84cb-8b6fb946865e"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 56718,
+          "passed": true,
+          "status": 200,
+          "traceId": "fb5af478-365f-4cd4-8141-6bc41225720d"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 57734,
+          "passed": true,
+          "status": 200,
+          "traceId": "62a84f6e-896a-4cca-bed5-25862fde909e"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 58765,
+          "passed": true,
+          "status": 200,
+          "traceId": "f62a227e-cc87-43ad-9c19-fa86321c68a3"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 59797,
+          "passed": true,
+          "status": 200,
+          "traceId": "5c1abbb6-29d0-4767-ad78-b6bfe8a051b2"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 60812,
+          "passed": true,
+          "status": 200,
+          "traceId": "04e7ed70-3298-4261-8671-9bb97698adeb"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 61843,
+          "passed": true,
+          "status": 200,
+          "traceId": "fae3b1db-5b88-41bc-9481-459339733777"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 62859,
+          "passed": true,
+          "status": 200,
+          "traceId": "d35eed21-8bc4-471c-82c6-fa7cd1329307"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 63890,
+          "passed": true,
+          "status": 200,
+          "traceId": "5f6bb286-6e3e-4d75-a6b5-e96e1ae872c4"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 64922,
+          "passed": true,
+          "status": 200,
+          "traceId": "03ba62e4-412a-48c2-af2e-e9b7e7e08756"
+        }
+      ],
+      "stoppedAt": "2026-10-14T14:15:39.886602+00:00",
+      "freshRegistration": {
+        "service": "sic-ha-probe",
+        "instanceId": "sic-eureka-ha-accept-ha-probe-588666d5:8761",
+        "ip": "172.18.0.5",
+        "port": 8761,
+        "status": "UP"
+      },
+      "freshRegistry": [
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-peer:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-server:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "2649514d7c6f:workflow-service:9003",
+          "ip": "172.18.0.12",
+          "port": 9003,
+          "status": "UP"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "4fbcf14268ad:material-service:9004",
+          "ip": "172.18.0.13",
+          "port": 9004,
+          "status": "UP"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "378731fa8f3f:iam-service:9001",
+          "ip": "172.18.0.9",
+          "port": 9001,
+          "status": "UP"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "045f1b8d180e:project-service:9002",
+          "ip": "172.18.0.11",
+          "port": 9002,
+          "status": "UP"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "a227d21d503f:gateway-service:8080",
+          "ip": "172.18.0.14",
+          "port": 8080,
+          "status": "UP"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "dc4405bd0477:notification-service:9005",
+          "ip": "172.18.0.10",
+          "port": 9005,
+          "status": "UP"
+        },
+        {
+          "service": "sic-ha-probe",
+          "instanceId": "sic-eureka-ha-accept-ha-probe-e460048c:8761",
+          "ip": "172.18.0.5",
+          "port": 8761,
+          "status": "UP"
+        }
+      ],
+      "discoveredInstanceCall": {
+        "instanceId": "045f1b8d180e:project-service:9002",
+        "health": "UP"
+      },
+      "freshClientReadyMs": 26140,
+      "readSuccessRate": 1.0,
+      "recoveredRegistration": {
+        "service": "sic-ha-probe",
+        "instanceId": "sic-eureka-ha-accept-ha-probe-588666d5:8761",
+        "ip": "172.18.0.5",
+        "port": 8761,
+        "status": "UP"
+      },
+      "recoveredMs": 82640
+    },
+    {
+      "failedNode": "discovery-peer",
+      "survivor": "discovery-server",
+      "passed": true,
+      "requests": [
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 265,
+          "passed": true,
+          "status": 200,
+          "traceId": "4d9d7cb8-1ba4-45f3-b8df-f1d10591a000"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 1312,
+          "passed": true,
+          "status": 200,
+          "traceId": "1ae3f36a-f72d-4d86-8396-c87f8d08afb8"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 2328,
+          "passed": true,
+          "status": 200,
+          "traceId": "80ba5743-6770-4f5b-b5f9-badbe9685dee"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 3359,
+          "passed": true,
+          "status": 200,
+          "traceId": "a2023bd9-052c-4c1a-bd80-564456247e46"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 4375,
+          "passed": true,
+          "status": 200,
+          "traceId": "f1141ed2-0915-4d6d-99f4-7ccf9316c8cb"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 5406,
+          "passed": true,
+          "status": 200,
+          "traceId": "9af10747-3825-4900-9037-093b459f7b96"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 6437,
+          "passed": true,
+          "status": 200,
+          "traceId": "e923e9e5-fd9a-4425-9649-51ac4f426da2"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 7453,
+          "passed": true,
+          "status": 200,
+          "traceId": "151001ae-9e9a-4236-a436-b2039772def7"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 8468,
+          "passed": true,
+          "status": 200,
+          "traceId": "dbf54fe5-2b2a-4871-a99f-3c673fc9ab74"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 9500,
+          "passed": true,
+          "status": 200,
+          "traceId": "c9032d33-f01a-4a39-9341-4629afc573cf"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 10531,
+          "passed": true,
+          "status": 200,
+          "traceId": "58d2bee9-9219-460b-9ac8-22641008ece3"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 11547,
+          "passed": true,
+          "status": 200,
+          "traceId": "033c2303-1035-4973-a2d1-d1c3ddd2763e"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 12578,
+          "passed": true,
+          "status": 200,
+          "traceId": "c0a73025-421e-4237-8814-91721e08fe14"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 13609,
+          "passed": true,
+          "status": 200,
+          "traceId": "a3903f14-8170-4e6b-a4a7-9aef6c453d5b"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 14625,
+          "passed": true,
+          "status": 200,
+          "traceId": "9459a7f7-93b7-4b24-a9e2-81ae5544fe55"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 15640,
+          "passed": true,
+          "status": 200,
+          "traceId": "fdf540a6-ca6b-44c1-a782-9fa9a95f941a"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 16656,
+          "passed": true,
+          "status": 200,
+          "traceId": "08a0d823-8743-47a1-a4a7-f86dc9bf283a"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 17672,
+          "passed": true,
+          "status": 200,
+          "traceId": "1725aa46-e0f2-4687-ad53-b56b7d585086"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 18703,
+          "passed": true,
+          "status": 200,
+          "traceId": "241cee3f-a9ae-4ab9-8347-2493bf87ab1a"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 19718,
+          "passed": true,
+          "status": 200,
+          "traceId": "9deb543c-7cde-4975-8a99-73ec42c523d3"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 20734,
+          "passed": true,
+          "status": 200,
+          "traceId": "77c32b20-01f8-4e92-87d3-6a51c09591fb"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 21765,
+          "passed": true,
+          "status": 200,
+          "traceId": "ba3cccf9-2b35-4b23-9cf2-8e671e011cff"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 22781,
+          "passed": true,
+          "status": 200,
+          "traceId": "6fc193f1-b14d-44fb-bc61-bb2b81e2a77f"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 23797,
+          "passed": true,
+          "status": 200,
+          "traceId": "c32e5007-0c5d-4319-b44b-43a899d34e9d"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 24828,
+          "passed": true,
+          "status": 200,
+          "traceId": "e0e6de20-0f37-44d2-a488-e57206cba420"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 25859,
+          "passed": true,
+          "status": 200,
+          "traceId": "c34559c1-29f9-4b89-b6c1-f6da3c9c0da8"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 26875,
+          "passed": true,
+          "status": 200,
+          "traceId": "45760b1e-466d-4981-b212-5bbfa508e4c0"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 27906,
+          "passed": true,
+          "status": 200,
+          "traceId": "65a02eea-af82-446e-b370-c1f0a735f6cc"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 28937,
+          "passed": true,
+          "status": 200,
+          "traceId": "02eb19bf-4a0b-42bf-a719-3863439c24db"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 29953,
+          "passed": true,
+          "status": 200,
+          "traceId": "b1aa4c54-d512-4791-87f5-5d382f5510ad"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 30968,
+          "passed": true,
+          "status": 200,
+          "traceId": "78a3e662-88ec-4bb2-ae36-1d592acc006d"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 31984,
+          "passed": true,
+          "status": 200,
+          "traceId": "5639c415-6379-4757-ab1f-a916251e57ed"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 33015,
+          "passed": true,
+          "status": 200,
+          "traceId": "cbde3432-e75f-4555-982d-fde72ae8f1a8"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 34047,
+          "passed": true,
+          "status": 200,
+          "traceId": "7da27f14-686b-4a0b-9dc2-e113df96940b"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 35062,
+          "passed": true,
+          "status": 200,
+          "traceId": "85ccaae2-d290-43ba-84ca-ebd6f4426d13"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 36078,
+          "passed": true,
+          "status": 200,
+          "traceId": "0c2fe8b2-f996-4945-94c2-9ab08f737708"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 37093,
+          "passed": true,
+          "status": 200,
+          "traceId": "3462b9bc-688f-43e2-b3ce-ae11da6ccd4e"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 38125,
+          "passed": true,
+          "status": 200,
+          "traceId": "a3ff1c45-0933-466a-bce4-8e4ef4311514"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 39156,
+          "passed": true,
+          "status": 200,
+          "traceId": "b2a57d84-20ec-49d4-9d4f-db37ee12eef6"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 40187,
+          "passed": true,
+          "status": 200,
+          "traceId": "48d5bc07-1576-44b2-bfb5-49d1f55d2fc9"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 41203,
+          "passed": true,
+          "status": 200,
+          "traceId": "ae776eb7-6a96-440b-8267-0677ad57a793"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 42218,
+          "passed": true,
+          "status": 200,
+          "traceId": "db190bb5-1d85-4a9c-9c1f-26809ef56c17"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 43250,
+          "passed": true,
+          "status": 200,
+          "traceId": "b5cae885-78ff-44ec-b1c5-4e4d38e85601"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 44281,
+          "passed": true,
+          "status": 200,
+          "traceId": "5e70e6a0-adc0-4a75-afbe-d4514b81db95"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 45328,
+          "passed": true,
+          "status": 200,
+          "traceId": "7f2191b5-eb7f-47fc-b37a-5827e2fcbf65"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 46359,
+          "passed": true,
+          "status": 200,
+          "traceId": "f1be81ac-c70e-4a2b-9c50-6a67d41fe738"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 47375,
+          "passed": true,
+          "status": 200,
+          "traceId": "4d5cbf15-bbea-4a40-baeb-033d7a5bf354"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 48390,
+          "passed": true,
+          "status": 200,
+          "traceId": "55c819fa-f20d-4355-a5fa-73d57d43bf73"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 49406,
+          "passed": true,
+          "status": 200,
+          "traceId": "7369a525-aeb2-4165-b317-bad8cc90648a"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 50422,
+          "passed": true,
+          "status": 200,
+          "traceId": "0a0bd6f2-6463-4828-8234-38104260e500"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 51453,
+          "passed": true,
+          "status": 200,
+          "traceId": "72a7b5a6-a891-45fd-bfc6-472701eda896"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 52484,
+          "passed": true,
+          "status": 200,
+          "traceId": "3e3da65a-c300-4fcc-b8db-440ca9ea03b1"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 53515,
+          "passed": true,
+          "status": 200,
+          "traceId": "62029f6e-2dbc-4c3a-bd83-7495149223bf"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 54515,
+          "passed": true,
+          "status": 200,
+          "traceId": "9198fe2b-adb6-4506-a9d3-0d4d0e8786d8"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 55547,
+          "passed": true,
+          "status": 200,
+          "traceId": "2a36c315-65f9-4c16-ae61-b48668d19ec0"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 56578,
+          "passed": true,
+          "status": 200,
+          "traceId": "6d73fb67-56cd-4e9b-add6-379bdad146df"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 57593,
+          "passed": true,
+          "status": 200,
+          "traceId": "c33d996b-9722-4f62-b68d-e85a06ba6dca"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 58609,
+          "passed": true,
+          "status": 200,
+          "traceId": "a76fc28e-d936-4c94-a398-2df44a1b0729"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 59625,
+          "passed": true,
+          "status": 200,
+          "traceId": "d558f09b-a4a4-48d4-b985-d689ad208dc8"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 60640,
+          "passed": true,
+          "status": 200,
+          "traceId": "ae467827-146c-479e-a221-b24f55904b07"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 61656,
+          "passed": true,
+          "status": 200,
+          "traceId": "73f31b38-32d7-4a5d-aae9-aa79a8f9516a"
+        },
+        {
+          "path": "/api/projects",
+          "elapsedMs": 62672,
+          "passed": true,
+          "status": 200,
+          "traceId": "55d36b22-80da-4deb-bd05-f287e8582d96"
+        },
+        {
+          "path": "/api/workflow-definitions",
+          "elapsedMs": 63687,
+          "passed": true,
+          "status": 200,
+          "traceId": "2e04bc6f-ced9-4217-b9ec-ee3c83b5b0b3"
+        },
+        {
+          "path": "/api/auth/me",
+          "elapsedMs": 64718,
+          "passed": true,
+          "status": 200,
+          "traceId": "5b9699fe-3338-4649-88d9-4f9e30f80c21"
+        }
+      ],
+      "stoppedAt": "2026-10-14T14:17:06.152252+00:00",
+      "freshRegistration": {
+        "service": "sic-ha-probe",
+        "instanceId": "sic-eureka-ha-accept-ha-probe-f31d4cca:8761",
+        "ip": "172.18.0.5",
+        "port": 8761,
+        "status": "UP"
+      },
+      "freshRegistry": [
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-server:8761",
+          "ip": "172.18.0.15",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-peer:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "2649514d7c6f:workflow-service:9003",
+          "ip": "172.18.0.12",
+          "port": 9003,
+          "status": "UP"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "4fbcf14268ad:material-service:9004",
+          "ip": "172.18.0.13",
+          "port": 9004,
+          "status": "UP"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "378731fa8f3f:iam-service:9001",
+          "ip": "172.18.0.9",
+          "port": 9001,
+          "status": "UP"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "045f1b8d180e:project-service:9002",
+          "ip": "172.18.0.11",
+          "port": 9002,
+          "status": "UP"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "a227d21d503f:gateway-service:8080",
+          "ip": "172.18.0.14",
+          "port": 8080,
+          "status": "UP"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "dc4405bd0477:notification-service:9005",
+          "ip": "172.18.0.10",
+          "port": 9005,
+          "status": "UP"
+        },
+        {
+          "service": "sic-ha-probe",
+          "instanceId": "sic-eureka-ha-accept-ha-probe-588666d5:8761",
+          "ip": "172.18.0.5",
+          "port": 8761,
+          "status": "UP"
+        }
+      ],
+      "discoveredInstanceCall": {
+        "instanceId": "045f1b8d180e:project-service:9002",
+        "health": "UP"
+      },
+      "freshClientReadyMs": 26375,
+      "readSuccessRate": 1.0,
+      "recoveredRegistration": {
+        "service": "sic-ha-probe",
+        "instanceId": "sic-eureka-ha-accept-ha-probe-f31d4cca:8761",
+        "ip": "172.18.0.5",
+        "port": 8761,
+        "status": "UP"
+      },
+      "recoveredMs": 82937
+    }
+  ],
+  "businessContinuityChecked": true,
+  "projectName": "sic-eureka-ha-accept",
+  "envFile": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\eureka-ha-accept.env",
+  "composeFiles": [
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\docker-compose.yml",
+    "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\target\\eureka-ha-accept.compose.yaml"
+  ],
+  "replicas": {
+    "mysql": 1,
+    "rabbitmq": 1,
+    "redis": 1,
+    "minio": 1,
+    "discovery-server": 1,
+    "discovery-peer": 1,
+    "config-server": 1,
+    "iam-service": 1,
+    "project-service": 1,
+    "workflow-service": 1,
+    "material-service": 1,
+    "notification-service": 1,
+    "gateway-service": 1
+  },
+  "replicaSources": {
+    "mysql": "default",
+    "rabbitmq": "default",
+    "redis": "default",
+    "minio": "default",
+    "discovery-server": "default",
+    "discovery-peer": "default",
+    "config-server": "default",
+    "iam-service": "default",
+    "project-service": "default",
+    "workflow-service": "default",
+    "material-service": "default",
+    "notification-service": "default",
+    "gateway-service": "default"
+  },
+  "gatewayBaseUrl": "http://127.0.0.1:18081",
+  "artifacts": {
+    "discovery-server": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\platform\\discovery-server\\target\\discovery-server-1.0.0-SNAPSHOT-exec.jar",
+      "sha256": "d3491ede706bf4861200a342b7f0e6a32dde249917b4994185b597a81a707031"
+    },
+    "discovery-peer": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\platform\\discovery-server\\target\\discovery-server-1.0.0-SNAPSHOT-exec.jar",
+      "sha256": "d3491ede706bf4861200a342b7f0e6a32dde249917b4994185b597a81a707031"
+    },
+    "config-server": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\platform\\config-server\\target\\config-server-1.0.0-SNAPSHOT-exec.jar",
+      "sha256": "a4ffa24996568d21848ebf0ff6a58ec632dea276bdc87f13cd91c549aede7584"
+    },
+    "iam-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\services\\iam-service\\target\\iam-service-1.0.0-SNAPSHOT-exec.jar",
+      "sha256": "509b90c82395bc46b4462f5344ea7ec89da011532d09a8d3a43751859ffa6828"
+    },
+    "project-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\services\\project-service\\target\\project-service-1.0.0-SNAPSHOT-exec.jar",
+      "sha256": "a015b4e761fd557da63b914fcdf4446a1959443adf8f08503b63c5671a55d837"
+    },
+    "workflow-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\services\\workflow-service\\target\\workflow-service-1.0.0-SNAPSHOT-exec.jar",
+      "sha256": "2d404d0e2daa8cd391d9195bcd38e20db126df6d259ca4363bea9c9de41035fd"
+    },
+    "material-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\services\\material-service\\target\\material-service-1.0.0-SNAPSHOT-exec.jar",
+      "sha256": "4f60b0bee9fcf5329309451d5e9ba1141834c8979d786604efcf4cc58507ca33"
+    },
+    "notification-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\services\\notification-service\\target\\notification-service-1.0.0-SNAPSHOT-exec.jar",
+      "sha256": "094c653c9319806b8bfa75d6e36af4b34e24fdb2d79d134b0ae7431a63bbb59a"
+    },
+    "gateway-service": {
+      "image": "eclipse-temurin:21-jre-alpine",
+      "jar": "C:\\UserFiles\\CS\\Java\\SicProject\\SicProjectIS_cloud\\services\\gateway-service\\target\\gateway-service-1.0.0-SNAPSHOT-exec.jar",
+      "sha256": "d1667998e3f55b3fb7b42263c5d0aae3e095dcb66f1d91f15b7dfd804648a227"
+    }
+  },
+  "deploymentMode": "jar",
+  "initial": {
+    "containers": [
+      {
+        "containerId": "b78288c4c17cad880fa3d45d4535b538802a5e2214b19656a6c6cb7185652e58",
+        "containerName": "sic-eureka-ha-accept-config-server-1",
+        "hostname": "b78288c4c17c",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "config-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.7"
+        ]
+      },
+      {
+        "containerId": "13fc6e373c72a3ca2b22a2937a09b1ddf80f7f0f7aedb35779a90fc0986a032b",
+        "containerName": "sic-eureka-ha-accept-discovery-peer-1",
+        "hostname": "discovery-peer",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "discovery-peer",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.8"
+        ]
+      },
+      {
+        "containerId": "eff6555780d7f2c42a7c3057b4020911aa87fae49c371b4e702a7f68c36d3978",
+        "containerName": "sic-eureka-ha-accept-discovery-server-1",
+        "hostname": "discovery-server",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "discovery-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.15"
+        ]
+      },
+      {
+        "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f",
+        "containerName": "sic-eureka-ha-accept-gateway-service-1",
+        "hostname": "a227d21d503f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "gateway-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.14"
+        ]
+      },
+      {
+        "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93",
+        "containerName": "sic-eureka-ha-accept-iam-service-1",
+        "hostname": "378731fa8f3f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "iam-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.9"
+        ]
+      },
+      {
+        "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f",
+        "containerName": "sic-eureka-ha-accept-material-service-1",
+        "hostname": "4fbcf14268ad",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "material-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.13"
+        ]
+      },
+      {
+        "containerId": "3121bdb4d893c5c9d6cccae85306e91d2d0736d3e3d03d17ce14be1978425bfc",
+        "containerName": "sic-eureka-ha-accept-minio-1",
+        "hostname": "3121bdb4d893",
+        "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+        "imageId": "sha256:a98a9d647e700e45c1d3d2e44709f23952a39c199731d84e623eb558fd5501f4",
+        "service": "minio",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.4"
+        ]
+      },
+      {
+        "containerId": "81586a4c6c624cd5cf5e933c105c7f85f5df142de0a630b46a7f7ffe0abefb9f",
+        "containerName": "sic-eureka-ha-accept-mysql-1",
+        "hostname": "81586a4c6c62",
+        "image": "mysql:8.4",
+        "imageId": "sha256:bced325a4ab7aec848f4688371c7433351dcb5dba26fbcc29c67727d898ae5cb",
+        "service": "mysql",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.2"
+        ]
+      },
+      {
+        "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd",
+        "containerName": "sic-eureka-ha-accept-notification-service-1",
+        "hostname": "dc4405bd0477",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "notification-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.10"
+        ]
+      },
+      {
+        "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8",
+        "containerName": "sic-eureka-ha-accept-project-service-1",
+        "hostname": "045f1b8d180e",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.11"
+        ]
+      },
+      {
+        "containerId": "9aacbd1d5582ed56b1f26755dbfbf0bad08f0d6cbbd0982a112b50336d549a4c",
+        "containerName": "sic-eureka-ha-accept-rabbitmq-1",
+        "hostname": "9aacbd1d5582",
+        "image": "rabbitmq:4.1-management",
+        "imageId": "sha256:046fd3423a7668fc201318bca3bdad234aa0769cccc1c2427feb12f3c1239d2e",
+        "service": "rabbitmq",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.6"
+        ]
+      },
+      {
+        "containerId": "fe66f73051472cb103cb890b95ff73801cdd0e7068dc52d9ab7dda280bc2cc4a",
+        "containerName": "sic-eureka-ha-accept-redis-1",
+        "hostname": "fe66f7305147",
+        "image": "redis:8.2-alpine",
+        "imageId": "sha256:9b9bc2eb5b8859235a68b8d72b81977748d243badee819a91c18280612c3495c",
+        "service": "redis",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.3"
+        ]
+      },
+      {
+        "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4",
+        "containerName": "sic-eureka-ha-accept-workflow-service-1",
+        "hostname": "2649514d7c6f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "workflow-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.12"
+        ]
+      }
+    ],
+    "registrations": [
+      {
+        "service": "discovery-server",
+        "instanceId": "discovery-server:8761",
+        "ip": "172.18.0.8",
+        "port": 8761,
+        "status": "UP"
+      },
+      {
+        "service": "discovery-server",
+        "instanceId": "discovery-peer:8761",
+        "ip": "172.18.0.8",
+        "port": 8761,
+        "status": "UP"
+      },
+      {
+        "service": "workflow-service",
+        "instanceId": "2649514d7c6f:workflow-service:9003",
+        "ip": "172.18.0.12",
+        "port": 9003,
+        "status": "UP",
+        "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4"
+      },
+      {
+        "service": "material-service",
+        "instanceId": "4fbcf14268ad:material-service:9004",
+        "ip": "172.18.0.13",
+        "port": 9004,
+        "status": "UP",
+        "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f"
+      },
+      {
+        "service": "iam-service",
+        "instanceId": "378731fa8f3f:iam-service:9001",
+        "ip": "172.18.0.9",
+        "port": 9001,
+        "status": "UP",
+        "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "045f1b8d180e:project-service:9002",
+        "ip": "172.18.0.11",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8"
+      },
+      {
+        "service": "gateway-service",
+        "instanceId": "a227d21d503f:gateway-service:8080",
+        "ip": "172.18.0.14",
+        "port": 8080,
+        "status": "UP",
+        "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f"
+      },
+      {
+        "service": "notification-service",
+        "instanceId": "dc4405bd0477:notification-service:9005",
+        "ip": "172.18.0.10",
+        "port": 9005,
+        "status": "UP",
+        "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd"
+      }
+    ],
+    "registries": {
+      "discovery-server": [
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-server:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-peer:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "2649514d7c6f:workflow-service:9003",
+          "ip": "172.18.0.12",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "4fbcf14268ad:material-service:9004",
+          "ip": "172.18.0.13",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "378731fa8f3f:iam-service:9001",
+          "ip": "172.18.0.9",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "045f1b8d180e:project-service:9002",
+          "ip": "172.18.0.11",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "a227d21d503f:gateway-service:8080",
+          "ip": "172.18.0.14",
+          "port": 8080,
+          "status": "UP",
+          "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "dc4405bd0477:notification-service:9005",
+          "ip": "172.18.0.10",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd"
+        }
+      ],
+      "discovery-peer": [
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-peer:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-server:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "2649514d7c6f:workflow-service:9003",
+          "ip": "172.18.0.12",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "4fbcf14268ad:material-service:9004",
+          "ip": "172.18.0.13",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "378731fa8f3f:iam-service:9001",
+          "ip": "172.18.0.9",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "045f1b8d180e:project-service:9002",
+          "ip": "172.18.0.11",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "a227d21d503f:gateway-service:8080",
+          "ip": "172.18.0.14",
+          "port": 8080,
+          "status": "UP",
+          "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "dc4405bd0477:notification-service:9005",
+          "ip": "172.18.0.10",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd"
+        }
+      ]
+    }
+  },
+  "final": {
+    "containers": [
+      {
+        "containerId": "b78288c4c17cad880fa3d45d4535b538802a5e2214b19656a6c6cb7185652e58",
+        "containerName": "sic-eureka-ha-accept-config-server-1",
+        "hostname": "b78288c4c17c",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "config-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.7"
+        ]
+      },
+      {
+        "containerId": "13fc6e373c72a3ca2b22a2937a09b1ddf80f7f0f7aedb35779a90fc0986a032b",
+        "containerName": "sic-eureka-ha-accept-discovery-peer-1",
+        "hostname": "discovery-peer",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "discovery-peer",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.8"
+        ]
+      },
+      {
+        "containerId": "eff6555780d7f2c42a7c3057b4020911aa87fae49c371b4e702a7f68c36d3978",
+        "containerName": "sic-eureka-ha-accept-discovery-server-1",
+        "hostname": "discovery-server",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "discovery-server",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.15"
+        ]
+      },
+      {
+        "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f",
+        "containerName": "sic-eureka-ha-accept-gateway-service-1",
+        "hostname": "a227d21d503f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "gateway-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.14"
+        ]
+      },
+      {
+        "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93",
+        "containerName": "sic-eureka-ha-accept-iam-service-1",
+        "hostname": "378731fa8f3f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "iam-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.9"
+        ]
+      },
+      {
+        "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f",
+        "containerName": "sic-eureka-ha-accept-material-service-1",
+        "hostname": "4fbcf14268ad",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "material-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.13"
+        ]
+      },
+      {
+        "containerId": "3121bdb4d893c5c9d6cccae85306e91d2d0736d3e3d03d17ce14be1978425bfc",
+        "containerName": "sic-eureka-ha-accept-minio-1",
+        "hostname": "3121bdb4d893",
+        "image": "minio/minio:RELEASE.2025-07-23T15-54-02Z",
+        "imageId": "sha256:a98a9d647e700e45c1d3d2e44709f23952a39c199731d84e623eb558fd5501f4",
+        "service": "minio",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.4"
+        ]
+      },
+      {
+        "containerId": "81586a4c6c624cd5cf5e933c105c7f85f5df142de0a630b46a7f7ffe0abefb9f",
+        "containerName": "sic-eureka-ha-accept-mysql-1",
+        "hostname": "81586a4c6c62",
+        "image": "mysql:8.4",
+        "imageId": "sha256:bced325a4ab7aec848f4688371c7433351dcb5dba26fbcc29c67727d898ae5cb",
+        "service": "mysql",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.2"
+        ]
+      },
+      {
+        "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd",
+        "containerName": "sic-eureka-ha-accept-notification-service-1",
+        "hostname": "dc4405bd0477",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "notification-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.10"
+        ]
+      },
+      {
+        "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8",
+        "containerName": "sic-eureka-ha-accept-project-service-1",
+        "hostname": "045f1b8d180e",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "project-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.11"
+        ]
+      },
+      {
+        "containerId": "9aacbd1d5582ed56b1f26755dbfbf0bad08f0d6cbbd0982a112b50336d549a4c",
+        "containerName": "sic-eureka-ha-accept-rabbitmq-1",
+        "hostname": "9aacbd1d5582",
+        "image": "rabbitmq:4.1-management",
+        "imageId": "sha256:046fd3423a7668fc201318bca3bdad234aa0769cccc1c2427feb12f3c1239d2e",
+        "service": "rabbitmq",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.6"
+        ]
+      },
+      {
+        "containerId": "fe66f73051472cb103cb890b95ff73801cdd0e7068dc52d9ab7dda280bc2cc4a",
+        "containerName": "sic-eureka-ha-accept-redis-1",
+        "hostname": "fe66f7305147",
+        "image": "redis:8.2-alpine",
+        "imageId": "sha256:9b9bc2eb5b8859235a68b8d72b81977748d243badee819a91c18280612c3495c",
+        "service": "redis",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.3"
+        ]
+      },
+      {
+        "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4",
+        "containerName": "sic-eureka-ha-accept-workflow-service-1",
+        "hostname": "2649514d7c6f",
+        "image": "eclipse-temurin:21-jre-alpine",
+        "imageId": "sha256:d61c725e9bb2fc08e1abce08e10025e5cf89773079fa0107a673b2286fc74330",
+        "service": "workflow-service",
+        "running": true,
+        "health": "healthy",
+        "addresses": [
+          "172.18.0.12"
+        ]
+      }
+    ],
+    "registrations": [
+      {
+        "service": "discovery-server",
+        "instanceId": "discovery-server:8761",
+        "ip": "172.18.0.15",
+        "port": 8761,
+        "status": "UP"
+      },
+      {
+        "service": "discovery-server",
+        "instanceId": "discovery-peer:8761",
+        "ip": "172.18.0.8",
+        "port": 8761,
+        "status": "UP"
+      },
+      {
+        "service": "workflow-service",
+        "instanceId": "2649514d7c6f:workflow-service:9003",
+        "ip": "172.18.0.12",
+        "port": 9003,
+        "status": "UP",
+        "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4"
+      },
+      {
+        "service": "material-service",
+        "instanceId": "4fbcf14268ad:material-service:9004",
+        "ip": "172.18.0.13",
+        "port": 9004,
+        "status": "UP",
+        "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f"
+      },
+      {
+        "service": "iam-service",
+        "instanceId": "378731fa8f3f:iam-service:9001",
+        "ip": "172.18.0.9",
+        "port": 9001,
+        "status": "UP",
+        "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93"
+      },
+      {
+        "service": "project-service",
+        "instanceId": "045f1b8d180e:project-service:9002",
+        "ip": "172.18.0.11",
+        "port": 9002,
+        "status": "UP",
+        "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8"
+      },
+      {
+        "service": "gateway-service",
+        "instanceId": "a227d21d503f:gateway-service:8080",
+        "ip": "172.18.0.14",
+        "port": 8080,
+        "status": "UP",
+        "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f"
+      },
+      {
+        "service": "notification-service",
+        "instanceId": "dc4405bd0477:notification-service:9005",
+        "ip": "172.18.0.10",
+        "port": 9005,
+        "status": "UP",
+        "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd"
+      },
+      {
+        "service": "sic-ha-probe",
+        "instanceId": "sic-eureka-ha-accept-ha-probe-f31d4cca:8761",
+        "ip": "172.18.0.5",
+        "port": 8761,
+        "status": "DOWN"
+      }
+    ],
+    "registries": {
+      "discovery-server": [
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-server:8761",
+          "ip": "172.18.0.15",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-peer:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "2649514d7c6f:workflow-service:9003",
+          "ip": "172.18.0.12",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "4fbcf14268ad:material-service:9004",
+          "ip": "172.18.0.13",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "378731fa8f3f:iam-service:9001",
+          "ip": "172.18.0.9",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "045f1b8d180e:project-service:9002",
+          "ip": "172.18.0.11",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "a227d21d503f:gateway-service:8080",
+          "ip": "172.18.0.14",
+          "port": 8080,
+          "status": "UP",
+          "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "dc4405bd0477:notification-service:9005",
+          "ip": "172.18.0.10",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd"
+        },
+        {
+          "service": "sic-ha-probe",
+          "instanceId": "sic-eureka-ha-accept-ha-probe-f31d4cca:8761",
+          "ip": "172.18.0.5",
+          "port": 8761,
+          "status": "DOWN"
+        }
+      ],
+      "discovery-peer": [
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-server:8761",
+          "ip": "172.18.0.15",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "discovery-server",
+          "instanceId": "discovery-peer:8761",
+          "ip": "172.18.0.8",
+          "port": 8761,
+          "status": "UP"
+        },
+        {
+          "service": "workflow-service",
+          "instanceId": "2649514d7c6f:workflow-service:9003",
+          "ip": "172.18.0.12",
+          "port": 9003,
+          "status": "UP",
+          "containerId": "2649514d7c6f4804fb8d3d75f23cc2c97d2cea3825d1ffc9695236694fcceed4"
+        },
+        {
+          "service": "material-service",
+          "instanceId": "4fbcf14268ad:material-service:9004",
+          "ip": "172.18.0.13",
+          "port": 9004,
+          "status": "UP",
+          "containerId": "4fbcf14268ad6ce564117909c22e46087c29260e8bf780e15d384d368b5d414f"
+        },
+        {
+          "service": "iam-service",
+          "instanceId": "378731fa8f3f:iam-service:9001",
+          "ip": "172.18.0.9",
+          "port": 9001,
+          "status": "UP",
+          "containerId": "378731fa8f3f4291616e03ae61885ac6f5d4cb59d253d572737e79ed3674bd93"
+        },
+        {
+          "service": "project-service",
+          "instanceId": "045f1b8d180e:project-service:9002",
+          "ip": "172.18.0.11",
+          "port": 9002,
+          "status": "UP",
+          "containerId": "045f1b8d180ebc2534766df6827a853c52303f826cd6c7d93b16572aac4968d8"
+        },
+        {
+          "service": "gateway-service",
+          "instanceId": "a227d21d503f:gateway-service:8080",
+          "ip": "172.18.0.14",
+          "port": 8080,
+          "status": "UP",
+          "containerId": "a227d21d503f92a9dc5e813f74b97474f53f5144d2f7d7af7f51f3382108901f"
+        },
+        {
+          "service": "notification-service",
+          "instanceId": "dc4405bd0477:notification-service:9005",
+          "ip": "172.18.0.10",
+          "port": 9005,
+          "status": "UP",
+          "containerId": "dc4405bd047732a3036779baf45bb6e784c2bb7e302fc27b6eab8f261a3e58dd"
+        },
+        {
+          "service": "sic-ha-probe",
+          "instanceId": "sic-eureka-ha-accept-ha-probe-f31d4cca:8761",
+          "ip": "172.18.0.5",
+          "port": 8761,
+          "status": "DOWN"
+        }
+      ]
+    }
+  },
+  "cleanupErrors": [],
+  "finishedAt": "2026-10-14T14:18:33.030941+00:00"
+}

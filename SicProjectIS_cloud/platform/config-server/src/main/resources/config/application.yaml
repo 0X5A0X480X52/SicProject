@@ -1,7 +1,11 @@
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URL:http://discovery-server:8761/eureka/}
+      defaultZone: ${EUREKA_URL:http://discovery-server:8761/eureka/,http://discovery-peer:8761/eureka/}
+    timeout:
+      connect-timeout: 2000
+      connect-request-timeout: 2000
+      socket-timeout: 5000
   instance:
     prefer-ip-address: true
 
