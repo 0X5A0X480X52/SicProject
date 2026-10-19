@@ -172,13 +172,16 @@ public class RolePermissionSeedInitializer implements ApplicationRunner {
                 "project:grant:view",
                 "project:grant:member",
                 "expert:qualification:review:dept",
-                "department:member:manage"));
+                "department:member:manage",
+                "workflow:definition:view"));
         mapping.put("PROJECT_LEADER", List.of(
-                "project:view"));
+                "project:view",
+                "workflow:definition:view"));
         mapping.put("EXPERT", List.of(
                 "workflow:definition:view"));
         mapping.put("FINANCE_ADMIN", List.of(
-                "project:view"));
+                "project:view",
+                "workflow:definition:view"));
         return mapping;
     }
     private record RoleSeed(String roleName, String roleDesc) {

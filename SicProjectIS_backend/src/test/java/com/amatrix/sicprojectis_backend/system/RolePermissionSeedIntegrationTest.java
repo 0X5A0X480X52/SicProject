@@ -38,6 +38,7 @@ class RolePermissionSeedIntegrationTest {
         assertThat(permissionDao.selectAll()).hasSize(23);
 
         Role systemAdmin = roleDao.selectByCode("SYSTEM_ADMIN");
+        Role projectLeader = roleDao.selectByCode("PROJECT_LEADER");
         Role scienceAdmin = roleDao.selectByCode("SCIENCE_ADMIN");
         Role deptAdmin = roleDao.selectByCode("DEPT_ADMIN");
         Role financeAdmin = roleDao.selectByCode("FINANCE_ADMIN");
@@ -47,20 +48,25 @@ class RolePermissionSeedIntegrationTest {
         assertThat(permissionDao.selectPermissionCodesByUserId(3L))
                 .contains("workflow:definition:view", "workflow:definition:publish", "project:grant:expert")
                 .doesNotContain("permission:manage");
+        assertThat(permissionDao.selectPermissionCodesByUserId(1L))
+                .containsExactlyInAnyOrder("project:view", "workflow:definition:view");
         assertThat(permissionDao.selectPermissionCodesByUserId(4L))
-                .containsExactlyInAnyOrder("project:view", "project:grant:view", "project:grant:member", "expert:qualification:review:dept", "department:member:manage");
+                .containsExactlyInAnyOrder("project:view", "project:grant:view", "project:grant:member", "expert:qualification:review:dept", "department:member:manage", "workflow:definition:view");
         assertThat(permissionDao.selectPermissionCodesByUserId(5L))
-                .containsExactlyInAnyOrder("project:view");
+                .containsExactlyInAnyOrder("project:view", "workflow:definition:view");
 
         assertThat(rolePermissionDao.selectByRoleId(systemAdmin.getRoleId())).hasSize(23);
+        assertThat(rolePermissionDao.selectByRoleId(projectLeader.getRoleId()))
+                .extracting(RolePermission::getPermissionId)
+                .hasSize(2);
         assertThat(rolePermissionDao.selectByRoleId(scienceAdmin.getRoleId()))
                 .extracting(RolePermission::getPermissionId)
                 .hasSize(16);
         assertThat(rolePermissionDao.selectByRoleId(deptAdmin.getRoleId()))
                 .extracting(RolePermission::getPermissionId)
-                .hasSize(5);
+                .hasSize(6);
         assertThat(rolePermissionDao.selectByRoleId(financeAdmin.getRoleId()))
                 .extracting(RolePermission::getPermissionId)
-                .hasSize(1);
+                .hasSize(2);
     }
 }

@@ -1,4 +1,4 @@
-﻿package com.amatrix.sicprojectis_backend.expertqualification.dto;
+package com.amatrix.sicprojectis_backend.expertqualification.dto;
 
 public record ReviewExpertQualificationRequest(
         boolean approved,

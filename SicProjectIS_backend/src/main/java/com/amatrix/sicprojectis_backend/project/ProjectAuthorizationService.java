@@ -33,6 +33,7 @@ import com.amatrix.sicprojectis_backend.project.entity.Project;
 import com.amatrix.sicprojectis_backend.project.entity.ProjectMember;
 import com.amatrix.sicprojectis_backend.project.entity.ProjectRoleGrant;
 import com.amatrix.sicprojectis_backend.project.entity.ProjectRoleGrantLog;
+import com.amatrix.sicprojectis_backend.runtime.dao.ProjectModuleInstanceDao;
 import com.amatrix.sicprojectis_backend.security.AuthenticatedUser;
 import com.amatrix.sicprojectis_backend.security.PermissionService;
 import com.amatrix.sicprojectis_backend.system.AdminAuditLogService;
@@ -69,6 +70,7 @@ public class ProjectAuthorizationService {
     private final AppUserDao appUserDao;
     private final UserRoleDetailViewDao userRoleDetailViewDao;
     private final DepartmentDao departmentDao;
+    private final ProjectModuleInstanceDao projectModuleInstanceDao;
     private final PermissionService permissionService;
     private final AdminAuditLogService adminAuditLogService;
 
@@ -80,6 +82,7 @@ public class ProjectAuthorizationService {
             AppUserDao appUserDao,
             UserRoleDetailViewDao userRoleDetailViewDao,
             DepartmentDao departmentDao,
+            ProjectModuleInstanceDao projectModuleInstanceDao,
             PermissionService permissionService,
             AdminAuditLogService adminAuditLogService) {
         this.projectDao = projectDao;
@@ -89,6 +92,7 @@ public class ProjectAuthorizationService {
         this.appUserDao = appUserDao;
         this.userRoleDetailViewDao = userRoleDetailViewDao;
         this.departmentDao = departmentDao;
+        this.projectModuleInstanceDao = projectModuleInstanceDao;
         this.permissionService = permissionService;
         this.adminAuditLogService = adminAuditLogService;
     }
@@ -120,11 +124,16 @@ public class ProjectAuthorizationService {
         Set<Long> grantProjectIds = projectRoleGrantDao.selectActiveByGranteeUserId(currentUser.userId()).stream()
                 .map(ProjectRoleGrant::getProjectId)
                 .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+        Set<Long> acceptanceProjectIds = roleCodes.contains(FINANCE_ADMIN)
+                ? projectModuleInstanceDao.selectProjectIdsByModuleType("ACCEPTANCE").stream()
+                        .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new))
+                : Set.of();
 
         return projectDao.selectAll().stream()
                 .filter(project -> canAccessProjectFromSnapshot(currentUser.userId(), project, roleCodes,
-                        currentUserDeptId, memberProjectIds, grantProjectIds)
-                        || permissionService.canAccessProject(currentUser.userId(), project.getProjectId()))
+                        currentUserDeptId, memberProjectIds, grantProjectIds, acceptanceProjectIds)
+                        || (roleCodes.contains(EXPERT)
+                                && permissionService.canAccessProject(currentUser.userId(), project.getProjectId())))
                 .sorted(Comparator.comparing(Project::getProjectId))
                 .map(project -> toProjectSummary(project, lookup))
                 .toList();
@@ -604,8 +613,12 @@ public class ProjectAuthorizationService {
             Set<String> roleCodes,
             Long userDeptId,
             Set<Long> memberProjectIds,
-            Set<Long> grantProjectIds) {
+            Set<Long> grantProjectIds,
+            Set<Long> acceptanceProjectIds) {
         if (roleCodes.contains(DEPT_ADMIN) && Objects.equals(userDeptId, project.getDeptId())) {
+            return true;
+        }
+        if (roleCodes.contains(FINANCE_ADMIN) && acceptanceProjectIds.contains(project.getProjectId())) {
             return true;
         }
         return Objects.equals(project.getLeaderUserId(), userId)

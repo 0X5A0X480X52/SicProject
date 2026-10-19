@@ -141,6 +141,10 @@ public class WorkflowDefinitionService {
     }
 
     public List<WorkflowNodeResponse> getNodes(Long workflowDefinitionId) {
+        List<WorkflowNode> nodes = workflowNodeDao.selectByWorkflowDefinitionId(workflowDefinitionId);
+        if (!nodes.isEmpty()) {
+            return toNodeResponsesFromEntities(nodes);
+        }
         WorkflowDefinition definition = requireDefinition(workflowDefinitionId);
         return toNodeResponses(parser.parse(definition.getBpmnXml()).nodes());
     }
@@ -451,6 +455,25 @@ public class WorkflowDefinitionService {
                                         document.required(),
                                         document.enabled()))
                                 .toList()))
+                .toList();
+    }
+
+    private List<WorkflowNodeResponse> toNodeResponsesFromEntities(List<WorkflowNode> nodes) {
+        return nodes.stream()
+                .map(node -> new WorkflowNodeResponse(
+                        node.getNodeId(),
+                        node.getNodeName(),
+                        node.getNodeType(),
+                        node.getStateCode(),
+                        node.getLaneName(),
+                        node.getResponsibleActorCode(),
+                        node.getResponsibleActorName(),
+                        node.getCandidateRoleCode(),
+                        node.getOperationMode(),
+                        node.getRepresentedActorCode(),
+                        node.getRepresentedActorName(),
+                        List.of(),
+                        List.of()))
                 .toList();
     }
 

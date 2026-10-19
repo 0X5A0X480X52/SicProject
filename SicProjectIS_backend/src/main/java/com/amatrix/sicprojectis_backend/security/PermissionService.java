@@ -19,8 +19,6 @@ import com.amatrix.sicprojectis_backend.system.dao.UserRoleDetailViewDao;
 import com.amatrix.sicprojectis_backend.system.entity.UserRoleDetailView;
 import com.amatrix.sicprojectis_backend.task.dao.TaskInstanceDao;
 import com.amatrix.sicprojectis_backend.task.entity.TaskInstance;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service("permissionService")
@@ -88,6 +86,11 @@ public class PermissionService {
                 || projectMemberDao.countByProjectIdAndUserId(projectId, userId) > 0) {
             return true;
         }
+        // Finance admins can inspect acceptance-stage projects without a per-project grant.
+        // Check this before grant lookups to keep finance detail/material requests cheap.
+        if (roles.contains(FINANCE_ADMIN) && hasAcceptanceModule(projectId)) {
+            return true;
+        }
 
         Set<String> grantRoleCodes = projectRoleGrantDao.selectActiveForUserAndProject(userId, projectId).stream()
                 .map(ProjectRoleGrant::getGrantRoleCode)
@@ -101,11 +104,6 @@ public class PermissionService {
             return true;
         }
         if (roles.contains(EXPERT) && hasOpenTaskInProject(userId, projectId)) {
-            return true;
-        }
-        // FINANCE_ADMIN can view all projects that have entered the acceptance stage,
-        // but can only submit (operate) when there is a matching FINANCE_ADMIN task.
-        if (roles.contains(FINANCE_ADMIN) && hasAcceptanceModule(projectId)) {
             return true;
         }
         return false;
@@ -179,14 +177,6 @@ public class PermissionService {
     private List<String> roles(Long userId) {
         if (userId == null) {
             return List.of();
-        }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof AuthenticatedUser user
-                && Objects.equals(user.userId(), userId) && user.roleCodes() != null) {
-            return user.roleCodes().stream()
-                    .filter(Objects::nonNull)
-                    .distinct()
-                    .toList();
         }
         return userRoleDetailViewDao.selectByUserId(userId).stream()
                 .map(UserRoleDetailView::getRoleCode)

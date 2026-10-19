@@ -280,13 +280,55 @@ function isActionRejected(value?: string) { const text = String(value ?? '').toU
 function buildRoundGroup(roundNo: number | string, records: WorkflowDisplayRecord[]): RoundGroup { const first = records[0]; const last = records[records.length - 1]; const hasRejected = records.some((record) => isActionRejected(record.action) || isActionRejected(record.remark) || record.actionText === '已驳回'); const hasReturned = records.some((record) => isActionReturned(record.action) || isActionReturned(record.remark) || record.actionText === '已退回'); return { roundNo, resultText: hasRejected ? '已驳回' : hasReturned ? '已退回' : '正常流转', summary: last?.remark || '暂无摘要', startAt: first?.time || '-', endAt: last?.time || '-', records } }
 function selectNode(node: WorkflowProcessStep) { selectedNodeId.value = node.id }
 function openBpmnLarge() { bpmnPanelRef.value?.openLarge() }
-async function loadProjectSummary(projectId: number, signal?: AbortSignal) { try { const projects = await listProjects(signal); projectSummary.value = projects.find((project) => project.projectId === projectId) ?? null } catch { projectSummary.value = null } }
-async function loadMaterials(projectId: number, signal?: AbortSignal) { try { materials.value = await listProjectMaterials(projectId, signal) } catch { materials.value = [] } }
+const SECONDARY_LOAD_TIMEOUT_MS = 8000
+async function withTimeoutSignal<T>(
+  parentSignal: AbortSignal | undefined,
+  request: (signal: AbortSignal) => Promise<T>,
+  timeoutMs = SECONDARY_LOAD_TIMEOUT_MS,
+) {
+  const controller = new AbortController()
+  const abort = () => controller.abort()
+  if (parentSignal?.aborted) {
+    controller.abort()
+  } else {
+    parentSignal?.addEventListener('abort', abort, { once: true })
+  }
+  const timeoutId = window.setTimeout(abort, timeoutMs)
+  try {
+    return await request(controller.signal)
+  } finally {
+    window.clearTimeout(timeoutId)
+    parentSignal?.removeEventListener('abort', abort)
+  }
+}
+async function loadProjectSummary(projectId: number, signal?: AbortSignal) {
+  try {
+    const projects = await withTimeoutSignal(signal, (requestSignal) => listProjects(requestSignal))
+    projectSummary.value = projects.find((project) => project.projectId === projectId) ?? null
+  } catch {
+    projectSummary.value = null
+  }
+}
+async function loadMaterials(projectId: number, signal?: AbortSignal) {
+  try {
+    materials.value = await withTimeoutSignal(signal, (requestSignal) => listProjectMaterials(projectId, requestSignal))
+  } catch {
+    materials.value = []
+  }
+}
 async function loadWorkflowNodes(workflowDefinitionId: number, signal?: AbortSignal) {
   try {
-    workflowNodes.value = await getWorkflowNodes(workflowDefinitionId, signal)
+    workflowNodes.value = await withTimeoutSignal(signal, (requestSignal) => getWorkflowNodes(workflowDefinitionId, requestSignal))
   } catch {
     workflowNodes.value = []
+  }
+}
+async function loadBpmnXml(workflowDefinitionId: number, signal?: AbortSignal) {
+  try {
+    const bpmn = await withTimeoutSignal(signal, (requestSignal) => getWorkflowBpmn(workflowDefinitionId, requestSignal))
+    bpmnXml.value = bpmn.bpmnXml
+  } catch {
+    bpmnXml.value = ''
   }
 }
 function isBlankFormValue(value: unknown) {
@@ -387,6 +429,7 @@ async function quickSubmitFinancialSettlement() {
 }
 
 let loadAbortController: AbortController | null = null
+const DETAIL_LOAD_TIMEOUT_MS = 15000
 
 async function loadDetail(showMessage = false) {
   if (!Number.isFinite(moduleInstanceId.value)) { ElMessage.error('模块实例 ID 无效'); return }
@@ -394,16 +437,22 @@ async function loadDetail(showMessage = false) {
   loadAbortController?.abort()
   loadAbortController = new AbortController()
   const signal = loadAbortController.signal
+  let timedOut = false
+  const timeoutId = window.setTimeout(() => {
+    timedOut = true
+    loadAbortController?.abort()
+  }, DETAIL_LOAD_TIMEOUT_MS)
   loading.value = true
   try {
     const view = await getRuntimeView(moduleInstanceId.value, signal)
     if (signal.aborted) return
     runtimeView.value = view
     ensureDraft(view)
+    loading.value = false
 
-    // All secondary requests run in parallel — no reason to serialize them.
-    // Previously nodes/bpmn waited for projectSummary + materials, which
-    // delayed them and caused requests to fire after the user left the page.
+    // Secondary data should enrich the page, not block the runtime view itself.
+    // Finance/detail users can still work from the runtime view if one helper
+    // endpoint is slow, aborted, or missing optional permissions.
     const tasks: Promise<unknown>[] = [
       loadProjectSummary(view.context.projectId, signal),
       loadMaterials(view.context.projectId, signal),
@@ -411,18 +460,26 @@ async function loadDetail(showMessage = false) {
     if (view.context.workflowDefinitionId) {
       tasks.push(
         loadWorkflowNodes(view.context.workflowDefinitionId, signal),
-        getWorkflowBpmn(view.context.workflowDefinitionId, signal)
-          .then((bpmn) => { bpmnXml.value = bpmn.bpmnXml })
-          .catch(() => { bpmnXml.value = '' }),
+        loadBpmnXml(view.context.workflowDefinitionId, signal),
       )
     }
-    await Promise.all(tasks)
+    void Promise.allSettled(tasks)
 
     if (showMessage) ElMessage.success('流程详情已刷新，当前节点草稿已保留')
   } catch (error) {
-    if (signal.aborted) return
+    if (signal.aborted) {
+      if (timedOut) {
+        ElMessage.error('流程详情加载超时，请稍后重试或检查后端接口')
+      }
+      return
+    }
     ElMessage.error(error instanceof Error ? error.message : '流程详情加载失败')
-  } finally { loading.value = false }
+  } finally {
+    window.clearTimeout(timeoutId)
+    if (loadAbortController?.signal === signal) {
+      loading.value = false
+    }
+  }
 }
 
 onBeforeUnmount(() => {
@@ -449,7 +506,7 @@ async function submitCurrentDraft() {
   finally { submitting.value = false }
 }
 watch(processNodes, (nodes) => { if (nodes.length && (!selectedNodeId.value || !nodes.some((node) => node.id === selectedNodeId.value))) selectedNodeId.value = nodes.find((node) => node.status === 'current')?.id ?? nodes[nodes.length - 1].id })
-const workflowEvents = useWorkflowEvents((event) => { if (!event.moduleInstanceId || event.moduleInstanceId === moduleInstanceId.value) loadDetail() })
+const workflowEvents = useWorkflowEvents((event) => { if (event.moduleInstanceId === moduleInstanceId.value) loadDetail() })
 onMounted(() => { loadDetail(); workflowEvents.connect() })
 </script>
 
@@ -700,6 +757,7 @@ onMounted(() => { loadDetail(); workflowEvents.connect() })
                 <MaterialRequirementPanel
                   :project-id="runtimeView.context.projectId"
                   :requirements="runtimeView.materialRequirements"
+                  :materials="materials"
                   :selected-ids="workflowDraft.selectedMaterialVersionIds"
                   @update:selected-ids="ids => workflowDraft.selectedMaterialVersionIds = ids"
                   @materials-changed="loadMaterials(runtimeView.context.projectId)"

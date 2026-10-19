@@ -216,6 +216,100 @@ class DepartmentManagementIntegrationTest {
                 .andExpect(jsonPath("$.data.roleCodes[*]", hasItem("EXPERT")));
     }
 
+    @Test
+    void shouldAllowDeptAdminToReviewExpertApplicationAfterApplicantDeptIsAssigned() throws Exception {
+        AppUser alice = appUserDao.selectByUsername("alice");
+        alice.setDeptId(null);
+        appUserDao.updateById(alice);
+
+        String aliceToken = login("alice", "password");
+        mockMvc.perform(post("/api/expert-qualification/applications")
+                        .header("Authorization", "Bearer " + aliceToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "specialty": "AI Safety",
+                                  "professionalTitle": "Associate Professor",
+                                  "applicationReason": "Long-term review experience"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.applicationId").value(1))
+                .andExpect(jsonPath("$.data.status").value("PENDING_DEPT_REVIEW"))
+                .andExpect(jsonPath("$.data.applicantDeptId").doesNotExist());
+
+        alice = appUserDao.selectByUsername("alice");
+        alice.setDeptId(1L);
+        appUserDao.updateById(alice);
+
+        String deptAdminToken = login("diana", "password");
+        mockMvc.perform(get("/api/admin/expert-qualification/applications")
+                        .header("Authorization", "Bearer " + deptAdminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.applications[0].applicationId").value(1))
+                .andExpect(jsonPath("$.data.applications[0].applicantDeptId").value(1))
+                .andExpect(jsonPath("$.data.applications[0].applicantDeptName").value("Science Department"));
+
+        mockMvc.perform(post("/api/admin/expert-qualification/applications/1/dept-review")
+                        .header("Authorization", "Bearer " + deptAdminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "approved": true,
+                                  "opinion": "dept approved"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value("PENDING_SCIENCE_REVIEW"))
+                .andExpect(jsonPath("$.data.applicantDeptId").value(1));
+    }
+
+    @Test
+    void shouldLinkExpertApplicationDepartmentToApplicantCurrentDepartment() throws Exception {
+        String aliceToken = login("alice", "password");
+        mockMvc.perform(post("/api/expert-qualification/applications")
+                        .header("Authorization", "Bearer " + aliceToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "specialty": "AI Safety",
+                                  "professionalTitle": "Associate Professor",
+                                  "applicationReason": "Long-term review experience"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.applicationId").value(1))
+                .andExpect(jsonPath("$.data.applicantDeptId").value(1));
+
+        AppUser alice = appUserDao.selectByUsername("alice");
+        alice.setDeptId(2L);
+        appUserDao.updateById(alice);
+        AppUser diana = appUserDao.selectByUsername("diana");
+        diana.setDeptId(2L);
+        appUserDao.updateById(diana);
+
+        String deptAdminToken = login("diana", "password");
+        mockMvc.perform(get("/api/admin/expert-qualification/applications")
+                        .header("Authorization", "Bearer " + deptAdminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.applications[0].applicationId").value(1))
+                .andExpect(jsonPath("$.data.applications[0].applicantDeptId").value(2))
+                .andExpect(jsonPath("$.data.applications[0].applicantDeptName").value("Engineering Department"));
+
+        mockMvc.perform(post("/api/admin/expert-qualification/applications/1/dept-review")
+                        .header("Authorization", "Bearer " + deptAdminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "approved": true,
+                                  "opinion": "dept approved after transfer"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value("PENDING_SCIENCE_REVIEW"))
+                .andExpect(jsonPath("$.data.applicantDeptId").value(2));
+    }
+
     private String login(String username, String password) throws Exception {
         return mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

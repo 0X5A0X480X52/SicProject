@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { UploadRawFile } from 'element-plus'
 import { listProjectMaterials, uploadMaterialVersion } from '../../api/materials'
@@ -9,6 +9,7 @@ const props = defineProps<{
   projectId: number
   requirements: MaterialRequirementView[]
   selectedIds?: number[]
+  materials?: MaterialContextView[]
 }>()
 const emit = defineEmits<{
   'update:selectedIds': [ids: number[]]
@@ -17,13 +18,16 @@ const emit = defineEmits<{
 
 const loading = ref(false)
 const uploadingCode = ref('')
-const materials = ref<MaterialContextView[]>([])
+const localMaterials = ref<MaterialContextView[]>([])
+let loadAbortController: AbortController | null = null
+const MATERIAL_LOAD_TIMEOUT_MS = 8000
 
 const selectedIds = computed(() => props.selectedIds ?? [])
+const displayMaterials = computed(() => props.materials ?? localMaterials.value)
 
 const materialsByType = computed(() => {
   const map = new Map<string, MaterialContextView[]>()
-  for (const item of materials.value) {
+  for (const item of displayMaterials.value) {
     const list = map.get(item.materialTypeCode) ?? []
     list.push(item)
     map.set(item.materialTypeCode, list)
@@ -59,13 +63,27 @@ function updateSelectedFor(requirement: MaterialRequirementView, value: unknown)
 }
 
 async function loadMaterials() {
+  loadAbortController?.abort()
+  loadAbortController = new AbortController()
+  const signal = loadAbortController.signal
+  let timedOut = false
+  const timeoutId = window.setTimeout(() => {
+    timedOut = true
+    loadAbortController?.abort()
+  }, MATERIAL_LOAD_TIMEOUT_MS)
   loading.value = true
   try {
-    materials.value = await listProjectMaterials(props.projectId)
+    localMaterials.value = await listProjectMaterials(props.projectId, signal)
   } catch (error) {
+    if (signal.aborted && !timedOut) {
+      return
+    }
     ElMessage.error(error instanceof Error ? error.message : '材料加载失败')
   } finally {
-    loading.value = false
+    window.clearTimeout(timeoutId)
+    if (loadAbortController?.signal === signal) {
+      loading.value = false
+    }
   }
 }
 
@@ -88,9 +106,20 @@ async function upload(requirement: MaterialRequirementView, file: File) {
   return false
 }
 
-watch(() => props.projectId, loadMaterials)
+watch(() => props.projectId, () => {
+  if (props.materials === undefined) {
+    void loadMaterials()
+  }
+})
 
-onMounted(loadMaterials)
+onMounted(() => {
+  if (props.materials === undefined) {
+    void loadMaterials()
+  }
+})
+onBeforeUnmount(() => {
+  loadAbortController?.abort()
+})
 </script>
 
 <template>

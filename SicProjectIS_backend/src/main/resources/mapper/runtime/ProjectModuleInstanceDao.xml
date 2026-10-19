@@ -30,6 +30,13 @@
         LIMIT 1
     </select>
 
+    <select id="selectProjectIdsByModuleType" resultType="java.lang.Long">
+        SELECT DISTINCT `project_id`
+        FROM `project_module_instance`
+        WHERE `module_type` = #{moduleType, jdbcType=VARCHAR}
+          AND `project_id` IS NOT NULL
+    </select>
+
     <select id="selectAll" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumnList" /> FROM `project_module_instance`
     </select>

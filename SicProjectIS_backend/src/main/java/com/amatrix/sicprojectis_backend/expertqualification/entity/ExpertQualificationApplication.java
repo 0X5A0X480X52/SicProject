@@ -1,4 +1,4 @@
-﻿package com.amatrix.sicprojectis_backend.expertqualification.entity;
+package com.amatrix.sicprojectis_backend.expertqualification.entity;
 
 import java.time.LocalDateTime;
 

@@ -89,7 +89,18 @@ class WorkflowDefinitionIntegrationTest {
     @Test
     void shouldUploadValidateAndPublishWorkflowDefinition() throws Exception {
         String scienceAdminToken = login("carol", "password");
+        String projectLeaderToken = login("alice", "password");
         Long workflowDefinitionId = upload(scienceAdminToken, validBpmn());
+
+        mockMvc.perform(get("/api/workflow-definitions/" + workflowDefinitionId + "/bpmn")
+                        .header("Authorization", "Bearer " + projectLeaderToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.bpmnXml", not(blankOrNullString())));
+
+        mockMvc.perform(get("/api/workflow-definitions/" + workflowDefinitionId + "/nodes")
+                        .header("Authorization", "Bearer " + projectLeaderToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", hasSize(2)));
 
         mockMvc.perform(post("/api/workflow-definitions/" + workflowDefinitionId + "/validate")
                         .header("Authorization", "Bearer " + scienceAdminToken))
@@ -136,13 +147,29 @@ class WorkflowDefinitionIntegrationTest {
     }
 
     @Test
-    void shouldRejectWorkflowDefinitionAccessForDeptAdmin() throws Exception {
+    void shouldAllowOperationalRolesToViewWorkflowDefinitionsButRejectMutation() throws Exception {
         String deptAdminToken = login("diana", "password");
+        String financeAdminToken = login("eve", "password");
 
         mockMvc.perform(get("/api/workflow-definitions").header("Authorization", "Bearer " + deptAdminToken))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/workflow-definitions/assets").header("Authorization", "Bearer " + deptAdminToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/workflow-definitions").header("Authorization", "Bearer " + financeAdminToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/workflow-definitions/upload")
+                        .header("Authorization", "Bearer " + deptAdminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"bpmnXml\":\"<bpmn />\"}"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/api/workflow-definitions/upload")
+                        .header("Authorization", "Bearer " + financeAdminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"bpmnXml\":\"<bpmn />\"}"))
                 .andExpect(status().isForbidden());
     }
 

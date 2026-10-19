@@ -3042,22 +3042,46 @@ p {
 }
 
 .expert-review-decision-card span {
-  color: var(--muted);
+  color: #b8b8b8;
   font-size: 12px;
 }
 
 .expert-review-approve.is-active {
   background: rgba(34, 197, 94, 0.08);
   border-color: rgba(34, 197, 94, 0.45);
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 14px;
+  padding-bottom: 14px;
 }
+
+
 
 .expert-review-approve .el-icon {
   color: #16a34a;
 }
 
+button.expert-review-decision-card.expert-review-reject {
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+button.expert-review-decision-card.expert-review-approve {
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
 .expert-review-reject.is-active {
   background: rgba(239, 68, 68, 0.08);
   border-color: rgba(239, 68, 68, 0.45);
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 14px;
+  padding-bottom: 14px;
 }
 
 .expert-review-reject .el-icon {

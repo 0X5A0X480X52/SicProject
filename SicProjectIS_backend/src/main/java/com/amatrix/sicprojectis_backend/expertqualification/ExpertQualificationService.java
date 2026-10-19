@@ -135,11 +135,12 @@ public class ExpertQualificationService {
         Lookup lookup = buildLookup();
         List<ExpertQualificationApplicationResponse> applications = applicationDao.selectAll().stream()
                 .filter(application -> {
+                    Long applicantDeptId = effectiveApplicantDeptId(application);
                     if (systemAdmin || scienceReviewer) {
                         return true;
                     }
-                    return application.getApplicantDeptId() == null
-                            || (currentDeptId != null && Objects.equals(application.getApplicantDeptId(), currentDeptId));
+                    return applicantDeptId == null
+                            || (currentDeptId != null && Objects.equals(applicantDeptId, currentDeptId));
                 })
                 .sorted(Comparator.comparing(ExpertQualificationApplication::getApplicationId).reversed())
                 .map(application -> toResponse(application, lookup))
@@ -161,7 +162,8 @@ public class ExpertQualificationService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Application is not pending department review");
         }
         Long currentDeptId = currentUserDeptId(currentUser.userId());
-        if (!systemAdmin && (currentDeptId == null || !Objects.equals(currentDeptId, application.getApplicantDeptId()))) {
+        Long applicantDeptId = resolveAndPersistApplicantDeptId(application);
+        if (!systemAdmin && (currentDeptId == null || !Objects.equals(currentDeptId, applicantDeptId))) {
             throw forbidden("You can only review applications from your department");
         }
         ExpertQualificationApplication before = copy(application);
@@ -260,11 +262,12 @@ public class ExpertQualificationService {
     }
 
     private ExpertQualificationApplicationResponse toResponse(ExpertQualificationApplication application, Lookup lookup) {
-        Department department = lookup.departmentById.get(application.getApplicantDeptId());
+        Long applicantDeptId = effectiveApplicantDeptId(application);
+        Department department = lookup.departmentById.get(applicantDeptId);
         return new ExpertQualificationApplicationResponse(
                 application.getApplicationId(),
                 lookup.userById.get(application.getApplicantUserId()),
-                application.getApplicantDeptId(),
+                applicantDeptId,
                 department == null ? null : department.getDeptName(),
                 application.getSpecialty(),
                 application.getProfessionalTitle(),
@@ -280,6 +283,24 @@ public class ExpertQualificationService {
                 application.getScienceReviewedAt(),
                 application.getCreatedAt(),
                 application.getUpdatedAt());
+    }
+
+    private Long resolveAndPersistApplicantDeptId(ExpertQualificationApplication application) {
+        Long applicantDeptId = effectiveApplicantDeptId(application);
+        if (applicantDeptId != null && !Objects.equals(application.getApplicantDeptId(), applicantDeptId)) {
+            application.setApplicantDeptId(applicantDeptId);
+            application.setUpdatedAt(LocalDateTime.now());
+            applicationDao.updateById(application);
+        }
+        return applicantDeptId;
+    }
+
+    private Long effectiveApplicantDeptId(ExpertQualificationApplication application) {
+        AppUser applicant = appUserDao.selectById(application.getApplicantUserId());
+        if (applicant != null) {
+            return applicant.getDeptId();
+        }
+        return application.getApplicantDeptId();
     }
 
     private Lookup buildLookup() {

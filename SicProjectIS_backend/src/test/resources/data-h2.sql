@@ -119,6 +119,9 @@ INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
 VALUES (1, 1, 8);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (39, 1, 16);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
 VALUES (2, 3, 3);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
@@ -162,6 +165,9 @@ VALUES (15, 3, 19);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
 VALUES (16, 4, 8);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (40, 4, 16);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
 VALUES (17, 4, 9);
@@ -228,6 +234,9 @@ VALUES (37, 5, 19);
 
 INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
 VALUES (38, 6, 8);
+
+INSERT INTO `role_permission` (`role_permission_id`, `role_id`, `permission_id`)
+VALUES (41, 6, 16);
 
 INSERT INTO `workflow_definition` (`workflow_definition_id`, `process_key`, `process_name`, `module_type`, `bpmn_xml`, `state_machine_rules_json`, `version_no`, `status`, `created_at`, `updated_at`)
 VALUES (1, 'project_apply', 'Project Application Flow', 'APPLICATION', '<bpmn />', '{"initial":"SUBMITTED"}', 1, 'ACTIVE', TIMESTAMP '2026-01-01 09:15:00', TIMESTAMP '2026-01-01 09:15:00');
